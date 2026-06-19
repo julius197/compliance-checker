@@ -268,13 +268,13 @@
       box-shadow: 0 8px 24px -6px rgba(34,197,94,.5), inset 0 1px 0 rgba(255,255,255,.3);
     }
     .al-btn-primary:hover { transform:translateY(-2px); box-shadow: 0 14px 32px -6px rgba(34,197,94,.65), inset 0 1px 0 rgba(255,255,255,.3); }
-    /* Shimmer über den Primary-Button */
+    /* Shimmer über den Primary-Button - nur beim Hover, nicht automatisch */
     .al-btn-primary::after {
       content:''; position:absolute; top:0; left:-120%; width:70%; height:100%;
       background:linear-gradient(90deg, transparent, rgba(255,255,255,.45), transparent); transform:skewX(-20deg);
-      animation: btnShimmer 3.5s ease-in-out infinite;
+      transition: left .6s ease;
     }
-    @keyframes btnShimmer { 0%,100%{left:-120%} 50%{left:160%} }
+    .al-btn-primary:hover::after { left:160%; }
     .al-btn-ghost {
       color:#E8F5EE; background:rgba(255,255,255,.05); border:1.5px solid rgba(255,255,255,.18); backdrop-filter:blur(4px);
     }
