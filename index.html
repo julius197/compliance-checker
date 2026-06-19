@@ -208,19 +208,79 @@
 
 
     /* AUTOMATI LABS FOOTER / CTA */
-    .al-footer { margin-top:48px; background:var(--ink); border-radius:var(--radius-lg); padding:36px 40px; display:flex; align-items:center; justify-content:space-between; gap:28px; flex-wrap:wrap; box-shadow:var(--shadow-md); }
-    .al-footer-left { flex:1; min-width:260px; }
-    .al-footer-eyebrow { font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--green); font-weight:700; margin-bottom:10px; }
-    .al-footer-title { font-size:24px; font-weight:800; color:#fff; letter-spacing:-.02em; margin-bottom:8px; line-height:1.2; }
-    .al-footer-sub { font-size:14px; color:#A8B5AE; line-height:1.6; }
-    .al-footer-cta { display:flex; flex-direction:column; gap:10px; flex-shrink:0; }
-    .al-btn { display:inline-flex; align-items:center; justify-content:center; gap:9px; padding:14px 26px; border-radius:var(--radius-sm); font-size:14px; font-weight:700; text-decoration:none; transition:background .15s, transform .1s; white-space:nowrap; }
-    .al-btn-primary { background:var(--green); color:#fff; }
-    .al-btn-primary:hover { background:var(--green-d); transform:translateY(-1px); }
-    .al-btn-ghost { background:transparent; color:#fff; border:1.5px solid rgba(255,255,255,.25); }
-    .al-btn-ghost:hover { border-color:var(--green); color:var(--green); }
+.al-footer {
+      position:relative; margin-top:56px; border-radius:24px; padding:52px 48px; overflow:hidden;
+      background:
+        radial-gradient(120% 140% at 0% 0%, #0F2A1E 0%, transparent 50%),
+        radial-gradient(120% 140% at 100% 100%, #103024 0%, transparent 55%),
+        linear-gradient(135deg, #0A1611 0%, #0d1f17 50%, #0A1611 100%);
+      box-shadow: 0 24px 70px -20px rgba(8,20,14,.6), inset 0 1px 0 rgba(255,255,255,.04);
+      display:flex; align-items:center; justify-content:space-between; gap:36px; flex-wrap:wrap;
+      border:1px solid rgba(34,197,94,.15);
+    }
+    /* Animierte Aurora im Hintergrund */
+    .al-footer::before {
+      content:''; position:absolute; inset:-50%; z-index:0; pointer-events:none;
+      background:
+        radial-gradient(circle at 30% 40%, rgba(34,197,94,.18) 0%, transparent 35%),
+        radial-gradient(circle at 70% 60%, rgba(22,163,74,.14) 0%, transparent 40%);
+      filter:blur(20px);
+      animation: auroraMove 12s ease-in-out infinite;
+    }
+    @keyframes auroraMove {
+      0%,100% { transform:translate(0,0) rotate(0deg); }
+      33% { transform:translate(6%,-4%) rotate(4deg); }
+      66% { transform:translate(-4%,5%) rotate(-3deg); }
+    }
+    /* Dezentes Grid-Muster */
+    .al-footer::after {
+      content:''; position:absolute; inset:0; z-index:0; pointer-events:none; opacity:.4;
+      background-image:
+        linear-gradient(rgba(34,197,94,.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(34,197,94,.04) 1px, transparent 1px);
+      background-size:32px 32px;
+      mask-image: radial-gradient(circle at 70% 50%, black 0%, transparent 70%);
+      -webkit-mask-image: radial-gradient(circle at 70% 50%, black 0%, transparent 70%);
+    }
+    .al-footer-left { position:relative; z-index:1; flex:1; min-width:280px; }
+    .al-footer-badge {
+      display:inline-flex; align-items:center; gap:7px; font-size:11px; letter-spacing:.12em; text-transform:uppercase;
+      color:#5EEAD4; font-weight:700; margin-bottom:18px;
+      background:rgba(34,197,94,.1); border:1px solid rgba(34,197,94,.25); border-radius:20px; padding:6px 14px;
+    }
+    .al-footer-badge .pulse-dot { width:7px; height:7px; border-radius:50%; background:#22C55E; box-shadow:0 0 0 0 rgba(34,197,94,.6); animation:pulseDot 2s infinite; }
+    @keyframes pulseDot { 0%{box-shadow:0 0 0 0 rgba(34,197,94,.6)} 70%{box-shadow:0 0 0 8px rgba(34,197,94,0)} 100%{box-shadow:0 0 0 0 rgba(34,197,94,0)} }
+    .al-footer-title {
+      font-size:32px; font-weight:800; letter-spacing:-.03em; line-height:1.12; margin-bottom:14px;
+      background:linear-gradient(120deg, #ffffff 0%, #ffffff 40%, #5EEAD4 75%, #22C55E 100%);
+      -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; color:transparent;
+    }
+    .al-footer-sub { font-size:15px; color:#9CB3A8; line-height:1.65; max-width:520px; }
+    .al-footer-cta { position:relative; z-index:1; display:flex; flex-direction:column; gap:12px; flex-shrink:0; }
+    .al-btn {
+      display:inline-flex; align-items:center; justify-content:center; gap:10px; padding:16px 30px; border-radius:14px;
+      font-size:15px; font-weight:700; text-decoration:none; white-space:nowrap; position:relative; overflow:hidden;
+      transition: transform .2s cubic-bezier(.16,1,.3,1), box-shadow .25s ease;
+    }
+    .al-btn-primary {
+      color:#06251A;
+      background:linear-gradient(135deg, #4ADE80 0%, #22C55E 50%, #16A34A 100%);
+      box-shadow: 0 8px 24px -6px rgba(34,197,94,.5), inset 0 1px 0 rgba(255,255,255,.3);
+    }
+    .al-btn-primary:hover { transform:translateY(-2px); box-shadow: 0 14px 32px -6px rgba(34,197,94,.65), inset 0 1px 0 rgba(255,255,255,.3); }
+    /* Shimmer über den Primary-Button */
+    .al-btn-primary::after {
+      content:''; position:absolute; top:0; left:-120%; width:70%; height:100%;
+      background:linear-gradient(90deg, transparent, rgba(255,255,255,.45), transparent); transform:skewX(-20deg);
+      animation: btnShimmer 3.5s ease-in-out infinite;
+    }
+    @keyframes btnShimmer { 0%,100%{left:-120%} 50%{left:160%} }
+    .al-btn-ghost {
+      color:#E8F5EE; background:rgba(255,255,255,.05); border:1.5px solid rgba(255,255,255,.18); backdrop-filter:blur(4px);
+    }
+    .al-btn-ghost:hover { border-color:#22C55E; color:#5EEAD4; background:rgba(34,197,94,.08); transform:translateY(-2px); }
     @media print { .al-footer { display:none !important; } }
-    @media(max-width:640px){ .al-footer { flex-direction:column; align-items:flex-start; } .al-footer-cta { width:100%; } .al-btn { width:100%; } }
+    @media(max-width:640px){ .al-footer { flex-direction:column; align-items:flex-start; padding:36px 28px; } .al-footer-cta { width:100%; } .al-btn { width:100%; } .al-footer-title { font-size:26px; } } }
 
     /* LOGIN OVERLAY */
     #authGate { position:fixed; inset:0; background:var(--bg); z-index:9999; display:flex; align-items:center; justify-content:center; padding:24px; }
@@ -430,18 +490,18 @@
 
   <div class="al-footer">
     <div class="al-footer-left">
-      <div class="al-footer-eyebrow">Powered by Automati Labs</div>
-      <div class="al-footer-title">Brauchen Sie Automatisierungen für Ihr Unternehmen?</div>
-      <div class="al-footer-sub">Automati Labs entwickelt KI-Lösungen, Premium-Webdesign und individuelle Software – wie diesen Compliance-Checker. Lassen Sie sich kostenlos beraten.</div>
+      <div class="al-footer-badge"><span class="pulse-dot"></span>Automati Labs · KI & Software</div>
+      <div class="al-footer-title">Dieses Tool wurde von Automati Labs gebaut.<br>Was dürfen wir für Sie entwickeln?</div>
+      <div class="al-footer-sub">Maßgeschneiderte KI-Lösungen, intelligente Automatisierungen und Premium-Software – entwickelt für Unternehmen die vorausdenken. Genau wie dieser Compliance-Checker. Kostenlose Erstberatung.</div>
     </div>
     <div class="al-footer-cta">
-      <a class="al-btn al-btn-primary" href="https://automatilabs.de" target="_blank" rel="noopener">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12h20M12 2a15 15 0 0 1 0 20 15 15 0 0 1 0-20z"/><circle cx="12" cy="12" r="10"/></svg>
-        Website besuchen
+      <a class="al-btn al-btn-primary" href="https://automatilabs.de/kontakt" target="_blank" rel="noopener">
+        Projekt anfragen
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
       </a>
-      <a class="al-btn al-btn-ghost" href="https://automatilabs.de/kontakt" target="_blank" rel="noopener">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4z" fill="none"/><path d="M22 6l-10 7L2 6"/></svg>
-        Kontakt aufnehmen
+      <a class="al-btn al-btn-ghost" href="https://automatilabs.de" target="_blank" rel="noopener">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20 15 15 0 0 1 0-20z"/></svg>
+        Website ansehen
       </a>
     </div>
   </div>
