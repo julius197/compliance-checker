@@ -122,6 +122,8 @@
     .kv-src { display:block; font-size:9px; color:var(--gray-l); letter-spacing:.04em; text-transform:uppercase; margin-top:3px; font-weight:600; }
     .kv-src-link { color:var(--green-d); cursor:pointer; text-decoration:none; transition:color .15s; }
     .kv-src-link:hover { color:var(--green-dd); text-decoration:underline; }
+    .kv-src-plain { color:var(--gray-l); }
+    .kv-src-sep { color:var(--gray-l); }
 
     /* PHANTOM */
     .phantom-card { background:var(--bad-bg); border:1.5px solid #FCA5A5; border-radius:var(--radius-lg); padding:24px; margin-bottom:14px; box-shadow:var(--shadow); }
@@ -781,10 +783,13 @@ KRITISCHE REGELN:
 
 5. socialMedia-Feld: gefundene Plattformen mit Namen, z.B. "LinkedIn, Instagram" – sonst "N/A"
 
-5b. QUELLEN-LINK (sourceUrl) - OPTIONAL pro Feld:
-   - Wenn du eine Information von einer KONKRETEN, ECHTEN Webseite hast deren genaue URL du KENNST (z.B. die exakte North-Data-Seite dieser Firma, die VIES-Bestätigung, ein konkreter Handelsregister-Eintrag, ein konkreter Presseartikel), dann füge dem Feld zusätzlich "sourceUrl":"https://..." mit der EXAKTEN URL hinzu.
-   - NUR echte, vollständige URLs die du tatsächlich aus den Suchergebnissen/Daten hast. Rate NIEMALS eine URL und erfinde keine. Im Zweifel KEIN sourceUrl-Feld (dann bleibt die Quelle einfach normaler Text).
-   - Beispiel: {"key":"Gegründet","value":"2015","status":"neutral","source":"North Data","sourceUrl":"https://www.northdata.de/Musterfirma+GmbH,+Berlin/HRB12345"}
+5b. QUELLEN-LINKS (sources) - pro Feld:
+   - Gib bei jedem Feld die Quellen als LISTE an, im Feld "sources". Jede einzelne Quelle ist ein eigenes Objekt mit "name" und optional "url".
+   - Format: "sources":[{"name":"North Data","url":"https://..."},{"name":"Impressum","url":"https://..."}]
+   - Gib bei jeder Quelle die EXAKTE, ECHTE URL an die du tatsächlich aus den Suchergebnissen/Daten hast (z.B. die konkrete North-Data-Seite dieser Firma, die konkrete Impressum-Seite, der konkrete Presseartikel).
+   - Wenn du für eine bestimmte Quelle KEINE echte URL kennst, lass bei DIESER Quelle "url" weg (dann wird nur ihr Name als Text gezeigt). Rate NIEMALS eine URL.
+   - Beispiel: {"key":"Gegründet","value":"2015","status":"neutral","sources":[{"name":"North Data","url":"https://www.northdata.de/Musterfirma+GmbH/HRB12345"},{"name":"Impressum","url":"https://musterfirma.de/impressum"}]}
+   - WICHTIG: Behalte zusätzlich das alte Feld "source" (kommagetrennte Namen als Text) für Abwärtskompatibilität bei, falls du keine sources-Liste bildest.
 
 6. SPRACHE & ROLLE DES TOOLS (SEHR WICHTIG - RECHTLICH RELEVANT):
    Dieses Tool ist ein HILFSMITTEL zur Sorgfaltsprüfung. Es entscheidet NIEMALS, ob ein Geschäft gemacht werden soll – das entscheiden immer die Menschen. 
@@ -942,11 +947,26 @@ function secCard(title, data, weight) {
     const na = isNA(f.value);
     const cls = na ? 'na' : (f.status==='neutral'?'':f.status);
     const val = na ? 'N/A' : f.value;
-    const src = (!na && f.source && !isNA(f.source))
-      ? (f.sourceUrl && f.sourceUrl.startsWith('http')
-          ? `<a class="kv-src kv-src-link" href="${f.sourceUrl}" target="_blank" rel="noopener" title="Quelle öffnen: ${f.source}">${f.source} ↗</a>`
-          : `<span class="kv-src">${f.source}</span>`)
-      : '';
+    let src = '';
+    if (!na) {
+      // Neue Variante: sources-Liste (jede Quelle einzeln anklickbar)
+      if (Array.isArray(f.sources) && f.sources.length > 0) {
+        const parts = f.sources
+          .filter(s => s && s.name && !isNA(s.name))
+          .map(s => (s.url && s.url.startsWith('http'))
+            ? `<a class="kv-src-link" href="${s.url}" target="_blank" rel="noopener" title="Quelle öffnen: ${s.name}">${s.name} ↗</a>`
+            : `<span class="kv-src-plain">${s.name}</span>`);
+        if (parts.length) src = `<span class="kv-src">${parts.join('<span class="kv-src-sep"> · </span>')}</span>`;
+      }
+      // Fallback: altes source-Feld (kommagetrennt) – jede einzeln als Text, ganzes Feld als Link wenn sourceUrl da
+      else if (f.source && !isNA(f.source)) {
+        if (f.sourceUrl && f.sourceUrl.startsWith('http')) {
+          src = `<a class="kv-src kv-src-link" href="${f.sourceUrl}" target="_blank" rel="noopener" title="Quelle öffnen: ${f.source}">${f.source} ↗</a>`;
+        } else {
+          src = `<span class="kv-src">${f.source}</span>`;
+        }
+      }
+    }
     return `<div class="kv">
       <span class="kv-k">${f.key}</span>
       <span class="kv-v ${cls}">${val}${src}</span>
