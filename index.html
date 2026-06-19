@@ -120,6 +120,8 @@
     .kv-v.bad  { color:var(--bad-text); }
     .kv-v.na   { color:var(--gray-l); font-weight:400; font-style:italic; }
     .kv-src { display:block; font-size:9px; color:var(--gray-l); letter-spacing:.04em; text-transform:uppercase; margin-top:3px; font-weight:600; }
+    .kv-src-link { color:var(--green-d); cursor:pointer; text-decoration:none; transition:color .15s; }
+    .kv-src-link:hover { color:var(--green-dd); text-decoration:underline; }
 
     /* PHANTOM */
     .phantom-card { background:var(--bad-bg); border:1.5px solid #FCA5A5; border-radius:var(--radius-lg); padding:24px; margin-bottom:14px; box-shadow:var(--shadow); }
@@ -258,9 +260,21 @@
     /* Such-Karte */
     .search-card { animation: fadeInUp .5s cubic-bezier(.16,1,.3,1); }
 
-    /* Scroll-Animationen: Elemente starten unsichtbar, animieren beim Reinscrollen */
-    .reveal { opacity:0; transform:translateY(24px); transition: opacity .8s cubic-bezier(.16,1,.3,1), transform .8s cubic-bezier(.16,1,.3,1); }
-    .reveal.in-view { opacity:1; transform:translateY(0); }
+    /* Scroll-Animationen: edel, mit Tiefe & Blur */
+    .reveal { opacity:0; transform:translateY(32px) scale(.98); filter:blur(6px); transition: opacity .9s cubic-bezier(.16,1,.3,1), transform .9s cubic-bezier(.16,1,.3,1), filter .9s cubic-bezier(.16,1,.3,1); }
+    .reveal.in-view { opacity:1; transform:translateY(0) scale(1); filter:blur(0); }
+    /* Daten-Zeilen innerhalb einer Karte erscheinen gestaffelt nacheinander */
+    .reveal.in-view .kv { animation: kvSlide .6s cubic-bezier(.16,1,.3,1) both; }
+    .reveal.in-view .kv:nth-child(1){animation-delay:.15s} .reveal.in-view .kv:nth-child(2){animation-delay:.22s}
+    .reveal.in-view .kv:nth-child(3){animation-delay:.29s} .reveal.in-view .kv:nth-child(4){animation-delay:.36s}
+    .reveal.in-view .kv:nth-child(5){animation-delay:.43s} .reveal.in-view .kv:nth-child(6){animation-delay:.50s}
+    .reveal.in-view .kv:nth-child(7){animation-delay:.57s}
+    @keyframes kvSlide { from { opacity:0; transform:translateX(-8px); } to { opacity:1; transform:translateX(0); } }
+    /* Kontakt-Kärtchen gestaffelt */
+    .reveal.in-view .cc { animation: kvSlide .55s cubic-bezier(.16,1,.3,1) both; }
+    .reveal.in-view .cc:nth-child(1){animation-delay:.15s} .reveal.in-view .cc:nth-child(2){animation-delay:.22s}
+    .reveal.in-view .cc:nth-child(3){animation-delay:.29s} .reveal.in-view .cc:nth-child(4){animation-delay:.36s}
+    .reveal.in-view .cc:nth-child(5){animation-delay:.43s}
     /* Das erste Element (Banner/Top) darf sofort kommen da meist schon sichtbar */
     .report.active .data-banner { animation: fadeInUp .7s cubic-bezier(.16,1,.3,1) both; }
     .report.active .report-top { animation: fadeInUp .75s cubic-bezier(.16,1,.3,1) .08s both; }
@@ -286,12 +300,31 @@
 
     /* Verdict-Badge pulst kurz beim Erscheinen */
     @keyframes badgePop { 0% { transform:scale(.8); opacity:0; } 60% { transform:scale(1.05); } 100% { transform:scale(1); opacity:1; } }
-    .report.active .verdict { animation: badgePop .7s cubic-bezier(.16,1,.3,1) .35s both; }
+    .report.active .verdict { animation: badgeGlow .9s cubic-bezier(.16,1,.3,1) .4s both; }
 
     /* Sanftes Reduzieren für Leute die keine Animationen mögen (Barrierefreiheit) */
     @media (prefers-reduced-motion: reduce) {
       * { animation: none !important; transition: none !important; }
     }
+
+    /* Score-Karte: sanfter Glow wenn sie erscheint */
+    .score-card.reveal.in-view { animation: cardGlow 1.8s ease .3s; }
+    @keyframes cardGlow {
+      0% { box-shadow: var(--shadow-md); }
+      40% { box-shadow: 0 0 0 1px var(--green-pale), 0 8px 40px -8px rgba(34,197,94,.35); }
+      100% { box-shadow: var(--shadow-md); }
+    }
+    /* Gauge-SVG dreht sich beim Erscheinen sanft mit ein */
+    .score-card.reveal.in-view .gauge-svg { animation: gaugeSpin 1.6s cubic-bezier(.16,1,.3,1); }
+    @keyframes gaugeSpin { from { transform:rotate(-90deg) scale(.85); opacity:.4; } to { transform:rotate(0) scale(1); opacity:1; } }
+    /* Verdict-Badge mit sanftem Glow-Puls */
+    @keyframes badgeGlow { 0%{transform:scale(.85);opacity:0;box-shadow:0 0 0 0 rgba(34,197,94,.4)} 50%{transform:scale(1.04)} 100%{transform:scale(1);opacity:1;box-shadow:0 0 0 0 rgba(34,197,94,0)} }
+    /* Buttons: edler Shimmer beim Hover */
+    .btn-search { position:relative; overflow:hidden; }
+    .btn-search::after { content:''; position:absolute; top:0; left:-100%; width:60%; height:100%; background:linear-gradient(90deg, transparent, rgba(255,255,255,.25), transparent); transition:left .6s ease; }
+    .btn-search:hover::after { left:130%; }
+    /* Karten-Hover edler: mehr Lift + sanfter Schatten */
+    .sec-card:hover, .contact-card:hover, .flags-card:hover { transform: translateY(-3px); box-shadow: 0 12px 32px -12px rgba(16,24,40,.2); }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -590,6 +623,7 @@ async function runAnalysis(name, ust, land) {
     const claudeRes = await workerCall('analyze', {
       model: 'claude-opus-4-5',
       max_tokens: 3000,
+      temperature: 0,
       tools: [{ type: 'web_search_20250305', name: 'web_search', max_uses: 5 }],
       messages: [{ role: 'user', content: prompt }]
     });
@@ -718,6 +752,12 @@ KRITISCHE REGELN:
 1. Daten von Google/VIES/Registern sind echt – übernimm sie exakt
 2. Erfinde NIEMALS Daten – bei Unsicherheit IMMER "N/A"
 
+2b. KONSISTENZ & EINHEITLICHE BEGRIFFE (SEHR WICHTIG):
+   - Für fehlende/nicht auffindbare Informationen verwende AUSSCHLIESSLICH den exakten Text "N/A". NIEMALS Varianten wie "nicht vorhanden", "nicht gefunden", "nicht verfügbar", "unbekannt", "keine Angabe", "-" oder Ähnliches. IMMER nur "N/A".
+   - Bewerte Fakten IMMER nach denselben objektiven Kriterien, unabhängig vom Zeitpunkt. Dieselbe Firma mit denselben verfügbaren Daten MUSS immer denselben Score und dieselben Feldwerte ergeben. Sei deterministisch und reproduzierbar.
+   - Runde Scores auf ganze Zahlen. Verwende klare Schwellen statt "Bauchgefühl": vorhanden & positiv = hoher Wert, vorhanden & neutral = mittlerer Wert, echtes Negativsignal = niedriger Wert.
+   - Formuliere Feldwerte knapp und einheitlich (z.B. immer "GmbH" statt mal "Gesellschaft mit beschränkter Haftung").
+
 3. REPUTATION - NUR SERIÖSE QUELLEN:
    Verwende für Reputation NUR offizielle, seriöse Quellen, NICHT Google- oder Facebook-Bewertungen (dort kann jeder schreiben).
    Erlaubte Reputations-Quellen:
@@ -740,6 +780,11 @@ KRITISCHE REGELN:
    MERKE: N/A bedeutet "keine Information" – das ist NEUTRAL, niemals negativ. Eine Firma mit top Registerstatus und sauberer Presse soll bei Reputation ~90 haben, auch wenn Trustpilot fehlt.
 
 5. socialMedia-Feld: gefundene Plattformen mit Namen, z.B. "LinkedIn, Instagram" – sonst "N/A"
+
+5b. QUELLEN-LINK (sourceUrl) - OPTIONAL pro Feld:
+   - Wenn du eine Information von einer KONKRETEN, ECHTEN Webseite hast deren genaue URL du KENNST (z.B. die exakte North-Data-Seite dieser Firma, die VIES-Bestätigung, ein konkreter Handelsregister-Eintrag, ein konkreter Presseartikel), dann füge dem Feld zusätzlich "sourceUrl":"https://..." mit der EXAKTEN URL hinzu.
+   - NUR echte, vollständige URLs die du tatsächlich aus den Suchergebnissen/Daten hast. Rate NIEMALS eine URL und erfinde keine. Im Zweifel KEIN sourceUrl-Feld (dann bleibt die Quelle einfach normaler Text).
+   - Beispiel: {"key":"Gegründet","value":"2015","status":"neutral","source":"North Data","sourceUrl":"https://www.northdata.de/Musterfirma+GmbH,+Berlin/HRB12345"}
 
 6. SPRACHE & ROLLE DES TOOLS (SEHR WICHTIG - RECHTLICH RELEVANT):
    Dieses Tool ist ein HILFSMITTEL zur Sorgfaltsprüfung. Es entscheidet NIEMALS, ob ein Geschäft gemacht werden soll – das entscheiden immer die Menschen. 
@@ -898,7 +943,10 @@ function secCard(title, data, weight) {
     const cls = na ? 'na' : (f.status==='neutral'?'':f.status);
     const val = na ? 'N/A' : f.value;
     const src = (!na && f.source && !isNA(f.source))
-      ? `<span class="kv-src">${f.source}</span>` : '';
+      ? (f.sourceUrl && f.sourceUrl.startsWith('http')
+          ? `<a class="kv-src kv-src-link" href="${f.sourceUrl}" target="_blank" rel="noopener" title="Quelle öffnen: ${f.source}">${f.source} ↗</a>`
+          : `<span class="kv-src">${f.source}</span>`)
+      : '';
     return `<div class="kv">
       <span class="kv-k">${f.key}</span>
       <span class="kv-v ${cls}">${val}${src}</span>
