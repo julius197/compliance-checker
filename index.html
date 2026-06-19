@@ -258,20 +258,12 @@
     /* Such-Karte */
     .search-card { animation: fadeInUp .5s cubic-bezier(.16,1,.3,1); }
 
-    /* Report-Elemente nacheinander einblenden (staggered) */
-    .report.active .data-banner { animation: fadeInUp .45s cubic-bezier(.16,1,.3,1) both; }
-    .report.active .report-top { animation: fadeInUp .5s cubic-bezier(.16,1,.3,1) .05s both; }
-    .report.active .score-card { animation: fadeInUp .5s cubic-bezier(.16,1,.3,1) .12s both; }
-    .report.active .grid4 > * { animation: fadeInUp .5s cubic-bezier(.16,1,.3,1) both; }
-    .report.active .grid4 > *:nth-child(1) { animation-delay:.18s; }
-    .report.active .grid4 > *:nth-child(2) { animation-delay:.24s; }
-    .report.active .grid4 > *:nth-child(3) { animation-delay:.30s; }
-    .report.active .grid4 > *:nth-child(4) { animation-delay:.36s; }
-    .report.active .phantom-card { animation: fadeInUp .5s cubic-bezier(.16,1,.3,1) .4s both; }
-    .report.active .contact-card { animation: fadeInUp .5s cubic-bezier(.16,1,.3,1) .42s both; }
-    .report.active .flags-card { animation: fadeInUp .5s cubic-bezier(.16,1,.3,1) .48s both; }
-    .report.active .rec-card { animation: fadeInUp .5s cubic-bezier(.16,1,.3,1) .54s both; }
-    .report.active .actions { animation: fadeIn .6s ease .6s both; }
+    /* Scroll-Animationen: Elemente starten unsichtbar, animieren beim Reinscrollen */
+    .reveal { opacity:0; transform:translateY(24px); transition: opacity .8s cubic-bezier(.16,1,.3,1), transform .8s cubic-bezier(.16,1,.3,1); }
+    .reveal.in-view { opacity:1; transform:translateY(0); }
+    /* Das erste Element (Banner/Top) darf sofort kommen da meist schon sichtbar */
+    .report.active .data-banner { animation: fadeInUp .7s cubic-bezier(.16,1,.3,1) both; }
+    .report.active .report-top { animation: fadeInUp .75s cubic-bezier(.16,1,.3,1) .08s both; }
 
     /* Karten heben sich beim Hover leicht an */
     .sec-card, .contact-card, .flags-card { transition: transform .2s cubic-bezier(.16,1,.3,1), box-shadow .2s ease; }
@@ -294,7 +286,7 @@
 
     /* Verdict-Badge pulst kurz beim Erscheinen */
     @keyframes badgePop { 0% { transform:scale(.8); opacity:0; } 60% { transform:scale(1.05); } 100% { transform:scale(1); opacity:1; } }
-    .report.active .verdict { animation: badgePop .5s cubic-bezier(.16,1,.3,1) .25s both; }
+    .report.active .verdict { animation: badgePop .7s cubic-bezier(.16,1,.3,1) .35s both; }
 
     /* Sanftes Reduzieren für Leute die keine Animationen mögen (Barrierefreiheit) */
     @media (prefers-reduced-motion: reduce) {
@@ -932,7 +924,7 @@ function phantomHTML(d) {
       <span class="phantom-indiz-text">${ind.text}${src}</span>
     </div>`;
   }).join('');
-  return `<div class="phantom-card">
+  return `<div class="phantom-card reveal">
     <div class="phantom-header">
       <div class="phantom-icon">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M12 9v4m0 4h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
@@ -1025,7 +1017,7 @@ function showReport(d, rawName) {
       </div>
       <span class="verdict ${d.verdict}">${vIcon2} ${d.verdictText}</span>
     </div>
-    <div class="score-card">
+    <div class="score-card reveal">
       <div class="gauge-wrap">${gauge(d.gesamtScore)}<div class="gauge-num"><span class="gauge-num-val" style="color:${d.gesamtScore?scC(d.gesamtScore):'var(--gray-l)'}">${d.gesamtScore||'N/A'}</span><span class="gauge-num-label">${d.gesamtScore?'/ 100':''}</span></div></div>
       <div class="score-right">
         <div class="score-title">Gesamt-Vertrauens-Score</div>
@@ -1033,14 +1025,14 @@ function showReport(d, rawName) {
         <div class="score-desc">${d.empfehlung.split('.')[0]}.</div>
       </div>
     </div>
-    <div class="grid4">
+    <div class="grid4 reveal">
       ${secCard('Grunddaten', d.grunddaten, '30%')}
       ${secCard('Finanzen', d.finanzen, '25%')}
       ${secCard('Reputation', d.reputation, '20%')}
       ${secCard('Personen', d.personen, '15%')}
     </div>
     ${phantomHTML(d)}
-    <div class="contact-card">
+    <div class="contact-card reveal">
       <div class="contact-header">
         <div class="sec-title">${catIcon('Kontakt & Online')}Kontaktdaten & Online-Präsenz<span class="sec-weight">10%</span></div>
         ${miniScore(d.kontakt.score)}
@@ -1054,15 +1046,15 @@ function showReport(d, rawName) {
       </div>
       ${d.kontakt.source && !isNA(d.kontakt.source) ? `<div style="margin-top:10px;font-size:8px;letter-spacing:.08em;text-transform:uppercase;color:var(--gray-l)">Quelle: ${d.kontakt.source}</div>` : ''}
     </div>
-    <div class="flags-card">
+    <div class="flags-card reveal">
       <div class="flags-heading"><span class="sec-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4m0 4h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg></span>Risiko-Hinweise</div>
       ${flagsHTML}
     </div>
-    <div class="rec-card">
+    <div class="rec-card reveal">
       <div class="rec-label">Compliance-Empfehlung</div>
       <div class="rec-text">${d.empfehlung}</div>
     </div>
-    <div class="actions">
+    <div class="actions reveal">
       <button class="btn-action primary" onclick="window.print()">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
         Drucken / PDF
@@ -1075,7 +1067,29 @@ function showReport(d, rawName) {
 
   document.getElementById('report').classList.add('active');
 
-  // Score-Gauge animiert hochzählen + Kreis füllen
+  // Scroll-Reveal: Karten animieren wenn sie ins Sichtfeld kommen
+  const revealEls = document.querySelectorAll('.report .reveal');
+  if ('IntersectionObserver' in window) {
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('in-view');
+          obs.unobserve(entry.target); // nur einmal animieren
+        }
+      });
+    }, { threshold: 0.15, rootMargin: '0px 0px -60px 0px' });
+    revealEls.forEach(el => obs.observe(el));
+    // Elemente die schon beim Laden sichtbar sind sofort zeigen
+    setTimeout(() => {
+      revealEls.forEach(el => {
+        const rect = el.getBoundingClientRect();
+        if (rect.top < window.innerHeight) el.classList.add('in-view');
+      });
+    }, 100);
+  } else {
+    // Fallback: alle sofort zeigen
+    revealEls.forEach(el => el.classList.add('in-view'));
+  }
   if (d.gesamtScore !== null && d.gesamtScore !== undefined && !isNaN(d.gesamtScore)) {
     const target = parseInt(d.gesamtScore);
     const numEl = document.querySelector('.gauge-num-val');
@@ -1091,7 +1105,7 @@ function showReport(d, rawName) {
       fillEl.setAttribute('stroke-dasharray', '0 ' + circ);
       // dann animiert füllen
       setTimeout(() => {
-        fillEl.style.transition = 'stroke-dasharray 1.1s cubic-bezier(.16,1,.3,1)';
+        fillEl.style.transition = 'stroke-dasharray 1.6s cubic-bezier(.16,1,.3,1)';
         fillEl.setAttribute('stroke-dasharray', filled + ' ' + circ);
       }, 300);
     }
@@ -1099,11 +1113,11 @@ function showReport(d, rawName) {
     if (barEl) {
       barEl.style.transition = 'none';
       barEl.style.width = '0%';
-      setTimeout(()=>{ barEl.style.transition='width 1.1s cubic-bezier(.16,1,.3,1)'; barEl.style.width = target + '%'; }, 300);
+      setTimeout(()=>{ barEl.style.transition='width 1.6s cubic-bezier(.16,1,.3,1)'; barEl.style.width = target + '%'; }, 300);
     }
     // Zahl hochzählen
     if (numEl) {
-      const dur = 1100, start = performance.now();
+      const dur = 1600, start = performance.now();
       const tick = (now) => {
         const p = Math.min((now - start) / dur, 1);
         const eased = 1 - Math.pow(1 - p, 3);
