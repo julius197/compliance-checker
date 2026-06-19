@@ -241,6 +241,65 @@
     .auth-msg.success { background:var(--green-tint); color:var(--green-dd); }
     .logout-btn { font-size:12px; font-weight:600; color:var(--gray); background:none; border:1px solid var(--border); border-radius:20px; padding:6px 14px; cursor:pointer; transition:all .15s; }
     .logout-btn:hover { border-color:var(--bad); color:var(--bad-text); }
+
+    /* ===== ANIMATIONEN (dezent & edel) ===== */
+    @keyframes fadeInUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+    @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+    @keyframes scaleIn { from { opacity:0; transform:scale(.96); } to { opacity:1; transform:scale(1); } }
+    @keyframes slideDown { from { opacity:0; transform:translateY(-10px); } to { opacity:1; transform:translateY(0); } }
+
+    /* Login-Karte fährt sanft ein */
+    .auth-card { animation: scaleIn .5s cubic-bezier(.16,1,.3,1); }
+    .auth-logo { animation: fadeIn .8s ease .1s both; }
+
+    /* Header beim Laden */
+    .header { animation: slideDown .5s cubic-bezier(.16,1,.3,1); }
+
+    /* Such-Karte */
+    .search-card { animation: fadeInUp .5s cubic-bezier(.16,1,.3,1); }
+
+    /* Report-Elemente nacheinander einblenden (staggered) */
+    .report.active .data-banner { animation: fadeInUp .45s cubic-bezier(.16,1,.3,1) both; }
+    .report.active .report-top { animation: fadeInUp .5s cubic-bezier(.16,1,.3,1) .05s both; }
+    .report.active .score-card { animation: fadeInUp .5s cubic-bezier(.16,1,.3,1) .12s both; }
+    .report.active .grid4 > * { animation: fadeInUp .5s cubic-bezier(.16,1,.3,1) both; }
+    .report.active .grid4 > *:nth-child(1) { animation-delay:.18s; }
+    .report.active .grid4 > *:nth-child(2) { animation-delay:.24s; }
+    .report.active .grid4 > *:nth-child(3) { animation-delay:.30s; }
+    .report.active .grid4 > *:nth-child(4) { animation-delay:.36s; }
+    .report.active .phantom-card { animation: fadeInUp .5s cubic-bezier(.16,1,.3,1) .4s both; }
+    .report.active .contact-card { animation: fadeInUp .5s cubic-bezier(.16,1,.3,1) .42s both; }
+    .report.active .flags-card { animation: fadeInUp .5s cubic-bezier(.16,1,.3,1) .48s both; }
+    .report.active .rec-card { animation: fadeInUp .5s cubic-bezier(.16,1,.3,1) .54s both; }
+    .report.active .actions { animation: fadeIn .6s ease .6s both; }
+
+    /* Karten heben sich beim Hover leicht an */
+    .sec-card, .contact-card, .flags-card { transition: transform .2s cubic-bezier(.16,1,.3,1), box-shadow .2s ease; }
+    .sec-card:hover, .contact-card:hover, .flags-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+
+    /* Kontakt-Kärtchen Hover */
+    .cc { transition: transform .15s ease, background .15s ease; }
+    .cc:hover { transform: translateY(-1px); }
+
+    /* Buttons smoother */
+    .btn-search:hover { transform: translateY(-1px); }
+    .auth-btn { transition: background .15s, transform .1s; }
+    .auth-btn:hover:not(:disabled) { transform: translateY(-1px); }
+
+    /* Eingabefelder beim Fokus sanft */
+    input[type=text], select#landInput, .auth-input { transition: border-color .2s, box-shadow .2s, transform .1s; }
+
+    /* Loading-Spinner Karte */
+    .loading.active { animation: scaleIn .4s cubic-bezier(.16,1,.3,1); }
+
+    /* Verdict-Badge pulst kurz beim Erscheinen */
+    @keyframes badgePop { 0% { transform:scale(.8); opacity:0; } 60% { transform:scale(1.05); } 100% { transform:scale(1); opacity:1; } }
+    .report.active .verdict { animation: badgePop .5s cubic-bezier(.16,1,.3,1) .25s both; }
+
+    /* Sanftes Reduzieren für Leute die keine Animationen mögen (Barrierefreiheit) */
+    @media (prefers-reduced-motion: reduce) {
+      * { animation: none !important; transition: none !important; }
+    }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -1015,6 +1074,46 @@ function showReport(d, rawName) {
     </div>`;
 
   document.getElementById('report').classList.add('active');
+
+  // Score-Gauge animiert hochzählen + Kreis füllen
+  if (d.gesamtScore !== null && d.gesamtScore !== undefined && !isNaN(d.gesamtScore)) {
+    const target = parseInt(d.gesamtScore);
+    const numEl = document.querySelector('.gauge-num-val');
+    const fillEl = document.querySelector('.gauge-fill');
+    const barEl = document.querySelector('.bar-fill');
+    // Kreis füllen (Radius 44 wie in gauge())
+    if (fillEl) {
+      const r = parseFloat(fillEl.getAttribute('r')) || 44;
+      const circ = 2 * Math.PI * r;
+      const filled = circ * target / 100;
+      // Start: leer
+      fillEl.style.transition = 'none';
+      fillEl.setAttribute('stroke-dasharray', '0 ' + circ);
+      // dann animiert füllen
+      setTimeout(() => {
+        fillEl.style.transition = 'stroke-dasharray 1.1s cubic-bezier(.16,1,.3,1)';
+        fillEl.setAttribute('stroke-dasharray', filled + ' ' + circ);
+      }, 300);
+    }
+    // Bar füllen
+    if (barEl) {
+      barEl.style.transition = 'none';
+      barEl.style.width = '0%';
+      setTimeout(()=>{ barEl.style.transition='width 1.1s cubic-bezier(.16,1,.3,1)'; barEl.style.width = target + '%'; }, 300);
+    }
+    // Zahl hochzählen
+    if (numEl) {
+      const dur = 1100, start = performance.now();
+      const tick = (now) => {
+        const p = Math.min((now - start) / dur, 1);
+        const eased = 1 - Math.pow(1 - p, 3);
+        numEl.textContent = Math.round(eased * target);
+        if (p < 1) requestAnimationFrame(tick);
+        else numEl.textContent = target;
+      };
+      setTimeout(()=>requestAnimationFrame(tick), 300);
+    }
+  }
 }
 </script>
 </body>
