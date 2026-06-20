@@ -190,6 +190,7 @@
     .evidence-caption { padding:12px 16px; font-size:11px; color:var(--gray); display:flex; align-items:center; justify-content:space-between; gap:10px; background:var(--card); border-top:1px solid var(--border2); }
     .evidence-maps-link { color:var(--green-dd); font-weight:600; text-decoration:none; white-space:nowrap; }
     .evidence-maps-link:hover { text-decoration:underline; }
+    .evidence-note { padding:10px 16px; font-size:10px; line-height:1.5; color:var(--gray-l); background:var(--card); border-top:1px solid var(--border2); font-style:italic; }
     .contact-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; }
     .contact-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
     .cc { background:var(--green-tint); border:1px solid var(--border2); border-radius:var(--radius); padding:14px; }
@@ -238,6 +239,9 @@
     }
     @media print {
       @page { margin:1.4cm; }
+      /* WICHTIG: Alle Farben, Icons und Grafiken beim Drucken erzwingen (sonst fehlen Icons im PDF) */
+      *, *::before, *::after { -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
+      svg { -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
       .search-card,.header .header-right,.actions,.loading,.empty,.data-banner,.partial-banner { display:none !important; }
       body { background:#fff !important; color:#111 !important; font-size:11pt; }
       .app { padding:0 !important; max-width:100% !important; }
@@ -499,7 +503,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v7.7</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v7.8</span>
       <button class="logout-btn" id="logoutBtn" onclick="doLogout()" style="display:none;">Abmelden</button>
     </div>
   </header>
@@ -1027,8 +1031,11 @@ KRITISCHE REGELN:
 
 10. PFLICHTFELDER – DIESE FELDER DÜRFEN NIEMALS FEHLEN ODER LEER SEIN:
    - "empfehlung": IMMER 2-4 vollständige, sinnvolle Sätze mit konkreten Sorgfaltspflicht-Hinweisen. Auch bei unauffälligen Firmen mit hohem Score! (Dann z.B.: "Die Firma weist eine solide Datenlage auf. Standard-Sorgfaltspflicht ist ausreichend. Vor Geschäftsabschluss sollten die wirtschaftlich Berechtigten gemäß §11 GwG dokumentiert werden.")
-   - "risikoHinweise": IMMER mindestens 3 Hinweise (Mischung aus ✓ Positivem und ⚠ zu Prüfendem). Auch bei guten Firmen gibt es immer Punkte zur Dokumentation (z.B. wirtschaftlich Berechtigte, fehlende Social-Media-Präsenz, etc.).
-   - Diese beiden Felder sind das Herzstück des Berichts – ein leeres empfehlung-Feld macht den ganzen Bericht wertlos. Fülle sie IMMER sorgfältig aus.
+   - "risikoHinweise": IMMER mindestens 3 Hinweise (Mischung aus ✓ Positivem und ⚠ zu Prüfendem). Auch bei guten Firmen gibt es immer Punkte zur Dokumentation (z.B. wirtschaftlich Berechtigte, fehlende Social-Media-Präsenz, etc.). WICHTIG: Jeder Hinweis MUSS exakt diese Feldnamen haben: {"typ":"ok"|"warn"|"bad", "text":"...", "kategorie":"..."}. NIEMALS andere Feldnamen verwenden!
+   - "kontakt": IMMER vollständig ausfüllen mit allen Unterfeldern (website, email, telefon, linkedinAktiv, linkedinUrl, socialLinks, score, source). Wenn eine Information nicht gefunden wird, schreibe "N/A" – aber LASS DAS FELD NICHT WEG. Das kontakt-Objekt muss IMMER alle genannten Felder enthalten.
+   - "firmenname": IMMER ausfüllen (der offizielle Firmenname).
+   - WICHTIG ZUR STRUKTUR: Halte dich EXAKT an die unten vorgegebene JSON-Struktur mit genau diesen Feldnamen. Erfinde keine eigenen Feldnamen, lass keine Pflichtfelder weg. Ein fehlendes Feld führt zu einem leeren Bereich im Bericht.
+   - Diese Felder sind das Herzstück des Berichts – ein leeres Feld macht den Bericht wertlos. Fülle sie IMMER sorgfältig aus.
 
 {
   "firmenname": "${name}",
@@ -1247,19 +1254,20 @@ function evidenceHTML(d) {
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V7l8-4v18M19 21V11l-6-3"/><path d="M9 9v.01M9 12v.01M9 15v.01M9 18v.01"/></svg>
       </div>
       <div>
-        <div class="evidence-sub">Beweismittel · Standortnachweis</div>
-        <div class="evidence-title">Außenansicht des Firmensitzes</div>
+        <div class="evidence-sub">Beweismittel · Bildrecherche</div>
+        <div class="evidence-title">Offizielle Bilder im Zusammenhang zum Unternehmen</div>
       </div>
     </div>
     <div class="evidence-item">
       <div class="evidence-item-label">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-        Standort-Foto
+        Standort &amp; Umgebung (Google)
       </div>
       <div class="evidence-img-wrap" id="evidenceImgWrap">
         <div class="evidence-img-loading">Standort-Foto wird geladen…</div>
       </div>
       ${ev.address ? `<div class="evidence-caption"><span>${ev.address}</span>${ev.mapsUri ? `<a class="evidence-maps-link" href="${ev.mapsUri}" target="_blank">In Google Maps ↗</a>` : ''}</div>` : ''}
+      <div class="evidence-note">Automatisch über Google zugeordnetes Bild zur angegebenen Adresse. Die Zuordnung erfolgt anhand des Firmennamens und sollte bei Bedarf manuell verifiziert werden.</div>
     </div>
   </div>`;
 }
@@ -1329,12 +1337,15 @@ function showReport(d, rawName) {
 
   // Absicherung: fehlende Felder auffüllen, damit nie ein Crash entsteht
   d = d || {};
+  d.firmenname = d.firmenname || rawName || 'Unbekanntes Unternehmen';
   d.kontakt = d.kontakt || {};
+  d.kontakt.socialLinks = Array.isArray(d.kontakt.socialLinks) ? d.kontakt.socialLinks : [];
   d.grunddaten = d.grunddaten || { felder: [] };
   d.finanzen = d.finanzen || { felder: [] };
   d.reputation = d.reputation || { felder: [] };
   d.personen = d.personen || { felder: [] };
   d.phantom = d.phantom || { verdacht: false };
+  d.insolvenz = d.insolvenz || { verdacht: false };
   if (!Array.isArray(d.grunddaten.felder)) d.grunddaten.felder = [];
   if (!Array.isArray(d.finanzen.felder)) d.finanzen.felder = [];
   if (!Array.isArray(d.reputation.felder)) d.reputation.felder = [];
@@ -1350,7 +1361,10 @@ function showReport(d, rawName) {
       d.empfehlung = 'Aufgrund mehrerer Auffälligkeiten ist eine verstärkte Sorgfaltspflicht gemäß §15 GwG geboten. Vor Geschäftsabschluss sollten umfassende Unterlagen angefordert, die wirtschaftlich Berechtigten zweifelsfrei identifiziert und die Hintergründe der festgestellten Auffälligkeiten geklärt werden.';
     }
   }
-  d.risikoHinweise = Array.isArray(d.risikoHinweise) ? d.risikoHinweise : [];
+  // Risiko-Hinweise: erst alternative Feldnamen einsammeln, dann absichern
+  if (!Array.isArray(d.risikoHinweise)) {
+    d.risikoHinweise = (Array.isArray(d.risiken) ? d.risiken : (Array.isArray(d.hinweise) ? d.hinweise : []));
+  }
   d.datum = d.datum || new Date().toLocaleDateString('de-DE');
 
   const mapsUrl = d.kontakt.adresse && d.kontakt.adresse!=='Nicht gefunden'
@@ -1359,9 +1373,19 @@ function showReport(d, rawName) {
   if (d._land) metaParts.push('Land: '+d._land);
   if (d.ustId && d.ustId!=='null') metaParts.push('USt-ID: '+d.ustId);
   const vIcon = d.verdict==='ok'?'✓':d.verdict==='bad'?'✕':'⚠';
-  const flagsHTML = (d.risikoHinweise||[]).map(f=>
-    `<div class="flag"><span class="flag-icon ${f.typ}">${f.typ==='ok'?'✓':f.typ==='warn'?'⚠':'✕'}</span><span class="flag-text"><b>[${f.kategorie}]</b> ${f.text}</span></div>`
-  ).join('');
+  // Risiko-Hinweise robust verarbeiten (KI liefert manchmal leicht andere Feldnamen pro Eintrag)
+  const flagsHTML = (d.risikoHinweise || []).map(f => {
+    if (!f) return '';
+    // Falls die KI nur einen String statt Objekt liefert
+    if (typeof f === 'string') return `<div class="flag"><span class="flag-icon warn">⚠</span><span class="flag-text">${f}</span></div>`;
+    const typ = f.typ || f.type || f.status || 'warn';
+    const text = f.text || f.hinweis || f.beschreibung || f.value || '';
+    if (!text) return '';
+    const kat = f.kategorie || f.category || f.kat || '';
+    const icon = typ==='ok'?'✓':typ==='warn'?'⚠':typ==='bad'?'✕':'⚠';
+    const katLabel = kat ? `<b>[${kat}]</b> ` : '';
+    return `<div class="flag"><span class="flag-icon ${typ}">${icon}</span><span class="flag-text">${katLabel}${text}</span></div>`;
+  }).filter(Boolean).join('');
 
   let banner = '';
   const ds = d._dataSource || '';
@@ -1437,7 +1461,7 @@ function showReport(d, rawName) {
       <div class="gauge-wrap">${gauge(d.gesamtScore)}<div class="gauge-num"><span class="gauge-num-val" style="color:${d.gesamtScore?scC(d.gesamtScore):'var(--gray-l)'}">${d.gesamtScore||'N/A'}</span><span class="gauge-num-label">${d.gesamtScore?'/ 100':''}</span></div></div>
       <div class="score-right">
         <div class="score-title">Gesamt-Vertrauens-Score</div>
-        <div class="bar-track"><div class="bar-fill ${barC(d.gesamtScore)}" style="width:${d.gesamtScore}%"></div></div>
+        <div class="bar-track"><div class="bar-fill ${barC(d.gesamtScore)}" style="width:${d.gesamtScore||0}%"></div></div>
         <div class="score-desc">${(d.empfehlung && d.empfehlung.length > 20) ? d.empfehlung.split('.')[0] + '.' : (d.verdictText || 'Prüfung abgeschlossen') + '.'}</div>
       </div>
     </div>
@@ -1459,14 +1483,18 @@ function showReport(d, rawName) {
         <div class="cc"><div class="cc-label">E-Mail</div>${na(d.kontakt.email)}</div>
         <div class="cc"><div class="cc-label">Telefon</div>${na(d.kontakt.telefon)}</div>
         <div class="cc"><div class="cc-label">LinkedIn</div>${d.kontakt.linkedinAktiv && d.kontakt.linkedinUrl && !isNA(d.kontakt.linkedinUrl)?`<a class="maps-link" href="${d.kontakt.linkedinUrl}" target="_blank">Profil öffnen ↗</a>`:`<div class="cc-value ${d.kontakt.linkedinAktiv?'':'na'}">${d.kontakt.linkedinAktiv?'Vorhanden':'N/A'}</div>`}</div>
-        <div class="cc"><div class="cc-label">Social Media</div>${(d.kontakt.socialLinks && d.kontakt.socialLinks.length>0)?d.kontakt.socialLinks.filter(s=>s.url&&!isNA(s.url)).map(s=>`<a class="maps-link" href="${s.url}" target="_blank" style="display:block;font-size:11px">${s.platform} ↗</a>`).join(''):`<div class="cc-value ${isNA(d.kontakt.socialMedia)?'na':''}" style="font-size:11px">${isNA(d.kontakt.socialMedia)?'N/A':d.kontakt.socialMedia}</div>`}</div>
+        <div class="cc"><div class="cc-label">Social Media</div>${(() => {
+          const links = (d.kontakt.socialLinks||[]).filter(s=>s && s.url && !isNA(s.url));
+          if (links.length>0) return links.map(s=>`<a class="maps-link" href="${s.url}" target="_blank" style="display:block;font-size:11px">${s.platform||'Profil'} ↗</a>`).join('');
+          return `<div class="cc-value ${isNA(d.kontakt.socialMedia)?'na':''}" style="font-size:11px">${isNA(d.kontakt.socialMedia)?'N/A':d.kontakt.socialMedia}</div>`;
+        })()}</div>
       </div>
       ${d.kontakt.source && !isNA(d.kontakt.source) ? `<div style="margin-top:10px;font-size:8px;letter-spacing:.08em;text-transform:uppercase;color:var(--gray-l)">Quelle: ${d.kontakt.source}</div>` : ''}
     </div>
     ${evidenceHTML(d)}
     <div class="flags-card reveal">
       <div class="flags-heading"><span class="sec-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4m0 4h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg></span>Risiko-Hinweise</div>
-      ${flagsHTML}
+      ${flagsHTML || '<div class="flag"><span class="flag-icon warn">⚠</span><span class="flag-text">Es konnten keine spezifischen Risiko-Hinweise automatisch ermittelt werden. Bitte prüfen Sie die Einzelangaben oben sorgfältig im Rahmen Ihrer Sorgfaltspflicht.</span></div>'}
     </div>
     <div class="rec-card reveal">
       <div class="rec-label">Compliance-Empfehlung</div>
