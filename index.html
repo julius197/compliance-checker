@@ -503,7 +503,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v7.8</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v7.9</span>
       <button class="logout-btn" id="logoutBtn" onclick="doLogout()" style="display:none;">Abmelden</button>
     </div>
   </header>
@@ -768,7 +768,7 @@ async function runAnalysis(name, ust, land) {
     setStep('Firma wird im Internet recherchiert…');
     const prompt = buildPrompt(name, ust, googleData, viesData, land);
     const claudeRes = await workerCall('analyze', {
-      model: 'claude-opus-4-5',
+      model: 'claude-sonnet-4-6',
       max_tokens: 3000,
       temperature: 0,
       tools: [{ type: 'web_search_20250305', name: 'web_search', max_uses: 5 }],
@@ -803,7 +803,7 @@ async function runAnalysis(name, ust, land) {
         // Reparatur reichte nicht → die KI nochmal bitten, sauberes JSON zu liefern
         setStep('Ergebnis wird finalisiert…');
         const retryRes = await workerCall('analyze', {
-          model: 'claude-opus-4-5', max_tokens: 4000, temperature: 0,
+          model: 'claude-sonnet-4-6', max_tokens: 4000, temperature: 0,
           messages: [{ role: 'user', content: 'Hier ist ein fehlerhaftes JSON. Gib es EXAKT mit demselben Inhalt zurück, aber als valides, korrektes JSON (alle Kommas und Klammern richtig). Antworte NUR mit dem reinen JSON, ohne Erklärung, ohne Markdown:\n\n' + text }]
         });
         let retryText = (retryRes.content||[]).filter(b=>b.type==='text').map(b=>b.text||'').join('');
@@ -1367,8 +1367,6 @@ function showReport(d, rawName) {
   }
   d.datum = d.datum || new Date().toLocaleDateString('de-DE');
 
-  const mapsUrl = d.kontakt.adresse && d.kontakt.adresse!=='Nicht gefunden'
-    ? 'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(d.kontakt.adresse) : null;
   const metaParts = [d.datum];
   if (d._land) metaParts.push('Land: '+d._land);
   if (d.ustId && d.ustId!=='null') metaParts.push('USt-ID: '+d.ustId);
