@@ -463,7 +463,7 @@
     </div>
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
-      <div class="header-badge" id="userEmail">§§ 10–17 GwG · NEU</div>
+      <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
       <button class="logout-btn" id="logoutBtn" onclick="doLogout()" style="display:none;">Abmelden</button>
     </div>
   </header>
@@ -979,6 +979,11 @@ KRITISCHE REGELN:
    AUSWIRKUNG AUF GRUNDDATEN-SCORE: Fehlende USt-ID oder HRB bei einer EU-Firma senkt den Grunddaten-Score deutlich (auf unter 50). Beides vorhanden + aktive Firma + vollständige Adresse = hoher Grunddaten-Score (85+).
    AUSNAHME: Bei Firmen außerhalb der EU gibt es keine USt-ID/HRB im EU-Sinn – dort diese Felder als "N/A" (neutral, nicht negativ) behandeln und stattdessen das jeweilige nationale Register prüfen.
 
+10. PFLICHTFELDER – DIESE FELDER DÜRFEN NIEMALS FEHLEN ODER LEER SEIN:
+   - "empfehlung": IMMER 2-4 vollständige, sinnvolle Sätze mit konkreten Sorgfaltspflicht-Hinweisen. Auch bei unauffälligen Firmen mit hohem Score! (Dann z.B.: "Die Firma weist eine solide Datenlage auf. Standard-Sorgfaltspflicht ist ausreichend. Vor Geschäftsabschluss sollten die wirtschaftlich Berechtigten gemäß §11 GwG dokumentiert werden.")
+   - "risikoHinweise": IMMER mindestens 3 Hinweise (Mischung aus ✓ Positivem und ⚠ zu Prüfendem). Auch bei guten Firmen gibt es immer Punkte zur Dokumentation (z.B. wirtschaftlich Berechtigte, fehlende Social-Media-Präsenz, etc.).
+   - Diese beiden Felder sind das Herzstück des Berichts – ein leeres empfehlung-Feld macht den ganzen Bericht wertlos. Fülle sie IMMER sorgfältig aus.
+
 {
   "firmenname": "${name}",
   "datum": "${heute}",
@@ -1055,7 +1060,7 @@ KRITISCHE REGELN:
   "risikoHinweise": [
     {"typ":"ok"|"warn"|"bad","text":"Hinweistext","kategorie":"Grunddaten"|"Personen"|"Finanzen"|"Reputation"|"Online-Präsenz"}
   ],
-  "empfehlung": "2-3 Sätze: konkrete Prüfschritte / Sorgfaltspflicht-Hinweise im GwG-Kontext. NIEMALS eine Geschäftsentscheidung treffen (kein 'nicht empfohlen'), nur Sorgfalts-Hinweise geben."
+  "empfehlung": "PFLICHTFELD – NIEMALS leer lassen! 2-4 vollständige Sätze mit konkreten Prüfschritten / Sorgfaltspflicht-Hinweisen im GwG-Kontext. NIEMALS eine Geschäftsentscheidung treffen (kein 'nicht empfohlen'), nur Sorgfalts-Hinweise geben."
 }`;
 }
 
@@ -1202,7 +1207,17 @@ function showReport(d, rawName) {
   if (!Array.isArray(d.finanzen.felder)) d.finanzen.felder = [];
   if (!Array.isArray(d.reputation.felder)) d.reputation.felder = [];
   if (!Array.isArray(d.personen.felder)) d.personen.felder = [];
-  d.empfehlung = d.empfehlung || 'Die Prüfung wurde durchgeführt. Bitte bewerten Sie die Einzelangaben.';
+  // Intelligente Default-Empfehlung falls die KI keine geliefert hat (basierend auf Score)
+  if (!d.empfehlung || d.empfehlung.length < 20) {
+    const sc = d.gesamtScore || 0;
+    if (sc >= 75) {
+      d.empfehlung = 'Die Firma weist eine solide und überwiegend unauffällige Datenlage auf. Eine Standard-Sorgfaltspflicht ist in der Regel ausreichend. Vor Geschäftsabschluss sollten die wirtschaftlich Berechtigten gemäß §11 GwG identifiziert und dokumentiert sowie ein aktueller Handelsregisterauszug zur Akte genommen werden.';
+    } else if (sc >= 50) {
+      d.empfehlung = 'Es bestehen einzelne Punkte, die eine erhöhte Sorgfaltspflicht gemäß §15 GwG nahelegen. Vor Geschäftsabschluss sollten die auffälligen Angaben durch offizielle Dokumente (Handelsregisterauszug, Gewerbeanmeldung) verifiziert und die wirtschaftlich Berechtigten dokumentiert werden.';
+    } else {
+      d.empfehlung = 'Aufgrund mehrerer Auffälligkeiten ist eine verstärkte Sorgfaltspflicht gemäß §15 GwG geboten. Vor Geschäftsabschluss sollten umfassende Unterlagen angefordert, die wirtschaftlich Berechtigten zweifelsfrei identifiziert und die Hintergründe der festgestellten Auffälligkeiten geklärt werden.';
+    }
+  }
   d.risikoHinweise = Array.isArray(d.risikoHinweise) ? d.risikoHinweise : [];
   d.datum = d.datum || new Date().toLocaleDateString('de-DE');
 
@@ -1291,7 +1306,7 @@ function showReport(d, rawName) {
       <div class="score-right">
         <div class="score-title">Gesamt-Vertrauens-Score</div>
         <div class="bar-track"><div class="bar-fill ${barC(d.gesamtScore)}" style="width:${d.gesamtScore}%"></div></div>
-        <div class="score-desc">${(d.empfehlung || 'Prüfung abgeschlossen').split('.')[0]}.</div>
+        <div class="score-desc">${(d.empfehlung && d.empfehlung.length > 20) ? d.empfehlung.split('.')[0] + '.' : (d.verdictText || 'Prüfung abgeschlossen') + '.'}</div>
       </div>
     </div>
     <div class="grid4 reveal">
