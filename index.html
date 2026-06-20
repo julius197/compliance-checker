@@ -141,7 +141,9 @@
     .kv-v.ok   { color:var(--ok-text); }
     .kv-v.warn { color:var(--warn-text); }
     .kv-v.bad  { color:var(--bad-text); }
+    .kv-v.neutral { color:var(--ink2); }
     .kv-v.na   { color:var(--gray-l); font-weight:400; font-style:italic; }
+    .kv-dot { display:inline-block; width:7px; height:7px; border-radius:50%; margin-right:7px; flex-shrink:0; vertical-align:middle; }
     .kv-src { display:block; font-size:9px; color:var(--gray-l); letter-spacing:.04em; text-transform:uppercase; margin-top:3px; font-weight:600; }
     .kv-src-link { color:var(--green-d); cursor:pointer; text-decoration:none; transition:color .15s; }
     .kv-src-link:hover { color:var(--green-dd); text-decoration:underline; }
@@ -508,7 +510,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v8.2</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v8.3</span>
       <button class="logout-btn" id="logoutBtn" onclick="doLogout()" style="display:none;">Abmelden</button>
     </div>
   </header>
@@ -1053,7 +1055,45 @@ KRITISCHE REGELN:
    AUSWIRKUNG AUF GRUNDDATEN-SCORE: Fehlende USt-ID oder HRB bei einer EU-Firma senkt den Grunddaten-Score deutlich (auf unter 50). Beides vorhanden + aktive Firma + vollständige Adresse = hoher Grunddaten-Score (85+).
    AUSNAHME: Bei Firmen außerhalb der EU gibt es keine USt-ID/HRB im EU-Sinn – dort diese Felder als "N/A" (neutral, nicht negativ) behandeln und stattdessen das jeweilige nationale Register prüfen.
 
-10. PFLICHTFELDER – DIESE FELDER DÜRFEN NIEMALS FEHLEN ODER LEER SEIN:
+10. SCORE-VERGABE – KLARE REGELN (SEHR WICHTIG für nachvollziehbare, konsistente Scores):
+   Vergib die Kategorie-Scores nach diesen festen Regeln, NICHT nach Bauchgefühl. Fehlende Informationen, die naturgemäß nicht öffentlich sind (z.B. Umsatz bei einer GmbH), dürfen den Score NICHT senken – bewerte nur, was tatsächlich ein Risiko darstellt.
+
+   GRUNDDATEN-Score:
+   - 90-100: USt-ID + HRB vorhanden, Firma aktiv, vollständige Adresse, lange Historie (>5 Jahre)
+   - 75-89: Kerndaten vorhanden, kleinere Lücken
+   - 50-74: Mehrere wichtige Angaben fehlen oder unklar
+   - unter 50: USt-ID oder HRB fehlt bei EU-Firma, oder Firma inaktiv/aufgelöst
+
+   PERSONEN-Score:
+   - 90-100: Geschäftsführer klar benannt, im Handelsregister bestätigt, keine Auffälligkeiten
+   - 75-89: GF benannt, aber wirtschaftlich Berechtigte nicht öffentlich (das ist bei GmbHs NORMAL und KEIN Mangel – nicht abwerten!) ODER kleinere offene Punkte
+   - 50-74: Diskrepanzen bei GF-Angaben, oder mehrere unklare Personenverhältnisse
+   - unter 50: Konkrete Strohmann-Hinweise, widersprüchliche Angaben
+   WICHTIG: Dass wirtschaftlich Berechtigte nicht öffentlich einsehbar sind, ist bei den meisten GmbHs der Normalfall und darf NICHT zu einem niedrigen Score führen. Eine normale GmbH mit benanntem GF gehört in den Bereich 85+.
+
+   REPUTATION-Score:
+   - 90-100: Lange Marktpräsenz, keine negative Presse, ggf. positive Signale (Zertifizierungen wie AEO)
+   - 75-89: Solide, keine negativen Funde, evtl. wenig öffentliche Bewertungen
+   - 50-74: Gemischte Signale oder einzelne negative Hinweise
+   - unter 50: Konkrete Betrugsmeldungen, massive negative Presse
+   WICHTIG: Fehlende Trustpilot-Bewertungen sind KEIN Mangel (viele seriöse B2B-Firmen haben keine) – nicht abwerten. "Keine negativen Meldungen gefunden" ist ein POSITIVES Signal (Score 85+).
+
+   FINANZEN-Score:
+   - 90-100: Keine Insolvenz, Firma wirtschaftsaktiv, ggf. veröffentlichte Bilanzen/positive Zahlen
+   - 75-89: Keine Insolvenz, aktiv, aber wenig öffentliche Finanzdaten (bei GmbHs NORMAL)
+   - 50-74: Einzelne finanzielle Warnsignale
+   - unter 50: Insolvenzhinweise, Zahlungsstörungen, Liquidation
+   WICHTIG: Dass Umsatz/Gewinn einer GmbH nicht öffentlich sind, ist NORMAL und darf den Score NICHT senken. "Keine Insolvenz + Firma aktiv" allein rechtfertigt bereits 85+. Wenn sogar positive Bilanzdaten vorliegen (wie +29,3% Bilanzwachstum), gehört der Score Richtung 90.
+
+   KONTAKT-Score:
+   - 90-100: Website (HTTPS), E-Mail, Telefon, aktive Social-Media-Präsenz
+   - 75-89: Die wichtigsten Kontaktdaten vorhanden
+   - 50-74: Nur teilweise Kontaktdaten
+   - unter 50: Kaum/keine Kontaktmöglichkeit auffindbar
+
+   GRUNDPRINZIP: Eine etablierte, registrierte, aktive Firma ohne negative Funde gehört in ALLEN Kategorien in den Bereich 80-95. Ziehe nur Punkte ab für ECHTE Risiken (Insolvenz, Strohmann, Diskrepanzen, fehlende Pflichtangaben) – NIEMALS für fehlende Infos die naturgemäß nicht öffentlich sind.
+
+11. PFLICHTFELDER – DIESE FELDER DÜRFEN NIEMALS FEHLEN ODER LEER SEIN:
    - "empfehlung": IMMER 2-4 vollständige, sinnvolle Sätze mit konkreten Sorgfaltspflicht-Hinweisen. Auch bei unauffälligen Firmen mit hohem Score! (Dann z.B.: "Die Firma weist eine solide Datenlage auf. Standard-Sorgfaltspflicht ist ausreichend. Vor Geschäftsabschluss sollten die wirtschaftlich Berechtigten gemäß §11 GwG dokumentiert werden.")
    - "risikoHinweise": IMMER mindestens 3 Hinweise (Mischung aus ✓ Positivem und ⚠ zu Prüfendem). Auch bei guten Firmen gibt es immer Punkte zur Dokumentation (z.B. wirtschaftlich Berechtigte, fehlende Social-Media-Präsenz, etc.). WICHTIG: Jeder Hinweis MUSS exakt diese Feldnamen haben: {"typ":"ok"|"warn"|"bad", "text":"...", "kategorie":"..."}. NIEMALS andere Feldnamen verwenden!
    - "kontakt": IMMER vollständig ausfüllen mit allen Unterfeldern (website, email, telefon, linkedinAktiv, linkedinUrl, socialLinks, score, source). Wenn eine Information nicht gefunden wird, schreibe "N/A" – aber LASS DAS FELD NICHT WEG. Das kontakt-Objekt muss IMMER alle genannten Felder enthalten.
@@ -1180,8 +1220,13 @@ function isNA(v) {
 function secCard(title, data, weight) {
   const rows = data.felder.map(f => {
     const na = isNA(f.value);
-    const cls = na ? 'na' : (f.status==='neutral'?'':f.status);
+    // Status bestimmen: ok=grün, warn=orange, bad=rot, neutral/sonst=grau-grün
+    let status = na ? 'na' : (f.status || 'neutral');
+    const cls = na ? 'na' : (status==='neutral' ? 'neutral' : status);
     const val = na ? 'N/A' : f.value;
+    // Farbiger Status-Punkt links für sofortige visuelle Erkennung
+    const dotColor = na ? 'var(--gray-l)' : (status==='ok' ? 'var(--ok)' : status==='warn' ? 'var(--warn)' : status==='bad' ? 'var(--bad)' : 'var(--gray-l)');
+    const dot = `<span class="kv-dot" style="background:${dotColor}"></span>`;
     let src = '';
     if (!na) {
       // Neue Variante: sources-Liste (jede Quelle einzeln anklickbar)
@@ -1203,7 +1248,7 @@ function secCard(title, data, weight) {
       }
     }
     return `<div class="kv">
-      <span class="kv-k">${f.key}</span>
+      <span class="kv-k">${dot}${f.key}</span>
       <span class="kv-v ${cls}">${val}${src}</span>
     </div>`;
   }).join('');
