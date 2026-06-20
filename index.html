@@ -508,7 +508,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v8.1</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v8.2</span>
       <button class="logout-btn" id="logoutBtn" onclick="doLogout()" style="display:none;">Abmelden</button>
     </div>
   </header>
@@ -776,7 +776,7 @@ async function runAnalysis(name, ust, land) {
       model: 'claude-sonnet-4-6',
       max_tokens: 8000,
       temperature: 0,
-      tools: [{ type: 'web_search_20250305', name: 'web_search', max_uses: 5 }],
+      tools: [{ type: 'web_search_20250305', name: 'web_search', max_uses: 10 }],
       messages: [{ role: 'user', content: prompt }]
     });
 
@@ -849,26 +849,34 @@ function buildPrompt(name, ust, googleData, viesData, land) {
   const landHinweis = (land && land !== 'Andere')
     ? `WICHTIG - HERKUNFTSLAND DER FIRMA: Der Nutzer hat angegeben, dass diese Firma in folgendem Land ansässig ist: ${land.toUpperCase()}. Suche gezielt im nationalen Firmenregister dieses Landes (siehe Liste unten) und prüfe, ob die gefundene Firma wirklich in ${land} registriert ist. Ein Treffer aus einem anderen Land ist mit hoher Wahrscheinlichkeit die FALSCHE Firma.`
     : `Das Herkunftsland wurde nicht spezifiziert ("Anderes Land"). Ermittle das Land selbst anhand von Rechtsform, Adresse und USt-ID und nutze das passende nationale Register.`;
-  const register = `LÄNDERSPEZIFISCHE FIRMENREGISTER (nutze das passende je nach Herkunftsland der Firma, suche z.B. "[Firmenname] [Registername]"):
-- Deutschland: northdata.de, Handelsregister
-- Österreich: firmenabc.at, northdata.de
-- Schweiz: zefix.ch, moneyhouse.ch
-- UK: Companies House (gov.uk)
-- Frankreich: societe.com, pappers.fr
-- Italien: registroimprese.it
-- Spanien: einforma.com
-- Niederlande (B.V.): kvk.nl
-- Tschechien (s.r.o): rejstrik.cz, justice.cz
-- Slowakei (s.r.o): orsr.sk (offizielles Handelsregister), finstat.sk (Firmendaten & Finanzen), financnasprava.sk (USt-Zahler-Liste / Finanzverwaltung)
-- Albanien (sh.p.k): qkb.gov.al (OpenCorporates)
-- Polen: krs.pl
-- Bulgarien (EOOD/OOD): portal.registryagency.bg (offizielles Handelsregister, Suche per Firmenname oder EIK-Nummer), papagal.bg (Firmen-Suchportal)
-- USA: opencorporates.com, bizapedia.com, SEC EDGAR
-- China: tianyancha.com, qichacha (qcc.com)
-- Indien: mca.gov.in
-- Singapur: bizfile (acra.gov.sg)
-- VAE/Dubai: jeweilige Freezone-Register
-- Für andere Länder: OpenCorporates oder das nationale Handelsregister
+  const register = `VERBINDLICHE QUELLEN-REIHENFOLGE (für KONSISTENZ – immer dieselben Quellen in dieser Reihenfolge prüfen, NICHT zufällig auswählen):
+
+GRUNDREGEL: Prüfe IMMER die unten genannten Pflicht-Quellen für das jeweilige Land, und zwar IN DIESER REIHENFOLGE. Suche jede Quelle einzeln mit web_search ("[Firmenname] [Quellenname]"). Verlasse dich NICHT auf zufällige Suchergebnisse – arbeite die Liste systematisch ab, damit das Ergebnis bei jeder Prüfung derselben Firma gleich ausfällt.
+
+DEUTSCHLAND (immer ALLE diese Quellen prüfen, in dieser Reihenfolge):
+  1. northdata.de (Handelsregister, Geschäftsführer, wirtschaftlich Berechtigte, Verflechtungen) – PFLICHT, immer zuerst
+  2. unternehmensregister.de / handelsregister.de (offizielles Handelsregister, HRB-Nummer) – PFLICHT
+  3. firmenwissen.de (Firmenstatus, Bonität) – PFLICHT
+  4. creditreform.de oder implisense.com (Finanzdaten, Bilanz) – falls verfügbar
+  5. Trustpilot + Google-Bewertungen (Reputation)
+  6. Für Insolvenz: insolvenzbekanntmachungen.de
+
+ÖSTERREICH: 1. firmenabc.at  2. northdata.de  3. compass.at  4. Trustpilot
+SCHWEIZ: 1. zefix.ch (offiziell)  2. moneyhouse.ch  3. Trustpilot
+UK: 1. Companies House (find-and-update.company-information.service.gov.uk)  2. endole.co.uk  3. Trustpilot
+FRANKREICH: 1. pappers.fr  2. societe.com  3. Trustpilot
+ITALIEN: 1. registroimprese.it  2. ufficiocamerale.it
+SPANIEN: 1. einforma.com  2. axesor.es
+NIEDERLANDE: 1. kvk.nl (offiziell)  2. companyinfo.nl
+TSCHECHIEN: 1. justice.cz (offiziell)  2. rejstrik-firem.kurzy.cz
+SLOWAKEI: 1. orsr.sk (offiziell)  2. finstat.sk  3. financnasprava.sk
+POLEN: 1. krs-online.com.pl  2. rejestr.io
+BULGARIEN: 1. portal.registryagency.bg (offiziell)  2. papagal.bg
+USA: 1. opencorporates.com  2. bizapedia.com  3. SEC EDGAR (bei börsennotiert)
+CHINA: 1. tianyancha.com  2. qcc.com
+Für NICHT gelistete Länder: 1. opencorporates.com  2. das offizielle nationale Handelsregister  3. Trustpilot
+
+WICHTIG: Diese Reihenfolge ist VERBINDLICH. Auch wenn die erste Quelle schon Daten liefert, prüfe trotzdem die weiteren Pflicht-Quellen, um ein vollständiges und KONSISTENTES Bild zu bekommen. Wenn eine Pflicht-Quelle keine Daten hat, gehe zur nächsten – aber überspringe keine.
 
 ${landHinweis}`;
   let dataSection;
@@ -903,6 +911,13 @@ ${reviews ? '\nKUNDENBEWERTUNGEN:\n' + reviews : ''}
 
 SCHRITT 2: Nutze web_search für weitere Infos (Rechtsform, Gründung, Geschäftsführer, Handelsregister, Socials).
 WICHTIG: Suche im passenden nationalen Firmenregister je nach Herkunftsland der Firma.
+
+KONSISTENZ-GEBOT (SEHR WICHTIG für ein seriöses Compliance-Tool):
+Dieselbe Firma MUSS bei jeder Prüfung möglichst dasselbe Ergebnis und denselben Score bekommen. Deshalb:
+- Arbeite die unten genannten Pflicht-Quellen IMMER systematisch und vollständig ab – nicht mal die eine, mal die andere.
+- Triff deine Bewertung NUR auf Basis fester, nachprüfbarer Fakten (Handelsregister-Eintrag, USt-ID, Gründungsjahr, Insolvenzstatus) – nicht auf Basis zufälliger, wechselnder Suchergebnisse.
+- Wenn du eine Information bei einer Pflicht-Quelle findest, ist das die maßgebliche Angabe. Suche nicht nach Gründen, vom Standard-Ergebnis abzuweichen.
+- Vergib Scores nach klaren Regeln (siehe unten), nicht nach Bauchgefühl. Eine etablierte Firma mit vollständigen Registerdaten bekommt IMMER einen hohen Grunddaten-Score.
 ${register}
 Bei Unsicherheit "Nicht gefunden".`;
   } else {
