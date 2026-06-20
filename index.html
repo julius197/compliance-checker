@@ -508,7 +508,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v8.0</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v8.1</span>
       <button class="logout-btn" id="logoutBtn" onclick="doLogout()" style="display:none;">Abmelden</button>
     </div>
   </header>
@@ -774,13 +774,17 @@ async function runAnalysis(name, ust, land) {
     const prompt = buildPrompt(name, ust, googleData, viesData, land);
     const claudeRes = await workerCall('analyze', {
       model: 'claude-sonnet-4-6',
-      max_tokens: 3000,
+      max_tokens: 8000,
       temperature: 0,
       tools: [{ type: 'web_search_20250305', name: 'web_search', max_uses: 5 }],
       messages: [{ role: 'user', content: prompt }]
     });
 
     if (claudeRes.error) throw new Error(claudeRes.error.message || 'Claude Fehler');
+    // Wenn die Antwort wegen Token-Limit abgeschnitten wurde, ist das JSON unvollständig
+    if (claudeRes.stop_reason === 'max_tokens') {
+      console.warn('Antwort wurde wegen max_tokens abgeschnitten – Felder könnten fehlen');
+    }
     // Web Search gibt mehrere Blöcke zurück - nur Text-Blöcke nehmen
     let text = (claudeRes.content||[]).filter(b => b.type === 'text').map(b => b.text||'').join('');
     text = text.replace(/```json|```/g,'').trim();
@@ -808,7 +812,7 @@ async function runAnalysis(name, ust, land) {
         // Reparatur reichte nicht → die KI nochmal bitten, sauberes JSON zu liefern
         setStep('Ergebnis wird finalisiert…');
         const retryRes = await workerCall('analyze', {
-          model: 'claude-sonnet-4-6', max_tokens: 4000, temperature: 0,
+          model: 'claude-sonnet-4-6', max_tokens: 8000, temperature: 0,
           messages: [{ role: 'user', content: 'Hier ist ein fehlerhaftes JSON. Gib es EXAKT mit demselben Inhalt zurück, aber als valides, korrektes JSON (alle Kommas und Klammern richtig). Antworte NUR mit dem reinen JSON, ohne Erklärung, ohne Markdown:\n\n' + text }]
         });
         let retryText = (retryRes.content||[]).filter(b=>b.type==='text').map(b=>b.text||'').join('');
@@ -1189,11 +1193,12 @@ function secCard(title, data, weight) {
     </div>`;
   }).join('');
   const w = weight ? `<span class="sec-weight">${weight}</span>` : '';
+  const rowsOrEmpty = rows || '<div class="kv"><span class="kv-v na" style="font-style:italic">Für diese Kategorie konnten keine Daten ermittelt werden.</span></div>';
   return `<div class="sec-card">
     <div class="sec-header">
       <div class="sec-title">${catIcon(title)}${title}${w}</div>
       ${miniScore(data.score)}
-    </div>${rows}
+    </div>${rowsOrEmpty}
   </div>`;
 }
 
