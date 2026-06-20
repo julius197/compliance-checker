@@ -172,6 +172,24 @@
 
     /* CONTACT */
     .contact-card { background:var(--card); border:1px solid var(--border); border-radius:var(--radius-lg); padding:22px; margin-bottom:14px; box-shadow:var(--shadow); }
+
+    /* BEWEISMITTEL-SEKTION (Standort-Foto) - High-End mit grünem Glow */
+    .evidence-card { background:var(--card); border:1.5px solid var(--green); border-radius:var(--radius-lg); padding:24px; margin-bottom:14px; box-shadow:0 0 0 1px rgba(34,197,94,0.08), 0 4px 20px rgba(34,197,94,0.12), 0 2px 8px rgba(16,24,40,0.04); position:relative; overflow:hidden; }
+    .evidence-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg, #4ADE80, #22C55E, #16A34A); }
+    .evidence-header { display:flex; align-items:center; gap:12px; margin-bottom:20px; }
+    .evidence-icon { width:42px; height:42px; border-radius:11px; background:linear-gradient(135deg, #22C55E, #16A34A); display:flex; align-items:center; justify-content:center; flex-shrink:0; box-shadow:0 4px 12px rgba(34,197,94,0.3); }
+    .evidence-title { font-size:17px; font-weight:800; color:var(--ink); letter-spacing:-0.01em; }
+    .evidence-sub { font-size:11px; letter-spacing:0.08em; text-transform:uppercase; color:var(--green-dd); font-weight:700; margin-bottom:2px; }
+    .evidence-item { border-radius:var(--radius); overflow:hidden; border:1px solid var(--border2); background:var(--green-tint); }
+    .evidence-item-label { display:flex; align-items:center; gap:8px; padding:12px 16px; font-size:11px; letter-spacing:0.06em; text-transform:uppercase; color:var(--gray); font-weight:700; border-bottom:1px solid var(--border2); background:var(--card); }
+    .evidence-img-wrap { position:relative; background:#0A1611; min-height:180px; display:flex; align-items:center; justify-content:center; }
+    .evidence-img { width:100%; height:auto; display:block; }
+    .evidence-img-loading { padding:40px; color:var(--gray-l); font-size:13px; text-align:center; }
+    .evidence-img-none { padding:40px 20px; text-align:center; color:var(--gray-l); }
+    .evidence-img-none svg { opacity:0.4; margin-bottom:10px; }
+    .evidence-caption { padding:12px 16px; font-size:11px; color:var(--gray); display:flex; align-items:center; justify-content:space-between; gap:10px; background:var(--card); border-top:1px solid var(--border2); }
+    .evidence-maps-link { color:var(--green-dd); font-weight:600; text-decoration:none; white-space:nowrap; }
+    .evidence-maps-link:hover { text-decoration:underline; }
     .contact-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; }
     .contact-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
     .cc { background:var(--green-tint); border:1px solid var(--border2); border-radius:var(--radius); padding:14px; }
@@ -225,6 +243,10 @@
       .app { padding:0 !important; max-width:100% !important; }
       .header { margin-bottom:20px; padding-bottom:16px; border-bottom:2px solid var(--green); }
       .report-top,.score-card,.sec-card,.contact-card,.flags-card,.phantom-card { page-break-inside:avoid; box-shadow:none !important; border:1px solid #DDD !important; }
+      /* Beweismittel-Sektion beim Drucken: eigene Seite, Foto nicht umbrechen */
+      .evidence-card { page-break-before:always; page-break-inside:avoid; box-shadow:none !important; border:1.5px solid var(--green) !important; }
+      .evidence-img-wrap { background:#fff !important; }
+      .evidence-img { max-height:520px; width:auto !important; max-width:100% !important; margin:0 auto; }
       .contact-card { page-break-before:auto; }
       .rec-card { page-break-inside:avoid; background:#F0FDF4 !important; border:1px solid var(--green) !important; }
       .rec-label { color:var(--green-dd) !important; }
@@ -477,7 +499,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v7.6</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v7.7</span>
       <button class="logout-btn" id="logoutBtn" onclick="doLogout()" style="display:none;">Abmelden</button>
     </div>
   </header>
@@ -789,6 +811,14 @@ async function runAnalysis(name, ust, land) {
     }
     report._dataSource = (viesData ? 'vies' : '') + (googleData ? 'google' : (viesData ? '' : 'ki'));
     if (land && land !== 'Andere') report._land = land;
+
+    // Standort-Beweismittel: Google-Foto (falls vorhanden) + Adresse für Street View
+    report._evidence = {
+      photoName: (googleData && googleData.photos && googleData.photos.length > 0) ? googleData.photos[0].name : null,
+      address: (googleData && googleData.formattedAddress) ? googleData.formattedAddress : null,
+      mapsUri: (googleData && googleData.googleMapsUri) ? googleData.googleMapsUri : null,
+      placeName: (googleData && googleData.displayName && googleData.displayName.text) ? googleData.displayName.text : name
+    };
 
     showReport(report, name);
   } catch(err) {
@@ -1207,6 +1237,72 @@ function insolvenzHTML(d) {
 }
 
 // Erzeugt das diagonale Wasserzeichen für Ausdrucke (nutzergebunden + eindeutige ID)
+// Beweismittel-Sektion: Standort-Foto der Firma (Außenansicht)
+function evidenceHTML(d) {
+  const ev = d._evidence || {};
+  // Eindeutige ID für das Bild-Element, damit wir es nach dem Laden befüllen können
+  return `<div class="evidence-card reveal">
+    <div class="evidence-header">
+      <div class="evidence-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V7l8-4v18M19 21V11l-6-3"/><path d="M9 9v.01M9 12v.01M9 15v.01M9 18v.01"/></svg>
+      </div>
+      <div>
+        <div class="evidence-sub">Beweismittel · Standortnachweis</div>
+        <div class="evidence-title">Außenansicht des Firmensitzes</div>
+      </div>
+    </div>
+    <div class="evidence-item">
+      <div class="evidence-item-label">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        Standort-Foto
+      </div>
+      <div class="evidence-img-wrap" id="evidenceImgWrap">
+        <div class="evidence-img-loading">Standort-Foto wird geladen…</div>
+      </div>
+      ${ev.address ? `<div class="evidence-caption"><span>${ev.address}</span>${ev.mapsUri ? `<a class="evidence-maps-link" href="${ev.mapsUri}" target="_blank">In Google Maps ↗</a>` : ''}</div>` : ''}
+    </div>
+  </div>`;
+}
+
+// Lädt das Standort-Foto asynchron (erst Google Place Photo, dann Street View als Fallback)
+async function loadEvidenceImage(ev) {
+  const wrap = document.getElementById('evidenceImgWrap');
+  if (!wrap) return;
+  const showNone = () => {
+    wrap.innerHTML = `<div class="evidence-img-none">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m3 16 5-5 4 4M14 14l2-2 5 5"/><circle cx="9" cy="9" r="1.5"/><line x1="3" y1="3" x2="21" y2="21"/></svg>
+      <div>Kein Standort-Foto vorhanden</div>
+    </div>`;
+  };
+  try {
+    let blob = null;
+    // 1. Versuch: Google Place Photo (oft das Gebäude/Eingang/Schild)
+    if (ev.photoName) {
+      const res = await fetch(WORKER, {
+        method: 'POST', headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ action: 'place_photo', payload: { photoName: ev.photoName, maxWidth: 800 } })
+      });
+      if (res.ok && res.headers.get('content-type')?.startsWith('image')) blob = await res.blob();
+    }
+    // 2. Fallback: Street View (Außenansicht von der Straße)
+    if (!blob && ev.address) {
+      const res = await fetch(WORKER, {
+        method: 'POST', headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ action: 'street_view', payload: { address: ev.address } })
+      });
+      if (res.ok && res.headers.get('content-type')?.startsWith('image')) blob = await res.blob();
+    }
+    if (blob) {
+      const url = URL.createObjectURL(blob);
+      wrap.innerHTML = `<img class="evidence-img" src="${url}" alt="Standort-Foto" />`;
+    } else {
+      showNone();
+    }
+  } catch(e) {
+    showNone();
+  }
+}
+
 function buildWatermark(firma) {
   const el = document.getElementById('printWatermark');
   if (!el) return;
@@ -1367,6 +1463,7 @@ function showReport(d, rawName) {
       </div>
       ${d.kontakt.source && !isNA(d.kontakt.source) ? `<div style="margin-top:10px;font-size:8px;letter-spacing:.08em;text-transform:uppercase;color:var(--gray-l)">Quelle: ${d.kontakt.source}</div>` : ''}
     </div>
+    ${evidenceHTML(d)}
     <div class="flags-card reveal">
       <div class="flags-heading"><span class="sec-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4m0 4h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg></span>Risiko-Hinweise</div>
       ${flagsHTML}
@@ -1390,6 +1487,9 @@ function showReport(d, rawName) {
 
   // WASSERZEICHEN für Ausdrucke aufbauen (E-Mail + Zeitstempel + eindeutige Prüf-ID)
   buildWatermark(d.firmenname || rawName);
+
+  // Standort-Foto asynchron nachladen (Beweismittel-Sektion)
+  loadEvidenceImage(d._evidence || {});
 
   // Scroll-Reveal: Karten animieren wenn sie ins Sichtfeld kommen
   const revealEls = document.querySelectorAll('.report .reveal');
