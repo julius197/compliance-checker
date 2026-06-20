@@ -474,6 +474,39 @@
     .btn-search:hover::after { left:130%; }
     /* Karten-Hover edler: mehr Lift + sanfter Schatten */
     .sec-card:hover, .contact-card:hover, .flags-card:hover { transform: translateY(-3px); box-shadow: 0 12px 32px -12px rgba(16,24,40,.2); }
+
+    /* ===== HISTORIE (Header-Button + Ansicht) ===== */
+    .header-actions { display:flex; gap:8px; align-items:center; margin-top:2px; }
+    .hist-nav-btn { font-size:12px; font-weight:600; color:var(--green-dd); background:var(--green-tint); border:1px solid var(--green-pale); border-radius:20px; padding:6px 13px; cursor:pointer; display:inline-flex; align-items:center; gap:6px; transition:background .15s, border-color .15s, transform .1s; font-family:inherit; }
+    .hist-nav-btn:hover { background:var(--green-pale); border-color:var(--green); transform:translateY(-1px); }
+    .history-view { animation: fadeInUp .5s cubic-bezier(.16,1,.3,1); }
+    .history-head { display:flex; justify-content:space-between; align-items:flex-start; gap:20px; margin-bottom:24px; padding-bottom:22px; border-bottom:1px solid var(--border); position:relative; }
+    .history-head::after { content:''; position:absolute; bottom:-1px; left:0; width:140px; height:2px; background:linear-gradient(90deg, var(--green), transparent); border-radius:2px; }
+    .history-eyebrow { font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--green-d); font-weight:700; margin-bottom:8px; }
+    .history-title { font-size:26px; font-weight:800; color:var(--ink); letter-spacing:-.025em; margin-bottom:8px; }
+    .history-sub { font-size:14px; color:var(--gray); max-width:600px; line-height:1.55; }
+    .history-loading { text-align:center; padding:60px 20px; color:var(--gray); font-size:14px; }
+    .history-loading .spinner { margin:0 auto 16px; }
+    .history-empty { text-align:center; padding:64px 24px; border:1.5px dashed var(--border); border-radius:var(--radius-lg); color:var(--gray-l); background:var(--card); }
+    .history-empty .empty-icon { width:48px; height:48px; margin:0 auto 16px; border-radius:50%; background:var(--green-tint); display:flex; align-items:center; justify-content:center; }
+    .history-empty p { font-size:14px; max-width:430px; margin:0 auto; line-height:1.55; }
+    .history-list { display:flex; flex-direction:column; gap:10px; }
+    .history-row { display:flex; align-items:center; justify-content:space-between; gap:16px; width:100%; text-align:left; background:var(--card); border:1px solid var(--border); border-radius:var(--radius-lg); padding:18px 22px; cursor:pointer; font-family:inherit; box-shadow:var(--shadow); transition:transform .18s cubic-bezier(.16,1,.3,1), box-shadow .18s ease, border-color .18s ease; }
+    .history-row:hover { transform:translateY(-2px); box-shadow:0 12px 28px -12px rgba(16,24,40,.2); border-color:var(--green-pale); }
+    .hr-main { min-width:0; flex:1; }
+    .hr-name { font-size:15px; font-weight:700; color:var(--ink); margin-bottom:4px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .hr-meta { font-size:12px; color:var(--gray); margin-bottom:5px; }
+    .hr-id { font-size:10px; letter-spacing:.05em; color:var(--green-d); font-weight:700; font-family:'SF Mono',ui-monospace,Menlo,monospace; }
+    .hr-right { display:flex; align-items:center; gap:14px; flex-shrink:0; }
+    .hr-score { font-size:22px; font-weight:800; letter-spacing:-.02em; min-width:34px; text-align:right; }
+    .hr-arrow { color:var(--gray-l); flex-shrink:0; transition:color .15s, transform .15s; }
+    .history-row:hover .hr-arrow { color:var(--green-d); transform:translateX(2px); }
+    @media print { .history-view, .hist-nav-btn { display:none !important; } }
+    @media(max-width:640px){
+      .history-head { flex-direction:column; }
+      .history-row { flex-direction:column; align-items:flex-start; gap:12px; }
+      .hr-right { width:100%; justify-content:space-between; }
+    }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -510,11 +543,18 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v8.3</span>
-      <button class="logout-btn" id="logoutBtn" onclick="doLogout()" style="display:none;">Abmelden</button>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v8.4</span>
+      <div class="header-actions">
+        <button class="hist-nav-btn" id="historyBtn" onclick="openHistory()" style="display:none;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 2M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+          Historie
+        </button>
+        <button class="logout-btn" id="logoutBtn" onclick="doLogout()" style="display:none;">Abmelden</button>
+      </div>
     </div>
   </header>
 
+  <div id="mainView">
   <div class="search-card">
     <div class="search-eyebrow">Geldwäscherechtliche Prüfung</div>
     <div class="search-heading">Compliance-Prüfung</div>
@@ -595,6 +635,9 @@
       </a>
     </div>
   </div>
+  </div><!-- /mainView -->
+
+  <div id="historyView" class="history-view" style="display:none"></div>
 
 </div>
 
@@ -680,12 +723,14 @@ let CURRENT_USER_EMAIL = '';
 function showApp(session) {
   document.getElementById('authGate').classList.add('hidden');
   document.getElementById('logoutBtn').style.display = '';
+  const hb = document.getElementById('historyBtn'); if (hb) hb.style.display = '';
   if (session && session.user) CURRENT_USER_EMAIL = session.user.email || '';
 }
 
 function showGate() {
   document.getElementById('authGate').classList.remove('hidden');
   document.getElementById('logoutBtn').style.display = 'none';
+  const hb = document.getElementById('historyBtn'); if (hb) hb.style.display = 'none';
 }
 
 // Beim Laden prüfen ob eingeloggt
@@ -1405,15 +1450,22 @@ async function loadEvidenceImage(ev) {
   }
 }
 
-function buildWatermark(firma) {
+// Erzeugt eine Prüf-ID (Zeitstempel Basis36 + Zufallsanteil). Die echte Einmaligkeit
+// wird zusätzlich über eine Unique-Constraint in der Datenbank garantiert.
+function generatePruefId() {
+  return 'AL-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).slice(2,6).toUpperCase();
+}
+
+// Baut das diagonale Wasserzeichen für Ausdrucke aus den GESPEICHERTEN Werten des Berichts
+// (Prüf-ID, Erstell-Datum, Ersteller-E-Mail). So zeigen Papier-Ausdruck und Online-Historie IMMER dieselbe ID.
+function buildWatermark(d) {
   const el = document.getElementById('printWatermark');
   if (!el) return;
-  const now = new Date();
-  const datum = now.toLocaleDateString('de-DE');
-  const uhrzeit = now.toLocaleTimeString('de-DE', {hour:'2-digit', minute:'2-digit'});
-  // Eindeutige Prüf-ID: Zeitstempel (Basis 36) + Zufallsanteil → pro Ausdruck einmalig
-  const pruefId = 'AL-' + now.getTime().toString(36).toUpperCase() + '-' + Math.random().toString(36).slice(2,6).toUpperCase();
-  const email = CURRENT_USER_EMAIL || 'nicht angemeldet';
+  const when = (d && d._createdAt) ? new Date(d._createdAt) : new Date();
+  const datum = when.toLocaleDateString('de-DE');
+  const uhrzeit = when.toLocaleTimeString('de-DE', {hour:'2-digit', minute:'2-digit'});
+  const pruefId = (d && d.pruefId) ? d.pruefId : generatePruefId();
+  const email = (d && d._email) ? d._email : (CURRENT_USER_EMAIL || 'nicht angemeldet');
   // Kompakter Text, der sicher auf die Seitenbreite passt (kein Abschneiden)
   const text = `Automati Labs · ${email} · ${datum} ${uhrzeit} · ${pruefId}`;
   el.innerHTML = `
@@ -1424,13 +1476,18 @@ function buildWatermark(firma) {
     <div class="wm-row r5">${text}</div>`;
 }
 
-function showReport(d, rawName) {
+function showReport(d, rawName, fromHistory) {
   clearInterval(stepTimer);
   document.getElementById('loading').classList.remove('active');
   document.getElementById('searchBtn').disabled = false;
 
   // Absicherung: fehlende Felder auffüllen, damit nie ein Crash entsteht
   d = d || {};
+  // Prüf-ID, Zeitstempel und Ersteller schon BEIM ERSTELLEN festlegen (nicht erst beim Drucken),
+  // damit Papier-Ausdruck und Online-Historie DIESELBE ID und dasselbe Datum zeigen.
+  if (!d.pruefId) d.pruefId = generatePruefId();
+  if (!d._createdAt) d._createdAt = new Date().toISOString();
+  if (!d._email) d._email = CURRENT_USER_EMAIL || '';
   d.firmenname = d.firmenname || rawName || 'Unbekanntes Unternehmen';
   d.kontakt = d.kontakt || {};
   d.kontakt.socialLinks = Array.isArray(d.kontakt.socialLinks) ? d.kontakt.socialLinks : [];
@@ -1605,8 +1662,8 @@ function showReport(d, rawName) {
 
   document.getElementById('report').classList.add('active');
 
-  // WASSERZEICHEN für Ausdrucke aufbauen (E-Mail + Zeitstempel + eindeutige Prüf-ID)
-  buildWatermark(d.firmenname || rawName);
+  // WASSERZEICHEN für Ausdrucke aufbauen (E-Mail + Zeitstempel + gespeicherte Prüf-ID)
+  buildWatermark(d);
 
   // Standort-Foto asynchron nachladen (Beweismittel-Sektion)
   loadEvidenceImage(d._evidence || {});
@@ -1672,6 +1729,161 @@ function showReport(d, rawName) {
       setTimeout(()=>requestAnimationFrame(tick), 300);
     }
   }
+
+  // Frisch erstellte Analyse in der Historie speichern (nicht beim erneuten Öffnen aus der Historie)
+  if (!fromHistory) saveAnalysisToHistory(d, rawName);
+}
+
+// ===== HISTORIE =====
+// Zwischenspeicher der geladenen Historie-Einträge (für das erneute Öffnen per Klick)
+let HISTORY_ROWS = [];
+
+// Frisch erstellte Analyse in Supabase speichern.
+// Die Prüf-ID ist über eine Unique-Constraint in der DB garantiert einmalig –
+// bei einer (extrem seltenen) Kollision wird automatisch eine neue ID erzeugt und erneut versucht.
+async function saveAnalysisToHistory(d, rawName) {
+  if (!sb) return;
+  try {
+    const { data: sess } = await sb.auth.getSession();
+    const user = sess && sess.session && sess.session.user;
+    if (!user) return;
+    let attempts = 0;
+    while (attempts < 6) {
+      const row = {
+        user_id: user.id,
+        pruef_id: d.pruefId,
+        firmenname: d.firmenname || rawName || 'Unbekanntes Unternehmen',
+        land: d._land || null,
+        ust_id: (d.ustId && d.ustId !== 'null') ? d.ustId : null,
+        score: (typeof d.gesamtScore === 'number' && !isNaN(d.gesamtScore)) ? Math.round(d.gesamtScore) : null,
+        verdict: d.verdict || null,
+        verdict_text: d.verdictText || null,
+        report_json: d
+      };
+      const { error } = await sb.from('analysen').insert(row);
+      if (!error) return; // gespeichert
+      // 23505 = unique_violation → Prüf-ID kollidiert: neue ID, Wasserzeichen aktualisieren, erneut versuchen
+      if (error.code === '23505' || /duplicate|unique/i.test(error.message || '')) {
+        d.pruefId = generatePruefId();
+        buildWatermark(d);
+        attempts++;
+        continue;
+      }
+      console.warn('Historie konnte nicht gespeichert werden:', error.message);
+      return;
+    }
+  } catch (e) {
+    console.warn('Historie-Speichern fehlgeschlagen:', e && e.message);
+  }
+}
+
+// Historie-Ansicht öffnen und Einträge des angemeldeten Nutzers laden
+async function openHistory() {
+  const main = document.getElementById('mainView');
+  const view = document.getElementById('historyView');
+  if (main) main.style.display = 'none';
+  view.style.display = 'block';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  view.innerHTML = `
+    <div class="history-head">
+      <div>
+        <div class="history-eyebrow">Geprüfte Unternehmen</div>
+        <div class="history-title">Prüf-Historie</div>
+        <div class="history-sub">Alle von dir durchgeführten Compliance-Prüfungen. Klicke einen Eintrag an, um den vollständigen Bericht erneut zu öffnen oder zu drucken – mit derselben Prüf-ID wie auf dem Ausdruck.</div>
+      </div>
+      <button class="btn-action" onclick="backToMain()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        Zurück zur Analyse
+      </button>
+    </div>
+    <div class="history-loading"><div class="spinner"></div><div>Historie wird geladen…</div></div>`;
+
+  if (!sb) { renderHistoryError('Keine Verbindung zur Datenbank.'); return; }
+  try {
+    const { data, error } = await sb
+      .from('analysen')
+      .select('pruef_id, firmenname, land, ust_id, score, verdict, verdict_text, created_at, report_json')
+      .order('created_at', { ascending: false });
+    if (error) throw error;
+    HISTORY_ROWS = data || [];
+    renderHistoryList();
+  } catch (e) {
+    renderHistoryError((e && e.message) || 'Historie konnte nicht geladen werden.');
+  }
+}
+
+function renderHistoryError(msg) {
+  const loading = document.querySelector('#historyView .history-loading');
+  const html = `<div class="history-empty"><p style="color:var(--bad-text)">${msg}</p></div>`;
+  if (loading) loading.outerHTML = html;
+  else { const v = document.getElementById('historyView'); if (v) v.insertAdjacentHTML('beforeend', html); }
+}
+
+function histVerdictClass(v) { return v === 'ok' ? 'ok' : v === 'bad' ? 'bad' : 'warn'; }
+function histVerdictIcon(v) { return v === 'ok' ? '\u2713' : v === 'bad' ? '\u2715' : '\u26A0'; }
+
+function renderHistoryList() {
+  const view = document.getElementById('historyView');
+  const loading = view.querySelector('.history-loading');
+  if (loading) loading.remove();
+
+  if (!HISTORY_ROWS.length) {
+    view.insertAdjacentHTML('beforeend', `
+      <div class="history-empty">
+        <div class="empty-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#22C55E" stroke-width="2"><path d="M12 8v4l3 3M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg></div>
+        <p>Noch keine Prüfungen vorhanden. Starte deine erste Analyse – sie erscheint dann automatisch hier.</p>
+      </div>`);
+    return;
+  }
+
+  const rows = HISTORY_ROWS.map((r, i) => {
+    const dt = r.created_at ? new Date(r.created_at) : null;
+    const datum = dt ? dt.toLocaleDateString('de-DE', { day:'2-digit', month:'2-digit', year:'numeric' }) : '–';
+    const uhr = dt ? dt.toLocaleTimeString('de-DE', { hour:'2-digit', minute:'2-digit' }) : '';
+    const score = (typeof r.score === 'number') ? r.score : null;
+    const scoreCol = score === null ? 'var(--gray-l)' : (score >= 75 ? 'var(--ok-text)' : score >= 50 ? 'var(--warn-text)' : 'var(--bad-text)');
+    const vt = r.verdict_text || (score === null ? 'Geprüft' : '');
+    const land = r.land ? ' · ' + r.land : '';
+    return `<button class="history-row" onclick="openFromHistory(${i})">
+      <div class="hr-main">
+        <div class="hr-name">${r.firmenname || 'Unbekanntes Unternehmen'}</div>
+        <div class="hr-meta">${datum}${uhr ? ' · ' + uhr : ''}${land}</div>
+        <div class="hr-id">${r.pruef_id || ''}</div>
+      </div>
+      <div class="hr-right">
+        <span class="hr-score" style="color:${scoreCol}">${score === null ? 'N/A' : score}</span>
+        <span class="verdict ${histVerdictClass(r.verdict)}">${histVerdictIcon(r.verdict)} ${vt}</span>
+        <svg class="hr-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+      </div>
+    </button>`;
+  }).join('');
+
+  view.insertAdjacentHTML('beforeend', `<div class="history-list">${rows}</div>`);
+}
+
+// Vollständigen Bericht aus der Historie erneut öffnen (gleiche Prüf-ID, erneut druckbar)
+function openFromHistory(i) {
+  const r = HISTORY_ROWS[i];
+  if (!r || !r.report_json) return;
+  const d = r.report_json;
+  // Ursprüngliche Prüf-ID / Datum sichern, falls im JSON nicht vorhanden
+  if (!d.pruefId && r.pruef_id) d.pruefId = r.pruef_id;
+  if (!d._createdAt && r.created_at) d._createdAt = r.created_at;
+  const view = document.getElementById('historyView');
+  const main = document.getElementById('mainView');
+  if (view) view.style.display = 'none';
+  if (main) main.style.display = 'block';
+  const empty = document.getElementById('emptyState'); if (empty) empty.style.display = 'none';
+  showReport(d, d.firmenname, true); // true = aus Historie → nicht erneut speichern
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Zurück von der Historie zur Analyse-Ansicht
+function backToMain() {
+  const view = document.getElementById('historyView');
+  const main = document.getElementById('mainView');
+  if (view) view.style.display = 'none';
+  if (main) main.style.display = 'block';
 }
 </script>
 </body>
