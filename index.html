@@ -150,6 +150,12 @@
 
     /* PHANTOM */
     .phantom-card { background:var(--bad-bg); border:1.5px solid #FCA5A5; border-radius:var(--radius-lg); padding:24px; margin-bottom:14px; box-shadow:var(--shadow); }
+    .insolvenz-card { background:#FFF7ED; border:1.5px solid #FDBA74; border-radius:var(--radius-lg); padding:24px; margin-bottom:14px; box-shadow:var(--shadow); }
+    .insolvenz-icon { width:42px; height:42px; border-radius:50%; background:#EA580C; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .insolvenz-title { font-size:18px; font-weight:800; color:#9A3412; letter-spacing:-.01em; }
+    .insolvenz-card .phantom-sub { color:#EA580C; }
+    .insolvenz-card .phantom-indiz { border-bottom:1px solid rgba(234,88,12,.15); }
+    .insolvenz-card .schwere-hoch { background:#EA580C; color:#fff; }
     .phantom-header { display:flex; align-items:center; gap:14px; margin-bottom:14px; }
     .phantom-icon { width:42px; height:42px; border-radius:50%; background:var(--bad); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
     .phantom-title { font-size:18px; font-weight:800; color:var(--bad-text); letter-spacing:-.01em; }
@@ -457,7 +463,7 @@
     </div>
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
-      <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
+      <div class="header-badge" id="userEmail">§§ 10–17 GwG · NEU</div>
       <button class="logout-btn" id="logoutBtn" onclick="doLogout()" style="display:none;">Abmelden</button>
     </div>
   </header>
@@ -954,6 +960,13 @@ KRITISCHE REGELN:
    - Wenn KONKRETE Indizien vorliegen: phantom.verdacht = true, liste die Indizien mit Schweregrad auf, und setze phantom.score niedrig (je mehr/schwerer die Indizien, desto niedriger, bei klarem Verdacht unter 30).
    - Sei FAIR: Nicht jede Person mit 2 Firmen ist ein Phantom. Nur bei echten, konkreten Auffälligkeiten Alarm schlagen. Im Zweifel verdacht=false mit Hinweis.
 
+8b. INSOLVENZ-PRÜFUNG (WICHTIG, eigenes K.O.-Kriterium):
+   Suche aktiv mit der web_search nach Anzeichen einer Insolvenz: Firmenname + "Insolvenz", + "Insolvenzverfahren", + "insolvent", + "Regelinsolvenz". Prüfe auch Insolvenzbekanntmachungen (z.B. insolvenzbekanntmachungen.de in DE).
+   - Wenn KEINE Anzeichen einer Insolvenz: insolvenz.verdacht = false.
+   - Wenn KONKRETE Anzeichen (laufendes/eröffnetes Insolvenzverfahren, Insolvenzantrag, Liquidation wegen Zahlungsunfähigkeit): insolvenz.verdacht = true, mit Details (Datum, Gericht, Aktenzeichen falls auffindbar) und Quelle.
+   - Sei FAIR und PRÄZISE: Nur bei echten, belegbaren Insolvenz-Hinweisen Alarm schlagen. Eine reguläre Geschäftsauflösung oder Umfirmierung ist KEINE Insolvenz. Im Zweifel verdacht=false.
+   - WICHTIG: Insolvenz ist getrennt vom normalen Finanzen-Score zu behandeln (sie ist ein eigenes Warnsignal).
+
 9. USt-ID & HANDELSREGISTER SIND PFLICHT (streng bewerten):
    Für eine offiziell registrierte EU-Firma MÜSSEN USt-IdNr. und Handelsregisternummer (HRB) existieren und auffindbar sein. Diese sind GwG-relevante Pflichtangaben.
    - USt-IdNr. gefunden & gültig → status "ok"
@@ -1000,6 +1013,13 @@ KRITISCHE REGELN:
     "zusammenfassung": "1-2 Sätze: warum besteht (k)ein Phantom-Verdacht",
     "indizien": [
       {"text":"konkretes Indiz für eine Strohmann-/Phantom-Konstruktion","schwere":"hoch"|"mittel"|"niedrig","source":"..."}
+    ]
+  },
+  "insolvenz": {
+    "verdacht": true|false,
+    "zusammenfassung": "1-2 Sätze: warum besteht (k)ein Insolvenz-Verdacht",
+    "details": [
+      {"text":"konkretes Detail zur Insolvenz (z.B. 'Insolvenzverfahren eröffnet am ...', 'Regelinsolvenz beim AG München, Az ...')","source":"..."}
     ]
   },
   "finanzen": {
@@ -1140,10 +1160,51 @@ function phantomHTML(d) {
   </div>`;
 }
 
+function insolvenzHTML(d) {
+  if (!d.insolvenz || d.insolvenz.verdacht !== true) return '';
+  const details = (d.insolvenz.details || []).map(det => {
+    const src = (det.source && !isNA(det.source)) ? `<span class="phantom-indiz-src">${det.source}</span>` : '';
+    const txt = typeof det === 'string' ? det : (det.text || '');
+    return `<div class="phantom-indiz">
+      <span class="phantom-schwere schwere-hoch">Insolvenz</span>
+      <span class="phantom-indiz-text">${txt}${src}</span>
+    </div>`;
+  }).join('');
+  return `<div class="insolvenz-card reveal">
+    <div class="phantom-header">
+      <div class="insolvenz-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M3 21h18M5 21V7l8-4v18M19 21V11l-6-3M9 9h.01M9 13h.01M9 17h.01"/></svg>
+      </div>
+      <div>
+        <div class="phantom-sub">Compliance-Warnung \u00b7 Finanzielle Schieflage</div>
+        <div class="insolvenz-title">Insolvenz-/Insolvenzverfahren erkannt</div>
+      </div>
+    </div>
+    <div class="phantom-summary">${d.insolvenz.zusammenfassung || 'Es bestehen konkrete Anzeichen f\u00fcr eine Insolvenz oder ein laufendes Insolvenzverfahren. Dies ist ein schwerwiegendes Risikosignal und erfordert besondere Sorgfalt.'}</div>
+    ${details}
+  </div>`;
+}
+
 function showReport(d, rawName) {
   clearInterval(stepTimer);
   document.getElementById('loading').classList.remove('active');
   document.getElementById('searchBtn').disabled = false;
+
+  // Absicherung: fehlende Felder auffüllen, damit nie ein Crash entsteht
+  d = d || {};
+  d.kontakt = d.kontakt || {};
+  d.grunddaten = d.grunddaten || { felder: [] };
+  d.finanzen = d.finanzen || { felder: [] };
+  d.reputation = d.reputation || { felder: [] };
+  d.personen = d.personen || { felder: [] };
+  d.phantom = d.phantom || { verdacht: false };
+  if (!Array.isArray(d.grunddaten.felder)) d.grunddaten.felder = [];
+  if (!Array.isArray(d.finanzen.felder)) d.finanzen.felder = [];
+  if (!Array.isArray(d.reputation.felder)) d.reputation.felder = [];
+  if (!Array.isArray(d.personen.felder)) d.personen.felder = [];
+  d.empfehlung = d.empfehlung || 'Die Prüfung wurde durchgeführt. Bitte bewerten Sie die Einzelangaben.';
+  d.risikoHinweise = Array.isArray(d.risikoHinweise) ? d.risikoHinweise : [];
+  d.datum = d.datum || new Date().toLocaleDateString('de-DE');
 
   const mapsUrl = d.kontakt.adresse && d.kontakt.adresse!=='Nicht gefunden'
     ? 'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(d.kontakt.adresse) : null;
@@ -1170,13 +1231,13 @@ function showReport(d, rawName) {
   const na = v => isNA(v)?'<span class="cc-value na">N/A</span>':`<div class="cc-value">${v}</div>`;
 
   // Gewichteter Gesamt-Score (Prioritäten von Remax)
-  // Grunddaten 30%, Finanzen 25%, Reputation 20%, Personen 15%, Kontakt 10%
+  // Grunddaten 30%, Personen 30%, Kontakt 20%, Reputation 15%, Finanzen 5%
   const weighted = [
     { score: d.grunddaten && d.grunddaten.score, weight: 0.30 },
-    { score: d.finanzen   && d.finanzen.score,   weight: 0.25 },
-    { score: d.reputation && d.reputation.score, weight: 0.20 },
-    { score: d.personen   && d.personen.score,   weight: 0.15 },
-    { score: d.kontakt    && d.kontakt.score,    weight: 0.10 },
+    { score: d.personen   && d.personen.score,   weight: 0.30 },
+    { score: d.kontakt    && d.kontakt.score,    weight: 0.20 },
+    { score: d.reputation && d.reputation.score, weight: 0.15 },
+    { score: d.finanzen   && d.finanzen.score,   weight: 0.05 },
   ];
   // Nur Kategorien mit echtem Score (nicht null/0) zählen
   const valid = weighted.filter(w => typeof w.score === 'number' && w.score > 0);
@@ -1196,6 +1257,13 @@ function showReport(d, rawName) {
     // Score wird auf maximal 30 gedeckelt – ein Phantom ist ein K.O.-Kriterium
     const deckel = Math.min(30, phantomScore);
     d.gesamtScore = Math.min(d.gesamtScore || deckel, deckel);
+  }
+
+  // INSOLVENZ-DECKELUNG: Insolvenz ist ein K.O.-Kriterium (wie Phantom)
+  const insolvenzVerdacht = d.insolvenz && d.insolvenz.verdacht === true;
+  if (insolvenzVerdacht) {
+    // Score wird auf maximal 25 gedeckelt – Insolvenz ist ein schwerwiegendes Signal
+    d.gesamtScore = Math.min(d.gesamtScore || 25, 25);
   }
 
   // Verdict an finalen Score anpassen
@@ -1223,19 +1291,20 @@ function showReport(d, rawName) {
       <div class="score-right">
         <div class="score-title">Gesamt-Vertrauens-Score</div>
         <div class="bar-track"><div class="bar-fill ${barC(d.gesamtScore)}" style="width:${d.gesamtScore}%"></div></div>
-        <div class="score-desc">${d.empfehlung.split('.')[0]}.</div>
+        <div class="score-desc">${(d.empfehlung || 'Prüfung abgeschlossen').split('.')[0]}.</div>
       </div>
     </div>
     <div class="grid4 reveal">
       ${secCard('Grunddaten', d.grunddaten, '30%')}
-      ${secCard('Finanzen', d.finanzen, '25%')}
-      ${secCard('Reputation', d.reputation, '20%')}
-      ${secCard('Personen', d.personen, '15%')}
+      ${secCard('Personen', d.personen, '30%')}
+      ${secCard('Reputation', d.reputation, '15%')}
+      ${secCard('Finanzen', d.finanzen, '5%')}
     </div>
     ${phantomHTML(d)}
+    ${insolvenzHTML(d)}
     <div class="contact-card reveal">
       <div class="contact-header">
-        <div class="sec-title">${catIcon('Kontakt & Online')}Kontaktdaten & Online-Präsenz<span class="sec-weight">10%</span></div>
+        <div class="sec-title">${catIcon('Kontakt & Online')}Kontaktdaten & Online-Präsenz<span class="sec-weight">20%</span></div>
         ${miniScore(d.kontakt.score)}
       </div>
       <div class="contact-grid">
