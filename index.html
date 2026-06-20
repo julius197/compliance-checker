@@ -233,7 +233,17 @@
       .cc { background:#F7FAF8 !important; }
       .verdict, .sec-weight, .tag, .cc-badge, .flag-icon, .version-pill, .phantom-schwere { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
       .gauge-fill { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+      /* WASSERZEICHEN beim Drucken: diagonal, dezent, auf jeder Seite, nutzergebunden */
+      #printWatermark { display:block !important; }
     }
+
+    /* Wasserzeichen-Element: am Bildschirm versteckt, nur beim Drucken sichtbar */
+    #printWatermark { display:none; position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:9999; overflow:hidden; }
+    #printWatermark .wm-row { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%) rotate(-35deg); white-space:nowrap; font-size:20pt; font-weight:700; color:rgba(22,163,74,0.10); letter-spacing:0.08em; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+    #printWatermark .wm-row.r1 { top:18%; }
+    #printWatermark .wm-row.r2 { top:38%; }
+    #printWatermark .wm-row.r3 { top:58%; }
+    #printWatermark .wm-row.r4 { top:78%; }
 
 
     /* AUTOMATI LABS FOOTER / CTA */
@@ -434,6 +444,8 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
+  <!-- Wasserzeichen für Ausdrucke (nur beim Drucken sichtbar) -->
+  <div id="printWatermark"></div>
 
 <div id="authGate">
   <div class="auth-card">
@@ -464,7 +476,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v7.4</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v7.5</span>
       <button class="logout-btn" id="logoutBtn" onclick="doLogout()" style="display:none;">Abmelden</button>
     </div>
   </header>
@@ -628,11 +640,13 @@ async function doLogout() {
   location.reload();
 }
 
+// Global: E-Mail des eingeloggten Nutzers (für Wasserzeichen auf Ausdrucken)
+let CURRENT_USER_EMAIL = '';
+
 function showApp(session) {
   document.getElementById('authGate').classList.add('hidden');
   document.getElementById('logoutBtn').style.display = '';
-  const emailEl = document.getElementById('userEmail');
-  if (emailEl && session && session.user) emailEl.textContent = session.user.email;
+  if (session && session.user) CURRENT_USER_EMAIL = session.user.email || '';
 }
 
 function showGate() {
@@ -1191,6 +1205,25 @@ function insolvenzHTML(d) {
   </div>`;
 }
 
+// Erzeugt das diagonale Wasserzeichen für Ausdrucke (nutzergebunden + eindeutige ID)
+function buildWatermark(firma) {
+  const el = document.getElementById('printWatermark');
+  if (!el) return;
+  const now = new Date();
+  const datum = now.toLocaleDateString('de-DE');
+  const uhrzeit = now.toLocaleTimeString('de-DE', {hour:'2-digit', minute:'2-digit'});
+  // Eindeutige Prüf-ID: Zeitstempel (Basis 36) + Zufallsanteil → pro Ausdruck einmalig
+  const pruefId = 'AL-' + now.getTime().toString(36).toUpperCase() + '-' + Math.random().toString(36).slice(2,6).toUpperCase();
+  const email = CURRENT_USER_EMAIL || 'nicht angemeldet';
+  // Ein Text-Baustein, der mehrfach diagonal über die Seite gelegt wird
+  const text = `AUTOMATI LABS · ${email} · ${datum} ${uhrzeit} · ${pruefId}`;
+  el.innerHTML = `
+    <div class="wm-row r1">${text}</div>
+    <div class="wm-row r2">${text}</div>
+    <div class="wm-row r3">${text}</div>
+    <div class="wm-row r4">${text}</div>`;
+}
+
 function showReport(d, rawName) {
   clearInterval(stepTimer);
   document.getElementById('loading').classList.remove('active');
@@ -1352,6 +1385,9 @@ function showReport(d, rawName) {
     </div>`;
 
   document.getElementById('report').classList.add('active');
+
+  // WASSERZEICHEN für Ausdrucke aufbauen (E-Mail + Zeitstempel + eindeutige Prüf-ID)
+  buildWatermark(d.firmenname || rawName);
 
   // Scroll-Reveal: Karten animieren wenn sie ins Sichtfeld kommen
   const revealEls = document.querySelectorAll('.report .reveal');
