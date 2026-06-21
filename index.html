@@ -395,6 +395,51 @@
     .ob-code { font-family:'SF Mono',ui-monospace,Menlo,monospace; font-size:30px; font-weight:800; letter-spacing:7px; text-align:center; color:var(--green-d,#16A34A);
       background:rgba(34,197,94,.08); border:1.5px dashed rgba(34,197,94,.4); border-radius:14px; padding:18px 12px; margin:8px 0 14px; user-select:all; }
     .ob-hinweis { font-size:12.5px; color:var(--gray,#6B7C74); line-height:1.5; background:rgba(245,158,11,.08); border:1px solid rgba(245,158,11,.25); border-radius:10px; padding:11px 13px; margin-bottom:16px; }
+    /* ===== Paket-Seite (Paywall) ===== */
+    .plan-gate { position:fixed; inset:0; z-index:9990; display:flex; align-items:flex-start; justify-content:center; overflow:auto; padding:48px 22px;
+      background:
+        radial-gradient(1000px 700px at 85% -8%, rgba(34,197,94,.07) 0%, transparent 55%),
+        radial-gradient(900px 800px at -12% 112%, rgba(22,163,74,.06) 0%, transparent 50%),
+        linear-gradient(180deg, #F4F8F6 0%, #F7F9F8 45%, #F5F8F6 100%); }
+    .plan-wrap { width:100%; max-width:1020px; margin:auto 0; }
+    .plan-head { text-align:center; margin-bottom:30px; }
+    .plan-logo { height:38px; width:auto; margin:0 auto 18px; display:block; opacity:.95; }
+    .plan-eyebrow { font-size:11px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--green-d,#16A34A); margin-bottom:10px; }
+    .plan-title { font-size:34px; font-weight:800; color:var(--ink,#10231A); margin:0 0 10px; letter-spacing:-.02em; line-height:1.1; }
+    .plan-subtitle { font-size:15px; color:var(--gray,#5A6B63); max-width:540px; margin:0 auto; line-height:1.5; }
+    .plan-cards { display:grid; grid-template-columns:repeat(3,1fr); gap:18px; align-items:stretch; }
+    .plan-card { position:relative; background:rgba(255,255,255,.96); border:1.5px solid rgba(26,43,35,.1); border-radius:20px; padding:30px 26px 28px; display:flex; flex-direction:column;
+      box-shadow:0 14px 40px -22px rgba(16,40,28,.2); transition:transform .2s, box-shadow .25s; }
+    .plan-card:hover { transform:translateY(-3px); box-shadow:0 22px 54px -22px rgba(16,40,28,.28); }
+    .plan-card.featured { border-color:var(--green,#22C55E); box-shadow:0 0 0 1.5px var(--green,#22C55E), 0 26px 60px -20px rgba(34,197,94,.4); transform:scale(1.035); background:#fff; }
+    .plan-card.featured:hover { transform:scale(1.035) translateY(-3px); }
+    .plan-badge { position:absolute; top:-13px; left:50%; transform:translateX(-50%); white-space:nowrap;
+      background:linear-gradient(135deg,#22C55E,#16A34A); color:#fff; font-size:11px; font-weight:800; letter-spacing:.04em; padding:6px 16px; border-radius:999px; box-shadow:0 8px 18px -6px rgba(34,197,94,.6); }
+    .plan-name { font-size:15px; font-weight:800; letter-spacing:.02em; color:var(--ink,#10231A); text-transform:uppercase; }
+    .plan-tagline { font-size:12.5px; color:var(--gray,#6B7C74); margin-top:4px; min-height:34px; line-height:1.35; }
+    .plan-price { display:flex; align-items:baseline; gap:6px; margin:14px 0 2px; }
+    .plan-amount { font-size:32px; font-weight:800; color:var(--ink,#10231A); letter-spacing:-.02em; }
+    .plan-per { font-size:13px; color:var(--gray,#6B7C74); font-weight:600; }
+    .plan-limit { font-size:13px; font-weight:700; color:var(--green-d,#16A34A); margin-bottom:18px; }
+    .plan-features { list-style:none; padding:0; margin:0 0 22px; display:flex; flex-direction:column; gap:10px; flex:1; }
+    .plan-features li { display:flex; align-items:flex-start; gap:9px; font-size:13px; color:#2C3E36; line-height:1.4; }
+    .plan-features li svg { flex-shrink:0; margin-top:1px; color:var(--green,#22C55E); }
+    .plan-btn { width:100%; padding:13px; border-radius:12px; cursor:pointer; font-family:inherit; font-size:14px; font-weight:700; transition:transform .15s, box-shadow .2s, background .2s;
+      background:#fff; color:var(--green-d,#16A34A); border:1.5px solid rgba(34,197,94,.45); }
+    .plan-btn:hover { transform:translateY(-1px); border-color:var(--green,#22C55E); box-shadow:0 10px 24px -10px rgba(34,197,94,.4); }
+    .plan-btn.primary { background:linear-gradient(135deg,#4ADE80 0%,#22C55E 45%,#16A34A 100%); color:#fff; border:none; box-shadow:0 12px 28px -8px rgba(34,197,94,.55); }
+    .plan-btn.primary:hover { box-shadow:0 16px 36px -8px rgba(34,197,94,.65); }
+    .plan-btn:disabled { opacity:.5; cursor:wait; }
+    .plan-trust { display:flex; flex-wrap:wrap; gap:10px 26px; justify-content:center; margin-top:26px; font-size:12.5px; color:var(--gray,#6B7C74); font-weight:600; }
+    .plan-foot { text-align:center; margin-top:22px; font-size:13px; color:var(--gray,#6B7C74); }
+    .plan-foot a { color:var(--green-d,#16A34A); font-weight:600; cursor:pointer; text-decoration:none; }
+    .plan-foot a:hover { text-decoration:underline; }
+    @media (max-width:760px) {
+      .plan-cards { grid-template-columns:1fr; gap:22px; }
+      .plan-card.featured { transform:none; order:-1; }
+      .plan-card.featured:hover { transform:translateY(-3px); }
+      .plan-title { font-size:27px; }
+    }
     /* ===== Kontingent-Pille im Header ===== */
     .kontingent-pill { display:inline-flex; align-items:center; gap:5px; padding:4px 10px; border-radius:999px; font-size:11.5px; font-weight:700;
       background:rgba(34,197,94,.1); color:var(--green-d,#16A34A); border:1px solid rgba(34,197,94,.2); white-space:nowrap; }
@@ -646,6 +691,26 @@
   </div>
 </div>
 
+<div id="planGate" class="plan-gate" style="display:none;">
+  <div class="plan-wrap">
+    <div class="plan-head">
+      <img class="plan-logo" id="planLogo" alt="Automati Labs" />
+      <div class="plan-eyebrow">Compliance-Checker · Premium-Zugang</div>
+      <h1 class="plan-title" id="planTitle">Wähle deinen Plan</h1>
+      <p class="plan-subtitle" id="planSubtitle">Rechtssichere GwG-Prüfungen, auditfeste Nachweise, geteiltes Team-Kontingent.</p>
+      <div class="auth-msg" id="planMsg" style="max-width:420px;margin:10px auto 0;"></div>
+    </div>
+    <div class="plan-cards" id="planCards"></div>
+    <div class="plan-trust">
+      <span>✓ Jederzeit kündbar</span><span>✓ Auditfeste Nachweise für Zoll &amp; Finanzamt</span><span>✓ DSGVO-konform, Server in der EU</span>
+    </div>
+    <div class="plan-foot">
+      <span id="planBack" style="display:none;"><a onclick="hidePlaeneBack()">← Zurück zum Tool</a> &nbsp;·&nbsp; </span>
+      <a onclick="doLogout()">Abmelden</a>
+    </div>
+  </div>
+</div>
+
 <div class="app">
   <header class="header">
     <div class="logo-wrap">
@@ -654,7 +719,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v8.8</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v8.9</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -849,6 +914,7 @@ function showApp(session) {
 function enterApp() {
   hideBoot();
   hideOnboarding();
+  hidePlaene();
   document.getElementById('authGate').classList.add('hidden');
   document.getElementById('logoutBtn').style.display = '';
   const hb = document.getElementById('historyBtn'); if (hb) hb.style.display = '';
@@ -857,6 +923,7 @@ function enterApp() {
 function showGate() {
   hideBoot();
   hideOnboarding();
+  hidePlaene();
   document.getElementById('authGate').classList.remove('hidden');
   document.getElementById('logoutBtn').style.display = 'none';
   const hb = document.getElementById('historyBtn'); if (hb) hb.style.display = 'none';
@@ -877,8 +944,12 @@ async function ladeKontingent() {
       return;
     }
     CURRENT_FIRMA = row;
-    enterApp();
-    updateKontingentAnzeige();
+    if (row.aktiv && row.monatslimit > 0) {
+      enterApp();
+      updateKontingentAnzeige();
+    } else {
+      zeigePlaene('start');   // Konto noch nicht aktiv -> Paket wählen (Paywall)
+    }
   } catch (e) {
     console.warn('Kontingent konnte nicht geladen werden:', e && e.message);
     enterApp(); // im Zweifel App freigeben, nicht aussperren
@@ -901,34 +972,93 @@ function updateKontingentAnzeige() {
 function kontingentVerfuegbar() {
   if (!CURRENT_FIRMA) return true;  // kein Kontingent geladen -> nicht blockieren
   const f = CURRENT_FIRMA;
-  if (!f.aktiv || f.monatslimit <= 0) { zeigeLimitErreicht('inaktiv'); return false; }
-  if (f.verbraucht >= f.monatslimit) { zeigeLimitErreicht('voll'); return false; }
+  if (!f.aktiv || f.monatslimit <= 0) { zeigePlaene('start'); return false; }
+  if (f.verbraucht >= f.monatslimit) { zeigePlaene('voll'); return false; }
   return true;
 }
 
-function zeigeLimitErreicht(grund) {
-  const es = document.getElementById('emptyState'); if (es) es.style.display = 'none';
-  document.getElementById('loading').classList.remove('active');
-  const report = document.getElementById('report');
-  const inaktiv = grund === 'inaktiv';
-  const titel = inaktiv ? 'Konto noch nicht freigeschaltet' : 'Monats-Kontingent aufgebraucht';
-  const text = inaktiv
-    ? 'Dein Konto ist angelegt, aber noch nicht aktiviert. Sobald dein Kontingent freigeschaltet wurde, kannst du Analysen starten.'
-    : ('Ihr habt alle ' + (CURRENT_FIRMA ? CURRENT_FIRMA.monatslimit : '') + ' Analysen dieses Monats verbraucht. Das Kontingent wird zum Monatsanfang automatisch zurückgesetzt.');
-  report.innerHTML =
-    '<div class="limit-box">' +
-      '<div class="limit-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg></div>' +
-      '<h3>' + titel + '</h3>' +
-      '<p>' + text + '</p>' +
-      // PAKET-SEITE: sobald die Seite steht, hier window.location='...DEINE-PAKET-URL...' eintragen
-      '<button class="limit-upgrade-btn" id="upgradeBtn" onclick="return false;">' +
-        '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19V5M5 12l7-7 7 7"/></svg>' +
-        'Mehr Analysen \u2013 Paket upgraden' +
-      '</button>' +
-    '</div>';
-  report.classList.add('active');
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+// ===== PAKET-SEITE (Paywall) =====
+const PLAENE = [
+  { id:'starter', name:'Starter', limit:100, preis:'299,99', empfohlen:false,
+    tagline:'Für kleine Teams & den Einstieg',
+    features:['Bis zu 100 Analysen / Monat','GwG-konforme Risikoprüfung','Rechtssichere PDF-Nachweise','Vollständige Prüf-Historie','Offizielle Bild-Belege'] },
+  { id:'premium', name:'Premium', limit:300, preis:'999,99', empfohlen:true,
+    tagline:'Der Favorit für die meisten Kanzleien & Händler',
+    features:['Bis zu 300 Analysen / Monat','Alles aus Starter','Geteiltes Team-Kontingent','Manipulationssichere Prüf-IDs','Bevorzugter Support'] },
+  { id:'enterprise', name:'Enterprise', limit:1000, preis:'2.999,99', empfohlen:false,
+    tagline:'Für hohes Prüfvolumen & Konzerne',
+    features:['Bis zu 1.000 Analysen / Monat','Alles aus Premium','Dedizierter Ansprechpartner','Eigene Server (auf Anfrage)','Höchste Bearbeitungspriorität'] }
+];
+
+function planMsg(text, type) {
+  const m = document.getElementById('planMsg');
+  if (!m) return;
+  if (!text) { m.classList.remove('show'); return; }
+  m.textContent = text; m.className = 'auth-msg show ' + (type || '');
 }
+
+function zeigePlaene(grund) {
+  hideBoot(); hideOnboarding();
+  document.getElementById('authGate').classList.add('hidden');
+  document.getElementById('loading').classList.remove('active');
+  const lg = document.getElementById('planLogo');
+  const src = document.querySelector('.auth-card .auth-logo');
+  if (lg && src && src.src) lg.src = src.src;
+  planMsg('', '');
+  const title = document.getElementById('planTitle');
+  const sub   = document.getElementById('planSubtitle');
+  const back  = document.getElementById('planBack');
+  if (grund === 'voll') {
+    title.textContent = 'Mehr Analysen gefällig?';
+    sub.textContent = 'Du hast dein Monats-Kontingent ausgeschöpft. Wähle einen größeren Plan und leg sofort wieder los – sonst setzt sich das Kontingent erst zum Monatsanfang zurück.';
+    if (back) back.style.display = '';
+  } else {
+    title.textContent = 'Wähle deinen Plan';
+    sub.textContent = 'Rechtssichere GwG-Prüfungen, auditfeste Nachweise, geteiltes Team-Kontingent.';
+    if (back) back.style.display = 'none';
+  }
+  renderPlaene();
+  document.getElementById('planGate').style.display = 'flex';
+  const kp = document.getElementById('kontingentPill'); if (kp) kp.style.display = 'none';
+  window.scrollTo({ top: 0, behavior: 'auto' });
+}
+
+function renderPlaene() {
+  const wrap = document.getElementById('planCards');
+  if (!wrap) return;
+  const check = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg>';
+  wrap.innerHTML = PLAENE.map(function(p) {
+    const feats = p.features.map(function(f){ return '<li>' + check + '<span>' + f + '</span></li>'; }).join('');
+    return '<div class="plan-card' + (p.empfohlen ? ' featured' : '') + '">'
+      + (p.empfohlen ? '<div class="plan-badge">\u2605 Beliebteste Wahl</div>' : '')
+      + '<div class="plan-name">' + p.name + '</div>'
+      + '<div class="plan-tagline">' + p.tagline + '</div>'
+      + '<div class="plan-price"><span class="plan-amount">' + p.preis + ' \u20AC</span><span class="plan-per">/ Monat</span></div>'
+      + '<div class="plan-limit">' + p.limit + ' Analysen monatlich</div>'
+      + '<ul class="plan-features">' + feats + '</ul>'
+      + '<button class="plan-btn' + (p.empfohlen ? ' primary' : '') + '" onclick="paketWaehlen(\'' + p.id + '\')">Plan wählen</button>'
+      + '</div>';
+  }).join('');
+}
+
+async function paketWaehlen(planId) {
+  if (!sb) return;
+  document.querySelectorAll('#planCards .plan-btn').forEach(function(b){ b.disabled = true; });
+  planMsg('Plan wird aktiviert\u2026', '');
+  try {
+    const { data, error } = await sb.rpc('paket_waehlen', { p_plan: planId });
+    if (error) throw error;
+    if (!data) throw new Error('Plan konnte nicht aktiviert werden.');
+    hidePlaene();
+    await ladeKontingent(); // neues Kontingent laden -> Tool öffnet sich
+  } catch (e) {
+    planMsg((e && e.message) || 'Fehler bei der Plan-Auswahl. Bitte erneut versuchen.', 'error');
+    document.querySelectorAll('#planCards .plan-btn').forEach(function(b){ b.disabled = false; });
+  }
+}
+
+function hidePlaene() { const g = document.getElementById('planGate'); if (g) g.style.display = 'none'; }
+function hidePlaeneBack() { hidePlaene(); enterApp(); }
 
 // ===== ONBOARDING (Firma / Einzelperson wählen) =====
 function obMsgShow(id, text, type) {
@@ -943,6 +1073,7 @@ function showOnboarding() {
   if (lg && src && src.src) lg.src = src.src;
   obZurueck();
   hideBoot();
+  hidePlaene();
   document.getElementById('authGate').classList.add('hidden');
   document.getElementById('onboardingGate').style.display = 'flex';
   const kp = document.getElementById('kontingentPill'); if (kp) kp.style.display = 'none';
