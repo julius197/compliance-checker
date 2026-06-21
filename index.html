@@ -545,7 +545,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v8.5</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v8.6</span>
       <div class="header-actions">
         <button class="hist-nav-btn" id="historyBtn" onclick="openHistory()" style="display:none;">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 2M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
@@ -877,7 +877,7 @@ async function runAnalysis(name, ust, land) {
     // Standort-Beweismittel: ALLE Google-Fotos (falls vorhanden) + Adresse für Street View
     // Bilder nur verwenden, wenn die Analyse den Google-Treffer ZWEIFELSFREI als die gesuchte Firma bestätigt hat.
     // Sonst (falscher/unsicherer Treffer) lieber KEINE Bilder als fremde/zufällige.
-    const googleTrefferOk = report.googleTrefferKorrekt === true;
+    const googleTrefferOk = report.googleTrefferKorrekt !== false && report.googleTrefferKorrekt !== 'false';
     report._evidence = {
       photoNames: (googleTrefferOk && googleData && Array.isArray(googleData.photos)) ? googleData.photos.map(p => p.name).filter(Boolean) : [],
       address: (googleTrefferOk && googleData && googleData.formattedAddress) ? googleData.formattedAddress : null,
@@ -1158,7 +1158,7 @@ KRITISCHE REGELN:
   "gesamtScore": Zahl 0-100 (Durchschnitt NUR der Kategorien mit echten Daten; null-Scores ignorieren),
   "verdict": "ok"|"warn"|"bad",
   "verdictText": "Geringe Auffälligkeiten"|"Erhöhte Sorgfaltspflicht"|"Verstärkte Sorgfaltspflicht",
-  "googleTrefferKorrekt": true oder false (true NUR wenn der oben gelieferte Google-Places-Treffer ZWEIFELSFREI die gesuchte Firma ist – Name UND Branche UND Land passen eindeutig. Bei Zweifel, falscher Branche, dauerhaft geschlossenem Eintrag, oder wenn du die richtige Firma stattdessen über web_search statt über den Google-Treffer gefunden hast: false. Dieses Feld steuert, ob die Standort-Bilder angezeigt werden – im Zweifel IMMER false, denn lieber keine Bilder als fremde/falsche.),
+  "googleTrefferKorrekt": true oder false (Bezieht sich NUR auf den oben gelieferten Google-Places-Treffer: Gehört DIESER Google-Eintrag zur gesuchten Firma? Standard = true. Setze false NUR, wenn der Google-Eintrag eindeutig eine ANDERE Firma ist – völlig anderer Name, andere Branche oder anderes Land. Dass du zusätzlich web_search nutzt, ändert daran NICHTS: Wenn der Google-Eintrag zur gesuchten Firma passt, bleibt es true. Dieses Feld steuert nur, ob die Standort-Bilder angezeigt werden – nur bei einem klaren Fehl-Treffer false.),
   "grunddaten": {
     "score": Zahl oder null (null wenn keine Daten),
     "felder": [
