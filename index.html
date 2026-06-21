@@ -369,6 +369,36 @@
       mask-image: linear-gradient(180deg, black, transparent 70%);
       -webkit-mask-image: linear-gradient(180deg, black, transparent 70%); }
     #authGate.hidden { display:none; }
+    /* ===== Onboarding-Overlay (Firma/Einzel-Wahl) ===== */
+    .ob-gate { position:fixed; inset:0; z-index:9998; display:flex; align-items:center; justify-content:center; padding:24px; overflow:auto;
+      background:
+        radial-gradient(900px 600px at 85% -5%, rgba(34,197,94,.06) 0%, transparent 55%),
+        radial-gradient(800px 700px at -10% 110%, rgba(22,163,74,.05) 0%, transparent 50%),
+        linear-gradient(180deg, #F4F8F6 0%, #F7F9F8 40%, #F5F8F6 100%); }
+    .ob-choice { display:flex; flex-direction:column; gap:3px; text-align:left; width:100%; padding:16px 18px; margin-top:12px;
+      background:#fff; border:1.5px solid rgba(34,197,94,.22); border-radius:14px; cursor:pointer; font-family:inherit; transition:border-color .2s, transform .15s, box-shadow .2s; }
+    .ob-choice:hover { border-color:var(--green); transform:translateY(-1px); box-shadow:0 10px 26px -10px rgba(34,197,94,.4); }
+    .ob-choice strong { font-size:16px; color:var(--ink, #1A2B23); font-weight:700; }
+    .ob-choice span { font-size:12.5px; color:var(--gray, #6B7C74); line-height:1.4; }
+    .ob-tabs { display:flex; gap:8px; margin:4px 0 16px; }
+    .ob-tab { flex:1; padding:9px; border-radius:10px; border:1.5px solid rgba(34,197,94,.18); background:#fff; color:var(--gray,#6B7C74); font-family:inherit; font-weight:600; font-size:13px; cursor:pointer; transition:all .18s; }
+    .ob-tab.active { background:var(--green,#22C55E); border-color:var(--green,#22C55E); color:#fff; }
+    .ob-code { font-family:'SF Mono',ui-monospace,Menlo,monospace; font-size:30px; font-weight:800; letter-spacing:7px; text-align:center; color:var(--green-d,#16A34A);
+      background:rgba(34,197,94,.08); border:1.5px dashed rgba(34,197,94,.4); border-radius:14px; padding:18px 12px; margin:8px 0 14px; user-select:all; }
+    .ob-hinweis { font-size:12.5px; color:var(--gray,#6B7C74); line-height:1.5; background:rgba(245,158,11,.08); border:1px solid rgba(245,158,11,.25); border-radius:10px; padding:11px 13px; margin-bottom:16px; }
+    /* ===== Kontingent-Pille im Header ===== */
+    .kontingent-pill { display:inline-flex; align-items:center; gap:5px; padding:4px 10px; border-radius:999px; font-size:11.5px; font-weight:700;
+      background:rgba(34,197,94,.1); color:var(--green-d,#16A34A); border:1px solid rgba(34,197,94,.2); white-space:nowrap; }
+    .kontingent-pill.warn { background:rgba(245,158,11,.12); color:#B45309; border-color:rgba(245,158,11,.3); }
+    .kontingent-pill.full { background:rgba(239,68,68,.1); color:#B91C1C; border-color:rgba(239,68,68,.3); }
+    /* ===== Limit-/Upgrade-Sperre ===== */
+    .limit-box { text-align:center; padding:40px 28px; }
+    .limit-box .limit-icon { width:60px; height:60px; margin:0 auto 18px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:rgba(239,68,68,.1); color:#EF4444; }
+    .limit-box h3 { font-size:19px; font-weight:800; color:var(--ink,#1A2B23); margin:0 0 8px; }
+    .limit-box p { font-size:14px; color:var(--gray,#6B7C74); line-height:1.55; max-width:380px; margin:0 auto 22px; }
+    .limit-upgrade-btn { display:inline-flex; align-items:center; gap:8px; padding:13px 26px; border:none; border-radius:12px; cursor:pointer; font-family:inherit; font-size:14.5px; font-weight:700; color:#fff;
+      background:linear-gradient(135deg,#4ADE80 0%,#22C55E 45%,#16A34A 100%); box-shadow:0 10px 26px -8px rgba(34,197,94,.5); transition:transform .15s, box-shadow .2s; }
+    .limit-upgrade-btn:hover { transform:translateY(-1px); box-shadow:0 14px 32px -8px rgba(34,197,94,.6); }
     .auth-card { position:relative; z-index:1; background:rgba(255,255,255,.92); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); border:1px solid rgba(34,197,94,.18); border-radius:22px; padding:46px 42px; width:100%; max-width:440px;
       box-shadow: 0 0 0 1px rgba(34,197,94,.06), 0 24px 70px -18px rgba(16,40,28,.22), 0 1px 0 rgba(255,255,255,.7) inset; overflow:hidden; }
     .auth-card::before { content:''; position:absolute; top:0; left:0; right:0; height:4px; background:linear-gradient(90deg, transparent 8%, var(--green) 35%, #5EEAD4 55%, var(--green-d) 70%, transparent 92%); }
@@ -537,6 +567,69 @@
   </div>
 </div>
 
+<div id="onboardingGate" class="ob-gate" style="display:none;">
+  <div class="auth-card">
+    <img class="auth-logo" id="obLogo" alt="Automati Labs" />
+
+    <div id="obStep1">
+      <div class="auth-title">Willkommen!</div>
+      <div class="auth-sub">Wie möchtest du den Compliance-Checker nutzen?</div>
+      <div class="auth-msg" id="obMsg"></div>
+      <button class="ob-choice" onclick="obWaehle('firma')">
+        <strong>Firma</strong>
+        <span>Mehrere Mitarbeiter teilen ein gemeinsames Kontingent</span>
+      </button>
+      <button class="ob-choice" onclick="obWaehle('einzel')">
+        <strong>Einzelperson</strong>
+        <span>Eigenes Konto nur für dich</span>
+      </button>
+    </div>
+
+    <div id="obStepFirma" style="display:none;">
+      <div class="auth-title">Firma</div>
+      <div class="auth-sub">Neue Firma anlegen oder einer bestehenden beitreten?</div>
+      <div class="auth-msg" id="obMsgFirma"></div>
+      <div class="ob-tabs">
+        <button class="ob-tab active" id="obTabNeu" onclick="obFirmaTab('neu')">Neue Firma</button>
+        <button class="ob-tab" id="obTabBei" onclick="obFirmaTab('bei')">Beitreten</button>
+      </div>
+      <div id="obFirmaNeu">
+        <div class="auth-field">
+          <label class="auth-label">Firmenname</label>
+          <input type="text" class="auth-input" id="obFirmaName" placeholder="Muster GmbH" />
+        </div>
+        <button class="auth-btn" id="obBtnAnlegen" onclick="obFirmaAnlegen()">Firma anlegen</button>
+      </div>
+      <div id="obFirmaBei" style="display:none;">
+        <div class="auth-field">
+          <label class="auth-label">Firmen-Code</label>
+          <input type="text" class="auth-input" id="obFirmaCode" placeholder="z.B. A3F9C1" autocomplete="off" style="text-transform:uppercase; letter-spacing:2px;" />
+        </div>
+        <button class="auth-btn" id="obBtnBeitreten" onclick="obFirmaBeitreten()">Beitreten</button>
+      </div>
+      <div class="auth-toggle"><a onclick="obZurueck()">← Zurück</a></div>
+    </div>
+
+    <div id="obStepCode" style="display:none;">
+      <div class="auth-title">Firma angelegt ✓</div>
+      <div class="auth-sub">Das ist dein Firmen-Code. Gib ihn an deine Mitarbeiter weiter – damit treten sie deiner Firma bei und teilen euer Kontingent.</div>
+      <div class="ob-code" id="obCodeWert">––––––</div>
+      <div class="ob-hinweis">Dein Konto ist noch nicht freigeschaltet. Sobald dein Kontingent aktiviert wurde, kannst du Analysen starten.</div>
+      <button class="auth-btn" onclick="obFertig()">Verstanden, weiter</button>
+    </div>
+
+    <div id="obStepEinzel" style="display:none;">
+      <div class="auth-title">Einzel-Konto</div>
+      <div class="auth-sub">Wir richten dein persönliches Konto ein.</div>
+      <div class="auth-msg" id="obMsgEinzel"></div>
+      <button class="auth-btn" id="obBtnEinzel" onclick="obEinzelAnlegen()">Konto einrichten</button>
+      <div class="auth-toggle"><a onclick="obZurueck()">← Zurück</a></div>
+    </div>
+
+    <div class="auth-toggle" style="margin-top:18px;"><a onclick="doLogout()">Abmelden</a></div>
+  </div>
+</div>
+
 <div class="app">
   <header class="header">
     <div class="logo-wrap">
@@ -545,7 +638,11 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v8.6</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v8.7</span>
+      <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
+        <span id="kontingentText">–/–</span>
+      </div>
       <div class="header-actions">
         <button class="hist-nav-btn" id="historyBtn" onclick="openHistory()" style="display:none;">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 2M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
@@ -721,19 +818,173 @@ async function doLogout() {
 
 // Global: E-Mail des eingeloggten Nutzers (für Wasserzeichen auf Ausdrucken)
 let CURRENT_USER_EMAIL = '';
+let CURRENT_FIRMA = null; // { firma_id, firma_name, typ, monatslimit, verbraucht, aktiv }
 
 function showApp(session) {
   document.getElementById('authGate').classList.add('hidden');
-  document.getElementById('logoutBtn').style.display = '';
-  const hb = document.getElementById('historyBtn'); if (hb) hb.style.display = '';
   if (session && session.user) CURRENT_USER_EMAIL = session.user.email || '';
+  ladeKontingent();
 }
 
 function showGate() {
   document.getElementById('authGate').classList.remove('hidden');
+  hideOnboarding();
   document.getElementById('logoutBtn').style.display = 'none';
   const hb = document.getElementById('historyBtn'); if (hb) hb.style.display = 'none';
+  const kp = document.getElementById('kontingentPill'); if (kp) kp.style.display = 'none';
+  CURRENT_FIRMA = null;
 }
+
+// ===== KONTINGENT (Firmen-Account + geteiltes Monatslimit) =====
+async function ladeKontingent() {
+  if (!sb) return;
+  try {
+    const { data, error } = await sb.rpc('kontingent_status');
+    if (error) throw error;
+    const row = (data && data.length) ? data[0] : null;
+    if (!row) {                 // Nutzer gehört zu keiner Firma -> Onboarding
+      CURRENT_FIRMA = null;
+      showOnboarding();
+      return;
+    }
+    CURRENT_FIRMA = row;
+    hideOnboarding();
+    document.getElementById('logoutBtn').style.display = '';
+    const hb = document.getElementById('historyBtn'); if (hb) hb.style.display = '';
+    updateKontingentAnzeige();
+  } catch (e) {
+    console.warn('Kontingent konnte nicht geladen werden:', e && e.message);
+    hideOnboarding();           // im Zweifel App freigeben, nicht aussperren
+    document.getElementById('logoutBtn').style.display = '';
+  }
+}
+
+function updateKontingentAnzeige() {
+  const pill = document.getElementById('kontingentPill');
+  const txt  = document.getElementById('kontingentText');
+  if (!pill || !txt || !CURRENT_FIRMA) return;
+  const f = CURRENT_FIRMA;
+  txt.textContent = f.verbraucht + ' / ' + f.monatslimit;
+  pill.classList.remove('warn', 'full');
+  if (!f.aktiv || f.monatslimit <= 0 || f.verbraucht >= f.monatslimit) pill.classList.add('full');
+  else if (f.verbraucht >= f.monatslimit * 0.85) pill.classList.add('warn');
+  pill.style.display = 'inline-flex';
+}
+
+// true = Analyse erlaubt; false = blockiert (zeigt Sperre/Upgrade-Hinweis)
+function kontingentVerfuegbar() {
+  if (!CURRENT_FIRMA) return true;  // kein Kontingent geladen -> nicht blockieren
+  const f = CURRENT_FIRMA;
+  if (!f.aktiv || f.monatslimit <= 0) { zeigeLimitErreicht('inaktiv'); return false; }
+  if (f.verbraucht >= f.monatslimit) { zeigeLimitErreicht('voll'); return false; }
+  return true;
+}
+
+function zeigeLimitErreicht(grund) {
+  const es = document.getElementById('emptyState'); if (es) es.style.display = 'none';
+  document.getElementById('loading').classList.remove('active');
+  const report = document.getElementById('report');
+  const inaktiv = grund === 'inaktiv';
+  const titel = inaktiv ? 'Konto noch nicht freigeschaltet' : 'Monats-Kontingent aufgebraucht';
+  const text = inaktiv
+    ? 'Dein Konto ist angelegt, aber noch nicht aktiviert. Sobald dein Kontingent freigeschaltet wurde, kannst du Analysen starten.'
+    : ('Ihr habt alle ' + (CURRENT_FIRMA ? CURRENT_FIRMA.monatslimit : '') + ' Analysen dieses Monats verbraucht. Das Kontingent wird zum Monatsanfang automatisch zurückgesetzt.');
+  report.innerHTML =
+    '<div class="limit-box">' +
+      '<div class="limit-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg></div>' +
+      '<h3>' + titel + '</h3>' +
+      '<p>' + text + '</p>' +
+      // PAKET-SEITE: sobald die Seite steht, hier window.location='...DEINE-PAKET-URL...' eintragen
+      '<button class="limit-upgrade-btn" id="upgradeBtn" onclick="return false;">' +
+        '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19V5M5 12l7-7 7 7"/></svg>' +
+        'Mehr Analysen \u2013 Paket upgraden' +
+      '</button>' +
+    '</div>';
+  report.classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ===== ONBOARDING (Firma / Einzelperson wählen) =====
+function obMsgShow(id, text, type) {
+  const m = document.getElementById(id);
+  if (!m) return;
+  if (!text) { m.classList.remove('show'); return; }
+  m.textContent = text; m.className = 'auth-msg show ' + (type || '');
+}
+function showOnboarding() {
+  const lg = document.getElementById('obLogo');
+  const src = document.querySelector('.auth-card .auth-logo');
+  if (lg && src && src.src) lg.src = src.src;
+  obZurueck();
+  document.getElementById('onboardingGate').style.display = 'flex';
+  const kp = document.getElementById('kontingentPill'); if (kp) kp.style.display = 'none';
+  const hb = document.getElementById('historyBtn'); if (hb) hb.style.display = 'none';
+  document.getElementById('logoutBtn').style.display = 'none';
+}
+function hideOnboarding() {
+  const g = document.getElementById('onboardingGate'); if (g) g.style.display = 'none';
+}
+function obZurueck() {
+  document.getElementById('obStep1').style.display = '';
+  document.getElementById('obStepFirma').style.display = 'none';
+  document.getElementById('obStepCode').style.display = 'none';
+  document.getElementById('obStepEinzel').style.display = 'none';
+  obMsgShow('obMsg',''); obMsgShow('obMsgFirma',''); obMsgShow('obMsgEinzel','');
+}
+function obWaehle(typ) {
+  document.getElementById('obStep1').style.display = 'none';
+  if (typ === 'firma') { document.getElementById('obStepFirma').style.display = ''; obFirmaTab('neu'); }
+  else { document.getElementById('obStepEinzel').style.display = ''; }
+}
+function obFirmaTab(t) {
+  const neu = t === 'neu';
+  document.getElementById('obFirmaNeu').style.display = neu ? '' : 'none';
+  document.getElementById('obFirmaBei').style.display = neu ? 'none' : '';
+  document.getElementById('obTabNeu').classList.toggle('active', neu);
+  document.getElementById('obTabBei').classList.toggle('active', !neu);
+  obMsgShow('obMsgFirma','');
+}
+async function obFirmaAnlegen() {
+  const name = document.getElementById('obFirmaName').value.trim();
+  if (!name) { obMsgShow('obMsgFirma','Bitte einen Firmennamen eingeben.','error'); return; }
+  const btn = document.getElementById('obBtnAnlegen'); btn.disabled = true;
+  try {
+    const { data, error } = await sb.rpc('firma_anlegen', { p_name: name, p_typ: 'firma' });
+    if (error) throw error;
+    document.getElementById('obCodeWert').textContent = data;
+    document.getElementById('obStepFirma').style.display = 'none';
+    document.getElementById('obStepCode').style.display = '';
+  } catch (e) {
+    obMsgShow('obMsgFirma', (e && e.message) || 'Firma konnte nicht angelegt werden.', 'error');
+    btn.disabled = false;
+  }
+}
+async function obFirmaBeitreten() {
+  const code = document.getElementById('obFirmaCode').value.trim().toUpperCase();
+  if (!code) { obMsgShow('obMsgFirma','Bitte den Firmen-Code eingeben.','error'); return; }
+  const btn = document.getElementById('obBtnBeitreten'); btn.disabled = true;
+  try {
+    const { data, error } = await sb.rpc('firma_beitreten', { p_code: code });
+    if (error) throw error;
+    if (data === true) { hideOnboarding(); await ladeKontingent(); }
+    else { obMsgShow('obMsgFirma','Dieser Firmen-Code ist unbekannt. Bitte prüfen.','error'); btn.disabled = false; }
+  } catch (e) {
+    obMsgShow('obMsgFirma', (e && e.message) || 'Beitritt fehlgeschlagen.', 'error');
+    btn.disabled = false;
+  }
+}
+async function obEinzelAnlegen() {
+  const btn = document.getElementById('obBtnEinzel'); btn.disabled = true;
+  try {
+    const { error } = await sb.rpc('firma_anlegen', { p_name: (CURRENT_USER_EMAIL || 'Mein Konto'), p_typ: 'einzel' });
+    if (error) throw error;
+    hideOnboarding(); await ladeKontingent();
+  } catch (e) {
+    obMsgShow('obMsgEinzel', (e && e.message) || 'Konto konnte nicht eingerichtet werden.', 'error');
+    btn.disabled = false;
+  }
+}
+async function obFertig() { hideOnboarding(); await ladeKontingent(); }
 
 // Beim Laden prüfen ob eingeloggt
 if (sb) {
@@ -778,6 +1029,7 @@ function startSearch() {
   if (!name) { document.getElementById('nameInput').focus(); return; }
   const land = document.getElementById('landInput').value;
   if (!land) { document.getElementById('landInput').focus(); return; }
+  if (!kontingentVerfuegbar()) return;   // Monatslimit voll / Konto inaktiv -> Sperre + Upgrade-Hinweis
   const ust = document.getElementById('ustInput').value.trim();
   document.getElementById('emptyState').style.display = 'none';
   document.getElementById('report').classList.remove('active');
@@ -1756,6 +2008,7 @@ async function saveAnalysisToHistory(d, rawName) {
     while (attempts < 6) {
       const row = {
         user_id: user.id,
+        firma_id: (CURRENT_FIRMA ? CURRENT_FIRMA.firma_id : null),
         pruef_id: d.pruefId,
         firmenname: d.firmenname || rawName || 'Unbekanntes Unternehmen',
         land: d._land || null,
@@ -1766,7 +2019,10 @@ async function saveAnalysisToHistory(d, rawName) {
         report_json: d
       };
       const { error } = await sb.from('analysen').insert(row);
-      if (!error) return; // gespeichert
+      if (!error) {
+        if (CURRENT_FIRMA) { CURRENT_FIRMA.verbraucht = (CURRENT_FIRMA.verbraucht || 0) + 1; updateKontingentAnzeige(); }
+        return; // gespeichert
+      }
       // 23505 = unique_violation → Prüf-ID kollidiert: neue ID, Wasserzeichen aktualisieren, erneut versuchen
       if (error.code === '23505' || /duplicate|unique/i.test(error.message || '')) {
         d.pruefId = generatePruefId();
@@ -1794,7 +2050,7 @@ async function openHistory() {
       <div>
         <div class="history-eyebrow">Geprüfte Unternehmen</div>
         <div class="history-title">Prüf-Historie</div>
-        <div class="history-sub">Alle von dir durchgeführten Compliance-Prüfungen. Klicke einen Eintrag an, um den vollständigen Bericht erneut zu öffnen oder zu drucken – mit derselben Prüf-ID wie auf dem Ausdruck.</div>
+        <div class="history-sub">Alle Compliance-Prüfungen deiner Firma. Klicke einen Eintrag an, um den vollständigen Bericht erneut zu öffnen oder zu drucken – mit derselben Prüf-ID wie auf dem Ausdruck.</div>
       </div>
       <button class="btn-action" onclick="backToMain()">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
