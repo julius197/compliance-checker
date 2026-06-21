@@ -403,7 +403,7 @@
         linear-gradient(180deg, #F4F8F6 0%, #F7F9F8 45%, #F5F8F6 100%); }
     .plan-wrap { width:100%; max-width:1020px; margin:auto 0; }
     .plan-head { text-align:center; margin-bottom:30px; }
-    .plan-logo { height:38px; width:auto; margin:0 auto 18px; display:block; opacity:.95; }
+    .plan-logo { height:80px; width:auto; max-width:90%; margin:0 auto 22px; display:block; opacity:1; }
     .plan-eyebrow { font-size:11px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--green-d,#16A34A); margin-bottom:10px; }
     .plan-title { font-size:34px; font-weight:800; color:var(--ink,#10231A); margin:0 0 10px; letter-spacing:-.02em; line-height:1.1; }
     .plan-subtitle { font-size:15px; color:var(--gray,#5A6B63); max-width:540px; margin:0 auto; line-height:1.5; }
@@ -436,6 +436,7 @@
     .plan-foot a:hover { text-decoration:underline; }
     @media (max-width:760px) {
       .plan-cards { grid-template-columns:1fr; gap:22px; }
+      .plan-logo { height:60px; }
       .plan-card.featured { transform:none; order:-1; }
       .plan-card.featured:hover { transform:translateY(-3px); }
       .plan-title { font-size:27px; }
@@ -719,7 +720,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v8.9</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v9.0</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
