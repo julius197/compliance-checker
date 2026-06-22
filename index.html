@@ -602,8 +602,35 @@
     .ordner-row { display:flex; gap:10px; align-items:stretch; }
     .ordner-new-btn { flex-shrink:0; padding:0 16px; border:1.5px dashed rgba(34,197,94,.45); background:var(--green-tint); color:var(--green-dd); border-radius:11px; font-family:inherit; font-size:13px; font-weight:700; cursor:pointer; white-space:nowrap; transition:border-color .15s, background .15s, transform .1s; display:flex; align-items:center; gap:6px; }
     .ordner-new-btn:hover { border-color:var(--green); background:var(--green-pale); transform:translateY(-1px); }
-    #neuerOrdnerBox { margin-top:12px; padding:16px; border:1.5px solid var(--border); border-radius:12px; background:var(--green-tint); animation: slideDown .3s cubic-bezier(.16,1,.3,1); }
+    #neuerOrdnerBox { margin-top:12px; padding:20px; border:1.5px solid var(--border); border-radius:14px; background:linear-gradient(165deg,#FFFFFF 0%, #FAFEFB 100%); box-shadow:0 8px 28px -16px rgba(16,40,28,.18); position:relative; overflow:hidden; animation: slideDown .3s cubic-bezier(.16,1,.3,1); }
+    #neuerOrdnerBox::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg,var(--green) 0%, var(--green-d) 35%, #5EEAD4 60%, transparent 90%); }
     #neuerOrdnerBox .auth-msg { margin-bottom:10px; }
+    .nob-head { display:flex; align-items:center; gap:9px; margin-bottom:14px; }
+    .nob-icon { width:30px; height:30px; border-radius:8px; background:linear-gradient(135deg,#22C55E,#16A34A); display:flex; align-items:center; justify-content:center; flex-shrink:0; box-shadow:0 4px 10px -3px rgba(34,197,94,.5); }
+    .nob-title { font-size:14px; font-weight:800; color:var(--ink); letter-spacing:-.01em; }
+    .nob-input { width:100%; padding:13px 15px; background:#FCFEFD; border:1.5px solid var(--border); border-radius:10px; color:var(--ink); font-family:inherit; font-size:14px; outline:none; transition:border-color .2s, box-shadow .2s; margin-bottom:16px; }
+    .nob-input:focus { border-color:var(--green); box-shadow:0 0 0 3px var(--green-pale); }
+    .nob-label { font-size:12px; font-weight:600; color:var(--ink2); margin-bottom:9px; }
+    .nob-options { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:18px; }
+    .nob-opt { position:relative; display:flex; align-items:flex-start; gap:10px; text-align:left; padding:13px; border:1.5px solid var(--border); border-radius:11px; background:#fff; cursor:pointer; font-family:inherit; transition:border-color .18s, background .18s, box-shadow .18s, transform .1s; }
+    .nob-opt:hover { border-color:rgba(34,197,94,.5); transform:translateY(-1px); }
+    .nob-opt.active { border-color:var(--green); background:var(--green-tint); box-shadow:0 0 0 3px var(--green-pale); }
+    .nob-opt-ic { width:30px; height:30px; border-radius:8px; background:var(--green-tint); color:var(--green-d); display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:background .18s, color .18s; }
+    .nob-opt.active .nob-opt-ic { background:var(--green); color:#fff; }
+    .nob-opt-txt { display:flex; flex-direction:column; gap:2px; min-width:0; }
+    .nob-opt-txt strong { font-size:13px; font-weight:700; color:var(--ink); }
+    .nob-opt-txt span { font-size:11px; color:var(--gray); line-height:1.35; }
+    .nob-check { position:absolute; top:9px; right:9px; width:16px; height:16px; border-radius:50%; background:var(--green); color:#fff; display:none; align-items:center; justify-content:center; }
+    .nob-opt.active .nob-check { display:flex; }
+    .nob-actions { display:flex; gap:10px; align-items:center; }
+    .nob-cancel { padding:13px 16px; border:1.5px solid var(--border); background:#fff; color:var(--gray); border-radius:10px; font-family:inherit; font-size:13px; font-weight:600; cursor:pointer; transition:border-color .15s, color .15s; }
+    .nob-cancel:hover { border-color:var(--gray-l); color:var(--ink2); }
+    .nob-create { flex:1; padding:13px; border:none; border-radius:11px; cursor:pointer; font-family:inherit; font-size:14px; font-weight:700; color:#fff; background:linear-gradient(135deg,#4ADE80 0%,#22C55E 45%,#16A34A 100%); box-shadow:0 8px 20px -6px rgba(34,197,94,.5), inset 0 1px 0 rgba(255,255,255,.25); display:flex; align-items:center; justify-content:center; gap:8px; transition:transform .15s, box-shadow .2s; position:relative; overflow:hidden; }
+    .nob-create:hover { transform:translateY(-1px); box-shadow:0 12px 26px -6px rgba(34,197,94,.62), inset 0 1px 0 rgba(255,255,255,.25); }
+    .nob-create::after { content:''; position:absolute; top:0; left:-110%; width:60%; height:100%; background:linear-gradient(90deg,transparent,rgba(255,255,255,.35),transparent); transform:skewX(-18deg); transition:left .6s ease; }
+    .nob-create:hover::after { left:160%; }
+    .nob-create:disabled { opacity:.6; cursor:wait; }
+    @media(max-width:640px){ .nob-options { grid-template-columns:1fr; } }
     /* Historie: Ordner-Filter-Chips */
     .hist-filter { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:18px; }
     .hist-chip { font-size:12px; font-weight:600; color:var(--gray); background:var(--card); border:1px solid var(--border); border-radius:20px; padding:7px 14px; cursor:pointer; font-family:inherit; transition:border-color .15s, background .15s, color .15s, transform .1s; display:inline-flex; align-items:center; gap:7px; }
@@ -740,7 +767,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v9.1</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v9.1.1</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -803,15 +830,34 @@
         </button>
       </div>
       <div id="neuerOrdnerBox" style="display:none;">
-        <div class="auth-msg" id="ordnerMsg"></div>
-        <div class="field-label">Ordnername</div>
-        <input type="text" id="neuerOrdnerName" placeholder="z.B. Kunden 2026" style="margin-bottom:12px;" />
-        <div class="field-label">Sichtbarkeit</div>
-        <div class="ob-tabs" style="margin-top:4px;">
-          <button type="button" class="ob-tab active" id="ordnerTabPrivat" onclick="setOrdnerSicht('privat')">Privat (nur ich)</button>
-          <button type="button" class="ob-tab" id="ordnerTabOeff" onclick="setOrdnerSicht('oeffentlich')">Öffentlich (ganze Firma)</button>
+        <div class="nob-head">
+          <span class="nob-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/><line x1="12" y1="10" x2="12" y2="16"/><line x1="9" y1="13" x2="15" y2="13"/></svg></span>
+          <span class="nob-title">Neuen Ordner anlegen</span>
         </div>
-        <button type="button" class="auth-btn" id="btnOrdnerAnlegen" onclick="ordnerAnlegen()" style="margin-top:4px;">Ordner anlegen</button>
+        <div class="auth-msg" id="ordnerMsg"></div>
+        <input type="text" id="neuerOrdnerName" class="nob-input" placeholder="Ordnername – z.B. Kunden 2026" />
+        <div id="ordnerSichtWrap">
+          <div class="nob-label">Wer darf den Ordner sehen?</div>
+          <div class="nob-options">
+            <button type="button" class="nob-opt active" id="ordnerOptPrivat" onclick="setOrdnerSicht('privat')">
+              <span class="nob-opt-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
+              <span class="nob-opt-txt"><strong>Privat</strong><span>Nur ich sehe diesen Ordner</span></span>
+              <span class="nob-check"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5"/></svg></span>
+            </button>
+            <button type="button" class="nob-opt" id="ordnerOptOeff" onclick="setOrdnerSicht('oeffentlich')">
+              <span class="nob-opt-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
+              <span class="nob-opt-txt"><strong>Öffentlich</strong><span>Die ganze Firma sieht ihn</span></span>
+              <span class="nob-check"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5"/></svg></span>
+            </button>
+          </div>
+        </div>
+        <div class="nob-actions">
+          <button type="button" class="nob-cancel" onclick="oeffneNeuerOrdner()">Abbrechen</button>
+          <button type="button" class="nob-create" id="btnOrdnerAnlegen" onclick="ordnerAnlegen()">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/><line x1="12" y1="10" x2="12" y2="16"/><line x1="9" y1="13" x2="15" y2="13"/></svg>
+            Ordner anlegen
+          </button>
+        </div>
       </div>
     </div>
     <button class="btn-search" id="searchBtn" onclick="startSearch()">
@@ -993,10 +1039,11 @@ async function ladeOrdner() {
 function fuelleOrdnerSelect() {
   const sel = document.getElementById('ordnerSelect');
   if (!sel) return;
+  const einzel = !!(CURRENT_FIRMA && CURRENT_FIRMA.typ === 'einzel');
   const cur = sel.value;
   let html = '<option value="">Kein Ordner</option>';
   ORDNER_LIST.forEach(function(o){
-    const tag = o.sichtbarkeit === 'oeffentlich' ? ' (öffentlich)' : ' (privat)';
+    const tag = einzel ? '' : (o.sichtbarkeit === 'oeffentlich' ? ' (öffentlich)' : ' (privat)');
     html += '<option value="' + o.id + '">' + escapeHtml(o.name) + tag + '</option>';
   });
   sel.innerHTML = html;
@@ -1008,12 +1055,20 @@ function oeffneNeuerOrdner() {
   if (!box) return;
   const offen = box.style.display !== 'none';
   box.style.display = offen ? 'none' : 'block';
-  if (!offen) { setOrdnerSicht('privat'); ordnerMsgShow('',''); const n = document.getElementById('neuerOrdnerName'); if (n) n.focus(); }
+  if (!offen) {
+    // Einzelperson: keine privat/oeffentlich-Wahl (ergibt keinen Sinn) -> Ordner ist immer nur fuer einen selbst
+    const einzel = !!(CURRENT_FIRMA && CURRENT_FIRMA.typ === 'einzel');
+    const wrap = document.getElementById('ordnerSichtWrap');
+    if (wrap) wrap.style.display = einzel ? 'none' : '';
+    setOrdnerSicht('privat');
+    ordnerMsgShow('','');
+    const n = document.getElementById('neuerOrdnerName'); if (n) n.focus();
+  }
 }
 
 function setOrdnerSicht(s) {
   NEUER_ORDNER_SICHT = s;
-  const p = document.getElementById('ordnerTabPrivat'), o = document.getElementById('ordnerTabOeff');
+  const p = document.getElementById('ordnerOptPrivat'), o = document.getElementById('ordnerOptOeff');
   if (p) p.classList.toggle('active', s === 'privat');
   if (o) o.classList.toggle('active', s === 'oeffentlich');
 }
@@ -2431,10 +2486,11 @@ function renderHistoryList() {
       const land = r.land ? ' · ' + r.land : '';
       // Ordner-Tag (nur wenn der Ordner für den Nutzer sichtbar ist)
       const folder = r.ordner_id ? ORDNER_LIST.find(function(o){ return o.id === r.ordner_id; }) : null;
+      const einzelKonto = !!(CURRENT_FIRMA && CURRENT_FIRMA.typ === 'einzel');
       const folderTag = folder
         ? '<span class="hr-folder" style="background:' + hexToRgba(folder.farbe, 0.12) + ';color:' + (folder.farbe || '#16A34A') + '">'
           + '<span class="fdot" style="background:' + (folder.farbe || '#22C55E') + '"></span>' + escapeHtml(folder.name)
-          + (folder.sichtbarkeit === 'privat' ? ' · privat' : '') + '</span>'
+          + ((!einzelKonto && folder.sichtbarkeit === 'privat') ? ' · privat' : '') + '</span>'
         : '';
       return '<button class="history-row" onclick="openFromHistory(' + idx + ')">'
         + '<div class="hr-main">'
