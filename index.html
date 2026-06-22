@@ -640,7 +640,38 @@
     /* Historie: Ordner-Tag pro Zeile */
     .hr-folder { display:inline-flex; align-items:center; gap:6px; font-size:10px; font-weight:700; padding:3px 9px; border-radius:20px; margin-top:6px; letter-spacing:.02em; }
     .hr-folder .fdot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
-    @media print { .hist-filter, .ordner-row, #neuerOrdnerBox { display:none !important; } }
+    /* Historie: Suche + Verwalten-Leiste */
+    .hist-controls { display:flex; gap:10px; align-items:center; margin-bottom:18px; flex-wrap:wrap; }
+    .hist-search-wrap { position:relative; flex:1; min-width:200px; }
+    .hist-search-wrap > svg { position:absolute; left:14px; top:50%; transform:translateY(-50%); color:var(--gray-l); pointer-events:none; }
+    .hist-search { width:100%; padding:12px 14px 12px 40px; background:var(--card); border:1.5px solid var(--border); border-radius:11px; color:var(--ink); font-family:inherit; font-size:14px; outline:none; transition:border-color .2s, box-shadow .2s; }
+    .hist-search:focus { border-color:var(--green); box-shadow:0 0 0 3px var(--green-pale); }
+    .btn-action.active { border-color:var(--green); background:var(--green-tint); color:var(--green-dd); }
+    /* Ordner-Verwalten-Panel */
+    .ordner-manage { background:var(--card); border:1px solid var(--border); border-radius:var(--radius-lg); padding:18px 20px; margin-bottom:18px; box-shadow:var(--shadow); animation: slideDown .3s cubic-bezier(.16,1,.3,1); }
+    .om-title { font-size:13px; font-weight:800; color:var(--ink); margin-bottom:14px; display:flex; align-items:center; gap:8px; }
+    .om-empty { font-size:13px; color:var(--gray-l); font-style:italic; padding:6px 0; }
+    .om-row { display:flex; align-items:center; gap:12px; padding:12px 0; border-bottom:1px solid var(--border2); flex-wrap:wrap; }
+    .om-row:last-child { border-bottom:none; }
+    .om-name-input { flex:1; min-width:140px; padding:9px 12px; background:#FCFEFD; border:1.5px solid var(--border); border-radius:9px; color:var(--ink); font-family:inherit; font-size:13px; font-weight:600; outline:none; transition:border-color .15s, box-shadow .15s; }
+    .om-name-input:focus { border-color:var(--green); box-shadow:0 0 0 3px var(--green-pale); }
+    .om-swatches { display:flex; gap:6px; }
+    .om-swatch { width:20px; height:20px; border-radius:50%; cursor:pointer; border:2px solid transparent; box-shadow:0 1px 3px rgba(0,0,0,.12); transition:transform .12s, border-color .12s; }
+    .om-swatch:hover { transform:scale(1.18); }
+    .om-swatch.active { border-color:var(--ink); }
+    .om-count { font-size:11px; font-weight:700; color:var(--gray); background:var(--bg); border:1px solid var(--border); border-radius:20px; padding:3px 10px; white-space:nowrap; }
+    .om-vis { font-size:10px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:var(--green-d); background:var(--green-pale); border-radius:6px; padding:3px 8px; }
+    .om-del { padding:8px 12px; border:1.5px solid var(--border); background:#fff; color:var(--gray); border-radius:9px; font-family:inherit; font-size:12px; font-weight:600; cursor:pointer; display:inline-flex; align-items:center; gap:6px; transition:border-color .15s, color .15s, background .15s; }
+    .om-del:hover { border-color:var(--bad); color:var(--bad-text); background:var(--bad-bg); }
+    /* Historie-Zeile: Klickbereich + Verschieben */
+    .hr-click { display:flex; align-items:center; justify-content:space-between; gap:16px; flex:1; cursor:pointer; min-width:0; }
+    .hr-author { font-size:11px; color:var(--gray-l); margin-top:3px; font-weight:500; }
+    .hr-tools { display:flex; align-items:center; gap:8px; flex-shrink:0; }
+    .hr-move { font-size:11px; font-weight:600; color:var(--gray); background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:7px 9px; font-family:inherit; cursor:pointer; outline:none; max-width:170px; transition:border-color .15s; }
+    .hr-move:hover { border-color:var(--green); }
+    .hr-move:focus { border-color:var(--green); box-shadow:0 0 0 2px var(--green-pale); }
+    @media(max-width:640px){ .hr-tools { width:100%; } .hr-move { flex:1; max-width:none; } }
+    @media print { .hist-filter, .ordner-row, #neuerOrdnerBox, .hist-controls, .ordner-manage, .hr-tools, .hr-move { display:none !important; } }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -767,7 +798,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v9.1.1</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v9.1.2</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -994,6 +1025,7 @@ let ORDNER_LIST = [];            // sichtbare Ordner des Nutzers
 let NEUER_ORDNER_SICHT = 'privat';
 let SELECTED_ORDNER_ID = null;   // beim Analysieren gewählter Ordner
 let HISTORY_FILTER = 'alle';     // 'alle' | 'ohne' | <ordner_id>
+const ORDNER_FARBEN = ['#22C55E','#3B82F6','#F59E0B','#EF4444','#8B5CF6','#EC4899','#14B8A6','#6B7280'];
 
 // kleine Helfer
 function escapeHtml(s){ return String(s==null?'':s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
@@ -2406,6 +2438,17 @@ async function openHistory() {
         Zurück zur Analyse
       </button>
     </div>
+    <div class="hist-controls">
+      <div class="hist-search-wrap">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input id="histSearch" class="hist-search" placeholder="Firma suchen…" oninput="histSuche()" autocomplete="off" />
+      </div>
+      <button class="btn-action" id="btnVerwalten" onclick="toggleOrdnerVerwalten()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/></svg>
+        Ordner verwalten
+      </button>
+    </div>
+    <div id="ordnerManage" class="ordner-manage" style="display:none;"></div>
     <div class="history-loading"><div class="spinner"></div><div>Historie wird geladen…</div></div>`;
 
   if (!sb) { renderHistoryError('Keine Verbindung zur Datenbank.'); return; }
@@ -2439,11 +2482,12 @@ function setHistoryFilter(val) {
   renderHistoryList();
 }
 
+function histSuche() { renderHistoryList(); }
+
 function renderHistoryList() {
   const view = document.getElementById('historyView');
   const loading = view.querySelector('.history-loading');
   if (loading) loading.remove();
-  // bei Neu-Rendern (Filterwechsel) alten Inhalt entfernen
   const oldBody = document.getElementById('histBody');
   if (oldBody) oldBody.remove();
 
@@ -2457,26 +2501,40 @@ function renderHistoryList() {
     return;
   }
 
-  // Filter-Chips: Alle, Ohne Ordner, dann je Ordner
-  let chips = '<button class="hist-chip ' + (HISTORY_FILTER === 'alle' ? 'active' : '') + '" onclick="setHistoryFilter(\'alle\')">Alle</button>';
-  chips += '<button class="hist-chip ' + (HISTORY_FILTER === 'ohne' ? 'active' : '') + '" onclick="setHistoryFilter(\'ohne\')">Ohne Ordner</button>';
+  const einzel = !!(CURRENT_FIRMA && CURRENT_FIRMA.typ === 'einzel');
+
+  // Zähler pro Ordner / gesamt / ohne
+  const total = HISTORY_ROWS.length;
+  const ohneCount = HISTORY_ROWS.filter(function(r){ return !r.ordner_id; }).length;
+  const cByFolder = {};
+  HISTORY_ROWS.forEach(function(r){ if (r.ordner_id) cByFolder[r.ordner_id] = (cByFolder[r.ordner_id]||0)+1; });
+
+  // Filter-Chips mit Zählern
+  let chips = '<button class="hist-chip ' + (HISTORY_FILTER === 'alle' ? 'active' : '') + '" onclick="setHistoryFilter(\'alle\')">Alle (' + total + ')</button>';
+  chips += '<button class="hist-chip ' + (HISTORY_FILTER === 'ohne' ? 'active' : '') + '" onclick="setHistoryFilter(\'ohne\')">Ohne Ordner (' + ohneCount + ')</button>';
   ORDNER_LIST.forEach(function(o){
     chips += '<button class="hist-chip ' + (HISTORY_FILTER === o.id ? 'active' : '') + '" onclick="setHistoryFilter(\'' + o.id + '\')">'
-      + '<span class="chip-dot" style="background:' + (o.farbe || '#22C55E') + '"></span>' + escapeHtml(o.name) + '</button>';
+      + '<span class="chip-dot" style="background:' + (o.farbe || '#22C55E') + '"></span>' + escapeHtml(o.name) + ' (' + (cByFolder[o.id]||0) + ')</button>';
   });
   const filterBar = '<div class="hist-filter">' + chips + '</div>';
 
-  // Zeilen nach Filter auswählen
+  // Such- + Ordnerfilter anwenden
+  const q = ((document.getElementById('histSearch') && document.getElementById('histSearch').value) || '').trim().toLowerCase();
   let rowsData = HISTORY_ROWS;
-  if (HISTORY_FILTER === 'ohne') rowsData = HISTORY_ROWS.filter(function(r){ return !r.ordner_id; });
-  else if (HISTORY_FILTER !== 'alle') rowsData = HISTORY_ROWS.filter(function(r){ return r.ordner_id === HISTORY_FILTER; });
+  if (HISTORY_FILTER === 'ohne') rowsData = rowsData.filter(function(r){ return !r.ordner_id; });
+  else if (HISTORY_FILTER !== 'alle') rowsData = rowsData.filter(function(r){ return r.ordner_id === HISTORY_FILTER; });
+  if (q) rowsData = rowsData.filter(function(r){ return (r.firmenname||'').toLowerCase().indexOf(q) !== -1; });
+
+  // Ordner-Optionen für das Verschieben-Dropdown
+  const moveOpts = '<option value="">In Ordner verschieben…</option><option value="__none">→ Ohne Ordner</option>'
+    + ORDNER_LIST.map(function(o){ return '<option value="' + o.id + '">' + escapeHtml(o.name) + '</option>'; }).join('');
 
   let listHtml;
   if (!rowsData.length) {
-    listHtml = '<div class="history-empty"><p>In diesem Ordner sind noch keine Prüfungen.</p></div>';
+    listHtml = '<div class="history-empty"><p>' + (q ? 'Keine Treffer für „' + escapeHtml(q) + '“.' : 'In diesem Ordner sind noch keine Prüfungen.') + '</p></div>';
   } else {
     listHtml = '<div class="history-list">' + rowsData.map(function(r){
-      const idx = HISTORY_ROWS.indexOf(r); // echter Index für openFromHistory
+      const idx = HISTORY_ROWS.indexOf(r);
       const dt = r.created_at ? new Date(r.created_at) : null;
       const datum = dt ? dt.toLocaleDateString('de-DE', { day:'2-digit', month:'2-digit', year:'numeric' }) : '–';
       const uhr = dt ? dt.toLocaleTimeString('de-DE', { hour:'2-digit', minute:'2-digit' }) : '';
@@ -2484,18 +2542,22 @@ function renderHistoryList() {
       const scoreCol = score === null ? 'var(--gray-l)' : (score >= 75 ? 'var(--ok-text)' : score >= 50 ? 'var(--warn-text)' : 'var(--bad-text)');
       const vt = r.verdict_text || (score === null ? 'Geprüft' : '');
       const land = r.land ? ' · ' + r.land : '';
-      // Ordner-Tag (nur wenn der Ordner für den Nutzer sichtbar ist)
+      // Autor (E-Mail des Prüfers) aus dem gespeicherten Bericht
+      const autor = (r.report_json && r.report_json._email) ? r.report_json._email : '';
+      const autorZeile = autor ? '<div class="hr-author">Geprüft von ' + escapeHtml(autor) + '</div>' : '';
+      // Ordner-Tag
       const folder = r.ordner_id ? ORDNER_LIST.find(function(o){ return o.id === r.ordner_id; }) : null;
-      const einzelKonto = !!(CURRENT_FIRMA && CURRENT_FIRMA.typ === 'einzel');
       const folderTag = folder
         ? '<span class="hr-folder" style="background:' + hexToRgba(folder.farbe, 0.12) + ';color:' + (folder.farbe || '#16A34A') + '">'
           + '<span class="fdot" style="background:' + (folder.farbe || '#22C55E') + '"></span>' + escapeHtml(folder.name)
-          + ((!einzelKonto && folder.sichtbarkeit === 'privat') ? ' · privat' : '') + '</span>'
+          + ((!einzel && folder.sichtbarkeit === 'privat') ? ' · privat' : '') + '</span>'
         : '';
-      return '<button class="history-row" onclick="openFromHistory(' + idx + ')">'
+      return '<div class="history-row">'
+        + '<div class="hr-click" onclick="openFromHistory(' + idx + ')">'
         + '<div class="hr-main">'
         + '<div class="hr-name">' + escapeHtml(r.firmenname || 'Unbekanntes Unternehmen') + '</div>'
         + '<div class="hr-meta">' + datum + (uhr ? ' · ' + uhr : '') + land + '</div>'
+        + autorZeile
         + '<div class="hr-id">' + (r.pruef_id || '') + '</div>'
         + folderTag
         + '</div>'
@@ -2504,11 +2566,115 @@ function renderHistoryList() {
         + '<span class="verdict ' + histVerdictClass(r.verdict) + '">' + histVerdictIcon(r.verdict) + ' ' + vt + '</span>'
         + '<svg class="hr-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>'
         + '</div>'
-        + '</button>';
+        + '</div>'
+        + '<div class="hr-tools">'
+        + '<select class="hr-move" onchange="moveAnalyse(\'' + (r.pruef_id||'') + '\', this.value); this.value=\'\';">' + moveOpts + '</select>'
+        + '</div>'
+        + '</div>';
     }).join('') + '</div>';
   }
 
   view.insertAdjacentHTML('beforeend', '<div id="histBody">' + filterBar + listHtml + '</div>');
+}
+
+// ===== ORDNER VERWALTEN (umbenennen, Farbe, löschen) + Analysen verschieben =====
+function toggleOrdnerVerwalten() {
+  const box = document.getElementById('ordnerManage');
+  if (!box) return;
+  const offen = box.style.display !== 'none';
+  if (offen) { box.style.display = 'none'; }
+  else { renderOrdnerManage(); box.style.display = 'block'; }
+  const btn = document.getElementById('btnVerwalten');
+  if (btn) btn.classList.toggle('active', !offen);
+}
+
+function renderOrdnerManage() {
+  const box = document.getElementById('ordnerManage');
+  if (!box) return;
+  const einzel = !!(CURRENT_FIRMA && CURRENT_FIRMA.typ === 'einzel');
+  const counts = {};
+  HISTORY_ROWS.forEach(function(r){ if (r.ordner_id) counts[r.ordner_id] = (counts[r.ordner_id]||0)+1; });
+  let rows;
+  if (!ORDNER_LIST.length) {
+    rows = '<div class="om-empty">Noch keine Ordner. Lege oben auf der Startseite einen an („Neuer Ordner“).</div>';
+  } else {
+    rows = ORDNER_LIST.map(function(o){
+      const swatches = ORDNER_FARBEN.map(function(f){
+        return '<span class="om-swatch ' + (o.farbe === f ? 'active' : '') + '" style="background:' + f + '" onclick="ordnerFarbe(\'' + o.id + '\',\'' + f + '\')" title="Farbe ' + f + '"></span>';
+      }).join('');
+      const vis = einzel ? '' : '<span class="om-vis">' + (o.sichtbarkeit === 'oeffentlich' ? 'Öffentlich' : 'Privat') + '</span>';
+      const cnt = counts[o.id] || 0;
+      return '<div class="om-row">'
+        + '<input class="om-name-input" value="' + escapeHtml(o.name) + '" onchange="ordnerUmbenennen(\'' + o.id + '\', this.value)" />'
+        + '<div class="om-swatches">' + swatches + '</div>'
+        + vis
+        + '<span class="om-count">' + cnt + (cnt === 1 ? ' Analyse' : ' Analysen') + '</span>'
+        + '<button class="om-del" onclick="ordnerLoeschen(\'' + o.id + '\')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>Löschen</button>'
+        + '</div>';
+    }).join('');
+  }
+  box.innerHTML = '<div class="om-title"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/></svg>Ordner verwalten</div>' + rows;
+}
+
+async function ordnerUmbenennen(id, name) {
+  name = (name || '').trim();
+  const o = ORDNER_LIST.find(function(x){ return x.id === id; });
+  if (!name) { renderOrdnerManage(); return; }           // leerer Name -> verwerfen
+  if (o && o.name === name) return;                       // nichts geändert
+  try {
+    const { error } = await sb.from('ordner').update({ name: name }).eq('id', id);
+    if (error) throw error;
+    if (o) o.name = name;
+    fuelleOrdnerSelect(); renderHistoryList(); renderOrdnerManage();
+  } catch (e) {
+    alert('Umbenennen fehlgeschlagen: ' + ((e && e.message) || 'Fehler'));
+    renderOrdnerManage();
+  }
+}
+
+async function ordnerFarbe(id, farbe) {
+  try {
+    const { error } = await sb.from('ordner').update({ farbe: farbe }).eq('id', id);
+    if (error) throw error;
+    const o = ORDNER_LIST.find(function(x){ return x.id === id; });
+    if (o) o.farbe = farbe;
+    fuelleOrdnerSelect(); renderHistoryList(); renderOrdnerManage();
+  } catch (e) {
+    console.warn('Farbe konnte nicht geändert werden:', e && e.message);
+  }
+}
+
+async function ordnerLoeschen(id) {
+  const o = ORDNER_LIST.find(function(x){ return x.id === id; });
+  const name = o ? o.name : 'diesen Ordner';
+  if (!confirm('Ordner „' + name + '“ wirklich löschen?\n\nDie geprüften Analysen darin bleiben erhalten und wandern automatisch zu „Ohne Ordner“.')) return;
+  try {
+    const { error } = await sb.from('ordner').delete().eq('id', id);
+    if (error) throw error;
+    HISTORY_ROWS.forEach(function(r){ if (r.ordner_id === id) r.ordner_id = null; }); // lokal: zu "Ohne Ordner"
+    if (HISTORY_FILTER === id) HISTORY_FILTER = 'alle';
+    await ladeOrdner();
+    renderHistoryList(); renderOrdnerManage();
+  } catch (e) {
+    alert('Löschen fehlgeschlagen: ' + ((e && e.message) || 'Fehler'));
+  }
+}
+
+async function moveAnalyse(pruefId, val) {
+  if (val === '') return; // Platzhalter gewählt
+  if (!pruefId) return;
+  const ordnerId = (val === '__none') ? null : val;
+  try {
+    const { error } = await sb.from('analysen').update({ ordner_id: ordnerId }).eq('pruef_id', pruefId);
+    if (error) throw error;
+    const r = HISTORY_ROWS.find(function(x){ return x.pruef_id === pruefId; });
+    if (r) r.ordner_id = ordnerId;
+    renderHistoryList();
+    if (document.getElementById('ordnerManage') && document.getElementById('ordnerManage').style.display !== 'none') renderOrdnerManage();
+  } catch (e) {
+    alert('Verschieben fehlgeschlagen: ' + ((e && e.message) || 'Fehler'));
+    renderHistoryList();
+  }
 }
 
 // Vollständigen Bericht aus der Historie erneut öffnen (gleiche Prüf-ID, erneut druckbar)
