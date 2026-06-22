@@ -594,6 +594,26 @@
       .history-row { flex-direction:column; align-items:flex-start; gap:12px; }
       .hr-right { width:100%; justify-content:space-between; }
     }
+
+    /* ===== ORDNER (v9.1) ===== */
+    /* Ordner-Auswahl auf der Such-Karte */
+    select#ordnerSelect { width:100%; padding:14px 16px; background:#FCFEFD; border:1.5px solid var(--border); border-radius:11px; color:var(--ink); font-family:inherit; font-size:14px; outline:none; transition:border-color .15s, box-shadow .15s; cursor:pointer; appearance:none; -webkit-appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 14px center; padding-right:42px; }
+    select#ordnerSelect:focus { border-color:var(--green); box-shadow:0 0 0 3px var(--green-pale); }
+    .ordner-row { display:flex; gap:10px; align-items:stretch; }
+    .ordner-new-btn { flex-shrink:0; padding:0 16px; border:1.5px dashed rgba(34,197,94,.45); background:var(--green-tint); color:var(--green-dd); border-radius:11px; font-family:inherit; font-size:13px; font-weight:700; cursor:pointer; white-space:nowrap; transition:border-color .15s, background .15s, transform .1s; display:flex; align-items:center; gap:6px; }
+    .ordner-new-btn:hover { border-color:var(--green); background:var(--green-pale); transform:translateY(-1px); }
+    #neuerOrdnerBox { margin-top:12px; padding:16px; border:1.5px solid var(--border); border-radius:12px; background:var(--green-tint); animation: slideDown .3s cubic-bezier(.16,1,.3,1); }
+    #neuerOrdnerBox .auth-msg { margin-bottom:10px; }
+    /* Historie: Ordner-Filter-Chips */
+    .hist-filter { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:18px; }
+    .hist-chip { font-size:12px; font-weight:600; color:var(--gray); background:var(--card); border:1px solid var(--border); border-radius:20px; padding:7px 14px; cursor:pointer; font-family:inherit; transition:border-color .15s, background .15s, color .15s, transform .1s; display:inline-flex; align-items:center; gap:7px; }
+    .hist-chip:hover { border-color:var(--green); color:var(--green-dd); transform:translateY(-1px); }
+    .hist-chip.active { background:var(--green); border-color:var(--green); color:#fff; }
+    .hist-chip .chip-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+    /* Historie: Ordner-Tag pro Zeile */
+    .hr-folder { display:inline-flex; align-items:center; gap:6px; font-size:10px; font-weight:700; padding:3px 9px; border-radius:20px; margin-top:6px; letter-spacing:.02em; }
+    .hr-folder .fdot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+    @media print { .hist-filter, .ordner-row, #neuerOrdnerBox { display:none !important; } }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -720,7 +740,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v9.0</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v9.1</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -772,6 +792,27 @@
     <div style="margin-bottom:18px">
       <div class="field-label">Umsatzsteuer-ID <span class="opt">(optional, empfohlen)</span></div>
       <input type="text" id="ustInput" placeholder="z.B. DE 298 123 456" />
+    </div>
+    <div style="margin-bottom:18px">
+      <div class="field-label">Ordner <span class="opt">(optional)</span></div>
+      <div class="ordner-row">
+        <select id="ordnerSelect"><option value="">Kein Ordner</option></select>
+        <button type="button" class="ordner-new-btn" onclick="oeffneNeuerOrdner()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+          Neuer Ordner
+        </button>
+      </div>
+      <div id="neuerOrdnerBox" style="display:none;">
+        <div class="auth-msg" id="ordnerMsg"></div>
+        <div class="field-label">Ordnername</div>
+        <input type="text" id="neuerOrdnerName" placeholder="z.B. Kunden 2026" style="margin-bottom:12px;" />
+        <div class="field-label">Sichtbarkeit</div>
+        <div class="ob-tabs" style="margin-top:4px;">
+          <button type="button" class="ob-tab active" id="ordnerTabPrivat" onclick="setOrdnerSicht('privat')">Privat (nur ich)</button>
+          <button type="button" class="ob-tab" id="ordnerTabOeff" onclick="setOrdnerSicht('oeffentlich')">Öffentlich (ganze Firma)</button>
+        </div>
+        <button type="button" class="auth-btn" id="btnOrdnerAnlegen" onclick="ordnerAnlegen()" style="margin-top:4px;">Ordner anlegen</button>
+      </div>
     </div>
     <button class="btn-search" id="searchBtn" onclick="startSearch()">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
@@ -900,14 +941,24 @@ async function doLogout() {
 
 // Global: E-Mail des eingeloggten Nutzers (für Wasserzeichen auf Ausdrucken)
 let CURRENT_USER_EMAIL = '';
+let CURRENT_USER_ID = '';   // auth-ID des Nutzers (für Ordner-Ersteller)
 let CURRENT_FIRMA = null; // { firma_id, firma_name, typ, monatslimit, verbraucht, aktiv }
+// ===== ORDNER (v9.1) =====
+let ORDNER_LIST = [];            // sichtbare Ordner des Nutzers
+let NEUER_ORDNER_SICHT = 'privat';
+let SELECTED_ORDNER_ID = null;   // beim Analysieren gewählter Ordner
+let HISTORY_FILTER = 'alle';     // 'alle' | 'ohne' | <ordner_id>
+
+// kleine Helfer
+function escapeHtml(s){ return String(s==null?'':s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function hexToRgba(hex, a){ hex=(hex||'#22C55E').replace('#',''); if(hex.length===3) hex=hex.split('').map(function(c){return c+c;}).join(''); var n=parseInt(hex,16); return 'rgba('+((n>>16)&255)+','+((n>>8)&255)+','+(n&255)+','+a+')'; }
 
 function showBoot() { const b = document.getElementById('bootGate'); if (b) b.classList.remove('hidden'); }
 function hideBoot() { const b = document.getElementById('bootGate'); if (b) b.classList.add('hidden'); }
 
 function showApp(session) {
   showBoot(); // Splash zeigen, App erst freigeben wenn Firmen-Status geklärt ist (kein Aufblitzen)
-  if (session && session.user) CURRENT_USER_EMAIL = session.user.email || '';
+  if (session && session.user) { CURRENT_USER_EMAIL = session.user.email || ''; CURRENT_USER_ID = session.user.id || ''; }
   ladeKontingent();
 }
 
@@ -919,6 +970,86 @@ function enterApp() {
   document.getElementById('authGate').classList.add('hidden');
   document.getElementById('logoutBtn').style.display = '';
   const hb = document.getElementById('historyBtn'); if (hb) hb.style.display = '';
+  ladeOrdner();
+}
+
+// ===== ORDNER-FUNKTIONEN (v9.1) =====
+// Sichtbare Ordner laden (RLS regelt: eigene private + alle öffentlichen der Firma + bei Host alle)
+async function ladeOrdner() {
+  if (!sb) return;
+  try {
+    const { data, error } = await sb.from('ordner')
+      .select('id, name, farbe, sichtbarkeit, ersteller_id')
+      .order('name', { ascending: true });
+    if (error) throw error;
+    ORDNER_LIST = data || [];
+  } catch (e) {
+    ORDNER_LIST = [];
+    console.warn('Ordner konnten nicht geladen werden:', e && e.message);
+  }
+  fuelleOrdnerSelect();
+}
+
+function fuelleOrdnerSelect() {
+  const sel = document.getElementById('ordnerSelect');
+  if (!sel) return;
+  const cur = sel.value;
+  let html = '<option value="">Kein Ordner</option>';
+  ORDNER_LIST.forEach(function(o){
+    const tag = o.sichtbarkeit === 'oeffentlich' ? ' (öffentlich)' : ' (privat)';
+    html += '<option value="' + o.id + '">' + escapeHtml(o.name) + tag + '</option>';
+  });
+  sel.innerHTML = html;
+  if (cur) sel.value = cur;
+}
+
+function oeffneNeuerOrdner() {
+  const box = document.getElementById('neuerOrdnerBox');
+  if (!box) return;
+  const offen = box.style.display !== 'none';
+  box.style.display = offen ? 'none' : 'block';
+  if (!offen) { setOrdnerSicht('privat'); ordnerMsgShow('',''); const n = document.getElementById('neuerOrdnerName'); if (n) n.focus(); }
+}
+
+function setOrdnerSicht(s) {
+  NEUER_ORDNER_SICHT = s;
+  const p = document.getElementById('ordnerTabPrivat'), o = document.getElementById('ordnerTabOeff');
+  if (p) p.classList.toggle('active', s === 'privat');
+  if (o) o.classList.toggle('active', s === 'oeffentlich');
+}
+
+function ordnerMsgShow(text, type) {
+  const m = document.getElementById('ordnerMsg');
+  if (!m) return;
+  if (!text) { m.classList.remove('show'); return; }
+  m.textContent = text; m.className = 'auth-msg show ' + (type || '');
+}
+
+async function ordnerAnlegen() {
+  const nameEl = document.getElementById('neuerOrdnerName');
+  const name = (nameEl && nameEl.value || '').trim();
+  if (!name) { ordnerMsgShow('Bitte einen Ordnernamen eingeben.', 'error'); if (nameEl) nameEl.focus(); return; }
+  if (!sb || !CURRENT_FIRMA) { ordnerMsgShow('Keine Firma geladen. Bitte Seite neu laden.', 'error'); return; }
+  const btn = document.getElementById('btnOrdnerAnlegen'); if (btn) btn.disabled = true;
+  try {
+    const { data, error } = await sb.from('ordner').insert({
+      firma_id: CURRENT_FIRMA.firma_id,
+      ersteller_id: CURRENT_USER_ID,
+      name: name,
+      farbe: '#22C55E',
+      sichtbarkeit: NEUER_ORDNER_SICHT
+    }).select().single();
+    if (error) throw error;
+    if (nameEl) nameEl.value = '';
+    const box = document.getElementById('neuerOrdnerBox'); if (box) box.style.display = 'none';
+    await ladeOrdner();
+    const sel = document.getElementById('ordnerSelect'); // neuen Ordner direkt vorauswählen
+    if (sel && data && data.id) sel.value = data.id;
+  } catch (e) {
+    ordnerMsgShow((e && e.message) || 'Ordner konnte nicht angelegt werden.', 'error');
+  } finally {
+    if (btn) btn.disabled = false;
+  }
 }
 
 function showGate() {
@@ -1190,6 +1321,8 @@ function startSearch() {
   const land = document.getElementById('landInput').value;
   if (!land) { document.getElementById('landInput').focus(); return; }
   if (!kontingentVerfuegbar()) return;   // Monatslimit voll / Konto inaktiv -> Sperre + Upgrade-Hinweis
+  const ordnerSel = document.getElementById('ordnerSelect');
+  SELECTED_ORDNER_ID = (ordnerSel && ordnerSel.value) ? ordnerSel.value : null; // gewählter Ordner für diese Analyse
   const ust = document.getElementById('ustInput').value.trim();
   document.getElementById('emptyState').style.display = 'none';
   document.getElementById('report').classList.remove('active');
@@ -2169,6 +2302,7 @@ async function saveAnalysisToHistory(d, rawName) {
       const row = {
         user_id: user.id,
         firma_id: (CURRENT_FIRMA ? CURRENT_FIRMA.firma_id : null),
+        ordner_id: SELECTED_ORDNER_ID || null,
         pruef_id: d.pruefId,
         firmenname: d.firmenname || rawName || 'Unbekanntes Unternehmen',
         land: d._land || null,
@@ -2220,10 +2354,12 @@ async function openHistory() {
     <div class="history-loading"><div class="spinner"></div><div>Historie wird geladen…</div></div>`;
 
   if (!sb) { renderHistoryError('Keine Verbindung zur Datenbank.'); return; }
+  HISTORY_FILTER = 'alle';
   try {
+    await ladeOrdner(); // aktuelle Ordner-Liste für die Filter-Chips
     const { data, error } = await sb
       .from('analysen')
-      .select('pruef_id, firmenname, land, ust_id, score, verdict, verdict_text, created_at, report_json')
+      .select('pruef_id, firmenname, land, ust_id, score, verdict, verdict_text, created_at, report_json, ordner_id')
       .order('created_at', { ascending: false });
     if (error) throw error;
     HISTORY_ROWS = data || [];
@@ -2243,43 +2379,80 @@ function renderHistoryError(msg) {
 function histVerdictClass(v) { return v === 'ok' ? 'ok' : v === 'bad' ? 'bad' : 'warn'; }
 function histVerdictIcon(v) { return v === 'ok' ? '\u2713' : v === 'bad' ? '\u2715' : '\u26A0'; }
 
+function setHistoryFilter(val) {
+  HISTORY_FILTER = val;
+  renderHistoryList();
+}
+
 function renderHistoryList() {
   const view = document.getElementById('historyView');
   const loading = view.querySelector('.history-loading');
   if (loading) loading.remove();
+  // bei Neu-Rendern (Filterwechsel) alten Inhalt entfernen
+  const oldBody = document.getElementById('histBody');
+  if (oldBody) oldBody.remove();
 
+  // Gar keine Prüfungen vorhanden -> leere Ansicht ohne Filter
   if (!HISTORY_ROWS.length) {
-    view.insertAdjacentHTML('beforeend', `
+    view.insertAdjacentHTML('beforeend', `<div id="histBody">
       <div class="history-empty">
         <div class="empty-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#22C55E" stroke-width="2"><path d="M12 8v4l3 3M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg></div>
         <p>Noch keine Prüfungen vorhanden. Starte deine erste Analyse – sie erscheint dann automatisch hier.</p>
-      </div>`);
+      </div></div>`);
     return;
   }
 
-  const rows = HISTORY_ROWS.map((r, i) => {
-    const dt = r.created_at ? new Date(r.created_at) : null;
-    const datum = dt ? dt.toLocaleDateString('de-DE', { day:'2-digit', month:'2-digit', year:'numeric' }) : '–';
-    const uhr = dt ? dt.toLocaleTimeString('de-DE', { hour:'2-digit', minute:'2-digit' }) : '';
-    const score = (typeof r.score === 'number') ? r.score : null;
-    const scoreCol = score === null ? 'var(--gray-l)' : (score >= 75 ? 'var(--ok-text)' : score >= 50 ? 'var(--warn-text)' : 'var(--bad-text)');
-    const vt = r.verdict_text || (score === null ? 'Geprüft' : '');
-    const land = r.land ? ' · ' + r.land : '';
-    return `<button class="history-row" onclick="openFromHistory(${i})">
-      <div class="hr-main">
-        <div class="hr-name">${r.firmenname || 'Unbekanntes Unternehmen'}</div>
-        <div class="hr-meta">${datum}${uhr ? ' · ' + uhr : ''}${land}</div>
-        <div class="hr-id">${r.pruef_id || ''}</div>
-      </div>
-      <div class="hr-right">
-        <span class="hr-score" style="color:${scoreCol}">${score === null ? 'N/A' : score}</span>
-        <span class="verdict ${histVerdictClass(r.verdict)}">${histVerdictIcon(r.verdict)} ${vt}</span>
-        <svg class="hr-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
-      </div>
-    </button>`;
-  }).join('');
+  // Filter-Chips: Alle, Ohne Ordner, dann je Ordner
+  let chips = '<button class="hist-chip ' + (HISTORY_FILTER === 'alle' ? 'active' : '') + '" onclick="setHistoryFilter(\'alle\')">Alle</button>';
+  chips += '<button class="hist-chip ' + (HISTORY_FILTER === 'ohne' ? 'active' : '') + '" onclick="setHistoryFilter(\'ohne\')">Ohne Ordner</button>';
+  ORDNER_LIST.forEach(function(o){
+    chips += '<button class="hist-chip ' + (HISTORY_FILTER === o.id ? 'active' : '') + '" onclick="setHistoryFilter(\'' + o.id + '\')">'
+      + '<span class="chip-dot" style="background:' + (o.farbe || '#22C55E') + '"></span>' + escapeHtml(o.name) + '</button>';
+  });
+  const filterBar = '<div class="hist-filter">' + chips + '</div>';
 
-  view.insertAdjacentHTML('beforeend', `<div class="history-list">${rows}</div>`);
+  // Zeilen nach Filter auswählen
+  let rowsData = HISTORY_ROWS;
+  if (HISTORY_FILTER === 'ohne') rowsData = HISTORY_ROWS.filter(function(r){ return !r.ordner_id; });
+  else if (HISTORY_FILTER !== 'alle') rowsData = HISTORY_ROWS.filter(function(r){ return r.ordner_id === HISTORY_FILTER; });
+
+  let listHtml;
+  if (!rowsData.length) {
+    listHtml = '<div class="history-empty"><p>In diesem Ordner sind noch keine Prüfungen.</p></div>';
+  } else {
+    listHtml = '<div class="history-list">' + rowsData.map(function(r){
+      const idx = HISTORY_ROWS.indexOf(r); // echter Index für openFromHistory
+      const dt = r.created_at ? new Date(r.created_at) : null;
+      const datum = dt ? dt.toLocaleDateString('de-DE', { day:'2-digit', month:'2-digit', year:'numeric' }) : '–';
+      const uhr = dt ? dt.toLocaleTimeString('de-DE', { hour:'2-digit', minute:'2-digit' }) : '';
+      const score = (typeof r.score === 'number') ? r.score : null;
+      const scoreCol = score === null ? 'var(--gray-l)' : (score >= 75 ? 'var(--ok-text)' : score >= 50 ? 'var(--warn-text)' : 'var(--bad-text)');
+      const vt = r.verdict_text || (score === null ? 'Geprüft' : '');
+      const land = r.land ? ' · ' + r.land : '';
+      // Ordner-Tag (nur wenn der Ordner für den Nutzer sichtbar ist)
+      const folder = r.ordner_id ? ORDNER_LIST.find(function(o){ return o.id === r.ordner_id; }) : null;
+      const folderTag = folder
+        ? '<span class="hr-folder" style="background:' + hexToRgba(folder.farbe, 0.12) + ';color:' + (folder.farbe || '#16A34A') + '">'
+          + '<span class="fdot" style="background:' + (folder.farbe || '#22C55E') + '"></span>' + escapeHtml(folder.name)
+          + (folder.sichtbarkeit === 'privat' ? ' · privat' : '') + '</span>'
+        : '';
+      return '<button class="history-row" onclick="openFromHistory(' + idx + ')">'
+        + '<div class="hr-main">'
+        + '<div class="hr-name">' + escapeHtml(r.firmenname || 'Unbekanntes Unternehmen') + '</div>'
+        + '<div class="hr-meta">' + datum + (uhr ? ' · ' + uhr : '') + land + '</div>'
+        + '<div class="hr-id">' + (r.pruef_id || '') + '</div>'
+        + folderTag
+        + '</div>'
+        + '<div class="hr-right">'
+        + '<span class="hr-score" style="color:' + scoreCol + '">' + (score === null ? 'N/A' : score) + '</span>'
+        + '<span class="verdict ' + histVerdictClass(r.verdict) + '">' + histVerdictIcon(r.verdict) + ' ' + vt + '</span>'
+        + '<svg class="hr-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>'
+        + '</div>'
+        + '</button>';
+    }).join('') + '</div>';
+  }
+
+  view.insertAdjacentHTML('beforeend', '<div id="histBody">' + filterBar + listHtml + '</div>');
 }
 
 // Vollständigen Bericht aus der Historie erneut öffnen (gleiche Prüf-ID, erneut druckbar)
