@@ -707,7 +707,33 @@
     .audit-txt b { color:var(--ink); font-weight:700; word-break:break-all; }
     .audit-time { font-size:11px; color:var(--gray-l); white-space:nowrap; flex-shrink:0; margin-top:3px; }
     .audit-empty { font-size:13px; color:var(--gray-l); font-style:italic; padding:14px 0; }
-    @media print { .hist-filter, .ordner-row, #neuerOrdnerBox, .hist-controls, .ordner-manage, .hr-tools, .hr-move, .team-view, #teamBtn, .audit-sec { display:none !important; } }
+    /* ===== SAMMEL-PDF / AKTE (v9.3) ===== */
+    .akte-view { animation: fadeInUp .4s cubic-bezier(.16,1,.3,1); }
+    .akte-export-bar { margin-bottom:16px; }
+    .akte-actions { display:flex; gap:10px; justify-content:flex-end; margin-bottom:20px; flex-wrap:wrap; }
+    .akte-cover { background:var(--card); border:1px solid var(--border); border-radius:var(--radius-lg); padding:36px 40px; box-shadow:var(--shadow); margin-bottom:20px; }
+    .akte-cover-eyebrow { font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--green-d); font-weight:700; margin-bottom:12px; }
+    .akte-cover-title { font-size:30px; font-weight:800; color:var(--ink); letter-spacing:-.02em; margin-bottom:10px; }
+    .akte-cover-meta { font-size:13px; color:var(--gray); margin-bottom:6px; }
+    .akte-cover-count { font-size:13px; font-weight:700; color:var(--green-dd); margin-bottom:22px; }
+    .akte-toc { border-top:1px solid var(--border); padding-top:16px; }
+    .akte-toc-head { font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:.08em; color:var(--gray); margin-bottom:10px; }
+    .akte-toc-row { display:flex; align-items:center; gap:12px; padding:7px 0; border-bottom:1px solid var(--border2); font-size:13px; color:var(--ink2); }
+    .akte-toc-row:last-child { border-bottom:none; }
+    .akte-toc-row > span:first-child { flex:1; min-width:0; }
+    .akte-toc-id { font-family:ui-monospace,'SF Mono',Menlo,monospace; font-size:10px; color:var(--green-d); font-weight:700; }
+    .akte-toc-score { font-weight:800; min-width:32px; text-align:right; }
+    .akte-analyse { margin-bottom:24px; }
+    .akte-firm-head { display:flex; justify-content:space-between; align-items:flex-start; gap:20px; background:var(--card); border:1px solid var(--border); border-radius:var(--radius-lg); padding:24px 28px; box-shadow:var(--shadow); margin-bottom:14px; }
+    .akte-score-box { display:flex; flex-direction:column; align-items:center; gap:10px; flex-shrink:0; }
+    @media print { .hist-filter, .ordner-row, #neuerOrdnerBox, .hist-controls, .ordner-manage, .hr-tools, .hr-move, .team-view, #teamBtn, .audit-sec, .akte-actions, .akte-export-bar { display:none !important; } }
+    @media print {
+      /* Akte: jede Firma auf eigener, sauberer Seite - nichts abgeschnitten */
+      .akte-cover { box-shadow:none !important; border:1px solid #DDD !important; page-break-after:auto; }
+      .akte-analyse { page-break-before:always; page-break-inside:auto; }
+      .akte-firm-head { page-break-inside:avoid; page-break-after:avoid; box-shadow:none !important; border:1px solid #DDD !important; }
+      .akte-analyse .grid4 { page-break-inside:avoid; }
+    }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -834,7 +860,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v9.2.1</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v9.3</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -980,6 +1006,8 @@
 
   <div id="teamView" class="team-view" style="display:none"></div>
 
+  <div id="akteView" class="akte-view" style="display:none"></div>
+
 </div>
 
 <script>
@@ -1119,8 +1147,10 @@ async function openTeam() {
   const main = document.getElementById('mainView');
   const hv = document.getElementById('historyView');
   const tv = document.getElementById('teamView');
+  const akte = document.getElementById('akteView');
   if (main) main.style.display = 'none';
   if (hv) hv.style.display = 'none';
+  if (akte) akte.style.display = 'none';
   tv.style.display = 'block';
   window.scrollTo({ top: 0, behavior: 'smooth' });
   tv.innerHTML = `
@@ -2632,8 +2662,10 @@ async function openHistory() {
   const main = document.getElementById('mainView');
   const view = document.getElementById('historyView');
   const team = document.getElementById('teamView');
+  const akte = document.getElementById('akteView');
   if (main) main.style.display = 'none';
   if (team) team.style.display = 'none';
+  if (akte) akte.style.display = 'none';
   view.style.display = 'block';
   window.scrollTo({ top: 0, behavior: 'smooth' });
   view.innerHTML = `
@@ -2784,7 +2816,19 @@ function renderHistoryList() {
     }).join('') + '</div>';
   }
 
-  view.insertAdjacentHTML('beforeend', '<div id="histBody">' + filterBar + listHtml + '</div>');
+  // Akte-Export-Button, wenn nach einem konkreten Ordner gefiltert wird
+  let exportBar = '';
+  if (HISTORY_FILTER !== 'alle' && HISTORY_FILTER !== 'ohne') {
+    const f = ORDNER_LIST.find(function(o){ return o.id === HISTORY_FILTER; });
+    const cnt = HISTORY_ROWS.filter(function(r){ return r.ordner_id === HISTORY_FILTER; }).length;
+    if (f && cnt > 0) {
+      exportBar = '<div class="akte-export-bar"><button class="btn-action primary" onclick="akteDrucken(\'' + HISTORY_FILTER + '\')">'
+        + '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 15h6M9 11h6"/></svg>'
+        + 'Akte „' + escapeHtml(f.name) + '“ als PDF (' + cnt + ')</button></div>';
+    }
+  }
+
+  view.insertAdjacentHTML('beforeend', '<div id="histBody">' + filterBar + exportBar + listHtml + '</div>');
 }
 
 // ===== ORDNER VERWALTEN (umbenennen, Farbe, löschen) + Analysen verschieben =====
@@ -2908,10 +2952,131 @@ function openFromHistory(i) {
 function backToMain() {
   const view = document.getElementById('historyView');
   const team = document.getElementById('teamView');
+  const akte = document.getElementById('akteView');
   const main = document.getElementById('mainView');
   if (view) view.style.display = 'none';
   if (team) team.style.display = 'none';
+  if (akte) akte.style.display = 'none';
   if (main) main.style.display = 'block';
+}
+
+// ===== SAMMEL-PDF / AKTE (v9.3) =====
+// Risiko-Hinweise als statischer Block (für die Akte)
+function buildFlagsHTML(d) {
+  const arr = Array.isArray(d.risikoHinweise) ? d.risikoHinweise : [];
+  const html = arr.map(function(f){
+    if (!f) return '';
+    if (typeof f === 'string') return '<div class="flag"><span class="flag-icon warn">⚠</span><span class="flag-text">' + escapeHtml(f) + '</span></div>';
+    const typ = f.typ || f.type || f.status || 'warn';
+    const text = f.text || f.hinweis || f.beschreibung || f.value || '';
+    if (!text) return '';
+    const kat = f.kategorie || f.category || f.kat || '';
+    const icon = typ === 'ok' ? '✓' : typ === 'bad' ? '✕' : '⚠';
+    const katLabel = kat ? '<b>[' + escapeHtml(kat) + ']</b> ' : '';
+    return '<div class="flag"><span class="flag-icon ' + typ + '">' + icon + '</span><span class="flag-text">' + katLabel + escapeHtml(text) + '</span></div>';
+  }).filter(Boolean).join('');
+  return '<div class="flags-card"><div class="flags-heading"><span class="sec-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4m0 4h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg></span>Risiko-Hinweise</div>'
+    + (html || '<div class="flag"><span class="flag-icon warn">⚠</span><span class="flag-text">Keine spezifischen Risiko-Hinweise.</span></div>') + '</div>';
+}
+
+// Kontaktdaten als statischer Block (für die Akte)
+function buildKontaktAkte(d) {
+  const k = d.kontakt || {};
+  const cell = function(label, val){ return '<div class="cc"><div class="cc-label">' + label + '</div>' + (isNA(val) ? '<span class="cc-value na">N/A</span>' : '<div class="cc-value">' + escapeHtml(val) + '</div>') + '</div>'; };
+  return '<div class="contact-card"><div class="contact-header"><div class="sec-title">' + catIcon('Kontakt & Online') + 'Kontaktdaten &amp; Online-Präsenz<span class="sec-weight">20%</span></div>' + miniScore(k.score) + '</div><div class="contact-grid">'
+    + cell('Website', k.website)
+    + cell('E-Mail', k.email)
+    + cell('Telefon', k.telefon)
+    + cell('LinkedIn', (k.linkedinAktiv ? (k.linkedinUrl || 'Vorhanden') : 'N/A'))
+    + cell('Social Media', k.socialMedia)
+    + '</div></div>';
+}
+
+// Ein kompletter Firmen-Block für die Akte
+function buildAkteAnalyse(d) {
+  d = d || {};
+  const meta = [];
+  if (d.datum) meta.push(escapeHtml(d.datum));
+  if (d._land) meta.push('Land: ' + escapeHtml(d._land));
+  if (d.ustId && d.ustId !== 'null') meta.push('USt-ID: ' + escapeHtml(d.ustId));
+  if (d.pruefId) meta.push('Prüf-ID: ' + escapeHtml(d.pruefId));
+  if (d._email) meta.push('Geprüft von ' + escapeHtml(d._email));
+  const score = (typeof d.gesamtScore === 'number') ? d.gesamtScore : null;
+  const vIcon = d.verdict === 'ok' ? '✓' : d.verdict === 'bad' ? '✕' : '⚠';
+  return '<div class="akte-analyse">'
+    + '<div class="akte-firm-head">'
+    + '<div><div class="report-eyebrow">Compliance-Auswertung · §§ 10–17 GwG</div>'
+    + '<div class="report-name">' + escapeHtml(d.firmenname || 'Unbekanntes Unternehmen') + '</div>'
+    + '<div class="report-meta">' + meta.join(' · ') + '</div></div>'
+    + '<div class="akte-score-box"><div class="gauge-wrap">' + gauge(score) + '<div class="gauge-num"><span class="gauge-num-val" style="color:' + (score ? scC(score) : 'var(--gray-l)') + '">' + (score == null ? 'N/A' : score) + '</span><span class="gauge-num-label">' + (score != null ? '/ 100' : '') + '</span></div></div>'
+    + '<span class="verdict ' + (d.verdict || 'warn') + '">' + vIcon + ' ' + escapeHtml(d.verdictText || '') + '</span></div>'
+    + '</div>'
+    + '<div class="grid4">'
+    + secCard('Grunddaten', d.grunddaten || { felder: [] }, '30%')
+    + secCard('Personen', d.personen || { felder: [] }, '30%')
+    + secCard('Reputation', d.reputation || { felder: [] }, '15%')
+    + secCard('Finanzen', d.finanzen || { felder: [] }, '5%')
+    + '</div>'
+    + phantomHTML(d)
+    + insolvenzHTML(d)
+    + buildKontaktAkte(d)
+    + buildFlagsHTML(d)
+    + '<div class="rec-card"><div class="rec-label">Compliance-Empfehlung</div><div class="rec-text">' + escapeHtml(d.empfehlung || '') + '</div></div>'
+    + '</div>';
+}
+
+// Wasserzeichen für die Akte (Nutzer + Datum + Ordnername)
+function buildAkteWatermark(folderName) {
+  const el = document.getElementById('printWatermark');
+  if (!el) return;
+  const now = new Date();
+  const text = 'Automati Labs · ' + escapeHtml(CURRENT_USER_EMAIL || '') + ' · ' + now.toLocaleDateString('de-DE') + ' · Akte: ' + escapeHtml(folderName || '');
+  el.innerHTML = '<div class="wm-row r1">' + text + '</div><div class="wm-row r2">' + text + '</div><div class="wm-row r3">' + text + '</div><div class="wm-row r4">' + text + '</div><div class="wm-row r5">' + text + '</div>';
+}
+
+// Akte eines Ordners aufbauen und Druck/PDF starten
+function akteDrucken(folderId) {
+  const folder = ORDNER_LIST.find(function(o){ return o.id === folderId; });
+  if (!folder) { alert('Ordner nicht gefunden.'); return; }
+  const rows = HISTORY_ROWS.filter(function(r){ return r.ordner_id === folderId && r.report_json; });
+  if (!rows.length) { alert('Dieser Ordner enthält keine Prüfungen zum Exportieren.'); return; }
+
+  const av = document.getElementById('akteView');
+  const main = document.getElementById('mainView'), hv = document.getElementById('historyView'), tv = document.getElementById('teamView');
+  if (main) main.style.display = 'none';
+  if (hv) hv.style.display = 'none';
+  if (tv) tv.style.display = 'none';
+
+  const heute = new Date().toLocaleDateString('de-DE', { day:'2-digit', month:'2-digit', year:'numeric' });
+  const firma = (CURRENT_FIRMA && CURRENT_FIRMA.firma_name) ? CURRENT_FIRMA.firma_name : '';
+
+  const toc = rows.map(function(r, i){
+    const d = r.report_json || {};
+    const sc = (typeof d.gesamtScore === 'number') ? d.gesamtScore : (typeof r.score === 'number' ? r.score : null);
+    return '<div class="akte-toc-row"><span>' + (i+1) + '. ' + escapeHtml(d.firmenname || r.firmenname || '—') + '</span>'
+      + '<span class="akte-toc-id">' + escapeHtml(d.pruefId || r.pruef_id || '') + '</span>'
+      + '<span class="akte-toc-score" style="color:' + (sc ? scC(sc) : 'var(--gray-l)') + '">' + (sc == null ? 'N/A' : sc) + '</span></div>';
+  }).join('');
+
+  const cover = '<div class="akte-cover">'
+    + '<div class="akte-cover-eyebrow">Compliance-Akte · §§ 10–17 GwG</div>'
+    + '<div class="akte-cover-title">' + escapeHtml(folder.name) + '</div>'
+    + '<div class="akte-cover-meta">' + (firma ? ('Firma: ' + escapeHtml(firma) + ' · ') : '') + 'Erstellt am ' + heute + (CURRENT_USER_EMAIL ? (' von ' + escapeHtml(CURRENT_USER_EMAIL)) : '') + '</div>'
+    + '<div class="akte-cover-count">' + rows.length + ' ' + (rows.length === 1 ? 'Prüfung' : 'Prüfungen') + ' in dieser Akte</div>'
+    + '<div class="akte-toc"><div class="akte-toc-head">Inhalt</div>' + toc + '</div>'
+    + '</div>';
+
+  const actions = '<div class="akte-actions">'
+    + '<button class="btn-action primary" onclick="window.print()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>Drucken / Als PDF speichern</button>'
+    + '<button class="btn-action" onclick="backToMain()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>Zurück</button>'
+    + '</div>';
+
+  const body = rows.map(function(r){ return buildAkteAnalyse(r.report_json || {}); }).join('');
+
+  av.innerHTML = actions + cover + body;
+  av.style.display = 'block';
+  buildAkteWatermark(folder.name);
+  window.scrollTo({ top: 0, behavior: 'auto' });
 }
 </script>
 </body>
