@@ -860,7 +860,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v9.3</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v9.3.1</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -2622,11 +2622,20 @@ async function saveAnalysisToHistory(d, rawName) {
     const { data: sess } = await sb.auth.getSession();
     const user = sess && sess.session && sess.session.user;
     if (!user) return;
+    // Firma sicher bestimmen - Fallback, falls CURRENT_FIRMA (noch) nicht geladen war.
+    // Verhindert, dass eine Analyse OHNE Firma gespeichert wird (sonst unsichtbar in der Historie).
+    let firmaId = CURRENT_FIRMA ? CURRENT_FIRMA.firma_id : null;
+    if (!firmaId) {
+      try {
+        const { data: ks } = await sb.rpc('kontingent_status');
+        if (ks && ks.length && ks[0] && ks[0].firma_id) { firmaId = ks[0].firma_id; CURRENT_FIRMA = ks[0]; }
+      } catch (e) { /* still leise weiter - lieber speichern als verlieren */ }
+    }
     let attempts = 0;
     while (attempts < 6) {
       const row = {
         user_id: user.id,
-        firma_id: (CURRENT_FIRMA ? CURRENT_FIRMA.firma_id : null),
+        firma_id: firmaId,
         ordner_id: SELECTED_ORDNER_ID || null,
         pruef_id: d.pruefId,
         firmenname: d.firmenname || rawName || 'Unbekanntes Unternehmen',
