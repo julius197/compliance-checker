@@ -860,7 +860,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v9.3.1</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v9.4</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -1447,6 +1447,13 @@ const PLAENE = [
     features:['Bis zu 1.000 Analysen / Monat','Alles aus Premium','Dedizierter Ansprechpartner','Eigene Server (auf Anfrage)','Höchste Bearbeitungspriorität'] }
 ];
 
+// Stripe-Zahlungslinks (TEST-Modus). Bei Live-Schaltung hier die Live-Links eintragen.
+const STRIPE_LINKS = {
+  starter:    'https://buy.stripe.com/test_eVq8wP5l5g2Y3rw9UXf7i00',
+  premium:    'https://buy.stripe.com/test_00w5kD4h17ws5zEc35f7i01',
+  enterprise: 'https://buy.stripe.com/test_aFa5kD14P0404vAffhf7i02'
+};
+
 function planMsg(text, type) {
   const m = document.getElementById('planMsg');
   if (!m) return;
@@ -1500,16 +1507,21 @@ function renderPlaene() {
 
 async function paketWaehlen(planId) {
   if (!sb) return;
+  const link = STRIPE_LINKS[planId];
+  if (!link) { planMsg('Unbekannter Plan.', 'error'); return; }
   document.querySelectorAll('#planCards .plan-btn').forEach(function(b){ b.disabled = true; });
-  planMsg('Plan wird aktiviert\u2026', '');
+  planMsg('Weiterleitung zur sicheren Zahlung\u2026', '');
   try {
-    const { data, error } = await sb.rpc('paket_waehlen', { p_plan: planId });
-    if (error) throw error;
-    if (!data) throw new Error('Plan konnte nicht aktiviert werden.');
-    hidePlaene();
-    await ladeKontingent(); // neues Kontingent laden -> Tool öffnet sich
+    const { data: sess } = await sb.auth.getSession();
+    const user = sess && sess.session && sess.session.user;
+    if (!user) throw new Error('Bitte zuerst anmelden.');
+    // User-Kennung + E-Mail an Stripe mitgeben -> Webhook ordnet die Zahlung diesem Konto zu
+    const url = link
+      + '?client_reference_id=' + encodeURIComponent(user.id)
+      + '&prefilled_email=' + encodeURIComponent(user.email || '');
+    window.location.href = url;
   } catch (e) {
-    planMsg((e && e.message) || 'Fehler bei der Plan-Auswahl. Bitte erneut versuchen.', 'error');
+    planMsg((e && e.message) || 'Weiterleitung fehlgeschlagen. Bitte erneut versuchen.', 'error');
     document.querySelectorAll('#planCards .plan-btn').forEach(function(b){ b.disabled = false; });
   }
 }
