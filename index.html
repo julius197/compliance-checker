@@ -73,7 +73,7 @@
     select#landInput:focus { border-color:var(--green); box-shadow:0 0 0 3px var(--green-pale); }
     select#landInput:invalid, select#landInput option[value=""] { color:var(--gray-l); }
     .btn-search { width:100%; padding:16px; background:linear-gradient(135deg, #4ADE80 0%, #22C55E 45%, #16A34A 100%); color:#fff; border:none; border-radius:12px; font-family:inherit; font-size:15px; font-weight:700; cursor:pointer; transition:transform .2s cubic-bezier(.16,1,.3,1), box-shadow .25s ease; display:flex; align-items:center; justify-content:center; gap:10px; box-shadow:0 8px 24px -6px rgba(34,197,94,.45), inset 0 1px 0 rgba(255,255,255,.25); }
-    .btn-search:hover { box-shadow:0 14px 32px -6px rgba(34,197,94,.6), inset 0 1px 0 rgba(255,255,255,.25); }
+    .btn-search:hover { transform:translateY(-2px); box-shadow:0 14px 32px -6px rgba(34,197,94,.6), inset 0 1px 0 rgba(255,255,255,.25); }
     .btn-search:active { transform:scale(.99); }
     .btn-search:disabled { opacity:.45; cursor:not-allowed; }
     .tags { display:flex; gap:8px; flex-wrap:wrap; margin-top:18px; }
@@ -228,8 +228,8 @@
 
     /* ACTIONS */
     .actions { display:flex; gap:10px; justify-content:flex-end; }
-    .btn-action { padding:11px 20px; border-radius:var(--radius-sm); border:1.5px solid var(--border); background:var(--card); color:var(--ink2); font-family:inherit; font-size:13px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:8px; transition:border-color .15s, background .15s; }
-    .btn-action:hover { border-color:var(--green); background:var(--green-tint); }
+    .btn-action { padding:11px 20px; border-radius:var(--radius-sm); border:1.5px solid var(--border); background:var(--card); color:var(--ink2); font-family:inherit; font-size:13px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:8px; transition:border-color .15s, background .15s, transform .1s; }
+    .btn-action:hover { border-color:var(--green); background:var(--green-tint); transform:translateY(-1px); }
     .btn-action.primary { background:var(--green); color:#fff; border-color:var(--green); }
     .btn-action.primary:hover { background:var(--green-d); }
 
@@ -504,7 +504,7 @@
     .auth-input { width:100%; padding:14px 16px; background:rgba(255,255,255,.7); border:1.5px solid var(--border); border-radius:11px; color:var(--ink); font-family:inherit; font-size:14px; outline:none; transition:border-color .2s, box-shadow .2s, background .2s; }
     .auth-input:focus { border-color:var(--green); box-shadow:0 0 0 3px var(--green-pale); }
     .auth-btn { width:100%; padding:15px; background:linear-gradient(135deg, #4ADE80 0%, #22C55E 45%, #16A34A 100%); color:#fff; border:none; border-radius:12px; font-family:inherit; font-size:15px; font-weight:700; cursor:pointer; transition:transform .2s cubic-bezier(.16,1,.3,1), box-shadow .25s; margin-top:8px; box-shadow:0 8px 22px -6px rgba(34,197,94,.45), inset 0 1px 0 rgba(255,255,255,.25); }
-    .auth-btn:hover { box-shadow:0 12px 30px -6px rgba(34,197,94,.6), inset 0 1px 0 rgba(255,255,255,.25); }
+    .auth-btn:hover { transform:translateY(-2px); box-shadow:0 12px 30px -6px rgba(34,197,94,.6), inset 0 1px 0 rgba(255,255,255,.25); }
     .auth-btn:disabled { opacity:.5; cursor:not-allowed; }
     .auth-toggle { text-align:center; margin-top:20px; font-size:13px; color:var(--gray); }
     .auth-toggle a { color:var(--green-d); font-weight:600; cursor:pointer; text-decoration:none; }
@@ -514,7 +514,7 @@
     .auth-msg.error { background:var(--bad-bg); color:var(--bad-text); }
     .auth-msg.success { background:var(--green-tint); color:var(--green-dd); }
     .logout-btn { font-size:12px; font-weight:600; color:var(--gray); background:none; border:1px solid var(--border); border-radius:20px; padding:6px 14px; cursor:pointer; transition:all .15s; }
-    .logout-btn:hover { border-color:var(--bad); color:var(--bad-text); }
+    .logout-btn:hover { border-color:var(--bad); color:var(--bad-text); transform:translateY(-1px); }
 
     /* ===== ANIMATIONEN (dezent & edel) ===== */
     @keyframes fadeInUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
@@ -938,7 +938,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v9.5.4</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v9.5.5</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
