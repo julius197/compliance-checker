@@ -613,6 +613,9 @@
     .history-empty { text-align:center; padding:64px 24px; border:1.5px dashed var(--border); border-radius:var(--radius-lg); color:var(--gray-l); background:var(--card); }
     .history-empty .empty-icon { width:48px; height:48px; margin:0 auto 16px; border-radius:50%; background:var(--green-tint); display:flex; align-items:center; justify-content:center; }
     .history-empty p { font-size:14px; max-width:380px; margin:0 auto; }
+    .btn-retry { display:inline-flex; align-items:center; gap:7px; margin-top:18px; padding:10px 20px; border:1.5px solid var(--green); border-radius:10px; background:var(--green-tint); color:var(--green-dd); font-family:inherit; font-size:13.5px; font-weight:700; cursor:pointer; transition:background .15s, transform .1s; }
+    .btn-retry:hover { background:var(--green-pale); transform:translateY(-1px); }
+    .err-detail { color:var(--gray-l); font-size:11px; margin-top:12px; word-break:break-word; }
     .history-list { display:flex; flex-direction:column; gap:10px; }
     .history-row { display:flex; align-items:center; justify-content:space-between; gap:16px; width:100%; text-align:left; background:var(--card); border:1px solid var(--border); border-radius:var(--radius-lg); padding:18px 22px; cursor:pointer; font-family:inherit; box-shadow:var(--shadow); transition:transform .18s cubic-bezier(.16,1,.3,1), box-shadow .18s ease, border-color .18s ease; }
     .history-row:hover { transform:translateY(-2px); box-shadow:0 12px 28px -12px rgba(16,24,40,.2); border-color:var(--green-pale); }
@@ -935,7 +938,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v9.5.3</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v9.5.4</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -1302,7 +1305,11 @@ function renderAudit() {
 function teamError(msg) {
   const tv = document.getElementById('teamView');
   const loading = tv ? tv.querySelector('.history-loading') : null;
-  const html = '<div class="history-empty"><p style="color:var(--bad-text)">' + escapeHtml(msg) + '</p></div>';
+  const html = '<div class="history-empty">'
+    + '<div class="empty-icon" style="background:var(--bad-bg)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="2"><path d="M12 9v4m0 4h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg></div>'
+    + '<p style="color:var(--bad-text);font-weight:600">' + escapeHtml(friendlyError(msg)) + '</p>'
+    + '<button class="btn-retry" onclick="openTeam()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>Erneut laden</button>'
+    + '</div>';
   if (loading) loading.outerHTML = html;
   else if (tv) tv.insertAdjacentHTML('beforeend', html);
 }
@@ -1821,6 +1828,23 @@ async function workerCall(action, payload) {
   return res.json();
 }
 
+// Übersetzt technische Fehlermeldungen in verständliche, freundliche Hinweise
+function friendlyError(msg) {
+  const m = ((msg || '') + '').toLowerCase();
+  if (!m) return 'Die Analyse konnte nicht abgeschlossen werden. Bitte versuche es erneut.';
+  if (m.includes('failed to fetch') || m.includes('networkerror') || m.includes('load failed') || m.includes('network') || m.includes('err_internet'))
+    return 'Keine Verbindung zum Server. Prüfe deine Internetverbindung und versuche es erneut.';
+  if (m.includes('timeout') || m.includes('timed out') || m.includes('408'))
+    return 'Die Anfrage hat zu lange gedauert. Bitte versuche es erneut.';
+  if (m.includes('overloaded') || m.includes('rate') || m.includes('429') || m.includes('ausgelastet') || m.includes('529'))
+    return 'Der Analyse-Dienst ist gerade stark ausgelastet. Bitte versuche es in einem Moment erneut.';
+  if (m.includes('quota') || m.includes('kontingent') || (m.includes('limit') && !m.includes('rate')))
+    return 'Dein Analyse-Kontingent ist aufgebraucht. Bitte wähle ein größeres Paket.';
+  if (m.includes('500') || m.includes('502') || m.includes('503') || m.includes('server'))
+    return 'Der Server hat gerade ein Problem. Bitte versuche es in einem Moment erneut.';
+  return 'Die Analyse konnte nicht abgeschlossen werden. Bitte versuche es erneut.';
+}
+
 function startSearch() {
   const name = document.getElementById('nameInput').value.trim();
   if (!name) { document.getElementById('nameInput').focus(); return; }
@@ -1943,7 +1967,10 @@ async function runAnalysis(name, ust, land) {
     document.getElementById('searchBtn').disabled = false;
     document.getElementById('emptyState').style.display = 'block';
     document.getElementById('emptyState').innerHTML =
-      `<div class="empty-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="2"><path d="M12 9v4m0 4h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg></div><p style="color:var(--bad-text)">Die Analyse konnte nicht abgeschlossen werden. Bitte versuchen Sie es erneut.</p><p style="color:var(--gray);font-size:12px;margin-top:8px">${err.message}</p>`;
+      `<div class="empty-icon" style="background:var(--bad-bg)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="2"><path d="M12 9v4m0 4h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg></div>`
+      + `<p style="color:var(--bad-text);font-weight:600">${friendlyError(err && err.message)}</p>`
+      + `<button class="btn-retry" onclick="startSearch()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>Erneut versuchen</button>`
+      + ((err && err.message) ? `<p class="err-detail">Technisches Detail: ${escapeHtml(err.message)}</p>` : '');
   }
 }
 
@@ -2901,7 +2928,11 @@ async function openHistory() {
 
 function renderHistoryError(msg) {
   const loading = document.querySelector('#historyView .history-loading');
-  const html = `<div class="history-empty"><p style="color:var(--bad-text)">${msg}</p></div>`;
+  const html = `<div class="history-empty">
+    <div class="empty-icon" style="background:var(--bad-bg)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="2"><path d="M12 9v4m0 4h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg></div>
+    <p style="color:var(--bad-text);font-weight:600">${escapeHtml(friendlyError(msg))}</p>
+    <button class="btn-retry" onclick="openHistory()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>Erneut laden</button>
+  </div>`;
   if (loading) loading.outerHTML = html;
   else { const v = document.getElementById('historyView'); if (v) v.insertAdjacentHTML('beforeend', html); }
 }
