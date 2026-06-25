@@ -883,6 +883,24 @@
   </div>
 </div>
 
+<div id="zahlungGate" class="plan-gate" style="display:none;">
+  <div class="plan-wrap" style="max-width:480px; text-align:center;">
+    <div class="plan-head">
+      <img class="plan-logo" id="zahlungLogo" alt="Automati Labs" />
+      <div class="spinner" id="zahlungSpinner" style="margin:6px auto 20px;"></div>
+      <h1 class="plan-title">Zahlung wird bestätigt…</h1>
+      <p class="plan-subtitle" id="zahlungSub">Einen Moment – wir schalten dein Konto frei. Das dauert nur ein paar Sekunden.</p>
+    </div>
+    <div id="zahlungFallback" style="display:none; margin-top:8px;">
+      <button class="plan-btn primary" onclick="ladeKontingent()" style="max-width:260px; margin:0 auto;">Jetzt aktualisieren</button>
+      <p class="plan-subtitle" style="margin-top:14px; font-size:13px;">Keine Sorge – deine Zahlung ist sicher. Falls es länger dauert, lade die Seite in einer Minute neu.</p>
+      <div class="plan-foot" style="margin-top:6px;">
+        <a onclick="clearPendingPayment(); hideZahlungGate(); zeigePlaene('start');">Zurück zur Paketauswahl</a> &nbsp;·&nbsp; <a onclick="doLogout()">Abmelden</a>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="app">
   <header class="header">
     <div class="logo-wrap">
@@ -891,7 +909,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v9.5.1</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v9.5.2</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -1433,8 +1451,11 @@ async function ladeKontingent() {
     }
     CURRENT_FIRMA = row;
     if (row.aktiv && row.monatslimit > 0) {
+      clearPendingPayment();
       enterApp();
       updateKontingentAnzeige();
+    } else if (isPendingPayment()) {
+      bestaetigeZahlung();      // gerade von Stripe zurück -> auf Webhook-Freischaltung warten
     } else {
       zeigePlaene('start');   // Konto noch nicht aktiv -> Paket wählen (Paywall)
     }
@@ -1553,6 +1574,7 @@ async function paketWaehlen(planId) {
     const url = link
       + '?client_reference_id=' + encodeURIComponent(ref)
       + '&prefilled_email=' + encodeURIComponent(user.email || '');
+    setPendingPayment();   // Merker: wir kommen gleich von Stripe zurück -> dann Bestätigung statt Paywall
     window.location.href = url;
   } catch (e) {
     planMsg((e && e.message) || 'Weiterleitung fehlgeschlagen. Bitte erneut versuchen.', 'error');
@@ -1585,6 +1607,69 @@ async function codeEinloesen() {
     setMsg((e && e.message) || 'Code ungültig oder abgelaufen.', 'error');
     if (btn) btn.disabled = false;
   }
+}
+
+// ===== MOMENT NACH DER ZAHLUNG (v9.5.2) =====
+// Merker, dass gerade zu Stripe weitergeleitet wurde (überlebt den Wechsel zu Stripe und zurück)
+function setPendingPayment()   { try { sessionStorage.setItem('cc_pending_payment', '1'); } catch (e) {} }
+function clearPendingPayment() { try { sessionStorage.removeItem('cc_pending_payment'); } catch (e) {} }
+function isPendingPayment() {
+  try { if (sessionStorage.getItem('cc_pending_payment') === '1') return true; } catch (e) {}
+  try { if (new URLSearchParams(location.search).get('bezahlt') === '1') return true; } catch (e) {}
+  return false;
+}
+function cleanPaymentParam() {
+  try {
+    const u = new URL(location.href);
+    if (u.searchParams.has('bezahlt')) { u.searchParams.delete('bezahlt'); history.replaceState({}, '', u.pathname + (u.search || '') + u.hash); }
+  } catch (e) {}
+}
+
+function zeigeZahlungBestaetigung() {
+  hideBoot(); hideOnboarding(); hidePlaene();
+  document.getElementById('authGate').classList.add('hidden');
+  const ld = document.getElementById('loading'); if (ld) ld.classList.remove('active');
+  const lg = document.getElementById('zahlungLogo');
+  const src = document.querySelector('.auth-card .auth-logo');
+  if (lg && src && src.src) lg.src = src.src;
+  const fb = document.getElementById('zahlungFallback'); if (fb) fb.style.display = 'none';
+  const sp = document.getElementById('zahlungSpinner'); if (sp) sp.style.display = '';
+  const g = document.getElementById('zahlungGate'); if (g) g.style.display = 'flex';
+  const kp = document.getElementById('kontingentPill'); if (kp) kp.style.display = 'none';
+  window.scrollTo({ top: 0, behavior: 'auto' });
+}
+function hideZahlungGate() { const g = document.getElementById('zahlungGate'); if (g) g.style.display = 'none'; }
+
+let ZAHLUNG_POLLS = 0;
+// Wartet nach der Rückkehr von Stripe, bis der Webhook das Konto freigeschaltet hat
+async function bestaetigeZahlung() {
+  if (!sb) { zeigePlaene('start'); return; }
+  ZAHLUNG_POLLS = 0;
+  cleanPaymentParam();
+  zeigeZahlungBestaetigung();
+  const tick = async function () {
+    ZAHLUNG_POLLS++;
+    try {
+      const { data } = await sb.rpc('kontingent_status');
+      const row = (data && data.length) ? data[0] : null;
+      if (row && row.aktiv && row.monatslimit > 0) {
+        CURRENT_FIRMA = row;
+        clearPendingPayment();
+        hideZahlungGate();
+        enterApp();
+        updateKontingentAnzeige();
+        return;
+      }
+    } catch (e) { /* still – weiter versuchen */ }
+    if (ZAHLUNG_POLLS >= 12) {           // ~30s -> Fallback anzeigen
+      const sp = document.getElementById('zahlungSpinner'); if (sp) sp.style.display = 'none';
+      const sub = document.getElementById('zahlungSub'); if (sub) sub.textContent = 'Die Bestätigung dauert gerade etwas länger als sonst.';
+      const fb = document.getElementById('zahlungFallback'); if (fb) fb.style.display = 'block';
+      return;
+    }
+    setTimeout(tick, 2500);
+  };
+  setTimeout(tick, 1500);                // kurz warten – der Webhook kommt meist sofort
 }
 
 // ===== ONBOARDING (Firma / Einzelperson wählen) =====
