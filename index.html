@@ -252,17 +252,28 @@
       body { background:#fff !important; color:#111 !important; font-size:11pt; }
       .app { padding:0 !important; max-width:100% !important; }
       .header { margin-bottom:20px; padding-bottom:16px; border-bottom:2px solid var(--green); }
-      .report-top,.score-card,.sec-card,.contact-card,.flags-card,.phantom-card { page-break-inside:avoid; box-shadow:none !important; border:1px solid #DDD !important; }
-      /* Beweismittel-Sektion beim Drucken: eigene Seite, Galerie sauber */
-      .evidence-card { page-break-before:always; page-break-inside:avoid; box-shadow:none !important; border:1.5px solid var(--green) !important; }
+      /* Karten-Optik beim Druck */
+      .report-top,.score-card,.sec-card,.contact-card,.flags-card,.phantom-card,.insolvenz-card { box-shadow:none !important; border:1px solid #DDD !important; }
+      /* Kompakte Blöcke immer komplett zusammenhalten */
+      .report-top,.score-card,.rec-card { page-break-inside:avoid; }
+      /* Längere Karten dürfen sauber auf die nächste Seite umbrechen – aber NIE mitten in einer Zeile */
+      .sec-card,.contact-card,.flags-card,.phantom-card,.insolvenz-card { page-break-inside:auto; }
+      .kv,.cc,.flag,.phantom-indiz { page-break-inside:avoid; }
+      /* Überschriften nie allein am Seitenende */
+      .sec-header,.phantom-header,.contact-header,.flags-heading { page-break-after:avoid; }
+      /* saubere Absätze: keine einzelnen Zeilen am Seitenanfang/-ende */
+      .phantom-summary,.rec-text,.sec-card { orphans:3; widows:3; }
+      /* Beweismittel-Sektion: eigene Seite, einzelne Bilder nie zerschneiden */
+      .evidence-card { page-break-before:always; page-break-inside:auto; box-shadow:none !important; border:1.5px solid var(--green) !important; }
       .evidence-gallery { background:#fff !important; grid-template-columns:repeat(2, 1fr) !important; }
-      .evidence-thumb { border:1px solid #DDD !important; }
+      .evidence-thumb { border:1px solid #DDD !important; page-break-inside:avoid; }
       .evidence-thumb img { max-height:260px; }
       .contact-card { page-break-before:auto; }
-      .rec-card { page-break-inside:avoid; background:#F0FDF4 !important; border:1px solid var(--green) !important; }
+      .rec-card { background:#F0FDF4 !important; border:1px solid var(--green) !important; }
       .rec-label { color:var(--green-dd) !important; }
       .rec-text { color:#1A2B23 !important; }
       .phantom-card { background:#FEF2F2 !important; border:2px solid #DC2626 !important; }
+      .insolvenz-card { background:#FFF7ED !important; border:2px solid #EA580C !important; }
       .cc { background:#F7FAF8 !important; }
       .verdict, .sec-weight, .tag, .cc-badge, .flag-icon, .version-pill, .phantom-schwere { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
       .gauge-fill { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
@@ -732,7 +743,6 @@
       .akte-cover { box-shadow:none !important; border:1px solid #DDD !important; page-break-after:auto; }
       .akte-analyse { page-break-before:always; page-break-inside:auto; }
       .akte-firm-head { page-break-inside:avoid; page-break-after:avoid; box-shadow:none !important; border:1px solid #DDD !important; }
-      .akte-analyse .grid4 { page-break-inside:avoid; }
     }
     /* Zugangscode (Demo) auf der Paket-Seite */
     .plan-code { max-width:440px; margin:24px auto 0; text-align:center; }
@@ -881,7 +891,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v9.5</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v9.5.1</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
