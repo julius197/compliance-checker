@@ -238,10 +238,36 @@
     .empty p { font-size:14px; }
 
     @media(max-width:640px){
+      .app { padding:24px 16px 80px; }
       .fields-row,.grid4 { grid-template-columns:1fr; }
       .contact-grid { grid-template-columns:1fr 1fr; }
       .report-top,.score-card { flex-direction:column; }
       .search-card { padding:24px 20px; }
+      /* Header kompakt: Logo kleiner, Deko-Pills weg, Aktionen umbrechen lassen */
+      .header { flex-wrap:wrap; gap:12px; padding-bottom:18px; margin-bottom:24px; }
+      .logo-svg { height:46px; }
+      .header-right { align-items:flex-start; gap:8px; width:100%; }
+      .header-right .version-pill, .header-right .header-badge { display:none; }
+      .header-actions { flex-wrap:wrap; }
+      /* Auth-Karte luftiger fürs Handy */
+      .auth-card { padding:34px 24px; border-radius:18px; }
+      .auth-logo { height:50px; margin-bottom:22px; }
+      /* Ordner-Auswahl + Button untereinander */
+      .ordner-row { flex-direction:column; }
+      .ordner-new-btn { width:100%; justify-content:center; }
+      /* Akte-Kopf gestapelt */
+      .akte-firm-head { flex-direction:column; align-items:flex-start; gap:14px; }
+      .akte-cover { padding:28px 22px; }
+      .akte-cover-title { font-size:24px; }
+      /* Zahlungscode-Zeile darf umbrechen */
+      .plan-code-row { flex-wrap:wrap; }
+      .plan-code-input { min-width:0; }
+    }
+    @media(max-width:430px){
+      .contact-grid { grid-template-columns:1fr; }
+      .logo-svg { height:40px; }
+      .search-heading { font-size:22px; }
+      .plan-code-btn { width:100%; }
     }
     @media print {
       @page { margin:1.4cm; }
@@ -909,7 +935,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v9.5.2</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v9.5.3</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
