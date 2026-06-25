@@ -734,6 +734,17 @@
       .akte-firm-head { page-break-inside:avoid; page-break-after:avoid; box-shadow:none !important; border:1px solid #DDD !important; }
       .akte-analyse .grid4 { page-break-inside:avoid; }
     }
+    /* Zugangscode (Demo) auf der Paket-Seite */
+    .plan-code { max-width:440px; margin:24px auto 0; text-align:center; }
+    .plan-code summary { cursor:pointer; font-size:13px; color:var(--gray); font-weight:600; list-style:none; user-select:none; display:inline-block; padding:6px 10px; border-radius:8px; transition:color .15s; }
+    .plan-code summary::-webkit-details-marker { display:none; }
+    .plan-code summary:hover { color:var(--green-dd); }
+    .plan-code-row { display:flex; gap:8px; margin-top:12px; }
+    .plan-code-input { flex:1; padding:11px 14px; border:1.5px solid var(--border); border-radius:10px; font-family:inherit; font-size:14px; letter-spacing:.04em; text-transform:uppercase; outline:none; transition:border-color .15s; background:#fff; }
+    .plan-code-input:focus { border-color:var(--green); }
+    .plan-code-btn { padding:11px 18px; border:none; border-radius:10px; background:var(--ink); color:#fff; font-family:inherit; font-weight:700; font-size:13px; cursor:pointer; transition:background .15s, transform .1s; white-space:nowrap; }
+    .plan-code-btn:hover:not(:disabled) { transform:translateY(-1px); }
+    .plan-code-btn:disabled { opacity:.5; cursor:not-allowed; }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -842,6 +853,16 @@
       <div class="auth-msg" id="planMsg" style="max-width:420px;margin:10px auto 0;"></div>
     </div>
     <div class="plan-cards" id="planCards"></div>
+    <div class="plan-code">
+      <details>
+        <summary>Du hast einen Zugangscode?</summary>
+        <div class="plan-code-row">
+          <input id="zugangscodeInput" class="plan-code-input" type="text" placeholder="Code eingeben" autocomplete="off" spellcheck="false" />
+          <button class="plan-code-btn" onclick="codeEinloesen()">Einlösen</button>
+        </div>
+        <div class="auth-msg" id="codeMsg" style="margin-top:8px;"></div>
+      </details>
+    </div>
     <div class="plan-trust">
       <span>✓ Jederzeit kündbar</span><span>✓ Auditfeste Nachweise für Zoll &amp; Finanzamt</span><span>✓ DSGVO-konform, Server in der EU</span>
     </div>
@@ -860,7 +881,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v9.4.1</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v9.5</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -1418,9 +1439,11 @@ function updateKontingentAnzeige() {
   const txt  = document.getElementById('kontingentText');
   if (!pill || !txt || !CURRENT_FIRMA) return;
   const f = CURRENT_FIRMA;
-  txt.textContent = f.verbraucht + ' / ' + f.monatslimit;
+  const unbegrenzt = f.monatslimit >= 100000;
+  txt.textContent = unbegrenzt ? 'Demo · unbegrenzt' : (f.verbraucht + ' / ' + f.monatslimit);
   pill.classList.remove('warn', 'full');
-  if (!f.aktiv || f.monatslimit <= 0 || f.verbraucht >= f.monatslimit) pill.classList.add('full');
+  if (unbegrenzt) { /* Demo: nie voll, keine Warnung */ }
+  else if (!f.aktiv || f.monatslimit <= 0 || f.verbraucht >= f.monatslimit) pill.classList.add('full');
   else if (f.verbraucht >= f.monatslimit * 0.85) pill.classList.add('warn');
   pill.style.display = 'inline-flex';
 }
@@ -1529,6 +1552,30 @@ async function paketWaehlen(planId) {
 
 function hidePlaene() { const g = document.getElementById('planGate'); if (g) g.style.display = 'none'; }
 function hidePlaeneBack() { hidePlaene(); enterApp(); }
+
+// Demo-/Zugangscode einlösen -> Konto ohne Zahlung freischalten
+async function codeEinloesen() {
+  if (!sb) return;
+  const inp = document.getElementById('zugangscodeInput');
+  const msg = document.getElementById('codeMsg');
+  const code = ((inp && inp.value) || '').trim();
+  const setMsg = function(t, type){ if (!msg) return; if (!t) { msg.classList.remove('show'); return; } msg.textContent = t; msg.className = 'auth-msg show ' + (type || ''); };
+  if (!code) { setMsg('Bitte gib einen Code ein.', 'error'); return; }
+  const btn = document.querySelector('.plan-code-btn');
+  if (btn) btn.disabled = true;
+  setMsg('Code wird geprüft…', '');
+  try {
+    const { data, error } = await sb.rpc('code_einloesen', { p_code: code });
+    if (error) throw error;
+    if (!data) throw new Error('Code ungültig.');
+    setMsg('Code akzeptiert – du wirst freigeschaltet…', 'success');
+    hidePlaene();
+    await ladeKontingent();
+  } catch (e) {
+    setMsg((e && e.message) || 'Code ungültig oder abgelaufen.', 'error');
+    if (btn) btn.disabled = false;
+  }
+}
 
 // ===== ONBOARDING (Firma / Einzelperson wählen) =====
 function obMsgShow(id, text, type) {
