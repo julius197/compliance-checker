@@ -860,7 +860,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v9.4</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v9.4.1</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -1515,9 +1515,10 @@ async function paketWaehlen(planId) {
     const { data: sess } = await sb.auth.getSession();
     const user = sess && sess.session && sess.session.user;
     if (!user) throw new Error('Bitte zuerst anmelden.');
-    // User-Kennung + E-Mail an Stripe mitgeben -> Webhook ordnet die Zahlung diesem Konto zu
+    // User-Kennung + Plan + E-Mail an Stripe mitgeben -> Webhook ordnet die Zahlung zu und kennt das Paket
+    const ref = user.id + '__' + planId;
     const url = link
-      + '?client_reference_id=' + encodeURIComponent(user.id)
+      + '?client_reference_id=' + encodeURIComponent(ref)
       + '&prefilled_email=' + encodeURIComponent(user.email || '');
     window.location.href = url;
   } catch (e) {
