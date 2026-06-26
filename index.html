@@ -1008,7 +1008,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v9.8.1</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v9.8.2</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -1397,10 +1397,16 @@ async function _openTeam() {
     if (error) throw error;
     TEAM_MEMBERS = data || [];
     renderTeam();
+  } catch (e) {
+    teamError((e && e.message) || 'Team konnte nicht geladen werden.');
+    return;
+  }
+  // Audit-Log separat – ein Fehler hier darf die Mitgliederliste NICHT blockieren
+  try {
     await ladeAudit();
     renderAudit();
   } catch (e) {
-    teamError((e && e.message) || 'Team konnte nicht geladen werden.');
+    console.warn('Audit-Log konnte nicht geladen werden:', e && e.message);
   }
 }
 
@@ -1455,6 +1461,7 @@ function teamError(msg) {
     + '<div class="empty-icon" style="background:var(--bad-bg)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="2"><path d="M12 9v4m0 4h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg></div>'
     + '<p style="color:var(--bad-text);font-weight:600">' + escapeHtml(friendlyError(msg)) + '</p>'
     + '<button class="btn-retry" onclick="openTeam()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>Erneut laden</button>'
+    + (msg ? '<p class="err-detail">Technisches Detail: ' + escapeHtml(String(msg)) + '</p>' : '')
     + '</div>';
   if (loading) loading.outerHTML = html;
   else if (tv) tv.insertAdjacentHTML('beforeend', html);
