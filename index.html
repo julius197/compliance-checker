@@ -966,7 +966,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v9.6.2</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v9.6.3</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -1879,14 +1879,25 @@ async function obFertig() { hideOnboarding(); await ladeKontingent(); }
 
 // Beim Laden prüfen ob eingeloggt
 if (sb) {
-  sb.auth.onAuthStateChange((event, session) => {
-    if (session) showApp(session);
-    else showGate();
-  });
+  let initialDone = false;
+  // 1) Anmeldestatus EINMAL sauber bestimmen und genau einmal routen
   (async () => {
-    const { data } = await sb.auth.getSession();
-    if (data.session) showApp(data.session); else showGate();
+    try {
+      const { data } = await sb.auth.getSession();
+      if (data && data.session) showApp(data.session); else showGate();
+    } catch (e) {
+      showGate();
+    }
+    initialDone = true;
   })();
+  // 2) Danach nur noch ECHTE Änderungen (Login/Logout) beachten.
+  //    Initiale Doppel-Events und Token-Refreshes ignorieren -> kein Flackern.
+  sb.auth.onAuthStateChange((event, session) => {
+    if (!initialDone) return;                 // Start übernimmt getSession oben
+    if (event === 'SIGNED_IN' && session) showApp(session);
+    else if (event === 'SIGNED_OUT') showGate();
+    // TOKEN_REFRESHED / USER_UPDATED / INITIAL_SESSION: NICHT neu routen
+  });
 } else {
   showGate();
 }
