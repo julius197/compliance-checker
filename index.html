@@ -1008,7 +1008,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v9.8</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v9.8.1</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -1339,14 +1339,27 @@ function enterApp() {
 // Eigene Rolle laden -> Team-Button nur fuer Host (admin) zeigen (nicht bei Einzelkonto)
 async function ladeMeineRolle() {
   if (!sb) return;
+  CURRENT_USER_ROLLE = '';
   try {
-    const { data, error } = await sb.rpc('meine_rolle');
-    if (error) throw error;
-    CURRENT_USER_ROLLE = data || '';
+    // 1) Rolle DIREKT aus dem Profil lesen (zuverlässigster Weg)
+    if (CURRENT_USER_ID) {
+      const { data: prof } = await sb.from('profile').select('rolle').eq('id', CURRENT_USER_ID).maybeSingle();
+      if (prof && prof.rolle) CURRENT_USER_ROLLE = prof.rolle;
+    }
+    // 2) Fallback: RPC (falls Profil-Lesen per RLS blockiert ist) – Form egal (String/Array/Objekt)
+    if (!CURRENT_USER_ROLLE) {
+      const { data } = await sb.rpc('meine_rolle');
+      if (data) {
+        if (typeof data === 'string') CURRENT_USER_ROLLE = data;
+        else if (Array.isArray(data)) CURRENT_USER_ROLLE = (data[0] && (data[0].rolle || data[0])) || '';
+        else CURRENT_USER_ROLLE = data.rolle || '';
+      }
+    }
   } catch (e) {
-    CURRENT_USER_ROLLE = '';
     console.warn('Rolle konnte nicht geladen werden:', e && e.message);
   }
+  // Schreibweise/Leerzeichen egal: 'Admin', ' admin ' usw. zählen auch
+  CURRENT_USER_ROLLE = (CURRENT_USER_ROLLE || '').toString().trim().toLowerCase();
   const tb = document.getElementById('teamBtn');
   const einzel = !!(CURRENT_FIRMA && CURRENT_FIRMA.typ === 'einzel');
   if (tb) tb.style.display = (CURRENT_USER_ROLLE === 'admin' && !einzel) ? '' : 'none';
