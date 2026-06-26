@@ -229,7 +229,7 @@
     /* ACTIONS */
     .actions { display:flex; gap:10px; justify-content:flex-end; }
     .btn-action { padding:11px 20px; border-radius:var(--radius-sm); border:1.5px solid var(--border); background:var(--card); color:var(--ink2); font-family:inherit; font-size:13px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:8px; transition:border-color .15s, background .15s, transform .1s; }
-    .btn-action:hover { border-color:var(--green); background:var(--green-tint); transform:translateY(-1px); }
+    .btn-action:hover { border-color:#B8C4BF; background:#F2F5F4; color:var(--ink); transform:translateY(-1px); }
     .btn-action.primary { background:var(--green); color:#fff; border-color:var(--green); }
     .btn-action.primary:hover { background:var(--green-d); }
 
@@ -515,6 +515,8 @@
     .auth-msg.success { background:var(--green-tint); color:var(--green-dd); }
     .logout-btn { font-size:12px; font-weight:600; color:var(--gray); background:none; border:1px solid var(--border); border-radius:20px; padding:6px 14px; cursor:pointer; transition:all .15s; }
     .logout-btn:hover { border-color:var(--bad); color:var(--bad-text); transform:translateY(-1px); }
+    /* Tactile Press-Feedback auf allen Buttons (premium Feel) */
+    .btn-search:active, .auth-btn:active, .plan-btn:active, .btn-action:active, .hist-nav-btn:active, .logout-btn:active, .tm-btn:active, .btn-retry:active, .ordner-new-btn:active, .plan-code-btn:active, .al-btn:active, .om-del:active, .ob-tab:active, .nob-opt:active { transform:translateY(0) scale(.97); }
 
     /* ===== ANIMATIONEN (dezent & edel) ===== */
     @keyframes fadeInUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
@@ -616,6 +618,14 @@
     .btn-retry { display:inline-flex; align-items:center; gap:7px; margin-top:18px; padding:10px 20px; border:1.5px solid var(--green); border-radius:10px; background:var(--green-tint); color:var(--green-dd); font-family:inherit; font-size:13.5px; font-weight:700; cursor:pointer; transition:background .15s, transform .1s; }
     .btn-retry:hover { background:var(--green-pale); transform:translateY(-1px); }
     .err-detail { color:var(--gray-l); font-size:11px; margin-top:12px; word-break:break-word; }
+    /* ===== PREMIUM-ÜBERGÄNGE & BUTTON-HIERARCHIE (v9.6) ===== */
+    @keyframes premiumIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:none; } }
+    .auth-card, #planGate .plan-wrap, #zahlungGate .plan-wrap { animation: premiumIn .42s cubic-bezier(.16,1,.3,1); }
+    .view-anim { animation: premiumIn .42s cubic-bezier(.16,1,.3,1); }
+    .ob-tab:hover { border-color:var(--green); color:var(--green-dd); background:var(--green-tint); }
+    /* Team-Button bewusst anders als Historie, damit nebeneinander klar unterscheidbar */
+    .hist-nav-btn.alt { background:#fff; color:var(--ink2); border-color:var(--border); }
+    .hist-nav-btn.alt:hover { background:var(--bg); border-color:var(--gray-l); color:var(--ink); transform:translateY(-1px); }
     .history-list { display:flex; flex-direction:column; gap:10px; }
     .history-row { display:flex; align-items:center; justify-content:space-between; gap:16px; width:100%; text-align:left; background:var(--card); border:1px solid var(--border); border-radius:var(--radius-lg); padding:18px 22px; cursor:pointer; font-family:inherit; box-shadow:var(--shadow); transition:transform .18s cubic-bezier(.16,1,.3,1), box-shadow .18s ease, border-color .18s ease; }
     .history-row:hover { transform:translateY(-2px); box-shadow:0 12px 28px -12px rgba(16,24,40,.2); border-color:var(--green-pale); }
@@ -784,6 +794,16 @@
     .plan-code-btn { padding:11px 18px; border:none; border-radius:10px; background:var(--ink); color:#fff; font-family:inherit; font-weight:700; font-size:13px; cursor:pointer; transition:background .15s, transform .1s; white-space:nowrap; }
     .plan-code-btn:hover:not(:disabled) { transform:translateY(-1px); }
     .plan-code-btn:disabled { opacity:.5; cursor:not-allowed; }
+    /* ===== PREMIUM-POLITUR (v9.6) ===== */
+    /* Button-Hierarchie: gefüllter Primär-Button klar abgesetzt vom sekundären Outline */
+    .btn-action.primary { background:linear-gradient(135deg,#4ADE80 0%,#22C55E 45%,#16A34A 100%); color:#fff; border:none; box-shadow:0 8px 20px -8px rgba(34,197,94,.5); }
+    .btn-action.primary:hover { transform:translateY(-2px); background:linear-gradient(135deg,#4ADE80 0%,#22C55E 40%,#15803D 100%); box-shadow:0 13px 28px -8px rgba(34,197,94,.6); }
+    /* Alle Buttons reagieren weich + spürbarer Klick */
+    button { transition: transform .14s cubic-bezier(.16,1,.3,1), box-shadow .2s ease, background .18s ease, border-color .15s ease, color .15s ease, filter .15s ease; }
+    button:active:not(:disabled) { transform: translateY(1px) scale(.992); }
+    /* Sanfter Auftritt für Overlays statt hartem Aufploppen */
+    .auth-card, .plan-wrap { animation: premiumIn .45s cubic-bezier(.16,1,.3,1); }
+    #authGate, .ob-gate, .plan-gate { animation: fadeIn .3s ease; }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -938,7 +958,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v9.5.5</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v9.6</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -948,7 +968,7 @@
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 2M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
           Historie
         </button>
-        <button class="hist-nav-btn" id="teamBtn" onclick="openTeam()" style="display:none;">
+        <button class="hist-nav-btn alt" id="teamBtn" onclick="openTeam()" style="display:none;">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
           Team
         </button>
@@ -1183,8 +1203,26 @@ let AUDIT_ROWS = [];
 function escapeHtml(s){ return String(s==null?'':s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
 function hexToRgba(hex, a){ hex=(hex||'#22C55E').replace('#',''); if(hex.length===3) hex=hex.split('').map(function(c){return c+c;}).join(''); var n=parseInt(hex,16); return 'rgba('+((n>>16)&255)+','+((n>>8)&255)+','+(n&255)+','+a+')'; }
 
-function showBoot() { const b = document.getElementById('bootGate'); if (b) b.classList.remove('hidden'); }
+function showBoot() { appAus(); const b = document.getElementById('bootGate'); if (b) b.classList.remove('hidden'); }
 function hideBoot() { const b = document.getElementById('bootGate'); if (b) b.classList.add('hidden'); }
+
+// Blendet ALLE Overlays aus -> verhindert das kurze Aufblitzen falscher Seiten
+function alleGatesAus() {
+  const a = document.getElementById('authGate'); if (a) a.classList.add('hidden');
+  const o = document.getElementById('onboardingGate'); if (o) o.style.display = 'none';
+  const p = document.getElementById('planGate'); if (p) p.style.display = 'none';
+  const z = document.getElementById('zahlungGate'); if (z) z.style.display = 'none';
+}
+// App (das eigentliche Tool) nur zeigen, wenn wir wirklich drin sind -> kein Durchblitzen
+function appAn()  { const a = document.querySelector('.app'); if (a) a.style.display = ''; }
+function appAus() { const a = document.querySelector('.app'); if (a) a.style.display = 'none'; }
+// Setzt die App-Unterseiten (Historie/Team/Akte) zurück auf die Hauptansicht
+function appUnterseitenReset() {
+  ['historyView','teamView','akteView'].forEach(function(id){ const e = document.getElementById(id); if (e) e.style.display = 'none'; });
+  const mv = document.getElementById('mainView'); if (mv) mv.style.display = 'block';
+}
+// Sanftes Reinfaden eines Bereichs (Animation neu auslösen)
+function fadeInView(el) { if (!el) return; el.classList.remove('view-anim'); void el.offsetWidth; el.classList.add('view-anim'); }
 
 function showApp(session) {
   showBoot(); // Splash zeigen, App erst freigeben wenn Firmen-Status geklärt ist (kein Aufblitzen)
@@ -1195,13 +1233,14 @@ function showApp(session) {
 // App sichtbar machen (erst wenn klar ist: Nutzer hat eine Firma)
 function enterApp() {
   hideBoot();
-  hideOnboarding();
-  hidePlaene();
-  document.getElementById('authGate').classList.add('hidden');
+  alleGatesAus();
+  appAn();
+  appUnterseitenReset();
   document.getElementById('logoutBtn').style.display = '';
   const hb = document.getElementById('historyBtn'); if (hb) hb.style.display = '';
   ladeOrdner();
   ladeMeineRolle();
+  fadeInView(document.getElementById('mainView'));
 }
 
 // ===== TEAM-VERWALTUNG (v9.2) =====
@@ -1230,6 +1269,7 @@ async function openTeam() {
   if (hv) hv.style.display = 'none';
   if (akte) akte.style.display = 'none';
   tv.style.display = 'block';
+  fadeInView(tv);
   window.scrollTo({ top: 0, behavior: 'smooth' });
   tv.innerHTML = `
     <div class="history-head">
@@ -1460,8 +1500,9 @@ async function ordnerAnlegen() {
 
 function showGate() {
   hideBoot();
-  hideOnboarding();
-  hidePlaene();
+  alleGatesAus();
+  appAus();
+  appUnterseitenReset();
   document.getElementById('authGate').classList.remove('hidden');
   document.getElementById('logoutBtn').style.display = 'none';
   const hb = document.getElementById('historyBtn'); if (hb) hb.style.display = 'none';
@@ -1549,8 +1590,7 @@ function planMsg(text, type) {
 }
 
 function zeigePlaene(grund) {
-  hideBoot(); hideOnboarding();
-  document.getElementById('authGate').classList.add('hidden');
+  hideBoot(); alleGatesAus(); appAus(); appUnterseitenReset();
   document.getElementById('loading').classList.remove('active');
   const lg = document.getElementById('planLogo');
   const src = document.querySelector('.auth-card .auth-logo');
@@ -1659,8 +1699,8 @@ function cleanPaymentParam() {
 }
 
 function zeigeZahlungBestaetigung() {
-  hideBoot(); hideOnboarding(); hidePlaene();
-  document.getElementById('authGate').classList.add('hidden');
+  appAus();
+  hideBoot(); alleGatesAus(); appUnterseitenReset();
   const ld = document.getElementById('loading'); if (ld) ld.classList.remove('active');
   const lg = document.getElementById('zahlungLogo');
   const src = document.querySelector('.auth-card .auth-logo');
@@ -1713,13 +1753,13 @@ function obMsgShow(id, text, type) {
   m.textContent = text; m.className = 'auth-msg show ' + (type || '');
 }
 function showOnboarding() {
+  appAus();
   const lg = document.getElementById('obLogo');
   const src = document.querySelector('.auth-card .auth-logo');
   if (lg && src && src.src) lg.src = src.src;
   obZurueck();
   hideBoot();
-  hidePlaene();
-  document.getElementById('authGate').classList.add('hidden');
+  alleGatesAus();
   document.getElementById('onboardingGate').style.display = 'flex';
   const kp = document.getElementById('kontingentPill'); if (kp) kp.style.display = 'none';
   const hb = document.getElementById('historyBtn'); if (hb) hb.style.display = 'none';
@@ -2884,6 +2924,7 @@ async function openHistory() {
   if (team) team.style.display = 'none';
   if (akte) akte.style.display = 'none';
   view.style.display = 'block';
+  fadeInView(view);
   window.scrollTo({ top: 0, behavior: 'smooth' });
   view.innerHTML = `
     <div class="history-head">
@@ -3164,6 +3205,7 @@ function openFromHistory(i) {
   const main = document.getElementById('mainView');
   if (view) view.style.display = 'none';
   if (main) main.style.display = 'block';
+  fadeInView(main);
   const empty = document.getElementById('emptyState'); if (empty) empty.style.display = 'none';
   showReport(d, d.firmenname, true); // true = aus Historie → nicht erneut speichern
   window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -3179,6 +3221,7 @@ function backToMain() {
   if (team) team.style.display = 'none';
   if (akte) akte.style.display = 'none';
   if (main) main.style.display = 'block';
+  fadeInView(main);
 }
 
 // ===== SAMMEL-PDF / AKTE (v9.3) =====
@@ -3296,6 +3339,7 @@ function akteDrucken(folderId) {
 
   av.innerHTML = actions + cover + body;
   av.style.display = 'block';
+  fadeInView(av);
   buildAkteWatermark(folder.name);
   window.scrollTo({ top: 0, behavior: 'auto' });
 }
