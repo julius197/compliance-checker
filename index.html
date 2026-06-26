@@ -622,6 +622,8 @@
     @keyframes premiumIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:none; } }
     .auth-card, #planGate .plan-wrap, #zahlungGate .plan-wrap { animation: premiumIn .42s cubic-bezier(.16,1,.3,1); }
     .view-anim { animation: premiumIn .42s cubic-bezier(.16,1,.3,1); }
+    @keyframes premiumOut { from { opacity:1; transform:none; } to { opacity:0; transform:translateY(-8px); } }
+    .view-out { animation: premiumOut .16s cubic-bezier(.4,0,1,1) forwards; pointer-events:none; }
     .ob-tab:hover { border-color:var(--green); color:var(--green-dd); background:var(--green-tint); }
     /* Team-Button bewusst anders als Historie, damit nebeneinander klar unterscheidbar */
     .hist-nav-btn.alt { background:#fff; color:var(--ink2); border-color:var(--border); }
@@ -958,7 +960,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v9.6</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v9.6.1</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -1223,6 +1225,22 @@ function appUnterseitenReset() {
 }
 // Sanftes Reinfaden eines Bereichs (Animation neu auslösen)
 function fadeInView(el) { if (!el) return; el.classList.remove('view-anim'); void el.offsetWidth; el.classList.add('view-anim'); }
+// Blendet die aktuell sichtbare App-Hauptansicht sanft RAUS, dann erst den Wechsel (cb)
+function mitAusBlende(cb) {
+  const ids = ['mainView', 'historyView', 'teamView', 'akteView'];
+  let cur = null;
+  for (let i = 0; i < ids.length; i++) {
+    const el = document.getElementById(ids[i]);
+    if (el && el.style.display !== 'none' && el.offsetParent !== null) { cur = el; break; }
+  }
+  if (cur) {
+    cur.classList.remove('view-anim');
+    cur.classList.add('view-out');
+    setTimeout(function () { if (cur) cur.classList.remove('view-out'); cb(); }, 160);
+  } else {
+    cb();
+  }
+}
 
 function showApp(session) {
   showBoot(); // Splash zeigen, App erst freigeben wenn Firmen-Status geklärt ist (kein Aufblitzen)
@@ -1260,7 +1278,8 @@ async function ladeMeineRolle() {
   if (tb) tb.style.display = (CURRENT_USER_ROLLE === 'admin' && !einzel) ? '' : 'none';
 }
 
-async function openTeam() {
+function openTeam() { mitAusBlende(_openTeam); }
+async function _openTeam() {
   const main = document.getElementById('mainView');
   const hv = document.getElementById('historyView');
   const tv = document.getElementById('teamView');
@@ -1403,7 +1422,7 @@ async function teamAktion(aktion, userId) {
     const { error } = await sb.rpc(rpc, { p_user: userId });
     if (error) throw error;
     await ladeMeineRolle();                       // evtl. eigene Rolle geändert (Selbst-Zurückstufung)
-    if (CURRENT_USER_ROLLE === 'admin') await openTeam();
+    if (CURRENT_USER_ROLLE === 'admin') await _openTeam();
     else backToMain();                            // kein Host mehr -> zurück zur Analyse
   } catch (e) {
     alert((e && e.message) || 'Aktion fehlgeschlagen.');
@@ -2915,7 +2934,8 @@ async function saveAnalysisToHistory(d, rawName) {
 }
 
 // Historie-Ansicht öffnen und Einträge des angemeldeten Nutzers laden
-async function openHistory() {
+function openHistory() { mitAusBlende(_openHistory); }
+async function _openHistory() {
   const main = document.getElementById('mainView');
   const view = document.getElementById('historyView');
   const team = document.getElementById('teamView');
@@ -3194,7 +3214,8 @@ async function moveAnalyse(pruefId, val) {
 }
 
 // Vollständigen Bericht aus der Historie erneut öffnen (gleiche Prüf-ID, erneut druckbar)
-function openFromHistory(i) {
+function openFromHistory(i) { mitAusBlende(function () { _openFromHistory(i); }); }
+function _openFromHistory(i) {
   const r = HISTORY_ROWS[i];
   if (!r || !r.report_json) return;
   const d = r.report_json;
@@ -3212,7 +3233,8 @@ function openFromHistory(i) {
 }
 
 // Zurück von der Historie zur Analyse-Ansicht
-function backToMain() {
+function backToMain() { mitAusBlende(_backToMain); }
+function _backToMain() {
   const view = document.getElementById('historyView');
   const team = document.getElementById('teamView');
   const akte = document.getElementById('akteView');
@@ -3299,7 +3321,8 @@ function buildAkteWatermark(folderName) {
 }
 
 // Akte eines Ordners aufbauen und Druck/PDF starten
-function akteDrucken(folderId) {
+function akteDrucken(folderId) { mitAusBlende(function () { _akteDrucken(folderId); }); }
+function _akteDrucken(folderId) {
   const folder = ORDNER_LIST.find(function(o){ return o.id === folderId; });
   if (!folder) { alert('Ordner nicht gefunden.'); return; }
   const rows = HISTORY_ROWS.filter(function(r){ return r.ordner_id === folderId && r.report_json; });
