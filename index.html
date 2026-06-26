@@ -466,6 +466,15 @@
     .plan-btn:hover { transform:translateY(-1px); border-color:var(--green,#22C55E); box-shadow:0 10px 24px -10px rgba(34,197,94,.4); }
     .plan-btn.primary { background:linear-gradient(135deg,#4ADE80 0%,#22C55E 45%,#16A34A 100%); color:#fff; border:none; box-shadow:0 12px 28px -8px rgba(34,197,94,.55); }
     .plan-btn.primary:hover { box-shadow:0 16px 36px -8px rgba(34,197,94,.65); }
+    .plan-btn.danger { background:#EF4444; color:#fff; border:none; box-shadow:0 8px 20px -8px rgba(239,68,68,.5); }
+    .plan-btn.danger:hover { background:#DC2626; transform:translateY(-1px); box-shadow:0 12px 26px -8px rgba(239,68,68,.6); }
+    .plan-btn.konto-export, .plan-btn.konto-cancel { background:#fff; border:1.5px solid var(--border); color:var(--ink2); }
+    .plan-btn.konto-export:hover, .plan-btn.konto-cancel:hover { border-color:#B8C4BF; background:#F2F5F4; transform:translateY(-1px); }
+    .konto-card { border:1.5px solid var(--border); border-radius:14px; padding:16px 18px; background:#fff; text-align:left; }
+    .konto-card.danger { border-color:#FCA5A5; background:#FEF2F2; }
+    .konto-card-h { font-weight:700; font-size:15px; margin-bottom:5px; color:var(--ink); }
+    .konto-card.danger .konto-card-h { color:var(--bad-text); }
+    .konto-card-p { font-size:13px; color:var(--gray); margin-bottom:12px; line-height:1.55; }
     .plan-btn:disabled { opacity:.5; cursor:wait; }
     .plan-trust { display:flex; flex-wrap:wrap; gap:10px 26px; justify-content:center; margin-top:26px; font-size:12.5px; color:var(--gray,#6B7C74); font-weight:600; }
     .plan-foot { text-align:center; margin-top:22px; font-size:13px; color:var(--gray,#6B7C74); }
@@ -958,6 +967,39 @@
   </div>
 </div>
 
+<div id="kontoGate" class="plan-gate" style="display:none;">
+  <div class="plan-wrap" style="max-width:480px;">
+    <div class="plan-head" style="text-align:center;">
+      <img class="plan-logo" id="kontoLogo" alt="Automati Labs" />
+      <h1 class="plan-title">Konto &amp; Daten</h1>
+      <p class="plan-subtitle" id="kontoEmail">—</p>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:14px; margin-top:8px;">
+      <div class="konto-card">
+        <div class="konto-card-h">Meine Daten exportieren</div>
+        <p class="konto-card-p">Lade alle deine Daten als JSON-Datei herunter – inklusive aller Prüfungen (DSGVO-Auskunft).</p>
+        <button class="plan-btn konto-export" id="exportBtn" onclick="exportiereDaten()">Daten exportieren (JSON)</button>
+      </div>
+      <div class="konto-card danger">
+        <div class="konto-card-h">Konto löschen</div>
+        <p class="konto-card-p">Entfernt dein Login und deine persönlichen Daten unwiderruflich. Deine erstellten Prüfungen bleiben aus rechtlichen Gründen (GwG-Aufbewahrungspflicht) <strong>anonymisiert</strong> erhalten und sind nicht mehr dir zugeordnet.</p>
+        <button class="plan-btn danger" id="kontoDelBtn" onclick="kontoLoeschenSchritt1()">Konto löschen</button>
+        <div id="kontoDelConfirm" style="display:none; margin-top:14px;">
+          <p class="konto-card-p" style="font-weight:600; color:var(--bad-text); margin-bottom:10px;">Wirklich endgültig löschen? Das kann nicht rückgängig gemacht werden.</p>
+          <div style="display:flex; gap:10px;">
+            <button class="plan-btn konto-cancel" onclick="kontoLoeschenAbbrechen()">Abbrechen</button>
+            <button class="plan-btn danger" id="kontoDelFinal" onclick="kontoLoeschenFinal()">Ja, endgültig löschen</button>
+          </div>
+        </div>
+        <div id="kontoMsg" class="auth-msg" style="display:none; margin-top:12px;"></div>
+      </div>
+    </div>
+    <div class="plan-foot" style="margin-top:18px; text-align:center;">
+      <a onclick="closeKonto()">Zurück</a>
+    </div>
+  </div>
+</div>
+
 <div class="app">
   <header class="header">
     <div class="logo-wrap">
@@ -966,7 +1008,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v9.7</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v9.8</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -979,6 +1021,10 @@
         <button class="hist-nav-btn alt" id="teamBtn" onclick="openTeam()" style="display:none;">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
           Team
+        </button>
+        <button class="hist-nav-btn" id="kontoBtn" onclick="openKonto()" style="display:none;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          Konto
         </button>
         <button class="logout-btn" id="logoutBtn" onclick="doLogout()" style="display:none;">Abmelden</button>
       </div>
@@ -1220,6 +1266,7 @@ function alleGatesAus() {
   const o = document.getElementById('onboardingGate'); if (o) o.style.display = 'none';
   const p = document.getElementById('planGate'); if (p) p.style.display = 'none';
   const z = document.getElementById('zahlungGate'); if (z) z.style.display = 'none';
+  const k = document.getElementById('kontoGate'); if (k) k.style.display = 'none';
 }
 // App (das eigentliche Tool) nur zeigen, wenn wir wirklich drin sind -> kein Durchblitzen
 function appAn()  { const a = document.querySelector('.app'); if (a) a.style.display = ''; }
@@ -1276,6 +1323,7 @@ function enterApp() {
   appUnterseitenReset();
   document.getElementById('logoutBtn').style.display = '';
   const hb = document.getElementById('historyBtn'); if (hb) hb.style.display = '';
+  const kb = document.getElementById('kontoBtn'); if (kb) kb.style.display = '';
   ladeOrdner();
   ladeMeineRolle();
   fadeInView(document.getElementById('mainView'));
@@ -1553,6 +1601,7 @@ function showGate() {
   document.getElementById('logoutBtn').style.display = 'none';
   const hb = document.getElementById('historyBtn'); if (hb) hb.style.display = 'none';
   const tb = document.getElementById('teamBtn'); if (tb) tb.style.display = 'none';
+  const kb = document.getElementById('kontoBtn'); if (kb) kb.style.display = 'none';
   const kp = document.getElementById('kontingentPill'); if (kp) kp.style.display = 'none';
   CURRENT_FIRMA = null;
 }
@@ -1941,6 +1990,89 @@ function friendlyError(msg) {
   if (m.includes('500') || m.includes('502') || m.includes('503') || m.includes('server'))
     return 'Der Server hat gerade ein Problem. Bitte versuche es in einem Moment erneut.';
   return 'Die Analyse konnte nicht abgeschlossen werden. Bitte versuche es erneut.';
+}
+
+// ===== KONTO & DATEN (DSGVO: Export + Löschung) =====
+function openKonto() {
+  const lg = document.getElementById('kontoLogo');
+  const src = document.querySelector('.auth-card .auth-logo');
+  if (lg && src && src.src) lg.src = src.src;
+  const em = document.getElementById('kontoEmail'); if (em) em.textContent = CURRENT_USER_EMAIL || '';
+  const c = document.getElementById('kontoDelConfirm'); if (c) c.style.display = 'none';
+  const m = document.getElementById('kontoMsg'); if (m) m.style.display = 'none';
+  appAus();
+  document.getElementById('kontoGate').style.display = 'flex';
+  window.scrollTo({ top: 0, behavior: 'auto' });
+}
+function closeKonto() {
+  const g = document.getElementById('kontoGate');
+  if (!g) { appAn(); return; }
+  g.classList.add('screen-out');
+  setTimeout(function () { g.classList.remove('screen-out'); g.style.display = 'none'; appAn(); }, 200);
+}
+function kontoMsgShow(msg, typ) {
+  const m = document.getElementById('kontoMsg');
+  if (!m) return;
+  m.style.display = 'block';
+  m.textContent = msg;
+  m.className = 'auth-msg ' + (typ === 'error' ? 'error' : 'ok');
+}
+// DSGVO-Auskunft: alle eigenen Daten als JSON herunterladen
+async function exportiereDaten() {
+  const btn = document.getElementById('exportBtn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Wird vorbereitet…'; }
+  try {
+    let analysen = [];
+    if (sb) {
+      const { data, error } = await sb.from('analysen')
+        .select('pruef_id,firmenname,land,ust_id,score,verdict,verdict_text,created_at,report_json')
+        .order('created_at', { ascending: false });
+      if (!error && data) analysen = data;
+    }
+    const exp = {
+      export_datum: new Date().toISOString(),
+      konto: { email: CURRENT_USER_EMAIL || '', user_id: CURRENT_USER_ID || '' },
+      firma: CURRENT_FIRMA ? { name: CURRENT_FIRMA.firma_name, typ: CURRENT_FIRMA.typ } : null,
+      anzahl_pruefungen: analysen.length,
+      pruefungen: analysen
+    };
+    const blob = new Blob([JSON.stringify(exp, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'compliance-checker-daten-' + new Date().toISOString().slice(0, 10) + '.json';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+    kontoMsgShow('Export erstellt – die JSON-Datei wurde heruntergeladen.', 'ok');
+  } catch (e) {
+    kontoMsgShow('Export fehlgeschlagen: ' + (e && e.message ? e.message : e), 'error');
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Daten exportieren (JSON)'; }
+  }
+}
+function kontoLoeschenSchritt1() {
+  const c = document.getElementById('kontoDelConfirm'); if (c) c.style.display = 'block';
+}
+function kontoLoeschenAbbrechen() {
+  const c = document.getElementById('kontoDelConfirm'); if (c) c.style.display = 'none';
+}
+async function kontoLoeschenFinal() {
+  const btn = document.getElementById('kontoDelFinal');
+  if (btn) { btn.disabled = true; btn.textContent = 'Wird gelöscht…'; }
+  try {
+    const { data: sess } = await sb.auth.getSession();
+    const token = sess && sess.session && sess.session.access_token;
+    if (!token) throw new Error('Nicht angemeldet');
+    const res = await workerCall('konto_loeschen', { token: token });
+    if (!res || res.error) throw new Error((res && res.error) || 'Unbekannter Fehler');
+    // Erfolg -> Overlay zu, abmelden (SIGNED_OUT -> Login-Seite), Hinweis zeigen
+    const g = document.getElementById('kontoGate'); if (g) g.style.display = 'none';
+    await sb.auth.signOut();
+    setTimeout(function () { showAuthMsg('Dein Konto wurde gelöscht. Du kannst dich jederzeit neu registrieren.', 'ok'); }, 250);
+  } catch (e) {
+    kontoMsgShow('Löschen fehlgeschlagen: ' + (e && e.message ? e.message : e), 'error');
+    if (btn) { btn.disabled = false; btn.textContent = 'Ja, endgültig löschen'; }
+  }
 }
 
 function startSearch() {
