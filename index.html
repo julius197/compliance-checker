@@ -1008,7 +1008,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v9.8.2</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v9.9</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -2546,8 +2546,8 @@ function showReport(d, rawName, fromHistory) {
     { score: d.grunddaten && d.grunddaten.score, weight: 0.30 },
     { score: d.personen   && d.personen.score,   weight: 0.30 },
     { score: d.kontakt    && d.kontakt.score,    weight: 0.20 },
-    { score: d.reputation && d.reputation.score, weight: 0.15 },
-    { score: d.finanzen   && d.finanzen.score,   weight: 0.05 },
+    { score: d.reputation && d.reputation.score, weight: 0.05 },
+    { score: d.finanzen   && d.finanzen.score,   weight: 0.15 },
   ];
   // Nur Kategorien mit echtem Score (nicht null/0) zählen
   const valid = weighted.filter(w => typeof w.score === 'number' && w.score > 0);
@@ -2607,8 +2607,8 @@ function showReport(d, rawName, fromHistory) {
     <div class="grid4 reveal">
       ${secCard('Grunddaten', d.grunddaten, '30%')}
       ${secCard('Personen', d.personen, '30%')}
-      ${secCard('Reputation', d.reputation, '15%')}
-      ${secCard('Finanzen', d.finanzen, '5%')}
+      ${secCard('Reputation', d.reputation, '5%')}
+      ${secCard('Finanzen', d.finanzen, '15%')}
     </div>
     ${phantomHTML(d)}
     ${insolvenzHTML(d)}
@@ -3148,8 +3148,8 @@ function buildAkteAnalyse(d) {
     + '<div class="grid4">'
     + secCard('Grunddaten', d.grunddaten || { felder: [] }, '30%')
     + secCard('Personen', d.personen || { felder: [] }, '30%')
-    + secCard('Reputation', d.reputation || { felder: [] }, '15%')
-    + secCard('Finanzen', d.finanzen || { felder: [] }, '5%')
+    + secCard('Reputation', d.reputation || { felder: [] }, '5%')
+    + secCard('Finanzen', d.finanzen || { felder: [] }, '15%')
     + '</div>'
     + phantomHTML(d)
     + insolvenzHTML(d)
