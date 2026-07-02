@@ -529,6 +529,10 @@
     .auth-toggle { text-align:center; margin-top:20px; font-size:13px; color:var(--gray); }
     .auth-toggle a { color:var(--green-d); font-weight:600; cursor:pointer; text-decoration:none; }
     .auth-toggle a:hover { text-decoration:underline; }
+    .auth-legal { display:flex; flex-direction:column; gap:11px; margin:4px 0 2px; text-align:left; }
+    .auth-check { display:flex; align-items:flex-start; gap:9px; font-size:12.5px; line-height:1.45; color:var(--gray); cursor:pointer; }
+    .auth-check input { margin-top:2px; width:16px; height:16px; flex-shrink:0; accent-color:#22C55E; cursor:pointer; }
+    .auth-check a { color:var(--green-d); font-weight:600; text-decoration:underline; }
     .auth-msg { font-size:13px; padding:10px 14px; border-radius:var(--radius-sm); margin-bottom:16px; display:none; }
     .auth-msg.show { display:block; }
     .auth-msg.error { background:var(--bad-bg); color:var(--bad-text); }
@@ -860,6 +864,16 @@
       <label class="auth-label">Passwort</label>
       <input type="password" class="auth-input" id="authPassword" placeholder="••••••••" autocomplete="current-password" />
     </div>
+    <div class="auth-legal" id="authLegal" style="display:none;">
+      <label class="auth-check">
+        <input type="checkbox" id="chkGwg" />
+        <span>Ich bestätige, dass ich zum verpflichteten Personenkreis nach § 2 GwG gehöre und kein Verbraucher (§ 13 BGB) bin.</span>
+      </label>
+      <label class="auth-check">
+        <input type="checkbox" id="chkAgb" />
+        <span>Ich akzeptiere die <a href="https://automatilabs.de/agb" target="_blank" rel="noopener">AGB</a> und die <a href="https://automatilabs.de/datenschutz" target="_blank" rel="noopener">Datenschutzerklärung</a>.</span>
+      </label>
+    </div>
     <button class="auth-btn" id="authBtn" onclick="doAuth()">Anmelden</button>
     <div class="auth-toggle" id="authToggle">
       Noch kein Konto? <a onclick="toggleAuthMode()">Jetzt registrieren</a>
@@ -1019,7 +1033,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v9.9.1</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v9.9.2</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -1193,17 +1207,22 @@ function toggleAuthMode() {
   const btn = document.getElementById('authBtn');
   const toggle = document.getElementById('authToggle');
   const pw = document.getElementById('authPassword');
+  const legal = document.getElementById('authLegal');
   if (authMode === 'register') {
     title.textContent = 'Konto erstellen';
     btn.textContent = 'Registrieren';
     toggle.innerHTML = 'Schon ein Konto? <a onclick="toggleAuthMode()">Jetzt anmelden</a>';
     pw.setAttribute('autocomplete','new-password');
+    if (legal) legal.style.display = 'flex';
   } else {
     title.textContent = 'Anmelden';
     btn.textContent = 'Anmelden';
     toggle.innerHTML = 'Noch kein Konto? <a onclick="toggleAuthMode()">Jetzt registrieren</a>';
     pw.setAttribute('autocomplete','current-password');
+    if (legal) legal.style.display = 'none';
   }
+  const g = document.getElementById('chkGwg'); if (g) g.checked = false;
+  const a = document.getElementById('chkAgb'); if (a) a.checked = false;
   showAuthMsg('', '');
 }
 
@@ -1220,6 +1239,13 @@ async function doAuth() {
   const btn = document.getElementById('authBtn');
   if (!email || !password) { showAuthMsg('Bitte E-Mail und Passwort eingeben.', 'error'); return; }
   if (password.length < 6) { showAuthMsg('Passwort muss mindestens 6 Zeichen haben.', 'error'); return; }
+  if (authMode === 'register') {
+    const g = document.getElementById('chkGwg'), a = document.getElementById('chkAgb');
+    if (!g || !g.checked || !a || !a.checked) {
+      showAuthMsg('Bitte bestätige beide Kästchen (GwG-Personenkreis + AGB/Datenschutz), um fortzufahren.', 'error');
+      return;
+    }
+  }
   btn.disabled = true;
   showAuthMsg('', '');
 
