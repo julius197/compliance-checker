@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="de">
 <head>
   <meta charset="UTF-8" />
@@ -533,6 +533,9 @@
     .auth-check { display:flex; align-items:flex-start; gap:9px; font-size:12.5px; line-height:1.45; color:var(--gray); cursor:pointer; }
     .auth-check input { margin-top:2px; width:16px; height:16px; flex-shrink:0; accent-color:#22C55E; cursor:pointer; }
     .auth-check a { color:var(--green-d); font-weight:600; text-decoration:underline; }
+    .auth-foot { margin-top:14px; text-align:center; font-size:11.5px; color:var(--gray); }
+    .auth-foot a { color:var(--gray); text-decoration:underline; cursor:pointer; }
+    .auth-foot a:hover { color:var(--ink2); }
     .auth-msg { font-size:13px; padding:10px 14px; border-radius:var(--radius-sm); margin-bottom:16px; display:none; }
     .auth-msg.show { display:block; }
     .auth-msg.error { background:var(--bad-bg); color:var(--bad-text); }
@@ -878,6 +881,7 @@
     <div class="auth-toggle" id="authToggle">
       Noch kein Konto? <a onclick="toggleAuthMode()">Jetzt registrieren</a>
     </div>
+    <div class="auth-foot"><a onclick="openLegal('impressum')">Impressum</a> · <a onclick="openLegal('datenschutz')">Datenschutz</a> · <a onclick="openLegal('agb')">AGB</a></div>
   </div>
 </div>
 
@@ -1047,6 +1051,20 @@
     <div class="legal-content" id="legalContent"></div>
   </div>
 </div>
+<div id="legalImpressumHtml" style="display:none;"><h3>Impressum</h3>
+<h3>Angaben gemäß § 5 TMG</h3>
+<p>Automati Labs GmbH i. Gr.<br>vertreten durch Maik Sperlich<br>Volbehrstraße 11d<br>90491 Nürnberg<br>Deutschland</p>
+<h3>Kontakt</h3>
+<p>Telefon: +49 151 74419096<br>E-Mail: info@automatilabs.de</p>
+<h3>Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV</h3>
+<p>Maik Sperlich<br>Volbehrstraße 11d<br>90491 Nürnberg</p>
+<h3>Haftungsausschluss</h3>
+<h3>Haftung für Inhalte</h3>
+<p>Die Inhalte unserer Seiten wurden mit größter Sorgfalt erstellt. Für die Richtigkeit, Vollständigkeit und Aktualität der Inhalte können wir jedoch keine Gewähr übernehmen. Als Diensteanbieter sind wir gemäß § 7 Abs. 1 TMG für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich. Nach §§ 8 bis 10 TMG sind wir als Diensteanbieter jedoch nicht verpflichtet, übermittelte oder gespeicherte fremde Informationen zu überwachen oder nach Umständen zu forschen, die auf eine rechtswidrige Tätigkeit hinweisen.</p>
+<h3>Haftung für Links</h3>
+<p>Unser Angebot enthält Links zu externen Webseiten Dritter, auf deren Inhalte wir keinen Einfluss haben. Deshalb können wir für diese fremden Inhalte auch keine Gewähr übernehmen. Für die Inhalte der verlinkten Seiten ist stets der jeweilige Anbieter oder Betreiber der Seiten verantwortlich.</p>
+<h3>Urheberrecht</h3>
+<p>Die durch die Seitenbetreiber erstellten Inhalte und Werke auf diesen Seiten unterliegen dem deutschen Urheberrecht. Die Vervielfältigung, Bearbeitung, Verbreitung und jede Art der Verwertung außerhalb der Grenzen des Urheberrechtes bedürfen der schriftlichen Zustimmung des jeweiligen Autors bzw. Erstellers.</p></div>
 <div id="legalAgbHtml" style="display:none;"><h3>Vertrag und allgemeine Geschäftsbedingungen der Automati Labs GmbH</h3>
 <h3>1. Anwendungsbereich, Einschränkung des Nutzerkreises, Definitionen</h3>
 <p>1.1 Die nachstehenden Allgemeinen Geschäftsbedingungen (AGB) gelten für die erstmalige Registrierung des Nutzers im Online-Portal der Automati Labs GmbH (nachfolgend AL) sowie für alle gegenwärtigen und künftigen Auskünfte und Leistungen, und zwar auch dann, wenn die AL die Nutzer bei zukünftigen Auskunfts- und Leistungsanfragen nicht nochmals auf die Geltung dieser AGB hinweist.</p>
@@ -1153,7 +1171,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v9.9.5</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v9.9.6</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -2172,9 +2190,14 @@ function friendlyError(msg) {
 // ===== KONTO & DATEN (DSGVO: Export + Löschung) =====
 // ===== RECHTSTEXTE (AGB / Datenschutz) im Checker =====
 function openLegal(which) {
-  var isAgb = which === 'agb';
-  var src = document.getElementById(isAgb ? 'legalAgbHtml' : 'legalDatenschutzHtml');
-  document.getElementById('legalTitle').textContent = isAgb ? 'Allgemeine Geschäftsbedingungen (AGB)' : 'Datenschutzerklärung';
+  var map = {
+    agb: ['legalAgbHtml', 'Allgemeine Geschäftsbedingungen (AGB)'],
+    datenschutz: ['legalDatenschutzHtml', 'Datenschutzerklärung'],
+    impressum: ['legalImpressumHtml', 'Impressum']
+  };
+  var e = map[which] || map.agb;
+  var src = document.getElementById(e[0]);
+  document.getElementById('legalTitle').textContent = e[1];
   var c = document.getElementById('legalContent');
   c.innerHTML = src ? src.innerHTML : '';
   c.scrollTop = 0;
