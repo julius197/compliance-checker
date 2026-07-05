@@ -137,7 +137,7 @@
     .kv { display:flex; justify-content:space-between; align-items:baseline; padding:8px 0; border-bottom:1px solid var(--border2); font-size:13px; gap:12px; }
     .kv:last-child { border-bottom:none; }
     .kv-k { color:var(--gray); flex-shrink:0; font-weight:500; }
-    .kv-v { font-weight:600; color:var(--ink2); text-align:right; }
+    .kv-v { font-weight:600; color:var(--ink2); text-align:right; min-width:0; overflow-wrap:anywhere; word-break:break-word; }
     .kv-v.ok   { color:var(--ok-text); }
     .kv-v.warn { color:var(--warn-text); }
     .kv-v.bad  { color:var(--bad-text); }
@@ -169,7 +169,7 @@
     .schwere-hoch { background:var(--bad); color:#fff; }
     .schwere-mittel { background:var(--warn-bg); color:var(--warn-text); border:1px solid #FDE68A; }
     .schwere-niedrig { background:var(--bg); color:var(--gray); border:1px solid var(--border); }
-    .phantom-indiz-text { color:var(--ink2); font-weight:500; }
+    .phantom-indiz-text { color:var(--ink2); font-weight:500; min-width:0; overflow-wrap:anywhere; word-break:break-word; }
     .phantom-indiz-src { display:block; font-size:9px; color:var(--gray-l); letter-spacing:.04em; text-transform:uppercase; margin-top:3px; font-weight:600; }
 
     /* CONTACT */
@@ -218,7 +218,7 @@
     .flag-icon.ok   { background:var(--green-pale); color:var(--green-dd); }
     .flag-icon.warn { background:var(--warn-bg); color:var(--warn-text); }
     .flag-icon.bad  { background:var(--bad-bg); color:var(--bad-text); }
-    .flag-text { color:var(--gray); }
+    .flag-text { color:var(--gray); min-width:0; overflow-wrap:anywhere; word-break:break-word; }
     .flag-text b { color:var(--ink2); font-weight:700; }
 
     /* RECOMMENDATION */
@@ -1171,7 +1171,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v9.9.7</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v9.9.8</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
