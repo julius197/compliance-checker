@@ -1171,7 +1171,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v9.9.10</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v9.9.11</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -2944,6 +2944,18 @@ function showReport(d, rawName, fromHistory) {
   if (insolvenzVerdacht) {
     // Score wird auf maximal 25 gedeckelt – Insolvenz ist ein schwerwiegendes Signal
     d.gesamtScore = Math.min(d.gesamtScore || 25, 25);
+  }
+
+  // SANKTIONS-/PEP-DECKELUNG: Sanktions-Treffer = K.O. (max 30, wie Phantom), PEP allein = weicher Deckel (max 60, nie grün)
+  const sank = d.sanktion || {};
+  const sanktionTreffer = sank.treffer === true && (sank.art === 'sanktion' || sank.art === 'beides');
+  const pepTreffer = sank.treffer === true && sank.art === 'pep';
+  if (sanktionTreffer) {
+    const sScore = typeof sank.score === 'number' ? sank.score : 25;
+    const deckelS = Math.min(30, sScore);
+    d.gesamtScore = Math.min(d.gesamtScore != null ? d.gesamtScore : deckelS, deckelS);
+  } else if (pepTreffer) {
+    d.gesamtScore = Math.min(d.gesamtScore != null ? d.gesamtScore : 60, 60);
   }
 
   // Verdict an finalen Score anpassen
