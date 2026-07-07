@@ -692,6 +692,9 @@
     .ordner-row { display:flex; gap:10px; align-items:stretch; }
     .ordner-new-btn { flex-shrink:0; padding:0 16px; border:1.5px dashed rgba(34,197,94,.45); background:var(--green-tint); color:var(--green-dd); border-radius:11px; font-family:inherit; font-size:13px; font-weight:700; cursor:pointer; white-space:nowrap; transition:border-color .15s, background .15s, transform .1s; display:flex; align-items:center; gap:6px; }
     .ordner-new-btn:hover { border-color:var(--green); background:var(--green-pale); transform:translateY(-1px); }
+    #ordnerSelect { flex:1; min-width:0; appearance:none; -webkit-appearance:none; -moz-appearance:none; padding:13px 38px 13px 15px; background-color:#FCFEFD; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 14px center; border:1.5px solid var(--border); border-radius:11px; color:var(--ink); font-family:inherit; font-size:14px; cursor:pointer; outline:none; transition:border-color .15s, box-shadow .15s; }
+    #ordnerSelect:hover { border-color:#B8C4BF; }
+    #ordnerSelect:focus { border-color:var(--green); box-shadow:0 0 0 3px var(--green-pale); }
     #neuerOrdnerBox { margin-top:12px; padding:20px; border:1.5px solid var(--border); border-radius:14px; background:linear-gradient(165deg,#FFFFFF 0%, #FAFEFB 100%); box-shadow:0 8px 28px -16px rgba(16,40,28,.18); position:relative; overflow:hidden; animation: slideDown .3s cubic-bezier(.16,1,.3,1); }
     #neuerOrdnerBox::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg,var(--green) 0%, var(--green-d) 35%, #5EEAD4 60%, transparent 90%); }
     #neuerOrdnerBox .auth-msg { margin-bottom:10px; }
@@ -757,7 +760,7 @@
     .hr-click { display:flex; align-items:center; justify-content:space-between; gap:16px; flex:1; cursor:pointer; min-width:0; }
     .hr-author { font-size:11px; color:var(--gray-l); margin-top:3px; font-weight:500; }
     .hr-tools { display:flex; align-items:center; gap:8px; flex-shrink:0; }
-    .hr-move { font-size:11px; font-weight:600; color:var(--gray); background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:7px 9px; font-family:inherit; cursor:pointer; outline:none; max-width:170px; transition:border-color .15s; }
+    .hr-move { font-size:11px; font-weight:600; color:var(--gray); background-color:var(--bg); background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 8px center; border:1px solid var(--border); border-radius:8px; padding:7px 24px 7px 9px; font-family:inherit; cursor:pointer; outline:none; max-width:170px; transition:border-color .15s; appearance:none; -webkit-appearance:none; -moz-appearance:none; }
     .hr-move:hover { border-color:var(--green); }
     .hr-move:focus { border-color:var(--green); box-shadow:0 0 0 2px var(--green-pale); }
     @media(max-width:640px){ .hr-tools { width:100%; } .hr-move { flex:1; max-width:none; } }
@@ -1176,7 +1179,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v9.9.12</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v9.9.13</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
