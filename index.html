@@ -908,7 +908,7 @@
       <div class="auth-sub">Wie möchtest du den Compliance-Checker nutzen?</div>
       <div class="auth-msg" id="obMsg"></div>
       <button class="ob-choice" onclick="obWaehle('firma')">
-        <strong>Firma</strong>
+        <strong>Unternehmen</strong>
         <span>Mehrere Mitarbeiter teilen ein gemeinsames Kontingent</span>
       </button>
       <button class="ob-choice" onclick="obWaehle('einzel')">
@@ -918,23 +918,23 @@
     </div>
 
     <div id="obStepFirma" style="display:none;">
-      <div class="auth-title">Firma</div>
-      <div class="auth-sub">Neue Firma anlegen oder einer bestehenden beitreten?</div>
+      <div class="auth-title">Unternehmen</div>
+      <div class="auth-sub">Neues Unternehmen anlegen oder einem bestehenden beitreten?</div>
       <div class="auth-msg" id="obMsgFirma"></div>
       <div class="ob-tabs">
-        <button class="ob-tab active" id="obTabNeu" onclick="obFirmaTab('neu')">Neue Firma</button>
+        <button class="ob-tab active" id="obTabNeu" onclick="obFirmaTab('neu')">Neues Unternehmen</button>
         <button class="ob-tab" id="obTabBei" onclick="obFirmaTab('bei')">Beitreten</button>
       </div>
       <div id="obFirmaNeu">
         <div class="auth-field">
-          <label class="auth-label">Firmenname</label>
+          <label class="auth-label">Name des Unternehmens</label>
           <input type="text" class="auth-input" id="obFirmaName" placeholder="Muster GmbH" />
         </div>
-        <button class="auth-btn" id="obBtnAnlegen" onclick="obFirmaAnlegen()">Firma anlegen</button>
+        <button class="auth-btn" id="obBtnAnlegen" onclick="obFirmaAnlegen()">Unternehmen anlegen</button>
       </div>
       <div id="obFirmaBei" style="display:none;">
         <div class="auth-field">
-          <label class="auth-label">Firmen-Code</label>
+          <label class="auth-label">Unternehmens-Code</label>
           <input type="text" class="auth-input" id="obFirmaCode" placeholder="z.B. A3F9C1" autocomplete="off" style="text-transform:uppercase; letter-spacing:2px;" />
         </div>
         <button class="auth-btn" id="obBtnBeitreten" onclick="obFirmaBeitreten()">Beitreten</button>
@@ -943,8 +943,8 @@
     </div>
 
     <div id="obStepCode" style="display:none;">
-      <div class="auth-title">Firma angelegt ✓</div>
-      <div class="auth-sub">Das ist dein Firmen-Code. Gib ihn an deine Mitarbeiter weiter – damit treten sie deiner Firma bei und teilen euer Kontingent.</div>
+      <div class="auth-title">Unternehmen angelegt ✓</div>
+      <div class="auth-sub">Das ist dein Unternehmens-Code. Gib ihn an deine Mitarbeiter weiter – damit treten sie deinem Unternehmen bei und teilen euer Kontingent.</div>
       <div class="ob-code" id="obCodeWert">––––––</div>
       <div class="ob-hinweis">Dein Konto ist noch nicht freigeschaltet. Sobald dein Kontingent aktiviert wurde, kannst du Analysen starten.</div>
       <button class="auth-btn" onclick="obFertig()">Verstanden, weiter</button>
@@ -981,9 +981,6 @@
         </div>
         <div class="auth-msg" id="codeMsg" style="margin-top:8px;"></div>
       </details>
-    </div>
-    <div class="plan-trust">
-      <span>✓ Jederzeit kündbar</span><span>✓ Auditfeste Nachweise für Zoll &amp; Finanzamt</span><span>✓ DSGVO-konform, Server in der EU</span>
     </div>
     <div class="plan-foot">
       <span id="planBack" style="display:none;"><a onclick="hidePlaeneBack()">← Zurück zum Tool</a> &nbsp;·&nbsp; </span>
@@ -1185,7 +1182,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v9.9.14</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v9.9.15</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -1212,10 +1209,10 @@
   <div class="search-card">
     <div class="search-eyebrow">Geldwäscherechtliche Prüfung</div>
     <div class="search-heading">Compliance-Prüfung</div>
-    <div class="search-sub">Geldwäscherechtliche Prüfung gemäß §§ 10–17 GwG. Firmenname und Land wählen – USt-ID empfohlen für präzise Zuordnung.</div>
+    <div class="search-sub">Geldwäscherechtliche Prüfung gemäß §§ 10–17 GwG. Name des Unternehmens und Land wählen – USt-ID empfohlen für präzise Zuordnung.</div>
     <div class="fields-row">
       <div>
-        <div class="field-label">Firmenname <span class="req">*</span></div>
+        <div class="field-label">Name des Unternehmens <span class="req">*</span></div>
         <input type="text" id="nameInput" placeholder="z.B. BMW AG" />
       </div>
       <div>
@@ -1256,7 +1253,7 @@
             </button>
             <button type="button" class="nob-opt" id="ordnerOptOeff" onclick="setOrdnerSicht('oeffentlich')">
               <span class="nob-opt-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
-              <span class="nob-opt-txt"><strong>Öffentlich</strong><span>Die ganze Firma sieht ihn</span></span>
+              <span class="nob-opt-txt"><strong>Öffentlich</strong><span>Das ganze Unternehmen sieht ihn</span></span>
               <span class="nob-check"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5"/></svg></span>
             </button>
           </div>
@@ -1293,7 +1290,7 @@
 
   <div class="empty" id="emptyState">
     <div class="empty-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#22C55E" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></div>
-    <p>Firmenname eingeben und Compliance-Prüfung starten</p>
+    <p>Name des Unternehmens eingeben und Compliance-Prüfung starten</p>
   </div>
 
   <div class="al-footer">
@@ -1553,9 +1550,9 @@ async function _openTeam() {
   tv.innerHTML = `
     <div class="history-head">
       <div>
-        <div class="history-eyebrow">Firmen-Verwaltung</div>
+        <div class="history-eyebrow">Unternehmens-Verwaltung</div>
         <div class="history-title">Team verwalten</div>
-        <div class="history-sub">Mitglieder deiner Firma: zum Host befördern, zurückstufen oder entfernen. Es muss immer mindestens ein Host aktiv bleiben.</div>
+        <div class="history-sub">Mitglieder deines Unternehmens: zum Host befördern, zurückstufen oder entfernen. Es muss immer mindestens ein Host aktiv bleiben.</div>
       </div>
       <button class="btn-action" onclick="backToMain()">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
@@ -2601,7 +2598,7 @@ function evidenceHTML(d) {
       <div class="evidence-gallery" id="evidenceGallery">
         <div class="evidence-img-loading">Bilder werden geladen…</div>
       </div>
-      <div class="evidence-note">Automatisch über Google zugeordnete Bilder zur angegebenen Adresse. Die Zuordnung erfolgt anhand des Firmennamens und sollte bei Bedarf manuell verifiziert werden.</div>
+      <div class="evidence-note">Automatisch über Google zugeordnete Bilder zur angegebenen Adresse. Die Zuordnung erfolgt anhand des Namens des Unternehmens und sollte bei Bedarf manuell verifiziert werden.</div>
     </div>
   </div>`;
 }
@@ -3040,7 +3037,7 @@ async function _openHistory() {
       <div>
         <div class="history-eyebrow">Geprüfte Unternehmen</div>
         <div class="history-title">Prüf-Historie</div>
-        <div class="history-sub">Alle Compliance-Prüfungen deiner Firma. Klicke einen Eintrag an, um den vollständigen Bericht erneut zu öffnen oder zu drucken – mit derselben Prüf-ID wie auf dem Ausdruck.</div>
+        <div class="history-sub">Alle Compliance-Prüfungen deines Unternehmens. Klicke einen Eintrag an, um den vollständigen Bericht erneut zu öffnen oder zu drucken – mit derselben Prüf-ID wie auf dem Ausdruck.</div>
       </div>
       <button class="btn-action" onclick="backToMain()">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
@@ -3050,7 +3047,7 @@ async function _openHistory() {
     <div class="hist-controls">
       <div class="hist-search-wrap">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-        <input id="histSearch" class="hist-search" placeholder="Firma suchen…" oninput="histSuche()" autocomplete="off" />
+        <input id="histSearch" class="hist-search" placeholder="Unternehmen suchen…" oninput="histSuche()" autocomplete="off" />
       </div>
       <button class="btn-action" id="btnVerwalten" onclick="toggleOrdnerVerwalten()">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/></svg>
@@ -3437,7 +3434,7 @@ function _akteDrucken(folderId) {
   const cover = '<div class="akte-cover">'
     + '<div class="akte-cover-eyebrow">Compliance-Akte · §§ 10–17 GwG</div>'
     + '<div class="akte-cover-title">' + escapeHtml(folder.name) + '</div>'
-    + '<div class="akte-cover-meta">' + (firma ? ('Firma: ' + escapeHtml(firma) + ' · ') : '') + 'Erstellt am ' + heute + (CURRENT_USER_EMAIL ? (' von ' + escapeHtml(CURRENT_USER_EMAIL)) : '') + '</div>'
+    + '<div class="akte-cover-meta">' + (firma ? ('Unternehmen: ' + escapeHtml(firma) + ' · ') : '') + 'Erstellt am ' + heute + (CURRENT_USER_EMAIL ? (' von ' + escapeHtml(CURRENT_USER_EMAIL)) : '') + '</div>'
     + '<div class="akte-cover-count">' + rows.length + ' ' + (rows.length === 1 ? 'Prüfung' : 'Prüfungen') + ' in dieser Akte</div>'
     + '<div class="akte-toc"><div class="akte-toc-head">Inhalt</div>' + toc + '</div>'
     + '</div>';
