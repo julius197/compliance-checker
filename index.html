@@ -516,6 +516,9 @@
     /* ===== Kontingent-Pille im Header ===== */
     .kontingent-pill { display:inline-flex; align-items:center; gap:5px; padding:4px 10px; border-radius:999px; font-size:11.5px; font-weight:700;
       background:rgba(34,197,94,.1); color:var(--green-d,#16A34A); border:1px solid rgba(34,197,94,.2); white-space:nowrap; }
+    .mehr-analysen-btn { display:inline-flex; align-items:center; padding:4px 10px; border-radius:999px; font-size:11.5px; font-weight:700; font-family:inherit;
+      background:transparent; color:var(--green-d,#16A34A); border:1px dashed rgba(34,197,94,.45); cursor:pointer; white-space:nowrap; transition:all .15s; }
+    .mehr-analysen-btn:hover { background:rgba(34,197,94,.1); border-style:solid; transform:translateY(-1px); }
     .kontingent-pill.warn { background:rgba(245,158,11,.12); color:#B45309; border-color:rgba(245,158,11,.3); }
     .kontingent-pill.full { background:rgba(239,68,68,.1); color:#B91C1C; border-color:rgba(239,68,68,.3); }
     /* ===== Limit-/Upgrade-Sperre ===== */
@@ -1190,11 +1193,12 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.8</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.9</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
       </div>
+      <button class="mehr-analysen-btn" id="mehrAnalysenBtn" style="display:none;" onclick="zeigePlaene('upgrade')">Mehr Analysen?</button>
       <div class="header-actions">
         <button class="hist-nav-btn" id="historyBtn" onclick="openHistory()" style="display:none;">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 2M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
@@ -1801,7 +1805,7 @@ function showGate() {
   const hb = document.getElementById('historyBtn'); if (hb) hb.style.display = 'none';
   const tb = document.getElementById('teamBtn'); if (tb) tb.style.display = 'none';
   const kb = document.getElementById('kontoBtn'); if (kb) kb.style.display = 'none';
-  const kp = document.getElementById('kontingentPill'); if (kp) kp.style.display = 'none';
+  const kp = document.getElementById('kontingentPill'); if (kp) kp.style.display = 'none'; const mb = document.getElementById('mehrAnalysenBtn'); if (mb) mb.style.display = 'none';
   CURRENT_FIRMA = null;
 }
 
@@ -1857,6 +1861,8 @@ function updateKontingentAnzeige() {
   else if (!f.aktiv || f.monatslimit <= 0 || f.verbraucht >= f.monatslimit) pill.classList.add('full');
   else if (f.verbraucht >= f.monatslimit * 0.85) pill.classList.add('warn');
   pill.style.display = 'inline-flex';
+  const mehr = document.getElementById('mehrAnalysenBtn');
+  if (mehr) mehr.style.display = unbegrenzt ? 'none' : 'inline-flex';
 }
 
 // true = Analyse erlaubt; false = blockiert (zeigt Sperre/Upgrade-Hinweis)
@@ -1914,6 +1920,10 @@ function zeigePlaene(grund) {
     title.textContent = 'Mehr Analysen gefällig?';
     sub.textContent = 'Du hast dein Monats-Kontingent ausgeschöpft. Wähle einen größeren Plan und leg sofort wieder los – sonst setzt sich das Kontingent erst zum Monatsanfang zurück.';
     if (back) back.style.display = '';
+  } else if (grund === 'upgrade') {
+    title.textContent = 'Brauchst du mehr Analysen?';
+    sub.textContent = 'Wechsle jederzeit in ein größeres Paket – das neue Kontingent gilt sofort. Deine Analysen, Ordner und Team-Einstellungen bleiben natürlich erhalten.';
+    if (back) back.style.display = '';
   } else if (grund === 'trial') {
     title.textContent = 'Gefällt dir der Compliance-Checker?';
     sub.textContent = 'Deine 3 kostenlosen Testanalysen sind aufgebraucht. Wähle jetzt dein Paket und prüfe sofort weiter – deine bisherigen Analysen und Berichte bleiben selbstverständlich erhalten.';
@@ -1926,7 +1936,7 @@ function zeigePlaene(grund) {
   renderPlaene();
   document.getElementById('planGate').style.display = 'flex';
   setTimeout(appAus, 240);   // App erst nach Reinfaden ausblenden -> Crossfade
-  const kp = document.getElementById('kontingentPill'); if (kp) kp.style.display = 'none';
+  const kp = document.getElementById('kontingentPill'); if (kp) kp.style.display = 'none'; const mb = document.getElementById('mehrAnalysenBtn'); if (mb) mb.style.display = 'none';
   window.scrollTo({ top: 0, behavior: 'auto' });
 }
 
@@ -2032,7 +2042,7 @@ function zeigeZahlungBestaetigung() {
   const fb = document.getElementById('zahlungFallback'); if (fb) fb.style.display = 'none';
   const sp = document.getElementById('zahlungSpinner'); if (sp) sp.style.display = '';
   const g = document.getElementById('zahlungGate'); if (g) g.style.display = 'flex';
-  const kp = document.getElementById('kontingentPill'); if (kp) kp.style.display = 'none';
+  const kp = document.getElementById('kontingentPill'); if (kp) kp.style.display = 'none'; const mb = document.getElementById('mehrAnalysenBtn'); if (mb) mb.style.display = 'none';
   window.scrollTo({ top: 0, behavior: 'auto' });
 }
 function hideZahlungGate() { const g = document.getElementById('zahlungGate'); if (g) g.style.display = 'none'; }
@@ -2085,7 +2095,7 @@ function showOnboarding() {
   hideBoot();
   alleGatesAus();
   document.getElementById('onboardingGate').style.display = 'flex';
-  const kp = document.getElementById('kontingentPill'); if (kp) kp.style.display = 'none';
+  const kp = document.getElementById('kontingentPill'); if (kp) kp.style.display = 'none'; const mb = document.getElementById('mehrAnalysenBtn'); if (mb) mb.style.display = 'none';
   const hb = document.getElementById('historyBtn'); if (hb) hb.style.display = 'none';
   document.getElementById('logoutBtn').style.display = 'none';
 }
