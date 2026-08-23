@@ -1186,7 +1186,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.5</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.6</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -1801,6 +1801,14 @@ function showGate() {
 }
 
 // ===== KONTINGENT (Firmen-Account + geteiltes Monatslimit) =====
+// Testphase: neue Konten starten mit 3 Gratis-Analysen (insgesamt, nicht pro Monat)
+function istTrialFirma(f) {
+  if (!f) return false;
+  if (f.trial === true) return true;
+  if (f.trial === false) return false;
+  return f.monatslimit === 3; // Fallback, solange die DB das Flag noch nicht liefert
+}
+
 async function ladeKontingent() {
   if (!sb) return;
   try {
@@ -1814,9 +1822,13 @@ async function ladeKontingent() {
     }
     CURRENT_FIRMA = row;
     if (row.aktiv && row.monatslimit > 0) {
-      clearPendingPayment();
-      enterApp();
-      updateKontingentAnzeige();
+      if (istTrialFirma(row) && row.verbraucht >= row.monatslimit) {
+        zeigePlaene('trial');   // Testphase aufgebraucht -> freundlicher Upgrade-Screen
+      } else {
+        clearPendingPayment();
+        enterApp();
+        updateKontingentAnzeige();
+      }
     } else if (isPendingPayment()) {
       bestaetigeZahlung();      // gerade von Stripe zurück -> auf Webhook-Freischaltung warten
     } else {
@@ -1834,7 +1846,9 @@ function updateKontingentAnzeige() {
   if (!pill || !txt || !CURRENT_FIRMA) return;
   const f = CURRENT_FIRMA;
   const unbegrenzt = f.monatslimit >= 100000;
-  txt.textContent = unbegrenzt ? 'Demo · unbegrenzt' : (f.verbraucht + ' / ' + f.monatslimit);
+  txt.textContent = unbegrenzt ? 'Demo · unbegrenzt'
+    : (istTrialFirma(f) ? 'Testphase · ' + f.verbraucht + ' / ' + f.monatslimit
+                        : (f.verbraucht + ' / ' + f.monatslimit));
   pill.classList.remove('warn', 'full');
   if (unbegrenzt) { /* Demo: nie voll, keine Warnung */ }
   else if (!f.aktiv || f.monatslimit <= 0 || f.verbraucht >= f.monatslimit) pill.classList.add('full');
@@ -1847,7 +1861,7 @@ function kontingentVerfuegbar() {
   if (!CURRENT_FIRMA) return true;  // kein Kontingent geladen -> nicht blockieren
   const f = CURRENT_FIRMA;
   if (!f.aktiv || f.monatslimit <= 0) { zeigePlaene('start'); return false; }
-  if (f.verbraucht >= f.monatslimit) { zeigePlaene('voll'); return false; }
+  if (f.verbraucht >= f.monatslimit) { zeigePlaene(istTrialFirma(f) ? 'trial' : 'voll'); return false; }
   return true;
 }
 
@@ -1896,6 +1910,10 @@ function zeigePlaene(grund) {
   if (grund === 'voll') {
     title.textContent = 'Mehr Analysen gefällig?';
     sub.textContent = 'Du hast dein Monats-Kontingent ausgeschöpft. Wähle einen größeren Plan und leg sofort wieder los – sonst setzt sich das Kontingent erst zum Monatsanfang zurück.';
+    if (back) back.style.display = '';
+  } else if (grund === 'trial') {
+    title.textContent = 'Gefällt dir der Compliance-Checker?';
+    sub.textContent = 'Deine 3 kostenlosen Testanalysen sind aufgebraucht. Wähle jetzt dein Paket und prüfe sofort weiter – deine bisherigen Analysen und Berichte bleiben selbstverständlich erhalten.';
     if (back) back.style.display = '';
   } else {
     title.textContent = 'Wähle deinen Plan';
