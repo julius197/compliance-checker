@@ -458,6 +458,11 @@
     .ob-hinweis { font-size:12.5px; color:var(--gray,#6B7C74); line-height:1.5; background:rgba(245,158,11,.08); border:1px solid rgba(245,158,11,.25); border-radius:10px; padding:11px 13px; margin-bottom:16px; }
     /* ===== Paket-Seite (Paywall) ===== */
     html { scrollbar-gutter: stable; }
+    .lang-btn { position:fixed; bottom:16px; left:16px; z-index:10001; display:inline-flex; align-items:center; gap:5px;
+      padding:7px 13px; border-radius:999px; font-family:inherit; font-size:12.5px; font-weight:700; cursor:pointer;
+      background:#fff; color:var(--ink2,#2A3B33); border:1.5px solid var(--border,#DCE5E0); box-shadow:0 6px 18px -8px rgba(15,23,20,.25); transition:all .15s; }
+    .lang-btn:hover { border-color:var(--green,#22C55E); color:var(--green-d,#16A34A); transform:translateY(-1px); }
+    @media print { .lang-btn { display:none !important; } }
     .plan-gate { position:fixed; inset:0; z-index:9990; display:flex; align-items:flex-start; justify-content:center; overflow:auto; padding:48px 22px;
       background:
         radial-gradient(1000px 700px at 85% -8%, rgba(34,197,94,.07) 0%, transparent 55%),
@@ -871,6 +876,7 @@
 <body>
   <!-- Wasserzeichen für Ausdrucke (nur beim Drucken sichtbar) -->
   <div id="printWatermark"></div>
+  <button id="langBtn" class="lang-btn" onclick="toggleLang()" title="Sprache / Language">🌐 EN</button>
 
 <div id="bootGate">
   <div class="boot-inner">
@@ -1194,7 +1200,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.10</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.11</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -1347,6 +1353,116 @@ const sb = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE
 
 let authMode = 'login'; // 'login' oder 'register'
 
+// ===== SPRACHE (DE/EN) — Stufe A: Kern-Oberflaeche. Rechtstexte bleiben bewusst Deutsch. =====
+let LANG = 'de';
+try { LANG = localStorage.getItem('cc_lang') === 'en' ? 'en' : 'de'; } catch(e) {}
+
+function t(key, de) { return (LANG === 'en' && I18N_EN[key] !== undefined) ? I18N_EN[key] : de; }
+
+const I18N_EN = {
+  auth_t_login:'Sign in', auth_t_reg:'Create account', auth_b_login:'Sign in', auth_b_reg:'Register',
+  pl_voll_t:'Need more analyses?',
+  pl_voll_s:'You have used up your monthly quota. Choose a bigger plan and continue right away \u2013 otherwise the quota only resets at the start of next month.',
+  pl_trial_t:'Enjoying the Compliance Checker?',
+  pl_trial_s:'Your 3 free trial analyses are used up. Choose your plan now and continue right away \u2013 your previous analyses and reports will of course be kept.',
+  pl_up_t:'Need more analyses?',
+  pl_up_s:'Switch to a bigger plan at any time \u2013 the new quota applies immediately. Your analyses, folders and team settings will of course be kept.',
+  pill_trial:'Trial', pill_demo:'Demo \u00b7 unlimited',
+  v_ok:'Low risk indicators', v_warn:'Increased due diligence', v_bad:'Enhanced due diligence required',
+  plan_badge:'\u2605 Most popular', plan_choose:'Choose plan'
+};
+
+// Statische Texte: Deutsch (wie im HTML) -> Englisch
+const TXT_EN = {
+  'Anmelden':'Sign in', 'Abmelden':'Sign out', 'Historie':'History', 'Konto':'Account',
+  'Mehr Analysen?':'More analyses?', 'E-Mail':'Email', 'Passwort':'Password',
+  'Compliance-Checker \u00b7 Zugang nur f\u00fcr Kunden':'Compliance Checker \u00b7 Customer access only',
+  'Geldw\u00e4scherechtliche Pr\u00fcfung':'AML Compliance Screening',
+  'Compliance-Pr\u00fcfung':'Compliance Check',
+  'Geldw\u00e4scherechtliche Pr\u00fcfung gem\u00e4\u00df \u00a7\u00a7 10\u201317 GwG. Name des Unternehmens und Land w\u00e4hlen \u2013 USt-ID empfohlen f\u00fcr pr\u00e4zise Zuordnung.':'Anti-money-laundering check pursuant to Sections 10\u201317 of the German AML Act (GwG). Enter the company name and country \u2013 VAT ID recommended for precise matching.',
+  'Name des Unternehmens':'Company name', 'Land':'Country', 'Umsatzsteuer-ID':'VAT ID',
+  '(optional, empfohlen)':'(optional, recommended)', '(optional)':'(optional)',
+  'Ordner':'Folder', 'Neuer Ordner':'New folder', 'Analyse starten':'Start analysis', 'Kein Ordner':'No folder',
+  'W\u00e4hle deinen Plan':'Choose your plan',
+  'Rechtssichere GwG-Pr\u00fcfungen, auditfeste Nachweise, geteiltes Team-Kontingent.':'Legally sound AML checks, audit-proof documentation, shared team quota.',
+  'Du hast einen Zugangscode?':'Have an access code?',
+  'Zahlung wird best\u00e4tigt\u2026':'Confirming your payment\u2026',
+  'Einen Moment \u2013 wir schalten dein Konto frei. Das dauert nur ein paar Sekunden.':'One moment \u2013 we are activating your account. This only takes a few seconds.',
+  'Jetzt aktualisieren':'Refresh now',
+  'Keine Sorge \u2013 deine Zahlung ist sicher. Falls es l\u00e4nger dauert, lade die Seite in einer Minute neu.':'Don\u2019t worry \u2013 your payment is safe. If it takes longer, reload the page in a minute.',
+  'Zur\u00fcck zur Paketauswahl':'Back to plan selection',
+  'Zur\u00fcck zum Tool':'Back to the tool',
+  'Einen Moment\u2026':'One moment\u2026',
+  'Willkommen!':'Welcome!',
+  'Wie m\u00f6chtest du den Compliance-Checker nutzen?':'How would you like to use the Compliance Checker?'
+};
+
+const LANG_SELECTORS = ['#authTitle','#authSub','.auth-label','#authBtn','#logoutBtn','#historyBtn','#kontoBtn',
+  '#mehrAnalysenBtn','.search-eyebrow','.search-heading','.search-sub','.field-label','.field-label .opt',
+  '.search-card button','.plan-title','#planSubtitle','.plan-code summary','#zahlungSub','.boot-text',
+  'a[onclick="doLogout()"]','.plan-gate a','.plan-gate p','.plan-gate button','#ordnerSelect option[value=""]',
+  '.ob-gate .auth-title','.ob-gate .auth-sub'];
+
+const PH_I18N = [
+  { id:'authEmail', de:'name@firma.de', en:'name@company.com' },
+  { id:'nameInput', de:'z.B. BMW AG', en:'e.g. BMW AG' },
+  { id:'landInput', de:'Land w\u00e4hlen oder eingeben\u2026', en:'Select or type a country\u2026' }
+];
+
+function authToggleHtml(reg) {
+  if (LANG === 'en') {
+    return reg ? 'Already have an account? <a onclick="toggleAuthMode()">Sign in</a>'
+               : 'No account yet? <a onclick="toggleAuthMode()">Register now</a>';
+  }
+  return reg ? 'Schon ein Konto? <a onclick="toggleAuthMode()">Jetzt anmelden</a>'
+             : 'Noch kein Konto? <a onclick="toggleAuthMode()">Jetzt registrieren</a>';
+}
+
+function refreshAuthTexts() {
+  const title = document.getElementById('authTitle');
+  const btn = document.getElementById('authBtn');
+  const toggle = document.getElementById('authToggle');
+  if (!title || !btn || !toggle) return;
+  const reg = (typeof authMode !== 'undefined' && authMode === 'register');
+  title.textContent = reg ? t('auth_t_reg','Konto erstellen') : t('auth_t_login','Anmelden');
+  btn.textContent = reg ? t('auth_b_reg','Registrieren') : t('auth_b_login','Anmelden');
+  toggle.innerHTML = authToggleHtml(reg);
+}
+
+function applyLang() {
+  const lb = document.getElementById('langBtn');
+  if (lb) lb.textContent = LANG === 'de' ? '\U0001F310 EN' : '\U0001F310 DE';
+  let nodes = [];
+  try { nodes = document.querySelectorAll(LANG_SELECTORS.join(',')); } catch(e) {}
+  nodes.forEach(function(el){
+    let tn = null;
+    for (let i = 0; i < el.childNodes.length; i++) {
+      const n = el.childNodes[i];
+      if (n.nodeType === 3 && n.nodeValue.trim()) { tn = n; break; }
+    }
+    if (!tn) return;
+    if (!el.dataset.deTxt) el.dataset.deTxt = tn.nodeValue;
+    const de = el.dataset.deTxt.trim();
+    if (LANG === 'en') { if (TXT_EN[de] !== undefined) tn.nodeValue = el.dataset.deTxt.replace(de, TXT_EN[de]); }
+    else { tn.nodeValue = el.dataset.deTxt; }
+  });
+  PH_I18N.forEach(function(p){ const el = document.getElementById(p.id); if (el) el.placeholder = LANG === 'en' ? p.en : p.de; });
+  refreshAuthTexts();
+  try { if (typeof CURRENT_FIRMA !== 'undefined' && CURRENT_FIRMA) updateKontingentAnzeige(); } catch(e) {}
+  try { const pg = document.getElementById('planGate'); if (pg && pg.style.display !== 'none' && pg.style.display !== '') renderPlaene(); } catch(e) {}
+}
+
+function toggleLang() {
+  LANG = LANG === 'de' ? 'en' : 'de';
+  try { localStorage.setItem('cc_lang', LANG); } catch(e) {}
+  applyLang();
+}
+
+if (LANG === 'en') {
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', applyLang);
+  else applyLang();
+}
+
 function toggleAuthMode() {
   authMode = authMode === 'login' ? 'register' : 'login';
   const title = document.getElementById('authTitle');
@@ -1355,15 +1471,15 @@ function toggleAuthMode() {
   const pw = document.getElementById('authPassword');
   const legal = document.getElementById('authLegal');
   if (authMode === 'register') {
-    title.textContent = 'Konto erstellen';
-    btn.textContent = 'Registrieren';
-    toggle.innerHTML = 'Schon ein Konto? <a onclick="toggleAuthMode()">Jetzt anmelden</a>';
+    title.textContent = t('auth_t_reg','Konto erstellen');
+    btn.textContent = t('auth_b_reg','Registrieren');
+    toggle.innerHTML = authToggleHtml(true);
     pw.setAttribute('autocomplete','new-password');
     if (legal) legal.style.display = 'flex';
   } else {
-    title.textContent = 'Anmelden';
-    btn.textContent = 'Anmelden';
-    toggle.innerHTML = 'Noch kein Konto? <a onclick="toggleAuthMode()">Jetzt registrieren</a>';
+    title.textContent = t('auth_t_login','Anmelden');
+    btn.textContent = t('auth_b_login','Anmelden');
+    toggle.innerHTML = authToggleHtml(false);
     pw.setAttribute('autocomplete','current-password');
     if (legal) legal.style.display = 'none';
   }
@@ -1854,8 +1970,8 @@ function updateKontingentAnzeige() {
   if (!pill || !txt || !CURRENT_FIRMA) return;
   const f = CURRENT_FIRMA;
   const unbegrenzt = f.monatslimit >= 100000;
-  txt.textContent = unbegrenzt ? 'Demo · unbegrenzt'
-    : (istTrialFirma(f) ? 'Testphase · ' + f.verbraucht + ' / ' + f.monatslimit
+  txt.textContent = unbegrenzt ? t('pill_demo','Demo · unbegrenzt')
+    : (istTrialFirma(f) ? t('pill_trial','Testphase') + ' · ' + f.verbraucht + ' / ' + f.monatslimit
                         : (f.verbraucht + ' / ' + f.monatslimit));
   pill.classList.remove('warn', 'full');
   if (unbegrenzt) { /* Demo: nie voll, keine Warnung */ }
@@ -1877,16 +1993,16 @@ function kontingentVerfuegbar() {
 
 // ===== PAKET-SEITE (Paywall) =====
 const PLAENE = [
-  { id:'bronze', name:'Bronze', limit:100, preis:'299,99', empfohlen:false,
+  { id:'bronze', tagline_en:'For small teams and getting started', features_en:['Up to 100 analyses / month','AML-compliant risk screening','Legally sound PDF documentation','Full audit history','Official image evidence'], name:'Bronze', limit:100, preis:'299,99', empfohlen:false,
     tagline:'Für kleine Teams & den Einstieg',
     features:['Bis zu 100 Analysen / Monat','GwG-konforme Risikoprüfung','Rechtssichere PDF-Nachweise','Vollständige Prüf-Historie','Offizielle Bild-Belege'] },
-  { id:'silber', name:'Silber', limit:300, preis:'999,99', empfohlen:true,
+  { id:'silber', tagline_en:'The favourite for most firms and dealers', features_en:['Up to 300 analyses / month','Everything in Bronze','Shared team quota','Tamper-proof audit IDs','Priority support'], name:'Silber', limit:300, preis:'999,99', empfohlen:true,
     tagline:'Der Favorit für die meisten Kanzleien & Händler',
     features:['Bis zu 300 Analysen / Monat','Alles aus Bronze','Geteiltes Team-Kontingent','Manipulationssichere Prüf-IDs','Bevorzugter Support'] },
-  { id:'gold', name:'Gold', limit:600, preis:'1.999,99', empfohlen:false,
+  { id:'gold', tagline_en:'For growing screening volumes', features_en:['Up to 600 analyses / month','Everything in Silver','Advanced team management','Prioritised processing','Personal point of contact'], name:'Gold', limit:600, preis:'1.999,99', empfohlen:false,
     tagline:'Für wachsende Prüfvolumen',
     features:['Bis zu 600 Analysen / Monat','Alles aus Silber','Erweiterte Team-Verwaltung','Priorisierte Bearbeitung','Persönlicher Ansprechpartner'] },
-  { id:'platinum', name:'Platinum', limit:1000, preis:'2.999,99', empfohlen:false,
+  { id:'platinum', tagline_en:'For high volumes and corporate groups', features_en:['Up to 1,000 analyses / month','Everything in Gold','Dedicated point of contact','Private servers (on request)','Highest processing priority'], name:'Platinum', limit:1000, preis:'2.999,99', empfohlen:false,
     tagline:'Für hohes Prüfvolumen & Konzerne',
     features:['Bis zu 1.000 Analysen / Monat','Alles aus Gold','Dedizierter Ansprechpartner','Eigene Server (auf Anfrage)','Höchste Bearbeitungspriorität'] }
 ];
@@ -1918,16 +2034,16 @@ function zeigePlaene(grund) {
   const sub   = document.getElementById('planSubtitle');
   const back  = document.getElementById('planBack');
   if (grund === 'voll') {
-    title.textContent = 'Mehr Analysen gefällig?';
-    sub.textContent = 'Du hast dein Monats-Kontingent ausgeschöpft. Wähle einen größeren Plan und leg sofort wieder los – sonst setzt sich das Kontingent erst zum Monatsanfang zurück.';
+    title.textContent = t('pl_voll_t','Mehr Analysen gefällig?');
+    sub.textContent = t('pl_voll_s','Du hast dein Monats-Kontingent ausgeschöpft. Wähle einen größeren Plan und leg sofort wieder los – sonst setzt sich das Kontingent erst zum Monatsanfang zurück.');
     if (back) back.style.display = '';
   } else if (grund === 'upgrade') {
-    title.textContent = 'Brauchst du mehr Analysen?';
-    sub.textContent = 'Wechsle jederzeit in ein größeres Paket – das neue Kontingent gilt sofort. Deine Analysen, Ordner und Team-Einstellungen bleiben natürlich erhalten.';
+    title.textContent = t('pl_up_t','Brauchst du mehr Analysen?');
+    sub.textContent = t('pl_up_s','Wechsle jederzeit in ein größeres Paket – das neue Kontingent gilt sofort. Deine Analysen, Ordner und Team-Einstellungen bleiben natürlich erhalten.');
     if (back) back.style.display = '';
   } else if (grund === 'trial') {
-    title.textContent = 'Gefällt dir der Compliance-Checker?';
-    sub.textContent = 'Deine 3 kostenlosen Testanalysen sind aufgebraucht. Wähle jetzt dein Paket und prüfe sofort weiter – deine bisherigen Analysen und Berichte bleiben selbstverständlich erhalten.';
+    title.textContent = t('pl_trial_t','Gefällt dir der Compliance-Checker?');
+    sub.textContent = t('pl_trial_s','Deine 3 kostenlosen Testanalysen sind aufgebraucht. Wähle jetzt dein Paket und prüfe sofort weiter – deine bisherigen Analysen und Berichte bleiben selbstverständlich erhalten.');
     if (back) back.style.display = '';
   } else {
     title.textContent = 'Wähle deinen Plan';
@@ -1955,16 +2071,16 @@ function renderPlaene() {
   if (!wrap) return;
   const check = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg>';
   wrap.innerHTML = PLAENE.map(function(p) {
-    const feats = p.features.map(function(f){ return '<li>' + check + '<span>' + f + '</span></li>'; }).join('');
+    const feats = ((LANG==='en'&&p.features_en)?p.features_en:p.features).map(function(f){ return '<li>' + check + '<span>' + f + '</span></li>'; }).join('');
     return '<div class="plan-card' + (p.empfohlen ? ' featured' : '') + '">'
-      + (p.empfohlen ? '<div class="plan-badge">\u2605 Beliebteste Wahl</div>' : '')
+      + (p.empfohlen ? '<div class="plan-badge">' + t('plan_badge','\u2605 Beliebteste Wahl') + '</div>' : '')
       + (PLAN_LOGOS[p.id] ? '<img class="plan-card-logo" src="' + PLAN_LOGOS[p.id] + '" alt="" />' : '')
       + '<div class="plan-name">' + p.name + '</div>'
-      + '<div class="plan-tagline">' + p.tagline + '</div>'
+      + '<div class="plan-tagline">' + ((LANG==='en'&&p.tagline_en)?p.tagline_en:p.tagline) + '</div>'
       + '<div class="plan-price"><span class="plan-amount">' + p.preis + ' \u20AC</span><span class="plan-per">/ Monat</span></div>'
       + '<div class="plan-limit">' + p.limit + ' Analysen monatlich</div>'
       + '<ul class="plan-features">' + feats + '</ul>'
-      + '<button class="plan-btn' + (p.empfohlen ? ' primary' : '') + '" onclick="paketWaehlen(\'' + p.id + '\')">Plan wählen</button>'
+      + '<button class="plan-btn' + (p.empfohlen ? ' primary' : '') + '" onclick="paketWaehlen(\'' + p.id + '\')">' + t('plan_choose','Plan wählen') + '</button>'
       + '</div>';
   }).join('');
 }
@@ -2422,7 +2538,7 @@ async function runAnalysis(name, ust, land) {
 
     // 2. Claude analysiert mit Google-Daten + Web Search für Socials
     setStep('Firma wird im Internet recherchiert…');
-    const claudeRes = await workerCall('pruefen', { name: name, ust: ust, land: land, googleData: googleData, viesData: viesData });
+    const claudeRes = await workerCall('pruefen', { name: name, ust: ust, land: land, googleData: googleData, viesData: viesData, sprache: LANG });
 
     if (claudeRes.error) throw new Error(claudeRes.error.message || 'Claude Fehler');
     // Wenn die Antwort wegen Token-Limit abgeschnitten wurde, ist das JSON unvollständig
@@ -2872,10 +2988,10 @@ function showReport(d, rawName, fromHistory) {
   // Verdict an finalen Score anpassen
   // WICHTIG: Das Tool entscheidet NICHT über Geschäfte – es gibt nur Sorgfalts-Hinweise.
   if (d.gesamtScore !== null && d.gesamtScore !== undefined) {
-    if (phantomVerdacht) { d.verdict='bad'; d.verdictText='Erhöhte Sorgfaltspflicht'; }
-    else if (d.gesamtScore >= 75) { d.verdict='ok'; d.verdictText='Geringe Auffälligkeiten'; }
-    else if (d.gesamtScore >= 50) { d.verdict='warn'; d.verdictText='Erhöhte Sorgfaltspflicht'; }
-    else { d.verdict='bad'; d.verdictText='Verstärkte Sorgfaltspflicht'; }
+    if (phantomVerdacht) { d.verdict='bad'; d.verdictText=t('v_warn','Erhöhte Sorgfaltspflicht'); }
+    else if (d.gesamtScore >= 75) { d.verdict='ok'; d.verdictText=t('v_ok','Geringe Auffälligkeiten'); }
+    else if (d.gesamtScore >= 50) { d.verdict='warn'; d.verdictText=t('v_warn','Erhöhte Sorgfaltspflicht'); }
+    else { d.verdict='bad'; d.verdictText=t('v_bad','Verstärkte Sorgfaltspflicht'); }
   }
   const vIcon2 = d.verdict==='ok'?'✓':d.verdict==='bad'?'✕':'⚠';
 
