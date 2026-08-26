@@ -1529,7 +1529,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.32</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.33</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -4055,7 +4055,7 @@ async function _openHistory() {
     await ladeOrdner(); // aktuelle Ordner-Liste für die Filter-Chips
     const { data, error } = await sb
       .from('analysen')
-      .select('pruef_id, firmenname, land, ust_id, score, verdict, verdict_text, created_at, report_json, ordner_id')
+      .select('id, pruef_id, firmenname, land, ust_id, score, verdict, verdict_text, created_at, report_json, ordner_id')
       .order('created_at', { ascending: false });
     if (error) throw error;
     HISTORY_ROWS = data || [];
@@ -4423,7 +4423,7 @@ function buildAkteWatermark(folderName) {
 
 // Akte eines Ordners aufbauen und Druck/PDF starten
 function akteDrucken(folderId) { mitAusBlende(function () { _akteDrucken(folderId); }); }
-function _akteDrucken(folderId) {
+async function _akteDrucken(folderId) {
   const folder = ORDNER_LIST.find(function(o){ return o.id === folderId; });
   if (!folder) { alert('Ordner nicht gefunden.'); return; }
   const rows = HISTORY_ROWS.filter(function(r){ return r.ordner_id === folderId && r.report_json; });
@@ -4459,7 +4459,38 @@ function _akteDrucken(folderId) {
     + '<button class="btn-action" onclick="backToMain()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>Zurück</button>'
     + '</div>';
 
-  const body = rows.map(function(r){ return buildAkteAnalyse(r.report_json || {}); }).join('');
+  // KYC-Dokumente aller Analysen dieses Ordners holen -> Druck-Anlagen
+  let anhaenge = {};
+  try {
+    const ids = rows.map(function(r){ return r.id; }).filter(Boolean);
+    if (ids.length && sb) {
+      const dk = await sb.from('kyc_dokumente').select('*').in('analyse_id', ids);
+      const doks = (dk && dk.data) || [];
+      const bildDoks = doks.filter(function(d){ return (d.mime_type || '').indexOf('pdf') < 0; });
+      let urlMap = {};
+      if (bildDoks.length) {
+        const su = await sb.storage.from('kyc').createSignedUrls(bildDoks.map(function(d){ return d.storage_path; }), 900);
+        ((su && su.data) || []).forEach(function(s){ if (s && s.signedUrl) urlMap[s.path] = s.signedUrl; });
+      }
+      doks.forEach(function(d){
+        const r = rows.find(function(x){ return x.id === d.analyse_id; });
+        const dj = (r && r.report_json) || {};
+        const fname = dj.firmenname || (r && r.firmenname) || '';
+        const pid = dj.pruefId || (r && r.pruef_id) || '';
+        const titel = (d.typ === 'ausweis' ? 'Anlage \u00b7 Personalausweis' : 'Anlage \u00b7 Best\u00e4tigungsfoto') + ' \u00b7 ' + fname + ' \u00b7 ' + pid;
+        let seite;
+        const url = urlMap[d.storage_path];
+        if (url) {
+          seite = '<div class="kyc-print-page"><div class="kyc-print-t">' + escapeHtml(titel) + '</div><img class="kyc-print-img" src="' + url + '" alt="" /></div>';
+        } else {
+          seite = '<div class="kyc-print-page"><div class="kyc-print-t">' + escapeHtml(titel) + '</div><div style="font-size:12px;">Dokument liegt als PDF-Datei in der digitalen Akte vor (' + escapeHtml(d.datei_name || '') + ').</div></div>';
+        }
+        anhaenge[d.analyse_id] = (anhaenge[d.analyse_id] || '') + seite;
+      });
+    }
+  } catch (e) { console.warn('Akte-Anh\u00e4nge:', e && e.message); }
+
+  const body = rows.map(function(r){ return buildAkteAnalyse(r.report_json || {}) + (anhaenge[r.id] || ''); }).join('');
 
   av.innerHTML = actions + cover + body;
   av.style.display = 'block';
