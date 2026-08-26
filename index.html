@@ -1529,7 +1529,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.35</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.36</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -1847,7 +1847,46 @@ const TXT_EN = {
   'Deutschland':'Germany', '\u00d6sterreich':'Austria', 'Schweiz':'Switzerland',
   'Frankreich':'France', 'Italien':'Italy', 'Spanien':'Spain', 'Niederlande':'Netherlands',
   'Polen':'Poland', 'Tschechien':'Czech Republic', 'Vereinigtes K\u00f6nigreich':'United Kingdom',
-  'Belgien':'Belgium', 'Luxemburg':'Luxembourg', 'D\u00e4nemark':'Denmark', 'Schweden':'Sweden'
+  'Belgien':'Belgium', 'Luxemburg':'Luxembourg', 'D\u00e4nemark':'Denmark', 'Schweden':'Sweden',
+  'Norwegen':'Norway', 'Finnland':'Finland', 'Irland':'Ireland',
+  'Ungarn':'Hungary', 'Rum\u00e4nien':'Romania', 'Griechenland':'Greece', 'Kroatien':'Croatia',
+  'Slowakei':'Slovakia', 'Slowenien':'Slovenia', 'Bulgarien':'Bulgaria', 'T\u00fcrkei':'Turkey',
+  'Vereinigte Staaten':'United States',
+  'Geldw\u00e4scherechtliche Pr\u00fcfung':'AML compliance screening',
+  'Compliance-Pr\u00fcfung':'Compliance check',
+  'Geldw\u00e4scherechtliche Pr\u00fcfung gem\u00e4\u00df \u00a7\u00a7 10\u201317 GwG. Name des Unternehmens und Land w\u00e4hlen \u2013 USt-ID empfohlen f\u00fcr pr\u00e4zise Zuordnung.':'AML screening pursuant to Sections 10\u201317 GwG. Choose company name and country \u2013 VAT ID recommended for precise matching.',
+  'Name des Unternehmens':'Company name', 'Umsatzsteuer-ID':'VAT ID',
+  'Compliance-Pr\u00fcfung starten':'Start compliance check',
+  'Analyse starten':'Start analysis',
+  'Kein Treffer \u2013 du kannst das Land trotzdem eingeben.':'No match \u2013 you can still enter the country.',
+  'Compliance-Pr\u00fcfung l\u00e4uft':'Compliance check running',
+  'Firma wird bei Google gesucht\u2026':'Searching the company on Google\u2026',
+  'Firma wird im Internet recherchiert\u2026':'Researching the company online\u2026',
+  'Bewertungen werden geladen\u2026':'Loading reviews\u2026',
+  'Bewertungen & Kontaktdaten werden geladen\u2026':'Loading reviews & contact details\u2026',
+  'Kontaktdaten werden geladen\u2026':'Loading contact details\u2026',
+  'Kontaktdaten werden gepr\u00fcft\u2026':'Checking contact details\u2026',
+  'KI analysiert die Daten\u2026':'AI is analysing the data\u2026',
+  'Bericht wird erstellt\u2026':'Generating the report\u2026',
+  'Ergebnis wird finalisiert\u2026':'Finalising the result\u2026',
+  'Code wird gepr\u00fcft\u2026':'Checking the code\u2026',
+  'Die Analyse konnte nicht abgeschlossen werden. Bitte versuche es erneut.':'The analysis could not be completed. Please try again.',
+  'Compliance-Auswertung \u00b7 Pr\u00fcfung gem\u00e4\u00df \u00a7\u00a7 10\u201317 GwG':'Compliance evaluation \u00b7 screening pursuant to Sections 10\u201317 GwG',
+  'Compliance-Auswertung \u00b7 \u00a7\u00a7 10\u201317 GwG':'Compliance evaluation \u00b7 Sections 10\u201317 GwG',
+  'Echte Daten von Google \u00b7 Bewertungen, Kontakt & Standort verifiziert':'Real data from Google \u00b7 reviews, contact & location verified',
+  'Gepr\u00fcfte Unternehmen':'Companies checked',
+  'Land':'Country', 'Kontakt':'Contact', 'Kontaktformular':'Contact form',
+  'Quelle':'Source', 'Quellen':'Sources', 'Stand':'As of', 'Bewertung':'Rating',
+  'F\u00fcr diese Kategorie konnten keine Daten ermittelt werden.':'No data could be determined for this category.',
+  'Es konnten keine spezifischen Risiko-Hinweise automatisch ermittelt werden. Bitte pr\u00fcfen Sie die Einzelangaben oben sorgf\u00e4ltig im Rahmen Ihrer Sorgfaltspflicht.':'No specific risk indicators could be determined automatically. Please review the individual details above carefully as part of your due diligence.',
+  'z.B. BMW AG':'e.g. BMW AG', 'z.B. DE 298 123 456':'e.g. DE 298 123 456',
+  'Muster GmbH':'Example Ltd', 'z.B. A3F9C1':'e.g. A3F9C1',
+  'Land w\u00e4hlen oder eingeben\u2026':'Select or type a country\u2026',
+  'Code eingeben':'Enter code',
+  'Ordnername \u2013 z.B. Kunden 2026':'Folder name \u2013 e.g. Clients 2026',
+  'Neuer Ordner \u2013 Name eingeben\u2026':'New folder \u2013 enter a name\u2026',
+  '+ Neuer Ordner':'+ New folder',
+  'name@firma.de':'name@company.com'
 };
 
 const LANG_SELECTORS = ['#authTitle','#authSub','.auth-label','#authBtn','#logoutBtn','#historyBtn','#kontoBtn',
@@ -1952,6 +1991,13 @@ function applyLang() {
   if (lb) lb.textContent = LANG === 'de' ? '🌐 EN' : '🌐 DE';
   uebersetzeBaum(document.body);
   PH_I18N.forEach(function(p){ const el = document.getElementById(p.id); if (el) el.placeholder = LANG === 'en' ? p.en : p.de; });
+  try {
+    document.querySelectorAll('input[placeholder], textarea[placeholder]').forEach(function(el){
+      if (!el.dataset.phDe) el.dataset.phDe = el.placeholder;
+      const de = el.dataset.phDe;
+      el.placeholder = (LANG === 'en' && TXT_EN[de] !== undefined) ? TXT_EN[de] : de;
+    });
+  } catch(e) {}
   refreshAuthTexts();
   try {
     const ug = document.getElementById('uploadGate');
