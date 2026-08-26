@@ -663,6 +663,11 @@
     .kyc-link-input { flex:1; min-width:0; border:1.5px solid var(--border,#DCE5E0); border-radius:9px; padding:8px 10px; font-family:ui-monospace, Menlo, monospace; font-size:11.5px; color:var(--ink2,#2A3B33); background:#F8FAF9; }
     .kyc-link-gen { width:100%; padding:12px; font-size:13px; }
     .up-ok { border-style:solid !important; border-color:rgba(34,197,94,.55) !important; background:var(--green-pale,#EAF9F0) !important; }
+    #uploadGate .plan-wrap { animation:scaleIn .5s cubic-bezier(.16,1,.3,1) both; }
+    .up-grid .kyc-box { opacity:0; animation:histIn .5s cubic-bezier(.2,.7,.2,1) both; }
+    .up-grid .kyc-box:nth-child(1) { animation-delay:.08s; }
+    .up-grid .kyc-box:nth-child(2) { animation-delay:.2s; }
+    .up-btns { display:flex; gap:8px; justify-content:center; margin-top:12px; flex-wrap:wrap; }
     .kyc-print-page { display:none; }
     @media print {
       .kyc-card { display:none !important; }
@@ -1515,7 +1520,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.30</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.31</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -1684,7 +1689,18 @@ const I18N_EN = {
   pl_up_s:'Switch to a bigger plan at any time \u2013 the new quota applies immediately. Your analyses, folders and team settings will of course be kept.',
   pill_trial:'Trial', pill_demo:'Demo \u00b7 unlimited',
   v_ok:'Low risk indicators', v_warn:'Increased due diligence', v_bad:'Enhanced due diligence required',
-  plan_badge:'\u2605 Most popular', plan_choose:'Choose plan'
+  plan_badge:'\u2605 Most popular', plan_choose:'Choose plan',
+  up_ausweis:'ID document', up_selfie:'Confirmation photo (selfie)',
+  up_hint_a:'Drag an image or PDF here \u2013 or choose below',
+  up_hint_s:'A photo of you matching the ID document',
+  up_done:'Uploaded \u2013 thank you! You can replace the file at any time.',
+  up_file:'Choose file', up_photo:'Take photo',
+  up_status:'Your files are transferred encrypted and stored securely in the file.',
+  up_laed:'Uploading\u2026', up_ok:'Successfully uploaded \u2713',
+  up_err_typ:'Please upload an image (JPG/PNG/WebP) or PDF.',
+  up_err_gross:'File too large (max. 10 MB).',
+  up_invalid:'This link has expired or is invalid.<br/>Please request a new link.',
+  up_sub1:'Secure transfer to the file of', up_sub2:'Audit ID'
 };
 
 // Statische Texte: Deutsch (wie im HTML) -> Englisch
@@ -1769,6 +1785,7 @@ const TXT_EN = {
   '\u2713 In 2 Minuten startklar':'\u2713 Ready in 2 minutes',
   'Hilfe & Kontakt':'Help & contact',
   'Fragen oder Probleme? Schreib uns \u2013 wir melden uns schnell.':'Questions or problems? Write to us \u2013 we reply quickly.',
+  'Dokumenten-Upload':'Document upload',
   'L\u00e4nder im Detail':'countries in detail',
   'Sanktionslisten':'sanctions lists',
   'Nachweis je Pr\u00fcfung':'record per check'
@@ -1833,6 +1850,13 @@ function applyLang() {
   });
   PH_I18N.forEach(function(p){ const el = document.getElementById(p.id); if (el) el.placeholder = LANG === 'en' ? p.en : p.de; });
   refreshAuthTexts();
+  try {
+    const ug = document.getElementById('uploadGate');
+    if (ug && ug.style.display !== 'none') {
+      if (typeof UPLOAD_INFO !== 'undefined' && UPLOAD_INFO) { uploadSubSetzen(); uploadRender(); }
+      else { const ub = document.getElementById('uploadBody'); if (ub && ub.innerHTML) ub.innerHTML = uploadFehlerHtml(); }
+    }
+  } catch(e) {}
   try { if (typeof CURRENT_FIRMA !== 'undefined' && CURRENT_FIRMA) updateKontingentAnzeige(); } catch(e) {}
   try { const pg = document.getElementById('planGate'); if (pg && pg.style.display !== 'none' && pg.style.display !== '') renderPlaene(); } catch(e) {}
 }
@@ -2011,7 +2035,10 @@ function sektionZu(el, after) {
   setTimeout(function () { el.classList.remove('sektion-out'); el.style.display = 'none'; if (after) after(); }, 220);
 }
 
+let SESSION_GEROUTET = false;
+
 function showApp(session) {
+  SESSION_GEROUTET = true;
   showBoot(); // Splash zeigen, App erst freigeben wenn Firmen-Status geklärt ist (kein Aufblitzen)
   if (session && session.user) { CURRENT_USER_EMAIL = session.user.email || ''; CURRENT_USER_ID = session.user.id || ''; }
   ladeKontingent();
@@ -2338,37 +2365,52 @@ async function showUploadGate() {
     const info = await workerCall('kyc_link_info', { token: UPLOAD_TOKEN });
     if (!info || !info.ok) throw new Error((info && info.error) || 'ungueltig');
     UPLOAD_INFO = info;
-    if (sub) sub.textContent = 'Sichere \u00dcbermittlung an die Akte von \u201e' + info.firmenname + '\u201c \u00b7 Pr\u00fcf-ID ' + info.pruef_id;
+    uploadSubSetzen();
     uploadRender();
   } catch (e) {
     if (sub) sub.textContent = '';
-    if (body) body.innerHTML = '<div style="text-align:center; color:#B91C1C; font-weight:700; padding:20px; background:#FEF2F2; border:1.5px solid #FCA5A5; border-radius:14px;">Dieser Link ist abgelaufen oder ung\u00fcltig.<br/>Bitte fordere einen neuen Link an.</div>';
+    if (body) body.innerHTML = uploadFehlerHtml();
   }
 }
 
 function uploadRender() {
   const body = document.getElementById('uploadBody');
   if (!body || !UPLOAD_INFO) return;
-  function box(typ, titel, hinweis) {
+  function box(typ, titel, hinweis, kamera) {
     const da = UPLOAD_INFO.vorhanden && UPLOAD_INFO.vorhanden[typ];
-    return '<div class="kyc-box ' + (da ? 'kyc-voll up-ok' : 'kyc-leer') + '" onclick="uploadPick(\'' + typ + '\')" '
+    return '<div class="kyc-box up-box ' + (da ? 'kyc-voll up-ok' : 'kyc-leer') + '" '
       + 'ondragover="event.preventDefault(); this.classList.add(\'drag\');" '
       + 'ondragleave="this.classList.remove(\'drag\');" '
-      + 'ondrop="uploadDrop(event, \'' + typ + '\')" style="cursor:pointer;">'
+      + 'ondrop="uploadDrop(event, \'' + typ + '\')">'
       + '<div class="kyc-plus">' + (da ? '\u2713' : '+') + '</div>'
       + '<div class="kyc-box-t">' + titel + '</div>'
-      + '<div class="kyc-box-file">' + (da ? 'Hochgeladen \u2013 vielen Dank! (Klicken zum Ersetzen)' : hinweis) + '</div>'
+      + '<div class="kyc-box-file" style="white-space:normal;">' + (da ? t('up_done','Hochgeladen \u2013 vielen Dank! Du kannst die Datei jederzeit ersetzen.') : hinweis) + '</div>'
+      + '<div class="up-btns">'
+      + '<button class="kyc-btn" onclick="uploadPick(\'' + typ + '\', false)">\uD83D\uDCC1 ' + t('up_file','Datei ausw\u00e4hlen') + '</button>'
+      + '<button class="kyc-btn" onclick="uploadPick(\'' + typ + '\', true)">\uD83D\uDCF7 ' + t('up_photo','Foto aufnehmen') + '</button>'
+      + '</div>'
       + '<input type="file" id="upFile_' + typ + '" accept="image/jpeg,image/png,image/webp,application/pdf" style="display:none" onchange="uploadGewaehlt(\'' + typ + '\', this)" />'
+      + '<input type="file" id="upCam_' + typ + '" accept="image/*" capture="' + kamera + '" style="display:none" onchange="uploadGewaehlt(\'' + typ + '\', this)" />'
       + '</div>';
   }
-  body.innerHTML = '<div class="kyc-grid" style="margin-top:6px;">'
-    + box('ausweis', 'Personalausweis', 'Bild oder PDF hierher ziehen oder klicken')
-    + box('selfie', 'Best\u00e4tigungsfoto (Selfie)', 'Foto von dir mit Bezug zum Ausweis')
+  body.innerHTML = '<div class="kyc-grid up-grid" style="margin-top:6px;">'
+    + box('ausweis', t('up_ausweis','Personalausweis'), t('up_hint_a','Bild oder PDF hierher ziehen \u2013 oder unten w\u00e4hlen'), 'environment')
+    + box('selfie', t('up_selfie','Best\u00e4tigungsfoto (Selfie)'), t('up_hint_s','Ein Foto von dir mit Bezug zum Ausweis'), 'user')
     + '</div>'
-    + '<div class="kyc-note" id="uploadStatus" style="text-align:center; margin-top:14px;">Deine Dateien werden verschl\u00fcsselt \u00fcbertragen und sicher in der Akte abgelegt.</div>';
+    + '<div class="kyc-note" id="uploadStatus" style="text-align:center; margin-top:14px;">' + t('up_status','Deine Dateien werden verschl\u00fcsselt \u00fcbertragen und sicher in der Akte abgelegt.') + '</div>';
 }
 
-function uploadPick(typ) { const i = document.getElementById('upFile_' + typ); if (i) i.click(); }
+function uploadFehlerHtml() {
+  return '<div style="text-align:center; color:#B91C1C; font-weight:700; padding:20px; background:#FEF2F2; border:1.5px solid #FCA5A5; border-radius:14px;">'
+    + t('up_invalid','Dieser Link ist abgelaufen oder ung\u00fcltig.<br/>Bitte fordere einen neuen Link an.') + '</div>';
+}
+
+function uploadSubSetzen() {
+  const sub = document.getElementById('uploadSub');
+  if (sub && UPLOAD_INFO) sub.textContent = t('up_sub1','Sichere \u00dcbermittlung an die Akte von') + ' \u201e' + UPLOAD_INFO.firmenname + '\u201c \u00b7 ' + t('up_sub2','Pr\u00fcf-ID') + ' ' + UPLOAD_INFO.pruef_id;
+}
+
+function uploadPick(typ, kamera) { const i = document.getElementById((kamera ? 'upCam_' : 'upFile_') + typ); if (i) i.click(); }
 function uploadGewaehlt(typ, input) { if (input.files && input.files[0]) uploadDatei(typ, input.files[0]); }
 function uploadDrop(ev, typ) {
   ev.preventDefault();
@@ -2389,10 +2431,10 @@ function dateiAlsB64(file) {
 async function uploadDatei(typ, file) {
   const st = document.getElementById('uploadStatus');
   const erlaubt = ['image/jpeg','image/png','image/webp','application/pdf'];
-  if (erlaubt.indexOf(file.type) < 0) { if (st) st.textContent = 'Bitte ein Bild (JPG/PNG/WebP) oder PDF hochladen.'; return; }
-  if (file.size > 10 * 1024 * 1024) { if (st) st.textContent = 'Datei zu gro\u00df (max. 10 MB).'; return; }
+  if (erlaubt.indexOf(file.type) < 0) { if (st) st.textContent = t('up_err_typ','Bitte ein Bild (JPG/PNG/WebP) oder PDF hochladen.'); return; }
+  if (file.size > 10 * 1024 * 1024) { if (st) st.textContent = t('up_err_gross','Datei zu gro\u00df (max. 10 MB).'); return; }
   try {
-    if (st) st.textContent = 'Wird hochgeladen\u2026';
+    if (st) st.textContent = t('up_laed','Wird hochgeladen\u2026');
     const b64 = await dateiAlsB64(file);
     const res = await workerCall('kyc_link_upload', {
       token: UPLOAD_TOKEN, typ: typ, datei_b64: b64, datei_name: file.name, mime_type: file.type
@@ -2402,7 +2444,7 @@ async function uploadDatei(typ, file) {
     UPLOAD_INFO.vorhanden[typ] = true;
     uploadRender();
     const st2 = document.getElementById('uploadStatus');
-    if (st2) st2.textContent = 'Erfolgreich hochgeladen \u2713';
+    if (st2) st2.textContent = t('up_ok','Erfolgreich hochgeladen \u2713');
   } catch (e) {
     if (st) st.textContent = 'Upload fehlgeschlagen: ' + ((e && e.message) || 'Bitte erneut versuchen.');
   }
@@ -2858,8 +2900,9 @@ if (sb) {
   //    Initiale Doppel-Events und Token-Refreshes ignorieren -> kein Flackern.
   sb.auth.onAuthStateChange((event, session) => {
     if (!initialDone) return;                 // Start übernimmt getSession oben
-    if (event === 'SIGNED_IN' && session) showApp(session);
-    else if (event === 'SIGNED_OUT') showGate();
+    // Supabase feuert SIGNED_IN auch bei Tab-Rückkehr erneut -> NICHT neu routen, wenn schon drin
+    if (event === 'SIGNED_IN' && session) { if (!SESSION_GEROUTET) showApp(session); }
+    else if (event === 'SIGNED_OUT') { SESSION_GEROUTET = false; showGate(); }
     // TOKEN_REFRESHED / USER_UPDATED / INITIAL_SESSION: NICHT neu routen
   });
 } else {
@@ -3484,7 +3527,7 @@ function kycRender() {
       + 'ondrop="kycDrop(event, \'' + typ + '\')">'
       + '<div class="kyc-plus">+</div>'
       + '<div class="kyc-box-t">' + titel + '</div>'
-      + '<div class="kyc-box-file">' + hinweis + '</div>'
+      + '<div class="kyc-box-file" style="white-space:normal;">' + hinweis + '</div>'
       + '<input type="file" id="kycFile_' + typ + '" accept="image/jpeg,image/png,image/webp,application/pdf" style="display:none" onchange="kycGewaehlt(\'' + typ + '\', this)" />'
       + '</div>';
   }
@@ -3567,6 +3610,13 @@ function kycLinkKopieren() {
   const btn = event && event.target;
   if (btn) { const alt = btn.textContent; btn.textContent = 'Kopiert \u2713'; setTimeout(function(){ btn.textContent = alt; }, 1400); }
 }
+
+// Bei Tab-Rückkehr: KYC-Dokumente der offenen Akte still nachladen (z.B. nach Link-Upload)
+document.addEventListener('visibilitychange', function(){
+  if (document.visibilityState === 'visible' && typeof KYC !== 'undefined' && KYC && KYC.analyseId) {
+    try { kycLaden(); } catch(e) {}
+  }
+});
 
 function kycPick(typ) { const i = document.getElementById('kycFile_' + typ); if (i) i.click(); }
 function kycGewaehlt(typ, input) { if (input.files && input.files[0]) kycUpload(typ, input.files[0]); }
