@@ -551,6 +551,11 @@
     .lp-chips { display:flex; flex-wrap:wrap; gap:11px; justify-content:center; }
     .lp-chip { background:#fff; border:1.5px solid rgba(16,35,26,.12); border-radius:999px; padding:10px 20px; font-size:13.5px; font-weight:700; color:#2A3B33; transition:all .2s; }
     .lp-chip:hover { border-color:#22C55E; color:#16A34A; transform:translateY(-3px); box-shadow:0 12px 24px -12px rgba(34,197,94,.4); }
+    /* "Fuer wen?" als gruenes Band */
+    .lp-who { max-width:none; background:linear-gradient(180deg, rgba(34,197,94,.06), rgba(34,197,94,.13)); border-top:1px solid rgba(34,197,94,.16); border-bottom:1px solid rgba(34,197,94,.16); }
+    .lp-who > * { max-width:1240px; margin-left:auto; margin-right:auto; }
+    .lp-who .lp-secsub { color:#3F7A5B; }
+    .lp-who .lp-chip { border-color:rgba(34,197,94,.35); color:#15803D; }
 
     /* Finale: Schwarz-Premium */
     .lp-final { position:relative; overflow:hidden; width:calc(100% - 36px); max-width:1300px; margin:0 auto 72px; border-radius:36px;
@@ -564,9 +569,9 @@
     @keyframes lpPulse { 0%,100% { opacity:.55; transform:translateX(-50%) scale(1); } 50% { opacity:1; transform:translateX(-50%) scale(1.12); } }
     .lp-final .lp-h2, .lp-final .lp-btn { position:relative; z-index:1; }
 
-    .lp-foot { background:#fff; border-top:1px solid rgba(16,35,26,.08); }
-    .lp-foot-inner { max-width:1400px; margin:0 auto; padding:24px 28px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; font-size:12.5px; color:#5B6E64; }
-    .lp-foot-links a { color:#5B6E64; cursor:pointer; text-decoration:none; font-weight:600; transition:color .15s; }
+    .lp-foot { background:linear-gradient(180deg,#F2FBF6,#E9F7EF); border-top:1px solid rgba(34,197,94,.2); }
+    .lp-foot-inner { max-width:1400px; margin:0 auto; padding:24px 28px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; font-size:12.5px; color:#3F7A5B; }
+    .lp-foot-links a { color:#16A34A; cursor:pointer; text-decoration:none; font-weight:600; transition:color .15s; }
     .lp-foot-links a:hover { color:#16A34A; }
 
     /* Scroll-Reveal + Stagger */
@@ -580,6 +585,8 @@
     .lp-reveal.on .lp-card:nth-child(4), .lp-reveal.on .lp-step:nth-child(4) { transition-delay:.35s; }
     .lp-reveal.on .lp-card:nth-child(5) { transition-delay:.45s; }
     .lp-reveal.on .lp-card:nth-child(6) { transition-delay:.55s; }
+    /* Nach der Einblende-Animation: schnelle Hover ohne Verzoegerung */
+    .lp-reveal.done .lp-card, .lp-reveal.done .lp-step { transition:all .22s ease; transition-delay:0s !important; }
     @media print { .lp-gate { display:none !important; } }
     /* ===== KYC-Ablage ===== */
     .kyc-card { background:var(--card,#fff); border:1.5px solid var(--border,#DCE5E0); border-radius:16px; padding:20px; margin-top:18px; }
@@ -1081,7 +1088,7 @@
       </div>
     </section>
 
-    <section class="lp-sec lp-reveal">
+    <section class="lp-sec lp-who lp-reveal">
       <h2 class="lp-h2">Für wen?</h2>
       <p class="lp-secsub">Für alle, die nach dem Geldwäschegesetz prüfen müssen – oder einfach wissen wollen, mit wem sie Geschäfte machen.</p>
       <div class="lp-chips">
@@ -1425,7 +1432,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.20</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.21</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -2224,7 +2231,7 @@ function initLpReveal() {
   if (_lpObs) return;
   try {
     _lpObs = new IntersectionObserver(function(entries){
-      entries.forEach(function(en){ if (en.isIntersecting) { en.target.classList.add('on'); _lpObs.unobserve(en.target); } });
+      entries.forEach(function(en){ if (en.isIntersecting) { en.target.classList.add('on'); _lpObs.unobserve(en.target); setTimeout(function(){ en.target.classList.add('done'); }, 1300); } });
     }, { threshold: 0.12 });
     document.querySelectorAll('.lp-reveal').forEach(function(el){ _lpObs.observe(el); });
   } catch(e) {
@@ -3245,7 +3252,7 @@ function kycRender() {
       + '<input type="file" id="kycFile_' + typ + '" accept="image/jpeg,image/png,image/webp,application/pdf" style="display:none" onchange="kycGewaehlt(\'' + typ + '\', this)" />'
       + '</div>';
   }
-  mount.innerHTML = '<div class="kyc-card reveal">'
+  mount.innerHTML = '<div class="kyc-card">'
     + '<div class="kyc-head"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/></svg> KYC-Ablage \u00b7 Dokumente zur Akte</div>'
     + '<div class="kyc-grid">'
     + box('ausweis', 'Personalausweis', 'Bild oder PDF hierher ziehen oder klicken')
