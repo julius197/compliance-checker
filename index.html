@@ -676,7 +676,9 @@
     .up-lade { min-height:250px; display:flex; align-items:center; justify-content:center; }
     .up-spin { width:34px; height:34px; border:3px solid rgba(34,197,94,.25); border-top-color:#16A34A; border-radius:50%; animation:upSpin .8s linear infinite; }
     @keyframes upSpin { to { transform:rotate(360deg); } }
-    .kyc-refresh { margin-left:auto; font-size:11.5px; padding:5px 10px; }
+    .kyc-refresh { margin-left:auto; font-size:11.5px; padding:5px 10px; display:inline-flex; align-items:center; gap:6px; }
+    .kyc-refresh-ico { font-size:18px; line-height:1; font-weight:400; transition:transform .4s cubic-bezier(.2,.7,.2,1); }
+    .kyc-refresh:hover .kyc-refresh-ico { transform:rotate(180deg); }
     .kyc-print-page { display:none; }
     @media print {
       .kyc-card { display:none !important; }
@@ -1529,7 +1531,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.39</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.40</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -1711,7 +1713,7 @@ function _trSpeichern() { try { localStorage.setItem('cc_tr_en', JSON.stringify(
 const _TR_SKIP = /^[\s\d.,:;!?()\[\]{}\/\\|+\-*=<>%&#@~^"'`\u00b7\u2013\u2014\u2026\u2192\u2713\u2605\u20ac$]*$/;  // Zahlen/Symbole: nie uebersetzen
 function _trUebersetzbar(s) {
   const t = s.trim();
-  if (!t || t.length > 600) return false;
+  if (!t || t.length > 4000) return false;
   if (_TR_SKIP.test(t)) return false;
   if (/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+$/.test(t)) return false;   // E-Mail
   if (/^https?:\/\//i.test(t)) return false;                        // URL
@@ -1802,8 +1804,15 @@ async function _trNachladen(offen) {
   if (_TR_LAUFT) return;
   _TR_LAUFT = true;
   try {
-    for (let i = 0; i < offen.length; i += 80) {
-      const teil = offen.slice(i, i + 80);
+    const pakete = [];
+    let akt = [], zeichen = 0;
+    offen.forEach(function(s){
+      if (akt.length >= 60 || (zeichen + s.length) > 35000) { if (akt.length) pakete.push(akt); akt = []; zeichen = 0; }
+      akt.push(s); zeichen += s.length;
+    });
+    if (akt.length) pakete.push(akt);
+    for (let i = 0; i < pakete.length; i++) {
+      const teil = pakete[i];
       try {
         const res = await workerCall('texte_uebersetzen', { texte: teil, ziel: 'en' });
         if (res && res.ok && Array.isArray(res.texte)) {
@@ -3571,7 +3580,7 @@ function kycRender() {
   }
   mount.innerHTML = '<div class="kyc-card">'
     + '<div class="kyc-head"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/></svg> KYC-Ablage \u00b7 Dokumente zur Akte'
-    + '<button class="kyc-btn kyc-refresh" onclick="kycLaden()" title="Pr\u00fcfen, ob neue Dokumente angekommen sind">\u27F3 Aktualisieren</button></div>'
+    + '<button class="kyc-btn kyc-refresh" onclick="kycLaden()" title="Pr\u00fcfen, ob neue Dokumente angekommen sind"><span class="kyc-refresh-ico">\u27F3</span> Aktualisieren</button></div>'
     + '<div class="kyc-grid">'
     + box('ausweis', 'Personalausweis', 'Bild oder PDF hierher ziehen oder klicken')
     + box('selfie', 'Best\u00e4tigungsfoto (Selfie)', 'Foto der Person mit Bezug zum Ausweis')
