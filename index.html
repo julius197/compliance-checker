@@ -1531,7 +1531,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.41</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.42</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -1800,6 +1800,28 @@ async function uebersetzeBaum(root, sofortFertig) {
   await _trNachladen(offen);
 }
 
+// Ein Paket uebersetzen; bei Fehler halbieren und erneut versuchen
+async function _trPaket(teil, tiefe) {
+  if (!teil.length) return;
+  try {
+    const res = await workerCall('texte_uebersetzen', { texte: teil, ziel: 'en' });
+    if (res && res.ok && Array.isArray(res.texte) && res.texte.length === teil.length) {
+      teil.forEach(function(de, k){ if (typeof res.texte[k] === 'string') _TR_CACHE[de] = res.texte[k]; });
+      _trSpeichern();
+      return;
+    }
+    throw new Error((res && res.error) || 'unvollstaendig');
+  } catch(e) {
+    if (teil.length > 1 && tiefe < 4) {           // aufteilen und nochmal
+      const m = Math.ceil(teil.length / 2);
+      await _trPaket(teil.slice(0, m), tiefe + 1);
+      await _trPaket(teil.slice(m), tiefe + 1);
+    } else {
+      console.warn('Uebersetzung fehlgeschlagen:', (e && e.message) || '', teil[0] && teil[0].slice(0, 40));
+    }
+  }
+}
+
 let _TR_NOCHMAL = false;
 async function _trNachladen(offen) {
   if (_TR_LAUFT) { _TR_NOCHMAL = true; return; }   // nichts verwerfen: danach nachholen
@@ -1808,19 +1830,13 @@ async function _trNachladen(offen) {
     const pakete = [];
     let akt = [], zeichen = 0;
     offen.forEach(function(s){
-      if (akt.length >= 60 || (zeichen + s.length) > 35000) { if (akt.length) pakete.push(akt); akt = []; zeichen = 0; }
+      if (akt.length >= 25 || (zeichen + s.length) > 6000) { if (akt.length) pakete.push(akt); akt = []; zeichen = 0; }
       akt.push(s); zeichen += s.length;
     });
     if (akt.length) pakete.push(akt);
     for (let i = 0; i < pakete.length; i++) {
       const teil = pakete[i];
-      try {
-        const res = await workerCall('texte_uebersetzen', { texte: teil, ziel: 'en' });
-        if (res && res.ok && Array.isArray(res.texte)) {
-          teil.forEach(function(de, k){ if (typeof res.texte[k] === 'string') _TR_CACHE[de] = res.texte[k]; });
-          _trSpeichern();
-        }
-      } catch(e) { console.warn('Uebersetzung:', e && e.message); }
+      await _trPaket(teil, 0);
     }
     // Alles Wartende jetzt anwenden
     _TR_WARTEND.forEach(function(n){ if (n.isConnected !== false) _trAnwenden(n); });
