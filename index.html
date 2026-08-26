@@ -1529,7 +1529,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.34</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.35</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -1709,7 +1709,8 @@ const I18N_EN = {
   up_err_typ:'Please upload an image (JPG/PNG/WebP) or PDF.',
   up_err_gross:'File too large (max. 10 MB).',
   up_invalid:'This link has expired or is invalid.<br/>Please request a new link.',
-  up_sub1:'Secure transfer to the file of', up_sub2:'Audit ID'
+  up_sub1:'Secure transfer to the file of', up_sub2:'Audit ID',
+  ph_such:'Search companies\u2026'
 };
 
 // Statische Texte: Deutsch (wie im HTML) -> Englisch
@@ -1828,7 +1829,25 @@ const TXT_EN = {
   'Host':'Host', 'Mitglied':'Member', 'Entfernen':'Remove', 'Rolle':'Role',
   'Einzelperson':'Individual', 'Unternehmen':'Company',
   'Ordner':'Folder', 'Neuer Ordner':'New folder',
-  'Dieser Ordner enth\u00e4lt keine Pr\u00fcfungen zum Exportieren.':'This folder contains no checks to export.'
+  'Dieser Ordner enth\u00e4lt keine Pr\u00fcfungen zum Exportieren.':'This folder contains no checks to export.',
+  'Ordner verwalten':'Manage folders',
+  'Alle Compliance-Pr\u00fcfungen deines Unternehmens. Klicke einen Eintrag an, um den vollst\u00e4ndigen Bericht erneut zu \u00f6ffnen oder zu drucken \u2013 mit derselben Pr\u00fcf-ID wie auf dem Ausdruck.':'All compliance checks of your company. Click an entry to reopen or print the full report \u2013 with the same audit ID as on the printout.',
+  'Zur\u00fcck zur Analyse':'Back to analysis',
+  'In Ordner verschieben':'Move to folder',
+  'Dieses Tool wurde von Automati Labs gebaut.':'This tool was built by Automati Labs.',
+  'Was d\u00fcrfen wir f\u00fcr Sie entwickeln?':'What can we build for you?',
+  'Geringe Auff\u00e4lligkeiten':'Low risk indicators',
+  'Erh\u00f6hte Sorgfaltspflicht':'Increased due diligence',
+  'Verst\u00e4rkte Sorgfaltspflicht':'Enhanced due diligence required',
+  'Adresse':'Address', 'Branche':'Industry', 'Gegr\u00fcndet':'Founded',
+  'Gesch\u00e4ftsf\u00fchrer':'Managing director', 'Handelsregister':'Commercial register',
+  'Jahresumsatz':'Annual revenue', 'Mitarbeiter':'Employees', 'Rechtsform':'Legal form',
+  'Hauptsitz':'Headquarters', 'Stammkapital':'Share capital', 'Gr\u00fcndungsjahr':'Year founded',
+  'Registergericht':'Register court', 'Umsatz':'Revenue',
+  'Deutschland':'Germany', '\u00d6sterreich':'Austria', 'Schweiz':'Switzerland',
+  'Frankreich':'France', 'Italien':'Italy', 'Spanien':'Spain', 'Niederlande':'Netherlands',
+  'Polen':'Poland', 'Tschechien':'Czech Republic', 'Vereinigtes K\u00f6nigreich':'United Kingdom',
+  'Belgien':'Belgium', 'Luxemburg':'Luxembourg', 'D\u00e4nemark':'Denmark', 'Schweden':'Sweden'
 };
 
 const LANG_SELECTORS = ['#authTitle','#authSub','.auth-label','#authBtn','#logoutBtn','#historyBtn','#kontoBtn',
@@ -1842,7 +1861,8 @@ const LANG_SELECTORS = ['#authTitle','#authSub','.auth-label','#authBtn','#logou
 const PH_I18N = [
   { id:'authEmail', de:'name@firma.de', en:'name@company.com' },
   { id:'nameInput', de:'z.B. BMW AG', en:'e.g. BMW AG' },
-  { id:'landInput', de:'Land w\u00e4hlen oder eingeben\u2026', en:'Select or type a country\u2026' }
+  { id:'landInput', de:'Land w\u00e4hlen oder eingeben\u2026', en:'Select or type a country\u2026' },
+  { id:'histSearch', de:'Unternehmen suchen\u2026', en:'Search companies\u2026' }
 ];
 
 // ===== Globaler Übersetzungs-Läufer: übersetzt ALLE Textknoten (auch dynamische Ansichten) =====
@@ -1855,7 +1875,9 @@ const TXT_EN_RX = [
   [/Erstellt am /, 'Created on '],
   [/g\u00fcltig noch (\d+) Std\./, 'valid for another $1 h'],
   [/(\d+) Analysen/, '$1 analyses'],
-  [/Angemeldet als /, 'Signed in as ']
+  [/Angemeldet als /, 'Signed in as '],
+  [/Gepr\u00fcft von /, 'Checked by '],
+  [/Ohne Ordner/, 'No folder']
 ];
 
 function txtUebersetzen(raw) {
@@ -4111,7 +4133,7 @@ async function _openHistory() {
     <div class="hist-controls">
       <div class="hist-search-wrap">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-        <input id="histSearch" class="hist-search" placeholder="Unternehmen suchen…" oninput="histSuche()" autocomplete="off" />
+        <input id="histSearch" class="hist-search" placeholder="${t('ph_such','Unternehmen suchen…')}" oninput="histSuche()" autocomplete="off" />
       </div>
       <button class="btn-action" id="btnVerwalten" onclick="toggleOrdnerVerwalten()">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/></svg>
