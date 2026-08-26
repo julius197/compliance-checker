@@ -1529,7 +1529,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.38</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.39</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -1686,267 +1686,23 @@ let authMode = 'login'; // 'login' oder 'register'
 let LANG = 'de';
 try { LANG = localStorage.getItem('cc_lang') === 'en' ? 'en' : 'de'; } catch(e) {}
 
-function t(key, de) { return (LANG === 'en' && I18N_EN[key] !== undefined) ? I18N_EN[key] : de; }
+function t(key, de) { return de; }   // Übersetzung passiert zentral über den Worker
 
-const I18N_EN = {
-  auth_t_login:'Sign in', auth_t_reg:'Create account', auth_b_login:'Sign in', auth_b_reg:'Register',
-  pl_voll_t:'Need more analyses?',
-  pl_voll_s:'You have used up your monthly quota. Choose a bigger plan and continue right away \u2013 otherwise the quota only resets at the start of next month.',
-  pl_trial_t:'Enjoying the Compliance Checker?',
-  pl_trial_s:'Your 3 free trial analyses are used up. Choose your plan now and continue right away \u2013 your previous analyses and reports will of course be kept.',
-  pl_up_t:'Need more analyses?',
-  pl_up_s:'Switch to a bigger plan at any time \u2013 the new quota applies immediately. Your analyses, folders and team settings will of course be kept.',
-  pill_trial:'Trial', pill_demo:'Demo \u00b7 unlimited',
-  v_ok:'Low risk indicators', v_warn:'Increased due diligence', v_bad:'Enhanced due diligence required',
-  plan_badge:'\u2605 Most popular', plan_choose:'Choose plan',
-  up_ausweis:'ID document', up_selfie:'Confirmation photo (selfie)',
-  up_hint_a:'Drag an image or PDF here \u2013 or choose below',
-  up_hint_s:'A photo of you matching the ID document',
-  up_done:'Uploaded \u2013 thank you! You can replace the file at any time.',
-  up_file:'Choose file', up_photo:'Take photo',
-  up_status:'Your files are transferred encrypted and stored securely in the file.',
-  up_laed:'Uploading\u2026', up_ok:'Successfully uploaded \u2713',
-  up_err_typ:'Please upload an image (JPG/PNG/WebP) or PDF.',
-  up_err_gross:'File too large (max. 10 MB).',
-  up_invalid:'This link has expired or is invalid.<br/>Please request a new link.',
-  up_sub1:'Secure transfer to the file of', up_sub2:'Audit ID',
-  ph_such:'Search companies\u2026'
-};
+// Wörterbücher entfernt: der Worker übersetzt alles automatisch.
 
 // Statische Texte: Deutsch (wie im HTML) -> Englisch
-const TXT_EN = {
-  'Anmelden':'Sign in', 'Abmelden':'Sign out', 'Historie':'History', 'Konto':'Account',
-  'Mehr Analysen?':'More analyses?', 'E-Mail':'Email', 'Passwort':'Password',
-  'Compliance-Checker \u00b7 Zugang nur f\u00fcr Kunden':'Compliance Checker \u00b7 Customer access only',
-  'Geldw\u00e4scherechtliche Pr\u00fcfung':'AML Compliance Screening',
-  'Compliance-Pr\u00fcfung':'Compliance Check',
-  'Geldw\u00e4scherechtliche Pr\u00fcfung gem\u00e4\u00df \u00a7\u00a7 10\u201317 GwG. Name des Unternehmens und Land w\u00e4hlen \u2013 USt-ID empfohlen f\u00fcr pr\u00e4zise Zuordnung.':'Anti-money-laundering check pursuant to Sections 10\u201317 of the German AML Act (GwG). Enter the company name and country \u2013 VAT ID recommended for precise matching.',
-  'Name des Unternehmens':'Company name', 'Land':'Country', 'Umsatzsteuer-ID':'VAT ID',
-  '(optional, empfohlen)':'(optional, recommended)', '(optional)':'(optional)',
-  'Ordner':'Folder', 'Neuer Ordner':'New folder', 'Analyse starten':'Start analysis', 'Kein Ordner':'No folder',
-  'W\u00e4hle deinen Plan':'Choose your plan',
-  'Rechtssichere GwG-Pr\u00fcfungen, auditfeste Nachweise, geteiltes Team-Kontingent.':'Legally sound AML checks, audit-proof documentation, shared team quota.',
-  'Du hast einen Zugangscode?':'Have an access code?',
-  'Zahlung wird best\u00e4tigt\u2026':'Confirming your payment\u2026',
-  'Einen Moment \u2013 wir schalten dein Konto frei. Das dauert nur ein paar Sekunden.':'One moment \u2013 we are activating your account. This only takes a few seconds.',
-  'Jetzt aktualisieren':'Refresh now',
-  'Keine Sorge \u2013 deine Zahlung ist sicher. Falls es l\u00e4nger dauert, lade die Seite in einer Minute neu.':'Don\u2019t worry \u2013 your payment is safe. If it takes longer, reload the page in a minute.',
-  'Zur\u00fcck zur Paketauswahl':'Back to plan selection',
-  'Zur\u00fcck zum Tool':'Back to the tool',
-  'Einen Moment\u2026':'One moment\u2026',
-  'Willkommen!':'Welcome!',
-  'Wie m\u00f6chtest du den Compliance-Checker nutzen?':'How would you like to use the Compliance Checker?',
-  'Compliance-Checker \u00b7 Pr\u00fcfung gem\u00e4\u00df \u00a7\u00a7 10\u201317 GwG':'Compliance Checker \u00b7 Screening pursuant to Sections 10\u201317 GwG',
-  'Geldw\u00e4sche-Pr\u00fcfung in Minuten.':'AML screening in minutes.',
-  'Sauber dokumentiert.':'Cleanly documented.',
-  'Name des Unternehmens eingeben \u2013 den Rest \u00fcbernimmt der Compliance-Checker: Register, wirtschaftlich Berechtigte, Sanktions- & PEP-Listen. Am Ende steht ein PDF-Nachweis mit Quellen f\u00fcr deine Akte.':'Enter the company name \u2013 the Compliance Checker does the rest: registers, beneficial owners, sanctions & PEP lists. The result is a PDF record with sources for your files.',
-  'Kostenlos testen \u2013 3 Analysen gratis':'Try for free \u2013 3 analyses included',
-  'Kostenlos testen':'Try for free',
-  '\u2713 Keine Kreditkarte n\u00f6tig':'\u2713 No credit card required',
-  '\u2713 Server in der EU':'\u2713 Servers in the EU',
-  '\u2713 Deutsch & Englisch':'\u2713 German & English',
-  'Deine Vorteile':'Your benefits',
-  'Alles, was du f\u00fcr die geldw\u00e4scherechtliche Pr\u00fcfung deiner Gesch\u00e4ftspartner brauchst \u2013 an einem Ort.':'Everything you need for the AML screening of your business partners \u2013 in one place.',
-  'Pr\u00fcfung in Minuten':'Screening in minutes',
-  'Name + Land eingeben \u2013 mehr nicht':'Enter name + country \u2013 that\u2019s it',
-  'KI durchsucht Register, Presse & Web':'AI searches registers, press & the web',
-  'Klarer Vertrauens-Score von 0\u2013100':'Clear trust score from 0\u2013100',
-  'Sanktions- & PEP-Screening':'Sanctions & PEP screening',
-  'EU-, OFAC-, UN- & UK-Listen bei jeder Analyse':'EU, OFAC, UN & UK lists on every analysis',
-  'PEP-Pr\u00fcfung der verantwortlichen Personen':'PEP check of the responsible persons',
-  'K.O.-Kriterien klar gekennzeichnet':'Knock-out criteria clearly flagged',
-  'Nachweise f\u00fcr die Akte':'Records for your files',
-  'PDF-Bericht mit Quellenangaben':'PDF report with sources',
-  'Manipulationssichere Pr\u00fcf-ID':'Tamper-proof audit ID',
-  'Vollst\u00e4ndige Pr\u00fcf-Historie':'Complete audit history',
-  'International einsetzbar':'Works internationally',
-  '56 L\u00e4nder im Detail, weltweit nutzbar':'56 countries in detail, usable worldwide',
-  'Suche in Landessprache (KRS, EGRUL & Co.)':'Search in local language (KRS, EGRUL & co.)',
-  'Berichte auf Deutsch oder Englisch':'Reports in German or English',
-  'F\u00fcr dein ganzes Team':'For your whole team',
-  'Geteiltes Kontingent f\u00fcr alle Mitarbeiter':'Shared quota for all employees',
-  'Ordner f\u00fcr Kunden & Vorg\u00e4nge':'Folders for clients & cases',
-  'Rollen: Host & Mitglieder':'Roles: host & members',
-  'Fair & planbar':'Fair & predictable',
-  'Fester Monatspreis, klare Pakete':'Fixed monthly price, clear plans',
-  '3 Gratis-Analysen zum Start':'3 free analyses to start',
-  'Von 100 bis 1.000 Analysen im Monat':'From 100 to 1,000 analyses per month',
-  "So funktioniert's":'How it works',
-  'Vier Schritte \u2013 von der Registrierung bis zum fertigen Nachweis.':'Four steps \u2013 from sign-up to the finished record.',
-  'Kostenlos registrieren':'Register for free',
-  'Konto erstellen und sofort loslegen \u2013 deine ersten 3 Analysen sind gratis. Keine Kreditkarte n\u00f6tig.':'Create your account and start right away \u2013 your first 3 analyses are free. No credit card required.',
-  'Unternehmen eingeben':'Enter the company',
-  'Name des Unternehmens + Land, optional die USt-ID f\u00fcr eine pr\u00e4zise Zuordnung.':'Company name + country, optionally the VAT ID for precise matching.',
-  'KI pr\u00fcft & bewertet':'AI checks & scores',
-  'Handelsregister, wirtschaftlich Berechtigte, Sanktions- & PEP-Listen, Presse \u2013 alles mit Quellen und Vertrauens-Score.':'Commercial registers, beneficial owners, sanctions & PEP lists, press \u2013 all with sources and a trust score.',
-  'PDF ablegen':'File the PDF',
-  'Bericht herunterladen und in deiner Akte ablegen \u2013 bereit f\u00fcr jede Pr\u00fcfung.':'Download the report and file it \u2013 ready for any inspection.',
-  'F\u00fcr wen?':'Who is it for?',
-  'F\u00fcr alle, die nach dem Geldw\u00e4schegesetz pr\u00fcfen m\u00fcssen \u2013 oder einfach wissen wollen, mit wem sie Gesch\u00e4fte machen.':'For everyone required to screen under AML law \u2013 or anyone who simply wants to know who they are doing business with.',
-  'Autoh\u00e4ndler':'Car dealers',
-  'Kanzleien & Steuerberater':'Law firms & tax advisors',
-  'Immobilienmakler':'Real estate agents',
-  'Finanzdienstleister':'Financial services',
-  'G\u00fcterh\u00e4ndler':'Goods traders',
-  'Bereit? Deine ersten 3 Analysen sind gratis.':'Ready? Your first 3 analyses are free.',
-  'Jetzt kostenlos testen':'Try it for free now',
-  'Historie & Ordner':'History & folders',
-  'Kostenlos starten':'Start for free',
-  '\u2713 In 2 Minuten startklar':'\u2713 Ready in 2 minutes',
-  'Hilfe & Kontakt':'Help & contact',
-  'Fragen oder Probleme? Schreib uns \u2013 wir melden uns schnell.':'Questions or problems? Write to us \u2013 we reply quickly.',
-  'Dokumenten-Upload':'Document upload',
-  'L\u00e4nder im Detail':'countries in detail',
-  'Sanktionslisten':'sanctions lists',
-  'Nachweis je Pr\u00fcfung':'record per check',
-  'Historie wird geladen\u2026':'Loading history\u2026',
-  'Team wird geladen\u2026':'Loading team\u2026',
-  '\u00d6ffnen':'Open', 'Verschieben':'Move', 'Zur\u00fcck':'Back', 'Weiter':'Continue',
-  'Alle':'All', 'Ohne Ordner':'No folder', 'Kein Ordner':'No folder',
-  'Grunddaten':'Key data', 'Personen':'Persons', 'Finanzen':'Financials',
-  'Risiko-Hinweise':'Risk notes', 'Compliance-Empfehlung':'Compliance recommendation',
-  'Quellen-transparent':'Source-transparent', 'Vertrauens-Score':'Trust score',
-  'Website':'Website', 'Telefon':'Phone', 'Social Media':'Social media',
-  'Profil \u00f6ffnen \u2197':'Open profile \u2197',
-  'Keine Bilder zum Unternehmen gefunden':'No images found for this company',
-  'Keine spezifischen Risiko-Hinweise.':'No specific risk notes.',
-  'Drucken / PDF':'Print / PDF', 'Neue Analyse':'New analysis',
-  'Drucken / Als PDF speichern':'Print / Save as PDF',
-  'Compliance-Akte \u00b7 \u00a7\u00a7 10\u201317 GwG':'Compliance file \u00b7 Sections 10\u201317 GwG',
-  'Inhalt':'Contents',
-  'KYC-Ablage \u00b7 Dokumente zur Akte':'KYC vault \u00b7 Documents for this file',
-  'Personalausweis':'ID document', 'Best\u00e4tigungsfoto (Selfie)':'Confirmation photo (selfie)',
-  'Bild oder PDF hierher ziehen oder klicken':'Drag an image or PDF here or click',
-  'Foto der Person mit Bezug zum Ausweis':'A photo of the person matching the ID',
-  'Ansehen':'View', 'L\u00f6schen':'Delete', '\u27F3 Aktualisieren':'\u27F3 Refresh',
-  'Kopieren':'Copy', 'Kopiert \u2713':'Copied \u2713', 'Neu':'New',
-  '\uD83D\uDD17 Upload-Link generieren':'\uD83D\uDD17 Generate upload link',
-  'Beim Drucken der Akte werden hochgeladene Bilder automatisch als Anlagen angeh\u00e4ngt. Zugriff nur f\u00fcr dein Unternehmen.':'When printing the file, uploaded images are automatically attached as annexes. Access is restricted to your company.',
-  'Schick diesen Link der Person \u2013 sie kann Ausweis und Foto ohne Anmeldung hochladen. Die Dateien landen automatisch hier in der Akte.':'Send this link to the person \u2013 they can upload ID and photo without an account. The files automatically appear here in this file.',
-  'Erzeugt einen sicheren Link (72 Std. g\u00fcltig), \u00fcber den die Person ihre Dokumente selbst hochladen kann.':'Creates a secure link (valid for 72 h) that lets the person upload their documents themselves.',
-  'Team verwalten':'Manage team', 'Konto l\u00f6schen':'Delete account', 'Mein Konto':'My account',
-  'Mitglieder':'Members', 'Einladungscode':'Invite code', 'Beitreten':'Join',
-  'Host':'Host', 'Mitglied':'Member', 'Entfernen':'Remove', 'Rolle':'Role',
-  'Einzelperson':'Individual', 'Unternehmen':'Company',
-  'Ordner':'Folder', 'Neuer Ordner':'New folder',
-  'Dieser Ordner enth\u00e4lt keine Pr\u00fcfungen zum Exportieren.':'This folder contains no checks to export.',
-  'Ordner verwalten':'Manage folders',
-  'Alle Compliance-Pr\u00fcfungen deines Unternehmens. Klicke einen Eintrag an, um den vollst\u00e4ndigen Bericht erneut zu \u00f6ffnen oder zu drucken \u2013 mit derselben Pr\u00fcf-ID wie auf dem Ausdruck.':'All compliance checks of your company. Click an entry to reopen or print the full report \u2013 with the same audit ID as on the printout.',
-  'Zur\u00fcck zur Analyse':'Back to analysis',
-  'In Ordner verschieben':'Move to folder',
-  'Dieses Tool wurde von Automati Labs gebaut.':'This tool was built by Automati Labs.',
-  'Was d\u00fcrfen wir f\u00fcr Sie entwickeln?':'What can we build for you?',
-  'Geringe Auff\u00e4lligkeiten':'Low risk indicators',
-  'Erh\u00f6hte Sorgfaltspflicht':'Increased due diligence',
-  'Verst\u00e4rkte Sorgfaltspflicht':'Enhanced due diligence required',
-  'Adresse':'Address', 'Branche':'Industry', 'Gegr\u00fcndet':'Founded',
-  'Gesch\u00e4ftsf\u00fchrer':'Managing director', 'Handelsregister':'Commercial register',
-  'Jahresumsatz':'Annual revenue', 'Mitarbeiter':'Employees', 'Rechtsform':'Legal form',
-  'Hauptsitz':'Headquarters', 'Stammkapital':'Share capital', 'Gr\u00fcndungsjahr':'Year founded',
-  'Registergericht':'Register court', 'Umsatz':'Revenue',
-  'Deutschland':'Germany', '\u00d6sterreich':'Austria', 'Schweiz':'Switzerland',
-  'Frankreich':'France', 'Italien':'Italy', 'Spanien':'Spain', 'Niederlande':'Netherlands',
-  'Polen':'Poland', 'Tschechien':'Czech Republic', 'Vereinigtes K\u00f6nigreich':'United Kingdom',
-  'Belgien':'Belgium', 'Luxemburg':'Luxembourg', 'D\u00e4nemark':'Denmark', 'Schweden':'Sweden',
-  'Norwegen':'Norway', 'Finnland':'Finland', 'Irland':'Ireland',
-  'Ungarn':'Hungary', 'Rum\u00e4nien':'Romania', 'Griechenland':'Greece', 'Kroatien':'Croatia',
-  'Slowakei':'Slovakia', 'Slowenien':'Slovenia', 'Bulgarien':'Bulgaria', 'T\u00fcrkei':'Turkey',
-  'Vereinigte Staaten':'United States',
-  'Geldw\u00e4scherechtliche Pr\u00fcfung':'AML compliance screening',
-  'Compliance-Pr\u00fcfung':'Compliance check',
-  'Geldw\u00e4scherechtliche Pr\u00fcfung gem\u00e4\u00df \u00a7\u00a7 10\u201317 GwG. Name des Unternehmens und Land w\u00e4hlen \u2013 USt-ID empfohlen f\u00fcr pr\u00e4zise Zuordnung.':'AML screening pursuant to Sections 10\u201317 GwG. Choose company name and country \u2013 VAT ID recommended for precise matching.',
-  'Name des Unternehmens':'Company name', 'Umsatzsteuer-ID':'VAT ID',
-  'Compliance-Pr\u00fcfung starten':'Start compliance check',
-  'Analyse starten':'Start analysis',
-  'Kein Treffer \u2013 du kannst das Land trotzdem eingeben.':'No match \u2013 you can still enter the country.',
-  'Compliance-Pr\u00fcfung l\u00e4uft':'Compliance check running',
-  'Firma wird bei Google gesucht\u2026':'Searching the company on Google\u2026',
-  'Firma wird im Internet recherchiert\u2026':'Researching the company online\u2026',
-  'Bewertungen werden geladen\u2026':'Loading reviews\u2026',
-  'Bewertungen & Kontaktdaten werden geladen\u2026':'Loading reviews & contact details\u2026',
-  'Kontaktdaten werden geladen\u2026':'Loading contact details\u2026',
-  'Kontaktdaten werden gepr\u00fcft\u2026':'Checking contact details\u2026',
-  'KI analysiert die Daten\u2026':'AI is analysing the data\u2026',
-  'Bericht wird erstellt\u2026':'Generating the report\u2026',
-  'Ergebnis wird finalisiert\u2026':'Finalising the result\u2026',
-  'Code wird gepr\u00fcft\u2026':'Checking the code\u2026',
-  'Die Analyse konnte nicht abgeschlossen werden. Bitte versuche es erneut.':'The analysis could not be completed. Please try again.',
-  'Compliance-Auswertung \u00b7 Pr\u00fcfung gem\u00e4\u00df \u00a7\u00a7 10\u201317 GwG':'Compliance evaluation \u00b7 screening pursuant to Sections 10\u201317 GwG',
-  'Compliance-Auswertung \u00b7 \u00a7\u00a7 10\u201317 GwG':'Compliance evaluation \u00b7 Sections 10\u201317 GwG',
-  'Echte Daten von Google \u00b7 Bewertungen, Kontakt & Standort verifiziert':'Real data from Google \u00b7 reviews, contact & location verified',
-  'Gepr\u00fcfte Unternehmen':'Companies checked',
-  'Land':'Country', 'Kontakt':'Contact', 'Kontaktformular':'Contact form',
-  'Quelle':'Source', 'Quellen':'Sources', 'Stand':'As of', 'Bewertung':'Rating',
-  'F\u00fcr diese Kategorie konnten keine Daten ermittelt werden.':'No data could be determined for this category.',
-  'Es konnten keine spezifischen Risiko-Hinweise automatisch ermittelt werden. Bitte pr\u00fcfen Sie die Einzelangaben oben sorgf\u00e4ltig im Rahmen Ihrer Sorgfaltspflicht.':'No specific risk indicators could be determined automatically. Please review the individual details above carefully as part of your due diligence.',
-  'z.B. BMW AG':'e.g. BMW AG', 'z.B. DE 298 123 456':'e.g. DE 298 123 456',
-  'Muster GmbH':'Example Ltd', 'z.B. A3F9C1':'e.g. A3F9C1',
-  'Land w\u00e4hlen oder eingeben\u2026':'Select or type a country\u2026',
-  'Code eingeben':'Enter code',
-  'Ordnername \u2013 z.B. Kunden 2026':'Folder name \u2013 e.g. Clients 2026',
-  'Neuer Ordner \u2013 Name eingeben\u2026':'New folder \u2013 enter a name\u2026',
-  '+ Neuer Ordner':'+ New folder',
-  'name@firma.de':'name@company.com',
-  'Name des Unternehmens eingeben und Compliance-Pr\u00fcfung starten':'Enter a company name and start the compliance check',
-  'Betrugspr\u00fcfung':'Fraud check', 'Weltweit':'Worldwide', 'Trustpilot':'Trustpilot',
-  'Quellen-transparent':'Source-transparent',
-  'Dieses Tool wurde von Automati Labs gebaut.':'This tool was built by Automati Labs.',
-  'Was d\u00fcrfen wir f\u00fcr Sie entwickeln?':'What can we build for you?',
-  'Automati Labs \u00b7 KI & Software':'Automati Labs \u00b7 AI & software',
-  'Ma\u00dfgeschneiderte KI-L\u00f6sungen, intelligente Automatisierungen und Premium-Software \u2013 entwickelt f\u00fcr Unternehmen die vorausdenken. Genau wie dieser Compliance-Checker.':'Tailored AI solutions, intelligent automations and premium software \u2013 built for companies that think ahead. Just like this compliance checker.',
-  'Projekt anfragen':'Request a project', 'Projekt ansehen':'View project', 'Website ansehen':'View website',
-  'Gesamt-Vertrauens-Score':'Overall trust score',
-  'Kontaktdaten & Online-Pr\u00e4senz':'Contact details & online presence',
-  'Beweismittel \u00b7 Bildrecherche':'Evidence \u00b7 image research',
-  'Offizielle Bilder im Zusammenhang zum Unternehmen':'Official images related to the company',
-  'Phantom-/Strohmann-Verdacht erkannt':'Phantom / straw-man suspicion detected',
-  'Bilder werden geladen\u2026':'Loading images\u2026',
-  '\u00d6ffentlich':'Public', 'Privat':'Private', 'Einl\u00f6sen':'Redeem',
-  'Aktivit\u00e4ts-Protokoll':'Activity log', 'Daten exportieren (JSON)':'Export data (JSON)',
-  'Unbekanntes Unternehmen':'Unknown company',
-  'In diesem Ordner sind noch keine Pr\u00fcfungen.':'This folder does not contain any checks yet.',
-  'Handelsregister':'Commercial register'
-};
 
-const LANG_SELECTORS = ['#authTitle','#authSub','.auth-label','#authBtn','#logoutBtn','#historyBtn','#kontoBtn',
-  '#mehrAnalysenBtn','.search-eyebrow','.search-heading','.search-sub','.field-label','.field-label .opt',
-  '.search-card button','.plan-title','#planSubtitle','.plan-code summary','#zahlungSub','.boot-text',
-  'a[onclick="doLogout()"]','.plan-gate a','.plan-gate p','.plan-gate button','#ordnerSelect option[value=""]',
-  '.ob-gate .auth-title','.ob-gate .auth-sub',
-  '.lp-eyebrow','.lp-h1','.lp-h1 span','.lp-sub','.lp-trust span','.lp-btn','.lp-h2','.lp-secsub',
-  '.lp-card-t','.lp-list li','.lp-step-t','.lp-step-d','.lp-chip','.lp-final-trust span','.help-pop-t','.help-pop-d','.history-title','.lp-stat span'];
 
-const PH_I18N = [
-  { id:'authEmail', de:'name@firma.de', en:'name@company.com' },
-  { id:'nameInput', de:'z.B. BMW AG', en:'e.g. BMW AG' },
-  { id:'landInput', de:'Land w\u00e4hlen oder eingeben\u2026', en:'Select or type a country\u2026' },
-  { id:'histSearch', de:'Unternehmen suchen\u2026', en:'Search companies\u2026' }
-];
+
+
+
 
 // ===== Globaler Übersetzungs-Läufer: übersetzt ALLE Textknoten (auch dynamische Ansichten) =====
 const _LANG_DE = new WeakMap();
 
-const TXT_EN_RX = [
-  [/(\d+) Pr\u00fcfungen in dieser Akte/, '$1 checks in this file'],
-  [/1 Pr\u00fcfung in dieser Akte/, '1 check in this file'],
-  [/Unternehmen: /, 'Company: '],
-  [/Erstellt am /, 'Created on '],
-  [/g\u00fcltig noch (\d+) Std\./, 'valid for another $1 h'],
-  [/(\d+) Analysen/, '$1 analyses'],
-  [/Angemeldet als /, 'Signed in as '],
-  [/Gepr\u00fcft von /, 'Checked by '],
-  [/Ohne Ordner/, 'No folder']
-];
 
-function txtUebersetzen(raw) {
-  const de = raw.trim();
-  if (TXT_EN[de] !== undefined) return raw.replace(de, TXT_EN[de]);
-  let out = raw, treffer = false;
-  for (let i = 0; i < TXT_EN_RX.length; i++) {
-    if (TXT_EN_RX[i][0].test(out)) { out = out.replace(TXT_EN_RX[i][0], TXT_EN_RX[i][1]); treffer = true; }
-  }
-  return treffer ? out : null;
-}
+
+
 
 let _TR_CACHE = {};                 // deutsch -> englisch (dauerhaft gemerkt)
 try { _TR_CACHE = JSON.parse(localStorage.getItem('cc_tr_en') || '{}'); } catch(e) { _TR_CACHE = {}; }
@@ -1959,6 +1715,8 @@ function _trUebersetzbar(s) {
   if (_TR_SKIP.test(t)) return false;
   if (/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+$/.test(t)) return false;   // E-Mail
   if (/^https?:\/\//i.test(t)) return false;                        // URL
+  if (/^(HRB|HRA|KRS|VAT|USt|St\.?-?Nr)[\s.:-]*[\dA-Za-z\s.\/-]{1,24}$/i.test(t)) return false;  // Registernummern
+  if (/^[+\d][\d\s()\/+-]{5,}$/.test(t)) return false;              // Telefonnummern
   return /[a-zA-Z\u00e4\u00f6\u00fc\u00df\u00c4\u00d6\u00dc]/.test(t);
 }
 
@@ -1980,12 +1738,34 @@ function _trKnoten(root) {
   return raus;
 }
 
+// Platzhalter + Tooltips (Attribute) mitübersetzen
+function _trAttribute() {
+  let els = [];
+  try { els = document.querySelectorAll('[placeholder], [title]'); } catch(e) { return []; }
+  const offen = [];
+  els.forEach(function(el){
+    ['placeholder','title'].forEach(function(attr){
+      const wert = el.getAttribute(attr);
+      if (wert === null) return;
+      const merk = 'tr' + attr;
+      if (!el.dataset[merk]) el.dataset[merk] = wert;
+      const de = (el.dataset[merk] || '').trim();
+      if (!de) return;
+      if (LANG !== 'en') { el.setAttribute(attr, el.dataset[merk]); return; }
+      const en = _TR_CACHE[de];
+      if (en !== undefined) el.setAttribute(attr, el.dataset[merk].replace(de, en));
+      else if (_trUebersetzbar(de) && offen.indexOf(de) < 0) offen.push(de);
+    });
+  });
+  return offen;
+}
+
 function _trAnwenden(n) {
   const orig = _LANG_DE.get(n);
   if (orig === undefined) return;
   if (LANG !== 'en') { if (n.nodeValue !== orig) n.nodeValue = orig; return; }
   const de = orig.trim();
-  const en = (TXT_EN[de] !== undefined) ? TXT_EN[de] : _TR_CACHE[de];
+  const en = _TR_CACHE[de];
   if (en !== undefined && en !== null) {
     const neu = orig.replace(de, en);
     if (n.nodeValue !== neu) n.nodeValue = neu;
@@ -2007,10 +1787,11 @@ async function uebersetzeBaum(root, sofortFertig) {
   knoten.forEach(function(n){
     const de = (_LANG_DE.get(n) || '').trim();
     if (!de || !_trUebersetzbar(de)) return;
-    if (TXT_EN[de] !== undefined || _TR_CACHE[de] !== undefined) return;
+    if (_TR_CACHE[de] !== undefined) return;
     if (offen.indexOf(de) < 0) offen.push(de);
     _TR_WARTEND.add(n);
   });
+  try { _trAttribute().forEach(function(de){ if (offen.indexOf(de) < 0) offen.push(de); }); } catch(e) {}
   if (!offen.length) return;
   if (sofortFertig === true) return;   // nur einsetzen, nicht nachladen
 
@@ -2035,6 +1816,7 @@ async function _trNachladen(offen) {
     _TR_WARTEND.forEach(function(n){ if (n.isConnected !== false) _trAnwenden(n); });
     _TR_WARTEND.clear();
     try { uebersetzeBaum(document.body, true); } catch(e) {}
+    try { _trAttribute(); } catch(e) {}
   } finally { _TR_LAUFT = false; }
 }
 
@@ -2078,13 +1860,10 @@ try {
 } catch(e) {}
 
 function authToggleHtml(reg) {
-  if (LANG === 'en') {
-    return reg ? 'Already have an account? <a onclick="toggleAuthMode()">Sign in</a>'
-               : 'No account yet? <a onclick="toggleAuthMode()">Register now</a>';
-  }
   return reg ? 'Schon ein Konto? <a onclick="toggleAuthMode()">Jetzt anmelden</a>'
              : 'Noch kein Konto? <a onclick="toggleAuthMode()">Jetzt registrieren</a>';
 }
+
 
 function refreshAuthTexts() {
   const title = document.getElementById('authTitle');
@@ -2104,14 +1883,7 @@ function applyLang() {
     _trOverlay(true);
     uebersetzeBaum(document.body).then(function(){ _trOverlay(false); }).catch(function(){ _trOverlay(false); });
   } else { uebersetzeBaum(document.body, true); }
-  PH_I18N.forEach(function(p){ const el = document.getElementById(p.id); if (el) el.placeholder = LANG === 'en' ? p.en : p.de; });
-  try {
-    document.querySelectorAll('input[placeholder], textarea[placeholder]').forEach(function(el){
-      if (!el.dataset.phDe) el.dataset.phDe = el.placeholder;
-      const de = el.dataset.phDe;
-      el.placeholder = (LANG === 'en' && TXT_EN[de] !== undefined) ? TXT_EN[de] : de;
-    });
-  } catch(e) {}
+  _trAttribute();
   refreshAuthTexts();
   try {
     const ug = document.getElementById('uploadGate');
@@ -3932,46 +3704,6 @@ async function kycLoeschen(typ) {
   } catch (e) { console.warn('KYC l\u00f6schen:', e && e.message); }
 }
 
-// ===== Alte gespeicherte Berichte on-demand uebersetzen =====
-const _BERICHT_CACHE = {};   // pruefId+lang -> uebersetzter Bericht
-
-function berichtIstDeutsch(d) {
-  try {
-    const s = JSON.stringify(d);
-    return /[\u00e4\u00f6\u00fc\u00df]|\b(und|nicht|wurde|keine|Unternehmen|Gesch\u00e4ft|Angaben|Hinweise)\b/.test(s);
-  } catch(e) { return false; }
-}
-
-async function berichtUebersetzen(d) {
-  const key = (d.pruefId || '') + '_' + LANG;
-  if (_BERICHT_CACHE[key]) return _BERICHT_CACHE[key];
-  const res = await workerCall('bericht_uebersetzen', { report: d, ziel: LANG });
-  if (!res || !res.ok || !res.report) throw new Error((res && res.error) || 'Fehler');
-  _BERICHT_CACHE[key] = res.report;
-  return res.report;
-}
-
-// Zeigt einen Bericht in der aktuellen Sprache (uebersetzt bei Bedarf)
-async function showReportSprachig(d, rawName, fromHistory) {
-  const brauchtEN = (LANG === 'en' && berichtIstDeutsch(d));
-  if (!brauchtEN) { showReport(d, rawName, fromHistory); return; }
-  showReport(d, rawName, fromHistory);
-  const hinweis = document.createElement('div');
-  hinweis.id = 'transHinweis';
-  hinweis.style.cssText = 'text-align:center;font-size:12.5px;font-weight:700;color:#16A34A;background:#EAF9F0;border:1.5px solid rgba(34,197,94,.3);border-radius:12px;padding:10px;margin:14px 0;';
-  hinweis.textContent = 'Translating this report into English\u2026';
-  const rep = document.getElementById('report');
-  if (rep) rep.insertBefore(hinweis, rep.firstChild);
-  try {
-    const en = await berichtUebersetzen(d);
-    en.pruefId = d.pruefId; en.firmenname = d.firmenname;   // Kennungen bleiben
-    showReport(en, rawName, true);
-  } catch (e) {
-    const h = document.getElementById('transHinweis');
-    if (h) { h.style.cssText = h.style.cssText.replace('#EAF9F0','#FEF2F2').replace('#16A34A','#B91C1C').replace('rgba(34,197,94,.3)','#FCA5A5'); h.textContent = 'Translation failed \u2013 showing the original report.'; }
-  }
-}
-
 function showReport(d, rawName, fromHistory) {
   // Aus der Historie geöffnet = nur ANSEHEN -> Suchformular oben ausblenden.
   // "Neue Analyse" unten lädt die Seite neu und zeigt das Formular wieder.
@@ -4623,7 +4355,7 @@ function _openFromHistory(i) {
   if (main) main.style.display = 'block';
   fadeInView(main);
   const empty = document.getElementById('emptyState'); if (empty) empty.style.display = 'none';
-  showReportSprachig(d, d.firmenname, true); // true = aus Historie → nicht erneut speichern
+  showReport(d, d.firmenname, true); // true = aus Historie → nicht erneut speichern
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
