@@ -657,6 +657,12 @@
     .kyc-btn:hover { border-color:var(--green,#22C55E); color:var(--green-d,#16A34A); }
     .kyc-btn-del:hover { border-color:#DC2626; color:#DC2626; }
     .kyc-note { font-size:11.5px; color:var(--gray,#5B6E64); margin-top:12px; }
+    .kyc-link { margin-top:16px; padding-top:14px; border-top:1px dashed var(--border,#DCE5E0); }
+    .kyc-link-t { font-size:13px; font-weight:700; color:var(--ink,#10231A); margin-bottom:8px; }
+    .kyc-link-row { display:flex; gap:8px; }
+    .kyc-link-input { flex:1; min-width:0; border:1.5px solid var(--border,#DCE5E0); border-radius:9px; padding:8px 10px; font-family:ui-monospace, Menlo, monospace; font-size:11.5px; color:var(--ink2,#2A3B33); background:#F8FAF9; }
+    .kyc-link-gen { width:100%; padding:12px; font-size:13px; }
+    .up-ok { border-style:solid !important; border-color:rgba(34,197,94,.55) !important; background:var(--green-pale,#EAF9F0) !important; }
     .kyc-print-page { display:none; }
     @media print {
       .kyc-card { display:none !important; }
@@ -1085,6 +1091,18 @@
     <a class="help-pop-mail" href="mailto:info@automatilabs.de">info@automatilabs.de</a>
   </div>
 
+  <!-- ===== ÖFFENTLICHE UPLOAD-SEITE (per Link, ohne Login) ===== -->
+  <div id="uploadGate" class="plan-gate" style="display:none;">
+    <div class="plan-wrap" style="max-width:620px;">
+      <div class="plan-head" style="text-align:center;">
+        <img class="plan-logo" id="uploadLogo" alt="Automati Labs" />
+        <div class="plan-title">Dokumenten-Upload</div>
+        <div class="plan-subtitle" id="uploadSub">Einen Moment…</div>
+      </div>
+      <div id="uploadBody"></div>
+    </div>
+  </div>
+
   <!-- ===== LANDING PAGE (für ausgeloggte Besucher) ===== -->
   <div class="lp-gate" id="landingGate" style="display:none;">
     <header class="lp-head">
@@ -1497,7 +1515,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.29</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.30</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -2302,6 +2320,94 @@ async function ordnerAnlegen() {
   }
 }
 
+// ===== ÖFFENTLICHE UPLOAD-SEITE (per Link) =====
+const UPLOAD_TOKEN = (function(){ try { return new URLSearchParams(location.search).get('upload') || ''; } catch(e) { return ''; } })();
+let UPLOAD_INFO = null;
+
+async function showUploadGate() {
+  hideBoot(); alleGatesAus();
+  const g = document.getElementById('uploadGate');
+  if (!g) return;
+  g.style.display = 'flex';
+  const lg = document.getElementById('uploadLogo');
+  const src = document.querySelector('.auth-card .auth-logo');
+  if (lg && src && src.src) lg.src = src.src;
+  const sub = document.getElementById('uploadSub');
+  const body = document.getElementById('uploadBody');
+  try {
+    const info = await workerCall('kyc_link_info', { token: UPLOAD_TOKEN });
+    if (!info || !info.ok) throw new Error((info && info.error) || 'ungueltig');
+    UPLOAD_INFO = info;
+    if (sub) sub.textContent = 'Sichere \u00dcbermittlung an die Akte von \u201e' + info.firmenname + '\u201c \u00b7 Pr\u00fcf-ID ' + info.pruef_id;
+    uploadRender();
+  } catch (e) {
+    if (sub) sub.textContent = '';
+    if (body) body.innerHTML = '<div style="text-align:center; color:#B91C1C; font-weight:700; padding:20px; background:#FEF2F2; border:1.5px solid #FCA5A5; border-radius:14px;">Dieser Link ist abgelaufen oder ung\u00fcltig.<br/>Bitte fordere einen neuen Link an.</div>';
+  }
+}
+
+function uploadRender() {
+  const body = document.getElementById('uploadBody');
+  if (!body || !UPLOAD_INFO) return;
+  function box(typ, titel, hinweis) {
+    const da = UPLOAD_INFO.vorhanden && UPLOAD_INFO.vorhanden[typ];
+    return '<div class="kyc-box ' + (da ? 'kyc-voll up-ok' : 'kyc-leer') + '" onclick="uploadPick(\'' + typ + '\')" '
+      + 'ondragover="event.preventDefault(); this.classList.add(\'drag\');" '
+      + 'ondragleave="this.classList.remove(\'drag\');" '
+      + 'ondrop="uploadDrop(event, \'' + typ + '\')" style="cursor:pointer;">'
+      + '<div class="kyc-plus">' + (da ? '\u2713' : '+') + '</div>'
+      + '<div class="kyc-box-t">' + titel + '</div>'
+      + '<div class="kyc-box-file">' + (da ? 'Hochgeladen \u2013 vielen Dank! (Klicken zum Ersetzen)' : hinweis) + '</div>'
+      + '<input type="file" id="upFile_' + typ + '" accept="image/jpeg,image/png,image/webp,application/pdf" style="display:none" onchange="uploadGewaehlt(\'' + typ + '\', this)" />'
+      + '</div>';
+  }
+  body.innerHTML = '<div class="kyc-grid" style="margin-top:6px;">'
+    + box('ausweis', 'Personalausweis', 'Bild oder PDF hierher ziehen oder klicken')
+    + box('selfie', 'Best\u00e4tigungsfoto (Selfie)', 'Foto von dir mit Bezug zum Ausweis')
+    + '</div>'
+    + '<div class="kyc-note" id="uploadStatus" style="text-align:center; margin-top:14px;">Deine Dateien werden verschl\u00fcsselt \u00fcbertragen und sicher in der Akte abgelegt.</div>';
+}
+
+function uploadPick(typ) { const i = document.getElementById('upFile_' + typ); if (i) i.click(); }
+function uploadGewaehlt(typ, input) { if (input.files && input.files[0]) uploadDatei(typ, input.files[0]); }
+function uploadDrop(ev, typ) {
+  ev.preventDefault();
+  ev.currentTarget.classList.remove('drag');
+  const f = ev.dataTransfer && ev.dataTransfer.files && ev.dataTransfer.files[0];
+  if (f) uploadDatei(typ, f);
+}
+
+function dateiAlsB64(file) {
+  return new Promise(function(res, rej){
+    const r = new FileReader();
+    r.onload = function(){ const s = String(r.result || ''); res(s.substring(s.indexOf(',') + 1)); };
+    r.onerror = function(){ rej(new Error('Datei unlesbar')); };
+    r.readAsDataURL(file);
+  });
+}
+
+async function uploadDatei(typ, file) {
+  const st = document.getElementById('uploadStatus');
+  const erlaubt = ['image/jpeg','image/png','image/webp','application/pdf'];
+  if (erlaubt.indexOf(file.type) < 0) { if (st) st.textContent = 'Bitte ein Bild (JPG/PNG/WebP) oder PDF hochladen.'; return; }
+  if (file.size > 10 * 1024 * 1024) { if (st) st.textContent = 'Datei zu gro\u00df (max. 10 MB).'; return; }
+  try {
+    if (st) st.textContent = 'Wird hochgeladen\u2026';
+    const b64 = await dateiAlsB64(file);
+    const res = await workerCall('kyc_link_upload', {
+      token: UPLOAD_TOKEN, typ: typ, datei_b64: b64, datei_name: file.name, mime_type: file.type
+    });
+    if (!res || !res.ok) throw new Error((res && res.error) || 'Fehler');
+    UPLOAD_INFO.vorhanden = UPLOAD_INFO.vorhanden || {};
+    UPLOAD_INFO.vorhanden[typ] = true;
+    uploadRender();
+    const st2 = document.getElementById('uploadStatus');
+    if (st2) st2.textContent = 'Erfolgreich hochgeladen \u2713';
+  } catch (e) {
+    if (st) st.textContent = 'Upload fehlgeschlagen: ' + ((e && e.message) || 'Bitte erneut versuchen.');
+  }
+}
+
 // ===== LANDING PAGE =====
 function showLanding() {
   hideBoot();
@@ -2742,9 +2848,9 @@ if (sb) {
   (async () => {
     try {
       const { data } = await sb.auth.getSession();
-      if (data && data.session) showApp(data.session); else showLanding();
+      if (UPLOAD_TOKEN) { showUploadGate(); } else if (data && data.session) showApp(data.session); else showLanding();
     } catch (e) {
-      showLanding();
+      if (UPLOAD_TOKEN) { showUploadGate(); } else showLanding();
     }
     initialDone = true;
   })();
@@ -3312,12 +3418,12 @@ function buildWatermark(d) {
 }
 
 // ===== KYC-ABLAGE (Personalausweis + Bestätigungsfoto je Analyse) =====
-let KYC = { analyseId: null, doks: {}, urls: {}, pruefId: null, firmenname: '' };
+let KYC = { analyseId: null, doks: {}, urls: {}, pruefId: null, firmenname: '', link: null };
 
 async function initKyc(pruefId, versuch) {
   const mount = document.getElementById('kycMount');
   if (!mount || !sb || !CURRENT_FIRMA || !pruefId) return;
-  KYC = { analyseId: null, doks: {}, urls: {}, pruefId: pruefId, firmenname: '' };
+  KYC = { analyseId: null, doks: {}, urls: {}, pruefId: pruefId, firmenname: '', link: null };
   try {
     const { data } = await sb.from('analysen').select('id, firmenname').eq('pruef_id', pruefId).limit(1);
     if (!data || !data.length) {
@@ -3346,6 +3452,12 @@ async function kycLaden() {
         } catch(e) {}
       }
     }
+    try {
+      const l = await sb.from('kyc_upload_links').select('*').eq('analyse_id', KYC.analyseId)
+        .eq('aktiv', true).gt('ablauf', new Date().toISOString())
+        .order('created_at', { ascending: false }).limit(1);
+      KYC.link = (l && l.data && l.data[0]) || null;
+    } catch(e) { KYC.link = null; }
     kycRender();
   } catch (e) { console.warn('KYC laden:', e && e.message); }
 }
@@ -3382,6 +3494,7 @@ function kycRender() {
     + box('ausweis', 'Personalausweis', 'Bild oder PDF hierher ziehen oder klicken')
     + box('selfie', 'Best\u00e4tigungsfoto (Selfie)', 'Foto der Person mit Bezug zum Ausweis')
     + '</div>'
+    + kycLinkHtml()
     + '<div class="kyc-note">Beim Drucken der Akte werden hochgeladene Bilder automatisch als Anlagen angeh\u00e4ngt. Zugriff nur f\u00fcr dein Unternehmen.</div>'
     + '</div>'
     + kycPrintHtml();
@@ -3399,6 +3512,60 @@ function kycPrintHtml() {
     }
   });
   return out;
+}
+
+function kycLinkHtml() {
+  if (KYC.link) {
+    const url = location.origin + location.pathname + '?upload=' + KYC.link.token;
+    const rest = Math.max(0, Math.ceil((new Date(KYC.link.ablauf).getTime() - Date.now()) / 3600000));
+    return '<div class="kyc-link">'
+      + '<div class="kyc-link-t">\uD83D\uDD17 Upload-Link \u00b7 g\u00fcltig noch ' + rest + ' Std.</div>'
+      + '<div class="kyc-link-row">'
+      + '<input class="kyc-link-input" id="kycLinkInput" readonly value="' + url + '" onclick="this.select()" />'
+      + '<button class="kyc-btn" onclick="kycLinkKopieren()">Kopieren</button>'
+      + '<button class="kyc-btn kyc-btn-del" onclick="kycLinkNeu()">Neu</button>'
+      + '</div>'
+      + '<div class="kyc-note" style="margin-top:8px;">Schick diesen Link der Person \u2013 sie kann Ausweis und Foto ohne Anmeldung hochladen. Die Dateien landen automatisch hier in der Akte.</div>'
+      + '</div>';
+  }
+  return '<div class="kyc-link">'
+    + '<button class="kyc-btn kyc-link-gen" onclick="kycLinkNeu()">\uD83D\uDD17 Upload-Link generieren</button>'
+    + '<div class="kyc-note" style="margin-top:8px;">Erzeugt einen sicheren Link (72 Std. g\u00fcltig), \u00fcber den die Person ihre Dokumente selbst hochladen kann.</div>'
+    + '</div>';
+}
+
+function kycToken() {
+  const zeichen = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  const a = new Uint8Array(28);
+  crypto.getRandomValues(a);
+  let t = '';
+  for (let i = 0; i < a.length; i++) t += zeichen[a[i] % 62];
+  return t;
+}
+
+async function kycLinkNeu() {
+  if (!KYC.analyseId || !CURRENT_FIRMA || !sb) return;
+  try {
+    if (KYC.link) { await sb.from('kyc_upload_links').update({ aktiv: false }).eq('id', KYC.link.id); }
+    const { error } = await sb.from('kyc_upload_links').insert({
+      token: kycToken(),
+      analyse_id: KYC.analyseId,
+      firma_id: CURRENT_FIRMA.firma_id,
+      erstellt_von: (typeof CURRENT_USER_ID !== 'undefined' ? CURRENT_USER_ID : null),
+      ablauf: new Date(Date.now() + 72 * 3600 * 1000).toISOString()
+    });
+    if (error) throw error;
+    await kycLaden();
+  } catch (e) { alert('Link konnte nicht erstellt werden: ' + ((e && e.message) || 'Fehler')); }
+}
+
+function kycLinkKopieren() {
+  const i = document.getElementById('kycLinkInput');
+  if (!i) return;
+  i.select(); i.setSelectionRange(0, 99999);
+  try { navigator.clipboard.writeText(i.value); } catch(e) { try { document.execCommand('copy'); } catch(e2) {} }
+  const btn = event && event.target;
+  if (btn) { const alt = btn.textContent; btn.textContent = 'Kopiert \u2713'; setTimeout(function(){ btn.textContent = alt; }, 1400); }
 }
 
 function kycPick(typ) { const i = document.getElementById('kycFile_' + typ); if (i) i.click(); }
