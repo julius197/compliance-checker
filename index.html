@@ -1529,7 +1529,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.33</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.34</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -1797,7 +1797,38 @@ const TXT_EN = {
   'Dokumenten-Upload':'Document upload',
   'L\u00e4nder im Detail':'countries in detail',
   'Sanktionslisten':'sanctions lists',
-  'Nachweis je Pr\u00fcfung':'record per check'
+  'Nachweis je Pr\u00fcfung':'record per check',
+  'Historie wird geladen\u2026':'Loading history\u2026',
+  'Team wird geladen\u2026':'Loading team\u2026',
+  '\u00d6ffnen':'Open', 'Verschieben':'Move', 'Zur\u00fcck':'Back', 'Weiter':'Continue',
+  'Alle':'All', 'Ohne Ordner':'No folder', 'Kein Ordner':'No folder',
+  'Grunddaten':'Key data', 'Personen':'Persons', 'Finanzen':'Financials',
+  'Risiko-Hinweise':'Risk notes', 'Compliance-Empfehlung':'Compliance recommendation',
+  'Quellen-transparent':'Source-transparent', 'Vertrauens-Score':'Trust score',
+  'Website':'Website', 'Telefon':'Phone', 'Social Media':'Social media',
+  'Profil \u00f6ffnen \u2197':'Open profile \u2197',
+  'Keine Bilder zum Unternehmen gefunden':'No images found for this company',
+  'Keine spezifischen Risiko-Hinweise.':'No specific risk notes.',
+  'Drucken / PDF':'Print / PDF', 'Neue Analyse':'New analysis',
+  'Drucken / Als PDF speichern':'Print / Save as PDF',
+  'Compliance-Akte \u00b7 \u00a7\u00a7 10\u201317 GwG':'Compliance file \u00b7 Sections 10\u201317 GwG',
+  'Inhalt':'Contents',
+  'KYC-Ablage \u00b7 Dokumente zur Akte':'KYC vault \u00b7 Documents for this file',
+  'Personalausweis':'ID document', 'Best\u00e4tigungsfoto (Selfie)':'Confirmation photo (selfie)',
+  'Bild oder PDF hierher ziehen oder klicken':'Drag an image or PDF here or click',
+  'Foto der Person mit Bezug zum Ausweis':'A photo of the person matching the ID',
+  'Ansehen':'View', 'L\u00f6schen':'Delete', '\u27F3 Aktualisieren':'\u27F3 Refresh',
+  'Kopieren':'Copy', 'Kopiert \u2713':'Copied \u2713', 'Neu':'New',
+  '\uD83D\uDD17 Upload-Link generieren':'\uD83D\uDD17 Generate upload link',
+  'Beim Drucken der Akte werden hochgeladene Bilder automatisch als Anlagen angeh\u00e4ngt. Zugriff nur f\u00fcr dein Unternehmen.':'When printing the file, uploaded images are automatically attached as annexes. Access is restricted to your company.',
+  'Schick diesen Link der Person \u2013 sie kann Ausweis und Foto ohne Anmeldung hochladen. Die Dateien landen automatisch hier in der Akte.':'Send this link to the person \u2013 they can upload ID and photo without an account. The files automatically appear here in this file.',
+  'Erzeugt einen sicheren Link (72 Std. g\u00fcltig), \u00fcber den die Person ihre Dokumente selbst hochladen kann.':'Creates a secure link (valid for 72 h) that lets the person upload their documents themselves.',
+  'Team verwalten':'Manage team', 'Konto l\u00f6schen':'Delete account', 'Mein Konto':'My account',
+  'Mitglieder':'Members', 'Einladungscode':'Invite code', 'Beitreten':'Join',
+  'Host':'Host', 'Mitglied':'Member', 'Entfernen':'Remove', 'Rolle':'Role',
+  'Einzelperson':'Individual', 'Unternehmen':'Company',
+  'Ordner':'Folder', 'Neuer Ordner':'New folder',
+  'Dieser Ordner enth\u00e4lt keine Pr\u00fcfungen zum Exportieren.':'This folder contains no checks to export.'
 };
 
 const LANG_SELECTORS = ['#authTitle','#authSub','.auth-label','#authBtn','#logoutBtn','#historyBtn','#kontoBtn',
@@ -1813,6 +1844,66 @@ const PH_I18N = [
   { id:'nameInput', de:'z.B. BMW AG', en:'e.g. BMW AG' },
   { id:'landInput', de:'Land w\u00e4hlen oder eingeben\u2026', en:'Select or type a country\u2026' }
 ];
+
+// ===== Globaler Übersetzungs-Läufer: übersetzt ALLE Textknoten (auch dynamische Ansichten) =====
+const _LANG_DE = new WeakMap();
+
+const TXT_EN_RX = [
+  [/(\d+) Pr\u00fcfungen in dieser Akte/, '$1 checks in this file'],
+  [/1 Pr\u00fcfung in dieser Akte/, '1 check in this file'],
+  [/Unternehmen: /, 'Company: '],
+  [/Erstellt am /, 'Created on '],
+  [/g\u00fcltig noch (\d+) Std\./, 'valid for another $1 h'],
+  [/(\d+) Analysen/, '$1 analyses'],
+  [/Angemeldet als /, 'Signed in as ']
+];
+
+function txtUebersetzen(raw) {
+  const de = raw.trim();
+  if (TXT_EN[de] !== undefined) return raw.replace(de, TXT_EN[de]);
+  let out = raw, treffer = false;
+  for (let i = 0; i < TXT_EN_RX.length; i++) {
+    if (TXT_EN_RX[i][0].test(out)) { out = out.replace(TXT_EN_RX[i][0], TXT_EN_RX[i][1]); treffer = true; }
+  }
+  return treffer ? out : null;
+}
+
+function uebersetzeBaum(root) {
+  if (!root || !root.nodeType) return;
+  let w;
+  try { w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT); } catch(e) { return; }
+  let n;
+  while ((n = w.nextNode())) {
+    if (!n.nodeValue || !n.nodeValue.trim()) continue;
+    const p = n.parentNode;
+    if (!p) continue;
+    if (/^(SCRIPT|STYLE|NOSCRIPT|TEXTAREA)$/i.test(p.nodeName)) continue;       // nie in Code übersetzen
+    try { if (p.closest && p.closest('[id^="legal"]')) continue; } catch(e) {}  // Rechtstexte bleiben Deutsch
+    if (!_LANG_DE.has(n)) _LANG_DE.set(n, n.nodeValue);
+    const orig = _LANG_DE.get(n);
+    if (LANG === 'en') {
+      const en = txtUebersetzen(orig);
+      if (en !== null) n.nodeValue = en;
+    } else {
+      if (n.nodeValue !== orig) n.nodeValue = orig;
+    }
+  }
+}
+
+// Neu gerenderte Inhalte (Historie, Akte, Bericht, ...) automatisch mitübersetzen
+try {
+  new MutationObserver(function(muts){
+    if (LANG !== 'en') return;
+    muts.forEach(function(m){
+      if (!m.addedNodes) return;
+      for (let i = 0; i < m.addedNodes.length; i++) {
+        const nd = m.addedNodes[i];
+        if (nd.nodeType === 1) uebersetzeBaum(nd);
+        else if (nd.nodeType === 3 && nd.parentNode) uebersetzeBaum(nd.parentNode);
+      }
+    });
+  }).observe(document.body || document.documentElement, { childList: true, subtree: true });
+} catch(e) {}
 
 function authToggleHtml(reg) {
   if (LANG === 'en') {
@@ -1837,26 +1928,7 @@ function refreshAuthTexts() {
 function applyLang() {
   const lb = document.getElementById('langBtn');
   if (lb) lb.textContent = LANG === 'de' ? '🌐 EN' : '🌐 DE';
-  let nodes = [];
-  try { nodes = document.querySelectorAll(LANG_SELECTORS.join(',')); } catch(e) {}
-  nodes.forEach(function(el){
-    const tns = [];
-    for (let i = 0; i < el.childNodes.length; i++) {
-      const n = el.childNodes[i];
-      if (n.nodeType === 3 && n.nodeValue.trim()) tns.push(n);
-    }
-    if (!tns.length) return;
-    if (!el.dataset.deTxt) el.dataset.deTxt = JSON.stringify(tns.map(function(n){ return n.nodeValue; }));
-    let orig;
-    try { orig = JSON.parse(el.dataset.deTxt); if (!Array.isArray(orig)) orig = [String(orig)]; }
-    catch(e) { orig = [el.dataset.deTxt]; }
-    tns.forEach(function(n, i){
-      const deRaw = (orig[i] !== undefined) ? orig[i] : n.nodeValue;
-      const de = deRaw.trim();
-      if (LANG === 'en') { if (TXT_EN[de] !== undefined) n.nodeValue = deRaw.replace(de, TXT_EN[de]); }
-      else { n.nodeValue = deRaw; }
-    });
-  });
+  uebersetzeBaum(document.body);
   PH_I18N.forEach(function(p){ const el = document.getElementById(p.id); if (el) el.placeholder = LANG === 'en' ? p.en : p.de; });
   refreshAuthTexts();
   try {
