@@ -422,10 +422,13 @@
     /* LOGIN OVERLAY */
     #authGate { position:fixed; inset:0; z-index:9999; display:flex; align-items:center; justify-content:center; padding:24px; overflow:hidden;
       background:
-        radial-gradient(900px 600px at 85% -5%, rgba(34,197,94,.06) 0%, transparent 55%),
-        radial-gradient(800px 700px at -10% 110%, rgba(22,163,74,.05) 0%, transparent 50%),
-        linear-gradient(180deg, #F4F8F6 0%, #F7F9F8 40%, #F5F8F6 100%);
+        radial-gradient(rgba(16,163,74,.05) 1px, transparent 1.4px) 0 0/28px 28px,
+        radial-gradient(900px 600px at 85% -5%, rgba(34,197,94,.17) 0%, transparent 55%),
+        radial-gradient(800px 700px at -10% 110%, rgba(22,163,74,.14) 0%, transparent 50%),
+        linear-gradient(180deg, #EFF9F3 0%, #F7FAF8 45%, #F2F8F4 100%);
     }
+    #authGate::before { content:''; position:absolute; width:420px; height:420px; left:-130px; top:8%; border-radius:50%; background:rgba(34,197,94,.15); filter:blur(72px); animation:lpDrift 18s ease-in-out infinite alternate; pointer-events:none; }
+    #authGate::after { content:''; position:absolute; width:340px; height:340px; right:-110px; bottom:6%; border-radius:50%; background:rgba(22,163,74,.12); filter:blur(72px); animation:lpDrift 22s ease-in-out infinite alternate-reverse; pointer-events:none; }
     /* feines Punkt-Raster wie auf der Hauptseite (ersetzt die frühere grüne Aurora) */
     #authGate::before { content:''; position:absolute; inset:0; z-index:0; pointer-events:none; opacity:.5;
       background-image: radial-gradient(rgba(26,43,35,.025) 1px, transparent 1px);
@@ -668,6 +671,12 @@
     .up-grid .kyc-box:nth-child(1) { animation-delay:.08s; }
     .up-grid .kyc-box:nth-child(2) { animation-delay:.2s; }
     .up-btns { display:flex; gap:8px; justify-content:center; margin-top:12px; flex-wrap:wrap; }
+    .up-an1, .up-an2, .up-an3 { opacity:0; animation:histIn .5s cubic-bezier(.2,.7,.2,1) both; }
+    .up-an1 { animation-delay:.05s; } .up-an2 { animation-delay:.15s; } .up-an3 { animation-delay:.25s; }
+    .up-lade { min-height:250px; display:flex; align-items:center; justify-content:center; }
+    .up-spin { width:34px; height:34px; border:3px solid rgba(34,197,94,.25); border-top-color:#16A34A; border-radius:50%; animation:upSpin .8s linear infinite; }
+    @keyframes upSpin { to { transform:rotate(360deg); } }
+    .kyc-refresh { margin-left:auto; font-size:11.5px; padding:5px 10px; }
     .kyc-print-page { display:none; }
     @media print {
       .kyc-card { display:none !important; }
@@ -1100,9 +1109,9 @@
   <div id="uploadGate" class="plan-gate" style="display:none;">
     <div class="plan-wrap" style="max-width:620px;">
       <div class="plan-head" style="text-align:center;">
-        <img class="plan-logo" id="uploadLogo" alt="Automati Labs" />
-        <div class="plan-title">Dokumenten-Upload</div>
-        <div class="plan-subtitle" id="uploadSub">Einen Moment…</div>
+        <img class="plan-logo up-an1" id="uploadLogo" alt="Automati Labs" />
+        <div class="plan-title up-an2">Dokumenten-Upload</div>
+        <div class="plan-subtitle up-an3" id="uploadSub">Einen Moment…</div>
       </div>
       <div id="uploadBody"></div>
     </div>
@@ -1520,7 +1529,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.31</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.32</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -1958,7 +1967,8 @@ async function doAuth() {
 }
 
 async function doLogout() {
-  await sb.auth.signOut();
+  showBoot();                      // deckt alles ab -> kein Aufblitzen der Anmeldeseite
+  try { await sb.auth.signOut(); } catch(e) {}
   location.reload();
 }
 
@@ -2356,6 +2366,8 @@ async function showUploadGate() {
   const g = document.getElementById('uploadGate');
   if (!g) return;
   g.style.display = 'flex';
+  const bodyFruh = document.getElementById('uploadBody');
+  if (bodyFruh) bodyFruh.innerHTML = '<div class="up-lade"><div class="up-spin"></div></div>';
   const lg = document.getElementById('uploadLogo');
   const src = document.querySelector('.auth-card .auth-logo');
   if (lg && src && src.src) lg.src = src.src;
@@ -2902,7 +2914,7 @@ if (sb) {
     if (!initialDone) return;                 // Start übernimmt getSession oben
     // Supabase feuert SIGNED_IN auch bei Tab-Rückkehr erneut -> NICHT neu routen, wenn schon drin
     if (event === 'SIGNED_IN' && session) { if (!SESSION_GEROUTET) showApp(session); }
-    else if (event === 'SIGNED_OUT') { SESSION_GEROUTET = false; showGate(); }
+    else if (event === 'SIGNED_OUT') { SESSION_GEROUTET = false; showLanding(); }
     // TOKEN_REFRESHED / USER_UPDATED / INITIAL_SESSION: NICHT neu routen
   });
 } else {
@@ -3532,7 +3544,8 @@ function kycRender() {
       + '</div>';
   }
   mount.innerHTML = '<div class="kyc-card">'
-    + '<div class="kyc-head"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/></svg> KYC-Ablage \u00b7 Dokumente zur Akte</div>'
+    + '<div class="kyc-head"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/></svg> KYC-Ablage \u00b7 Dokumente zur Akte'
+    + '<button class="kyc-btn kyc-refresh" onclick="kycLaden()" title="Pr\u00fcfen, ob neue Dokumente angekommen sind">\u27F3 Aktualisieren</button></div>'
     + '<div class="kyc-grid">'
     + box('ausweis', 'Personalausweis', 'Bild oder PDF hierher ziehen oder klicken')
     + box('selfie', 'Best\u00e4tigungsfoto (Selfie)', 'Foto der Person mit Bezug zum Ausweis')
