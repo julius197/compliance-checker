@@ -1529,7 +1529,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.37</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.38</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -1948,40 +1948,132 @@ function txtUebersetzen(raw) {
   return treffer ? out : null;
 }
 
-function uebersetzeBaum(root) {
-  if (!root || !root.nodeType) return;
+let _TR_CACHE = {};                 // deutsch -> englisch (dauerhaft gemerkt)
+try { _TR_CACHE = JSON.parse(localStorage.getItem('cc_tr_en') || '{}'); } catch(e) { _TR_CACHE = {}; }
+function _trSpeichern() { try { localStorage.setItem('cc_tr_en', JSON.stringify(_TR_CACHE)); } catch(e) {} }
+
+const _TR_SKIP = /^[\s\d.,:;!?()\[\]{}\/\\|+\-*=<>%&#@~^"'`\u00b7\u2013\u2014\u2026\u2192\u2713\u2605\u20ac$]*$/;  // Zahlen/Symbole: nie uebersetzen
+function _trUebersetzbar(s) {
+  const t = s.trim();
+  if (!t || t.length > 600) return false;
+  if (_TR_SKIP.test(t)) return false;
+  if (/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+$/.test(t)) return false;   // E-Mail
+  if (/^https?:\/\//i.test(t)) return false;                        // URL
+  return /[a-zA-Z\u00e4\u00f6\u00fc\u00df\u00c4\u00d6\u00dc]/.test(t);
+}
+
+// Sammelt alle Textknoten unter root (ausser Code + Rechtstexte)
+function _trKnoten(root) {
+  const raus = [];
   let w;
-  try { w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT); } catch(e) { return; }
+  try { w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT); } catch(e) { return raus; }
   let n;
   while ((n = w.nextNode())) {
     if (!n.nodeValue || !n.nodeValue.trim()) continue;
     const p = n.parentNode;
     if (!p) continue;
-    if (/^(SCRIPT|STYLE|NOSCRIPT|TEXTAREA)$/i.test(p.nodeName)) continue;       // nie in Code übersetzen
-    try { if (p.closest && p.closest('[id^="legal"]')) continue; } catch(e) {}  // Rechtstexte bleiben Deutsch
+    if (/^(SCRIPT|STYLE|NOSCRIPT|TEXTAREA)$/i.test(p.nodeName)) continue;
+    try { if (p.closest && p.closest('[id^="legal"]')) continue; } catch(e) {}
     if (!_LANG_DE.has(n)) _LANG_DE.set(n, n.nodeValue);
-    const orig = _LANG_DE.get(n);
-    if (LANG === 'en') {
-      const en = txtUebersetzen(orig);
-      if (en !== null) n.nodeValue = en;
-    } else {
-      if (n.nodeValue !== orig) n.nodeValue = orig;
-    }
+    raus.push(n);
+  }
+  return raus;
+}
+
+function _trAnwenden(n) {
+  const orig = _LANG_DE.get(n);
+  if (orig === undefined) return;
+  if (LANG !== 'en') { if (n.nodeValue !== orig) n.nodeValue = orig; return; }
+  const de = orig.trim();
+  const en = (TXT_EN[de] !== undefined) ? TXT_EN[de] : _TR_CACHE[de];
+  if (en !== undefined && en !== null) {
+    const neu = orig.replace(de, en);
+    if (n.nodeValue !== neu) n.nodeValue = neu;
   }
 }
 
+// Übersetzt alles unter root: bekannte Texte sofort, unbekannte per KI (Worker)
+let _TR_LAUFT = false;
+const _TR_WARTEND = new Set();
+
+async function uebersetzeBaum(root, sofortFertig) {
+  if (!root || !root.nodeType) return;
+  const knoten = _trKnoten(root);
+  knoten.forEach(_trAnwenden);
+  if (LANG !== 'en') return;
+
+  // Welche Texte kennen wir noch nicht?
+  const offen = [];
+  knoten.forEach(function(n){
+    const de = (_LANG_DE.get(n) || '').trim();
+    if (!de || !_trUebersetzbar(de)) return;
+    if (TXT_EN[de] !== undefined || _TR_CACHE[de] !== undefined) return;
+    if (offen.indexOf(de) < 0) offen.push(de);
+    _TR_WARTEND.add(n);
+  });
+  if (!offen.length) return;
+  if (sofortFertig === true) return;   // nur einsetzen, nicht nachladen
+
+  await _trNachladen(offen);
+}
+
+async function _trNachladen(offen) {
+  if (_TR_LAUFT) return;
+  _TR_LAUFT = true;
+  try {
+    for (let i = 0; i < offen.length; i += 80) {
+      const teil = offen.slice(i, i + 80);
+      try {
+        const res = await workerCall('texte_uebersetzen', { texte: teil, ziel: 'en' });
+        if (res && res.ok && Array.isArray(res.texte)) {
+          teil.forEach(function(de, k){ if (typeof res.texte[k] === 'string') _TR_CACHE[de] = res.texte[k]; });
+          _trSpeichern();
+        }
+      } catch(e) { console.warn('Uebersetzung:', e && e.message); }
+    }
+    // Alles Wartende jetzt anwenden
+    _TR_WARTEND.forEach(function(n){ if (n.isConnected !== false) _trAnwenden(n); });
+    _TR_WARTEND.clear();
+    try { uebersetzeBaum(document.body, true); } catch(e) {}
+  } finally { _TR_LAUFT = false; }
+}
+
+// Lade-Anzeige beim Sprachwechsel
+function _trOverlay(an) {
+  let o = document.getElementById('trOverlay');
+  if (an) {
+    if (!o) {
+      o = document.createElement('div');
+      o.id = 'trOverlay';
+      o.style.cssText = 'position:fixed;bottom:64px;left:16px;z-index:10002;background:#fff;border:1.5px solid rgba(34,197,94,.35);border-radius:12px;padding:9px 14px;font-size:12.5px;font-weight:700;color:#16A34A;box-shadow:0 10px 26px -12px rgba(10,15,13,.3);display:flex;align-items:center;gap:8px;';
+      o.innerHTML = '<span style="width:13px;height:13px;border:2px solid rgba(34,197,94,.3);border-top-color:#16A34A;border-radius:50%;display:inline-block;animation:upSpin .8s linear infinite;"></span><span>Translating\u2026</span>';
+      document.body.appendChild(o);
+    }
+  } else if (o) { o.remove(); }
+}
+
 // Neu gerenderte Inhalte (Historie, Akte, Bericht, ...) automatisch mitübersetzen
+let _trTimer = null;
 try {
   new MutationObserver(function(muts){
     if (LANG !== 'en') return;
+    let neuerInhalt = false;
     muts.forEach(function(m){
       if (!m.addedNodes) return;
       for (let i = 0; i < m.addedNodes.length; i++) {
         const nd = m.addedNodes[i];
-        if (nd.nodeType === 1) uebersetzeBaum(nd);
-        else if (nd.nodeType === 3 && nd.parentNode) uebersetzeBaum(nd.parentNode);
+        if (nd.id === 'trOverlay') continue;
+        if (nd.nodeType === 1) { uebersetzeBaum(nd, true); neuerInhalt = true; }
+        else if (nd.nodeType === 3 && nd.parentNode) { uebersetzeBaum(nd.parentNode, true); neuerInhalt = true; }
       }
     });
+    if (!neuerInhalt) return;
+    clearTimeout(_trTimer);
+    _trTimer = setTimeout(function(){
+      if (LANG !== 'en') return;
+      _trOverlay(true);
+      uebersetzeBaum(document.body).then(function(){ _trOverlay(false); }).catch(function(){ _trOverlay(false); });
+    }, 260);
   }).observe(document.body || document.documentElement, { childList: true, subtree: true });
 } catch(e) {}
 
@@ -2008,7 +2100,10 @@ function refreshAuthTexts() {
 function applyLang() {
   const lb = document.getElementById('langBtn');
   if (lb) lb.textContent = LANG === 'de' ? '🌐 EN' : '🌐 DE';
-  uebersetzeBaum(document.body);
+  if (LANG === 'en') {
+    _trOverlay(true);
+    uebersetzeBaum(document.body).then(function(){ _trOverlay(false); }).catch(function(){ _trOverlay(false); });
+  } else { uebersetzeBaum(document.body, true); }
   PH_I18N.forEach(function(p){ const el = document.getElementById(p.id); if (el) el.placeholder = LANG === 'en' ? p.en : p.de; });
   try {
     document.querySelectorAll('input[placeholder], textarea[placeholder]').forEach(function(el){
