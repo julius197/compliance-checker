@@ -1531,7 +1531,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.40</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.41</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -1800,8 +1800,9 @@ async function uebersetzeBaum(root, sofortFertig) {
   await _trNachladen(offen);
 }
 
+let _TR_NOCHMAL = false;
 async function _trNachladen(offen) {
-  if (_TR_LAUFT) return;
+  if (_TR_LAUFT) { _TR_NOCHMAL = true; return; }   // nichts verwerfen: danach nachholen
   _TR_LAUFT = true;
   try {
     const pakete = [];
@@ -1826,7 +1827,20 @@ async function _trNachladen(offen) {
     _TR_WARTEND.clear();
     try { uebersetzeBaum(document.body, true); } catch(e) {}
     try { _trAttribute(); } catch(e) {}
+    try {   // Rest im DOM? -> Nachlauf anstossen
+      const rest = [];
+      _trKnoten(document.body).forEach(function(n){
+        const de = (_LANG_DE.get(n) || '').trim();
+        if (de && _trUebersetzbar(de) && _TR_CACHE[de] === undefined && rest.indexOf(de) < 0) rest.push(de);
+      });
+      if (rest.length) _TR_NOCHMAL = true;
+    } catch(e) {}
   } finally { _TR_LAUFT = false; }
+  // Wurde waehrenddessen neu gerendert? Dann direkt noch eine Runde.
+  if (_TR_NOCHMAL) {
+    _TR_NOCHMAL = false;
+    try { await uebersetzeBaum(document.body); } catch(e) {}
+  }
 }
 
 // Lade-Anzeige beim Sprachwechsel
