@@ -1529,7 +1529,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.36</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.37</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -1886,7 +1886,26 @@ const TXT_EN = {
   'Ordnername \u2013 z.B. Kunden 2026':'Folder name \u2013 e.g. Clients 2026',
   'Neuer Ordner \u2013 Name eingeben\u2026':'New folder \u2013 enter a name\u2026',
   '+ Neuer Ordner':'+ New folder',
-  'name@firma.de':'name@company.com'
+  'name@firma.de':'name@company.com',
+  'Name des Unternehmens eingeben und Compliance-Pr\u00fcfung starten':'Enter a company name and start the compliance check',
+  'Betrugspr\u00fcfung':'Fraud check', 'Weltweit':'Worldwide', 'Trustpilot':'Trustpilot',
+  'Quellen-transparent':'Source-transparent',
+  'Dieses Tool wurde von Automati Labs gebaut.':'This tool was built by Automati Labs.',
+  'Was d\u00fcrfen wir f\u00fcr Sie entwickeln?':'What can we build for you?',
+  'Automati Labs \u00b7 KI & Software':'Automati Labs \u00b7 AI & software',
+  'Ma\u00dfgeschneiderte KI-L\u00f6sungen, intelligente Automatisierungen und Premium-Software \u2013 entwickelt f\u00fcr Unternehmen die vorausdenken. Genau wie dieser Compliance-Checker.':'Tailored AI solutions, intelligent automations and premium software \u2013 built for companies that think ahead. Just like this compliance checker.',
+  'Projekt anfragen':'Request a project', 'Projekt ansehen':'View project', 'Website ansehen':'View website',
+  'Gesamt-Vertrauens-Score':'Overall trust score',
+  'Kontaktdaten & Online-Pr\u00e4senz':'Contact details & online presence',
+  'Beweismittel \u00b7 Bildrecherche':'Evidence \u00b7 image research',
+  'Offizielle Bilder im Zusammenhang zum Unternehmen':'Official images related to the company',
+  'Phantom-/Strohmann-Verdacht erkannt':'Phantom / straw-man suspicion detected',
+  'Bilder werden geladen\u2026':'Loading images\u2026',
+  '\u00d6ffentlich':'Public', 'Privat':'Private', 'Einl\u00f6sen':'Redeem',
+  'Aktivit\u00e4ts-Protokoll':'Activity log', 'Daten exportieren (JSON)':'Export data (JSON)',
+  'Unbekanntes Unternehmen':'Unknown company',
+  'In diesem Ordner sind noch keine Pr\u00fcfungen.':'This folder does not contain any checks yet.',
+  'Handelsregister':'Commercial register'
 };
 
 const LANG_SELECTORS = ['#authTitle','#authSub','.auth-label','#authBtn','#logoutBtn','#historyBtn','#kontoBtn',
@@ -3818,6 +3837,46 @@ async function kycLoeschen(typ) {
   } catch (e) { console.warn('KYC l\u00f6schen:', e && e.message); }
 }
 
+// ===== Alte gespeicherte Berichte on-demand uebersetzen =====
+const _BERICHT_CACHE = {};   // pruefId+lang -> uebersetzter Bericht
+
+function berichtIstDeutsch(d) {
+  try {
+    const s = JSON.stringify(d);
+    return /[\u00e4\u00f6\u00fc\u00df]|\b(und|nicht|wurde|keine|Unternehmen|Gesch\u00e4ft|Angaben|Hinweise)\b/.test(s);
+  } catch(e) { return false; }
+}
+
+async function berichtUebersetzen(d) {
+  const key = (d.pruefId || '') + '_' + LANG;
+  if (_BERICHT_CACHE[key]) return _BERICHT_CACHE[key];
+  const res = await workerCall('bericht_uebersetzen', { report: d, ziel: LANG });
+  if (!res || !res.ok || !res.report) throw new Error((res && res.error) || 'Fehler');
+  _BERICHT_CACHE[key] = res.report;
+  return res.report;
+}
+
+// Zeigt einen Bericht in der aktuellen Sprache (uebersetzt bei Bedarf)
+async function showReportSprachig(d, rawName, fromHistory) {
+  const brauchtEN = (LANG === 'en' && berichtIstDeutsch(d));
+  if (!brauchtEN) { showReport(d, rawName, fromHistory); return; }
+  showReport(d, rawName, fromHistory);
+  const hinweis = document.createElement('div');
+  hinweis.id = 'transHinweis';
+  hinweis.style.cssText = 'text-align:center;font-size:12.5px;font-weight:700;color:#16A34A;background:#EAF9F0;border:1.5px solid rgba(34,197,94,.3);border-radius:12px;padding:10px;margin:14px 0;';
+  hinweis.textContent = 'Translating this report into English\u2026';
+  const rep = document.getElementById('report');
+  if (rep) rep.insertBefore(hinweis, rep.firstChild);
+  try {
+    const en = await berichtUebersetzen(d);
+    en.pruefId = d.pruefId; en.firmenname = d.firmenname;   // Kennungen bleiben
+    showReport(en, rawName, true);
+  } catch (e) {
+    const h = document.getElementById('transHinweis');
+    if (h) { h.style.cssText = h.style.cssText.replace('#EAF9F0','#FEF2F2').replace('#16A34A','#B91C1C').replace('rgba(34,197,94,.3)','#FCA5A5'); h.textContent = 'Translation failed \u2013 showing the original report.'; }
+  }
+}
+
 function showReport(d, rawName, fromHistory) {
   // Aus der Historie geöffnet = nur ANSEHEN -> Suchformular oben ausblenden.
   // "Neue Analyse" unten lädt die Seite neu und zeigt das Formular wieder.
@@ -4469,7 +4528,7 @@ function _openFromHistory(i) {
   if (main) main.style.display = 'block';
   fadeInView(main);
   const empty = document.getElementById('emptyState'); if (empty) empty.style.display = 'none';
-  showReport(d, d.firmenname, true); // true = aus Historie → nicht erneut speichern
+  showReportSprachig(d, d.firmenname, true); // true = aus Historie → nicht erneut speichern
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
