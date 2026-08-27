@@ -1783,7 +1783,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.58</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.59</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -3203,19 +3203,27 @@ function kontingentVerfuegbar() {
 
 // ===== PAKET-SEITE (Paywall) =====
 const PLAENE = [
-  { id:'bronze', tagline_en:'For small teams and getting started', features_en:['Up to 100 analyses / month','AML-compliant risk screening','Legally sound PDF documentation','Full audit history','Official image evidence'], name:'Bronze', limit:100, preis:'299,99', empfohlen:false,
-    tagline:'Für kleine Teams & den Einstieg',
-    features:['Bis zu 100 Analysen / Monat','GwG-konforme Risikoprüfung','Rechtssichere PDF-Nachweise','Vollständige Prüf-Historie','Offizielle Bild-Belege'] },
-  { id:'silber', tagline_en:'The favourite for most firms and dealers', features_en:['Up to 300 analyses / month','Everything in Bronze','Shared team quota','Tamper-proof audit IDs','Priority support'], name:'Silber', limit:300, preis:'999,99', empfohlen:true,
-    tagline:'Der Favorit für die meisten Kanzleien & Händler',
-    features:['Bis zu 300 Analysen / Monat','Alles aus Bronze','Geteiltes Team-Kontingent','Manipulationssichere Prüf-IDs','Bevorzugter Support'] },
-  { id:'gold', tagline_en:'For growing screening volumes', features_en:['Up to 600 analyses / month','Everything in Silver','Advanced team management','Prioritised processing','Personal point of contact'], name:'Gold', limit:600, preis:'1.999,99', empfohlen:false,
-    tagline:'Für wachsende Prüfvolumen',
-    features:['Bis zu 600 Analysen / Monat','Alles aus Silber','Erweiterte Team-Verwaltung','Priorisierte Bearbeitung','Persönlicher Ansprechpartner'] },
-  { id:'platinum', tagline_en:'For high volumes and corporate groups', features_en:['Up to 1,000 analyses / month','Everything in Gold','Dedicated point of contact','Private servers (on request)','Highest processing priority'], name:'Platinum', limit:1000, preis:'2.999,99', empfohlen:false,
-    tagline:'Für hohes Prüfvolumen & Konzerne',
-    features:['Bis zu 1.000 Analysen / Monat','Alles aus Gold','Dedizierter Ansprechpartner','Eigene Server (auf Anfrage)','Höchste Bearbeitungspriorität'] }
-];
+  { id:'bronze', name:'Bronze', limit:100, preis:'299,99', empfohlen:false,
+    tagline:'F\u00fcr kleine Teams & den Einstieg',
+    tagline_en:'For small teams and getting started',
+    features:['<b>100 Analysen</b> pro Monat','Voller Funktionsumfang','Alle Funktionen inklusive','Geteiltes Team-Kontingent','Support per E-Mail'],
+    features_en:['<b>100 analyses</b> per month','Full range of functions','All features included','Shared team quota','Email support'] },
+  { id:'silber', name:'Silber', limit:300, preis:'999,99', empfohlen:true,
+    tagline:'Der Favorit f\u00fcr die meisten Kanzleien & H\u00e4ndler',
+    tagline_en:'The favourite for most firms and dealers',
+    features:['<b>300 Analysen</b> pro Monat','Voller Funktionsumfang','Alle Funktionen inklusive','Geteiltes Team-Kontingent','Support per E-Mail'],
+    features_en:['<b>300 analyses</b> per month','Full range of functions','All features included','Shared team quota','Email support'] },
+  { id:'gold', name:'Gold', limit:600, preis:'1.999,99', empfohlen:false,
+    tagline:'F\u00fcr wachsendes Pr\u00fcfvolumen',
+    tagline_en:'For growing screening volumes',
+    features:['<b>600 Analysen</b> pro Monat','Voller Funktionsumfang','Alle Funktionen inklusive','Geteiltes Team-Kontingent','Support per E-Mail'],
+    features_en:['<b>600 analyses</b> per month','Full range of functions','All features included','Shared team quota','Email support'] },
+  { id:'platinum', name:'Platinum', limit:1000, preis:'2.999,99', empfohlen:false,
+    tagline:'F\u00fcr hohes Volumen & Unternehmensgruppen',
+    tagline_en:'For high volumes and corporate groups',
+    features:['<b>1.000 Analysen</b> pro Monat','Voller Funktionsumfang','Alle Funktionen inklusive','Geteiltes Team-Kontingent','Support per E-Mail'],
+    features_en:['<b>1,000 analyses</b> per month','Full range of functions','All features included','Shared team quota','Email support'] }
+  ];
 
 // Stripe-Zahlungslinks (TEST-Modus).
 // >>> HIER DIE 4 NEUEN STRIPE-LINKS EINTRAGEN (Bronze / Silber / Gold / Platinum) <<<
@@ -3257,7 +3265,7 @@ function zeigePlaene(grund) {
     if (back) back.style.display = '';
   } else {
     title.textContent = 'Wähle deinen Plan';
-    sub.textContent = 'Rechtssichere GwG-Prüfungen, auditfeste Nachweise, geteiltes Team-Kontingent.';
+    sub.textContent = 'Alle Pakete enthalten denselben vollen Funktionsumfang – sie unterscheiden sich nur in der Anzahl der Analysen pro Monat.';
     if (back) back.style.display = 'none';
   }
   renderPlaene();
@@ -3715,6 +3723,12 @@ async function workerCall(action, payload, versuch) {
 function friendlyError(msg) {
   const m = ((msg || '') + '').toLowerCase();
   if (!m) return 'Die Analyse konnte nicht abgeschlossen werden. Bitte versuche es erneut.';
+  if (m.includes('auslastung') || m.includes('rate_limit') || m.includes('overloaded') || m.includes('529'))
+    return 'Der Analyse-Dienst ist gerade stark ausgelastet. Bitte in ein bis zwei Minuten erneut versuchen \u2013 deine Analysen bleiben erhalten.';
+  if (m.includes('zugang:') || m.includes('unauthorized'))
+    return 'Der Zugang zum Analyse-Dienst wurde abgelehnt. Bitte wende dich an den Support.';
+  if (m.includes('dienst:'))
+    return 'Der Analyse-Dienst antwortet gerade nicht. Bitte versuche es in Kürze erneut.';
   if (m.includes('failed to fetch') || m.includes('networkerror') || m.includes('load failed') || m.includes('network') || m.includes('err_internet'))
     return 'Keine Verbindung zum Server. Prüfe deine Internetverbindung und versuche es erneut.';
   if (m.includes('timeout') || m.includes('timed out') || m.includes('408'))
