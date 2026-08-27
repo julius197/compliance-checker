@@ -888,10 +888,12 @@
     .sk-member { height:66px; border-radius:14px; margin-bottom:10px; }
     @media (max-width:760px) { .sk-row { flex-direction:column; } .sk-pill, .sk-btn { width:100%; } }
 
-    .tm-anim { opacity:0; animation:histIn .45s cubic-bezier(.2,.7,.2,1) both; }
-    .rang-anim { opacity:0; animation:histIn .45s cubic-bezier(.2,.7,.2,1) both; }
-    .tb-anim { opacity:0; animation:histIn .5s cubic-bezier(.2,.7,.2,1) .05s both; }
-    .tb-spaet { animation-delay:.35s; }
+    .tm-anim, .rang-anim, .tb-anim { opacity:1 !important; animation:none !important; transform:none !important; }
+    #teamBody { animation:teamIn .42s cubic-bezier(.2,.7,.2,1) both; }
+    @keyframes teamIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:none; } }
+    
+    
+    
     .tm-badge { transition:transform .2s cubic-bezier(.2,.9,.3,1.4), box-shadow .2s; }
     .team-row:hover .tm-badge { transform:scale(1.07); }
     .tm-pres { box-shadow:0 4px 14px -6px rgba(217,119,6,.6); }
@@ -2093,7 +2095,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.68</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.69</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -2963,7 +2965,7 @@ function teamError(msg) {
 function renderTeam() {
   const tv = document.getElementById('teamView');
   const sk = document.getElementById('teamSkeleton');
-  if (sk) { sk.style.opacity = '0'; setTimeout(function(){ if (sk.parentNode) sk.remove(); }, 220); }
+  if (sk && sk.parentNode) sk.remove();       // direkt ersetzen statt ueberblenden
   const loading = tv.querySelector('.history-loading'); if (loading) loading.remove();
   const old = document.getElementById('teamBody'); if (old) old.remove();
 
@@ -2986,8 +2988,9 @@ function renderTeam() {
     if (darf) {
       const optionen = ['president','vice','senior','member'].filter(function(r){
         if (r === m.rang) return false;
-        if (CURRENT_USER_RANG === 'vice' && r === 'president') return false;    // Vize kann niemanden zum President machen
-        if (istSelf && rangWert(r) > meinWert) return false;                    // keine Selbst-Befoerderung
+        // Vize darf sich selbst NICHT zum President machen (andere schon)
+        if (istSelf && r === 'president' && CURRENT_USER_RANG !== 'president') return false;
+        if (istSelf && rangWert(r) > meinWert && r !== 'president') return false;
         return true;
       });
       if (optionen.length && !(letzterPres)) {
@@ -3002,7 +3005,7 @@ function renderTeam() {
       if (letzterPres) actions += '<span class="tm-hinweis">Letzter President</span>';
     }
 
-    return '<div class="team-row tm-anim" style="animation-delay:' + Math.min(idx * 70, 500) + 'ms">'
+    return '<div class="team-row">'
       + '<div class="tm-main">'
       + '<div class="tm-email">' + escapeHtml(m.email || '(unbekannt)') + (istSelf ? '<span class="tm-you">Du</span>' : '') + '</div>'
       + '<div class="tm-meta">Beigetreten ' + datum + '</div>'
@@ -3048,7 +3051,7 @@ function renderTeam() {
 
 function rangZeile(r, text, idx) {
   const info = RANG_INFO[r];
-  return '<div class="rang-zeile rang-anim" style="animation-delay:' + (120 + (idx || 0) * 90) + 'ms">'
+  return '<div class="rang-zeile">'
     + '<span class="tm-badge tm-' + info.farbe + '"><span class="tm-badge-ico">' + info.ico + '</span>' + info.name + '</span>'
     + '<span class="rang-text">' + text + '</span></div>';
 }
@@ -5623,6 +5626,18 @@ function renderHistoryList() {
   // Filter-Chips mit Zählern
   let chips = '<button class="hist-chip ' + (HISTORY_FILTER === 'alle' ? 'active' : '') + '" onclick="setHistoryFilter(\'alle\')">Alle (' + total + ')</button>';
   chips += '<button class="hist-chip ' + (HISTORY_FILTER === 'ohne' ? 'active' : '') + '" onclick="setHistoryFilter(\'ohne\')">Ohne Ordner (' + ohneCount + ')</button>';
+  if (!(CURRENT_FIRMA && CURRENT_FIRMA.typ === 'einzel')) {
+    const geteilteIds = ORDNER_LIST.filter(function(o){ return o.sichtbarkeit === 'oeffentlich'; }).map(function(o){ return o.id; });
+    const privateIds  = ORDNER_LIST.filter(function(o){ return o.sichtbarkeit !== 'oeffentlich'; }).map(function(o){ return o.id; });
+    const cGeteilt = HISTORY_ROWS.filter(function(r){ return r.ordner_id && geteilteIds.indexOf(r.ordner_id) >= 0; }).length;
+    const cPrivat  = HISTORY_ROWS.filter(function(r){ return r.ordner_id && privateIds.indexOf(r.ordner_id) >= 0; }).length;
+    chips += '<button class="hist-chip chip-geteilt ' + (HISTORY_FILTER === '__geteilt' ? 'active' : '') + '" onclick="setHistoryFilter(\'__geteilt\')">'
+      + '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>'
+      + ' Geteilte Ordner (' + cGeteilt + ')</button>';
+    chips += '<button class="hist-chip chip-privat ' + (HISTORY_FILTER === '__privat' ? 'active' : '') + '" onclick="setHistoryFilter(\'__privat\')">'
+      + '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>'
+      + ' Private Ordner (' + cPrivat + ')</button>';
+  }
   ORDNER_LIST.forEach(function(o){
     chips += '<button class="hist-chip ' + (HISTORY_FILTER === o.id ? 'active' : '') + '" onclick="setHistoryFilter(\'' + o.id + '\')">'
       + '<span class="chip-dot" style="background:' + (o.farbe || '#22C55E') + '"></span>' + escapeHtml(o.name) + ' (' + (cByFolder[o.id]||0) + ')</button>';
@@ -5633,6 +5648,14 @@ function renderHistoryList() {
   const q = ((document.getElementById('histSearch') && document.getElementById('histSearch').value) || '').trim().toLowerCase();
   let rowsData = HISTORY_ROWS;
   if (HISTORY_FILTER === 'ohne') rowsData = rowsData.filter(function(r){ return !r.ordner_id; });
+  else if (HISTORY_FILTER === '__geteilt') {
+    const ids = ORDNER_LIST.filter(function(o){ return o.sichtbarkeit === 'oeffentlich'; }).map(function(o){ return o.id; });
+    rowsData = rowsData.filter(function(r){ return r.ordner_id && ids.indexOf(r.ordner_id) >= 0; });
+  }
+  else if (HISTORY_FILTER === '__privat') {
+    const ids = ORDNER_LIST.filter(function(o){ return o.sichtbarkeit !== 'oeffentlich'; }).map(function(o){ return o.id; });
+    rowsData = rowsData.filter(function(r){ return r.ordner_id && ids.indexOf(r.ordner_id) >= 0; });
+  }
   else if (HISTORY_FILTER !== 'alle') rowsData = rowsData.filter(function(r){ return r.ordner_id === HISTORY_FILTER; });
   if (q) rowsData = rowsData.filter(function(r){ return (r.firmenname||'').toLowerCase().indexOf(q) !== -1; });
 
@@ -5725,7 +5748,12 @@ function renderOrdnerManage() {
       const swatches = ORDNER_FARBEN.map(function(f){
         return '<span class="om-swatch ' + (o.farbe === f ? 'active' : '') + '" style="background:' + f + '" onclick="ordnerFarbe(\'' + o.id + '\',\'' + f + '\')" title="Farbe ' + f + '"></span>';
       }).join('');
-      const vis = einzel ? '' : '<span class="om-vis">' + (o.sichtbarkeit === 'oeffentlich' ? 'Öffentlich' : 'Privat') + '</span>';
+      const geteilt = o.sichtbarkeit === 'oeffentlich';
+      const darfTeilen = rangWert(CURRENT_USER_RANG) >= 2 || o.ersteller_id === CURRENT_USER_ID;   // ab Senior oder eigener Ordner
+      const vis = einzel ? '' : (darfTeilen
+        ? '<button class="om-vis om-vis-btn ' + (geteilt ? 'ist-geteilt' : 'ist-privat') + '" onclick="ordnerSichtbarkeit(\'' + o.id + '\', \'' + (geteilt ? 'privat' : 'oeffentlich') + '\')" title="' + (geteilt ? 'Klicken: nur f\u00fcr mich' : 'Klicken: mit dem Team teilen') + '">'
+            + (geteilt ? 'Geteilt' : 'Privat') + '</button>'
+        : '<span class="om-vis">' + (geteilt ? 'Geteilt' : 'Privat') + '</span>');
       const cnt = counts[o.id] || 0;
       return '<div class="om-row">'
         + '<input class="om-name-input" value="' + escapeHtml(o.name) + '" onchange="ordnerUmbenennen(\'' + o.id + '\', this.value)" />'
@@ -5739,8 +5767,24 @@ function renderOrdnerManage() {
   box.innerHTML = '<div class="om-title"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/></svg>Ordner verwalten</div>' + rows
     + '<div class="om-new">'
     + '<input id="omNeuName" class="om-name-input" placeholder="Neuer Ordner – Name eingeben…" onkeydown="if(event.key===\'Enter\')ordnerAnlegenVerwaltung()" />'
+    + (einzel ? '' : '<select id="omNeuSicht" class="tm-select"><option value="privat">Nur f\u00fcr mich</option><option value="oeffentlich">Mit dem Team teilen</option></select>')
     + '<button class="om-new-btn" onclick="ordnerAnlegenVerwaltung()">+ Neuer Ordner</button>'
     + '</div>';
+}
+
+async function ordnerSichtbarkeit(id, neu) {
+  if (!sb) return;
+  try {
+    const { error } = await sb.from('ordner').update({ sichtbarkeit: neu }).eq('id', id);
+    if (error) throw error;
+    await ladeOrdner();
+    renderOrdnerManage();
+    if (typeof renderHistoryList === 'function') renderHistoryList();
+    zeigeToast(neu === 'oeffentlich' ? 'Ordner geteilt' : 'Ordner ist jetzt privat',
+               neu === 'oeffentlich' ? 'Alle Mitglieder deines Teams sehen diesen Ordner ab sofort.' : 'Nur du siehst diesen Ordner.');
+  } catch (e) {
+    alert('Sichtbarkeit konnte nicht ge\u00e4ndert werden: ' + ((e && e.message) || ''));
+  }
 }
 
 async function ordnerAnlegenVerwaltung() {
@@ -5754,7 +5798,7 @@ async function ordnerAnlegenVerwaltung() {
       ersteller_id: CURRENT_USER_ID,
       name: name,
       farbe: '#22C55E',
-      sichtbarkeit: (typeof NEUER_ORDNER_SICHT !== 'undefined' ? NEUER_ORDNER_SICHT : 'privat')
+      sichtbarkeit: (function(){ const s = document.getElementById('omNeuSicht'); return (s && s.value) ? s.value : (typeof NEUER_ORDNER_SICHT !== 'undefined' ? NEUER_ORDNER_SICHT : 'privat'); })()
     });
     if (error) throw error;
     await ladeOrdner();
