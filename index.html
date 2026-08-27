@@ -897,6 +897,18 @@
       .hs-leiste { flex-direction:column; align-items:stretch; gap:9px; }
       .hs-sort { width:100%; }
       .hs-sort .tm-select { flex:1; }
+      .hu-karte { padding:12px 13px; min-width:0; }
+      .hu-label { font-size:10.5px; line-height:1.35; }
+      .hu-legende { gap:10px; font-size:10.5px; }
+      .hu-teil { min-width:3px; }
+      .hs-anzahl { font-size:12px; }
+      /* Historie-Zeilen: nichts abschneiden, nichts quetschen */
+      .hr-anim { animation-delay:0ms !important; }
+      .akte-export-bar .btn-action { width:100%; justify-content:center; white-space:normal; line-height:1.35; }
+      .hist-filter { overflow-x:auto; flex-wrap:nowrap; padding-bottom:5px; -webkit-overflow-scrolling:touch; scrollbar-width:none; }
+      .hist-filter::-webkit-scrollbar { display:none; }
+      .hist-chip { flex-shrink:0; }
+      .history-head { align-items:flex-start; }
     }
     /* Filter-Chips fuer geteilte/private Ordner */
     .chip-geteilt.active { background:#16A34A; border-color:#16A34A; color:#fff; }
@@ -2189,7 +2201,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.72</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.73</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -2773,7 +2785,7 @@ function appUnterseitenReset() {
   const sc = document.querySelector('.search-card'); if (sc) sc.style.display = '';
 }
 // Sanftes Reinfaden eines Bereichs (Animation neu auslösen)
-function fadeInView(el) { if (!el) return; el.classList.remove('view-anim'); void el.offsetWidth; el.classList.add('view-anim'); }
+function fadeInView(el) { if (!el) return; el.classList.remove('view-anim', 'view-out'); void el.offsetWidth; el.classList.add('view-anim'); }
 // Blendet die aktuell sichtbare App-Hauptansicht sanft RAUS, dann erst den Wechsel (cb)
 function mitAusBlende(cb) {
   const ids = ['mainView', 'historyView', 'teamView', 'akteView'];
@@ -2786,10 +2798,11 @@ function mitAusBlende(cb) {
     cur.classList.remove('view-anim');
     cur.classList.add('view-out');
     setTimeout(function () {
-      cb();                                   // erst wechseln (alte Ansicht wird versteckt)
-      requestAnimationFrame(function(){       // dann erst die Klasse loesen -> kein Aufblitzen
-        if (cur) cur.classList.remove('view-out');
-      });
+      cb();                                   // wechseln; 'view-out' bleibt drauf
+      // Sicherheitsnetz: falls die Ansicht doch sichtbar bleibt, Klasse spaeter loesen
+      setTimeout(function(){
+        if (cur && cur.style.display === 'none') cur.classList.remove('view-out');
+      }, 900);
     }, 190);
   } else {
     cb();
@@ -2951,7 +2964,6 @@ async function ladeMeinenRang() {
 
 function openTeam() { mitAusBlende(_openTeam); }
 async function _openTeam() {
-  try { await ladeMeinenRang(); } catch(e) {}
   const main = document.getElementById('mainView');
   const hv = document.getElementById('historyView');
   const tv = document.getElementById('teamView');
@@ -2982,6 +2994,7 @@ async function _openTeam() {
 
   if (!sb) { teamError('Keine Verbindung zur Datenbank.'); return; }
   try {
+    try { await ladeMeinenRang(); } catch(e) {}
     let { data, error } = await sb.rpc('team_mitglieder');
     if (error) {                                   // Rueckfall auf die alte Funktion
       const alt = await sb.rpc('firma_mitglieder');
