@@ -498,6 +498,11 @@
     #kontoGate .konto-card:nth-of-type(1) { animation-delay:.04s; }
     #kontoGate .konto-card:nth-of-type(2) { animation-delay:.11s; }
     #kontoGate .konto-card:nth-of-type(3) { animation-delay:.18s; }
+    #kontoUpgradeCard { border-color:rgba(34,197,94,.4) !important; background:linear-gradient(180deg,#F7FDF9,#fff); }
+    #kontoUpgradeCard .konto-card-h { color:var(--green-d,#16A34A); }
+    #kontoUpgradeCard .plan-btn { background:linear-gradient(135deg,#16A34A,#22C55E); color:#fff; border:none; box-shadow:0 10px 24px -10px rgba(34,197,94,.8); transition:transform .18s, box-shadow .18s; }
+    #kontoUpgradeCard .plan-btn:hover:not(:disabled) { transform:translateY(-2px); box-shadow:0 16px 32px -10px rgba(34,197,94,.9); }
+    #kontoUpgradeCard .plan-btn:disabled { opacity:.65; cursor:wait; }
     #kontoGate .konto-card:nth-of-type(4) { animation-delay:.25s; }
     #kontoGate .konto-card:nth-of-type(5) { animation-delay:.32s; }
     /* ===== Landing Page (Premium) ===== */
@@ -1901,6 +1906,13 @@
       <p class="plan-subtitle" id="kontoEmail">—</p>
     </div>
     <div style="display:flex; flex-direction:column; gap:14px; margin-top:8px;">
+      <div class="konto-card" id="kontoUpgradeCard" style="display:none;">
+        <div class="konto-card-h">Zu einem Unternehmen wechseln</div>
+        <p class="konto-card-p">Aus deinem Einzelkonto wird ein Unternehmens-Konto: Du kannst Mitarbeiter einladen, Ränge vergeben und Ordner im Team teilen. <b>Alle bisherigen Prüfungen, Ordner und dein Kontingent bleiben erhalten.</b></p>
+        <input class="om-name-input" id="kontoFirmaName" placeholder="Name des Unternehmens – z.B. Muster GmbH" style="width:100%; box-sizing:border-box; margin-bottom:10px;" />
+        <button class="plan-btn" id="kontoUpgradeBtn" onclick="zuUnternehmenWechseln()">Unternehmens-Konto einrichten</button>
+        <div id="kontoUpgradeMsg" class="auth-msg" style="display:none; margin-top:12px;"></div>
+      </div>
       <div class="konto-card">
         <div class="konto-card-h">Meine Daten exportieren</div>
         <p class="konto-card-p">Lade alle deine Daten als JSON-Datei herunter – inklusive aller Prüfungen (DSGVO-Auskunft).</p>
@@ -2068,7 +2080,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.66</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.67</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -2685,21 +2697,26 @@ function sektionZu(el, after) {
 
 let SESSION_GEROUTET = false;
 
+let EINLADUNG_ERLEDIGT = false;
+
 async function einladungPruefen() {
-  if (!EINLADUNG_TOKEN || !sb) return false;
+  if (!EINLADUNG_TOKEN || !sb || EINLADUNG_ERLEDIGT) return false;
+  EINLADUNG_ERLEDIGT = true;
   try {
     const { data, error } = await sb.rpc('einladung_annehmen', { p_token: EINLADUNG_TOKEN });
     if (error) throw error;
     if (data && data.ok) {
+      einladungVergessen();
       try { history.replaceState({}, '', location.pathname); } catch(e) {}
       if (data.hinweis !== 'schon_mitglied') {
-        setTimeout(function(){ zeigeToast('Willkommen im Team!', 'Du wurdest dem Unternehmen als ' + rangName(data.rang) + ' hinzugef\u00fcgt.'); }, 900);
+        setTimeout(function(){ zeigeToast('Willkommen im Team!', 'Du wurdest dem Unternehmen als ' + rangName(data.rang) + ' hinzugef\u00fcgt.'); }, 1200);
       }
       return true;
     }
+    einladungVergessen();
     const gruende = { abgelaufen:'Diese Einladung ist abgelaufen.', aufgebraucht:'Diese Einladung wurde bereits verwendet.', unbekannt:'Diese Einladung ist ung\u00fcltig.' };
     setTimeout(function(){ alert(gruende[data && data.grund] || 'Die Einladung konnte nicht angenommen werden.'); }, 600);
-  } catch (e) { console.warn('Einladung:', e && e.message); }
+  } catch (e) { console.warn('Einladung:', e && e.message); EINLADUNG_ERLEDIGT = false; }
   return false;
 }
 
@@ -2724,7 +2741,6 @@ function enterApp() {
   appUnterseitenReset();
   document.getElementById('logoutBtn').style.display = '';
   const hb = document.getElementById('historyBtn'); if (hb) hb.style.display = '';
-  if (EINLADUNG_TOKEN) { einladungPruefen().then(function(ok){ if (ok) { try { ladeKontingent(); ladeMeinenRang(); } catch(e) {} } }); }
   ['infoBewertungBtn','infoQuellenBtn'].forEach(function(id){ const b = document.getElementById(id); if (b) b.style.display = ''; });
   setTimeout(function(){ try { kycNeuePruefen(); } catch(e) {} }, 1800);
   const kb = document.getElementById('kontoBtn'); if (kb) kb.style.display = '';
@@ -3294,7 +3310,16 @@ function infoWarn(titel, text, farbe) {
 
 // ===== ÖFFENTLICHE UPLOAD-SEITE (per Link) =====
 const UPLOAD_TOKEN = (function(){ try { return new URLSearchParams(location.search).get('upload') || ''; } catch(e) { return ''; } })();
-const EINLADUNG_TOKEN = (function(){ try { return new URLSearchParams(location.search).get('einladung') || ''; } catch(e) { return ''; } })();
+const EINLADUNG_TOKEN = (function(){
+  let t = '';
+  try { t = new URLSearchParams(location.search).get('einladung') || ''; } catch(e) {}
+  try {
+    if (t) localStorage.setItem('cc_einladung', t);          // ueberlebt E-Mail-Bestaetigung + Neuladen
+    else t = localStorage.getItem('cc_einladung') || '';
+  } catch(e) {}
+  return t;
+})();
+function einladungVergessen() { try { localStorage.removeItem('cc_einladung'); } catch(e) {} }
 let UPLOAD_INFO = null;
 
 async function showUploadGate() {
@@ -3659,7 +3684,12 @@ async function ladeKontingent() {
     const { data, error } = await sb.rpc('kontingent_status');
     if (error) throw error;
     const row = (data && data.length) ? data[0] : null;
-    if (!row) {                 // Nutzer gehört zu keiner Firma -> Onboarding
+    if (!row) {                 // Nutzer gehört zu keiner Firma
+      // Liegt eine Einladung vor? Dann zuerst beitreten, statt das Onboarding zu zeigen.
+      if (EINLADUNG_TOKEN && !EINLADUNG_ERLEDIGT) {
+        const ok = await einladungPruefen();
+        if (ok) { try { await ladeMeinenRang(); } catch(e) {} await ladeKontingent(); return; }
+      }
       CURRENT_FIRMA = null;
       showOnboarding();
       return;
@@ -4312,6 +4342,12 @@ function openKonto() {
   const src = document.querySelector('.auth-card .auth-logo');
   if (lg && src && src.src) lg.src = src.src;
   const em = document.getElementById('kontoEmail'); if (em) em.textContent = CURRENT_USER_EMAIL || '';
+  const up = document.getElementById('kontoUpgradeCard');
+  if (up) {
+    up.style.display = (CURRENT_FIRMA && CURRENT_FIRMA.typ === 'einzel') ? '' : 'none';
+    const umsg = document.getElementById('kontoUpgradeMsg'); if (umsg) umsg.style.display = 'none';
+    const ubtn = document.getElementById('kontoUpgradeBtn'); if (ubtn) { ubtn.disabled = false; ubtn.textContent = 'Unternehmens-Konto einrichten'; }
+  }
   const c = document.getElementById('kontoDelConfirm'); if (c) c.style.display = 'none';
   const m = document.getElementById('kontoMsg'); if (m) m.style.display = 'none';
   appAus();
@@ -4324,6 +4360,36 @@ function closeKonto() {
   g.classList.add('screen-out');
   setTimeout(function () { g.classList.remove('screen-out'); g.style.display = 'none'; appAn(); }, 200);
 }
+async function zuUnternehmenWechseln() {
+  const feld = document.getElementById('kontoFirmaName');
+  const btn  = document.getElementById('kontoUpgradeBtn');
+  const msg  = document.getElementById('kontoUpgradeMsg');
+  const name = ((feld && feld.value) || '').trim();
+  function zeige(text, art) {
+    if (!msg) return;
+    msg.textContent = text;
+    msg.className = 'auth-msg ' + (art === 'ok' ? 'ok' : 'error');
+    msg.style.display = '';
+    msg.style.animation = 'none'; void msg.offsetWidth; msg.style.animation = 'histIn .4s cubic-bezier(.2,.7,.2,1) both';
+  }
+  if (!name) { zeige('Bitte gib den Namen deines Unternehmens ein.', 'error'); if (feld) feld.focus(); return; }
+  if (btn) { btn.disabled = true; btn.textContent = 'Wird eingerichtet\u2026'; }
+  try {
+    const { data, error } = await sb.rpc('zu_unternehmen_wechseln', { p_name: name });
+    if (error) throw error;
+    if (!data || data.ok !== true) throw new Error((data && data.grund) || 'Wechsel nicht m\u00f6glich.');
+    zeige('Fertig! Dein Konto ist jetzt ein Unternehmen. Du bist President und kannst Mitarbeiter einladen.', 'ok');
+    try { await ladeKontingent(); await ladeMeinenRang(); } catch(e) {}
+    setTimeout(function(){
+      closeKonto();
+      setTimeout(function(){ zeigeToast('Unternehmens-Konto aktiv', 'Du kannst jetzt \u00fcber \u201eTeam verwalten\u201c Mitarbeiter einladen.'); }, 500);
+    }, 1700);
+  } catch (e) {
+    zeige((e && e.message) || 'Wechsel fehlgeschlagen.', 'error');
+    if (btn) { btn.disabled = false; btn.textContent = 'Unternehmens-Konto einrichten'; }
+  }
+}
+
 function kontoMsgShow(msg, typ) {
   const m = document.getElementById('kontoMsg');
   if (!m) return;
