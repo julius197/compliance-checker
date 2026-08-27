@@ -869,6 +869,19 @@
     .rang-zeile { display:flex; align-items:flex-start; gap:12px; }
     .rang-zeile .tm-badge { flex-shrink:0; min-width:132px; justify-content:center; }
     .rang-text { font-size:12.5px; line-height:1.6; color:var(--gray,#5A6670); }
+    /* Team: Eingangs-Animationen */
+    .tm-anim { opacity:0; animation:histIn .45s cubic-bezier(.2,.7,.2,1) both; }
+    .rang-anim { opacity:0; animation:histIn .45s cubic-bezier(.2,.7,.2,1) both; }
+    .tb-anim { opacity:0; animation:histIn .5s cubic-bezier(.2,.7,.2,1) .05s both; }
+    .tb-spaet { animation-delay:.35s; }
+    .tm-badge { transition:transform .2s cubic-bezier(.2,.9,.3,1.4), box-shadow .2s; }
+    .team-row:hover .tm-badge { transform:scale(1.07); }
+    .tm-pres { box-shadow:0 4px 14px -6px rgba(217,119,6,.6); }
+    .team-row:hover .tm-pres { box-shadow:0 8px 20px -6px rgba(217,119,6,.85); }
+    .tm-select, .tm-btn { transition:transform .15s, border-color .15s, background .15s; }
+    .tm-btn:hover, .tm-select:hover { transform:translateY(-1px); }
+    .einl-row { transition:transform .18s, box-shadow .18s; }
+    .einl-row:hover { transform:translateY(-2px); box-shadow:0 10px 24px -14px rgba(10,15,13,.3); }
 
     .einl-willkommen { background:var(--green-pale,#EAF9F0); border:1.5px solid rgba(34,197,94,.35); border-radius:14px; padding:14px 16px; margin-bottom:18px; animation:histIn .5s cubic-bezier(.2,.7,.2,1) both; }
     .einl-willkommen.einl-w-fehler { background:#FEF2F2; border-color:#FCA5A5; }
@@ -2055,7 +2068,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.65</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.66</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -2882,7 +2895,7 @@ function renderTeam() {
   const presAnz = TEAM_MEMBERS.filter(function(m){ return m.rang === 'president'; }).length;
   const meinWert = rangWert(CURRENT_USER_RANG);
 
-  const rows = TEAM_MEMBERS.map(function(m){
+  const rows = TEAM_MEMBERS.map(function(m, idx){
     const info = RANG_INFO[m.rang] || RANG_INFO.member;
     const istSelf = m.user_id === CURRENT_USER_ID;
     const dt = m.beigetreten ? new Date(m.beigetreten) : null;
@@ -2914,7 +2927,7 @@ function renderTeam() {
       if (letzterPres) actions += '<span class="tm-hinweis">Letzter President</span>';
     }
 
-    return '<div class="team-row">'
+    return '<div class="team-row tm-anim" style="animation-delay:' + Math.min(idx * 70, 500) + 'ms">'
       + '<div class="tm-main">'
       + '<div class="tm-email">' + escapeHtml(m.email || '(unbekannt)') + (istSelf ? '<span class="tm-you">Du</span>' : '') + '</div>'
       + '<div class="tm-meta">Beigetreten ' + datum + '</div>'
@@ -2924,7 +2937,7 @@ function renderTeam() {
   }).join('');
 
   const einladungsBereich = darfVerwalten() ? (''
-    + '<div class="team-block">'
+    + '<div class="team-block tb-anim">'
     + '<div class="team-block-h">Neue Mitglieder einladen</div>'
     + '<div class="team-block-d">Erzeuge einen Einladungslink und schick ihn per E-Mail oder Nachricht. Wer ihn \u00f6ffnet, kann sich anmelden oder registrieren und landet automatisch in deinem Team.</div>'
     + '<div class="einl-neu">'
@@ -2939,13 +2952,13 @@ function renderTeam() {
     + '<div id="einlListe" class="einl-liste"></div>'
     + '</div>') : '';
 
-  const rangErklaerung = '<div class="team-block">'
+  const rangErklaerung = '<div class="team-block tb-anim tb-spaet">'
     + '<div class="team-block-h">Die vier R\u00e4nge</div>'
     + '<div class="rang-tabelle">'
-    + rangZeile('president','Verwaltet das gesamte Team, vergibt alle R\u00e4nge, kauft Pakete. Kann als Einziger jemanden zum President machen.')
-    + rangZeile('vice','Wie der President \u2013 kann jedoch den President nicht absetzen und niemanden zum President bef\u00f6rdern.')
-    + rangZeile('senior','Erstellt und verwaltet Ordner und teilt sie mit dem Team. Keine Team-Verwaltung.')
-    + rangZeile('member','F\u00fchrt Pr\u00fcfungen durch und arbeitet mit den freigegebenen Ordnern.')
+    + rangZeile('president','Verwaltet das gesamte Team, vergibt alle R\u00e4nge, kauft Pakete. Kann als Einziger jemanden zum President machen.', 0)
+    + rangZeile('vice','Wie der President \u2013 kann jedoch den President nicht absetzen und niemanden zum President bef\u00f6rdern.', 1)
+    + rangZeile('senior','Erstellt und verwaltet Ordner und teilt sie mit dem Team. Keine Team-Verwaltung.', 2)
+    + rangZeile('member','F\u00fchrt Pr\u00fcfungen durch und arbeitet mit den freigegebenen Ordnern.', 3)
     + '</div></div>';
 
   tv.insertAdjacentHTML('beforeend', '<div id="teamBody">'
@@ -2958,9 +2971,9 @@ function renderTeam() {
   if (darfVerwalten()) ladeEinladungen();
 }
 
-function rangZeile(r, text) {
+function rangZeile(r, text, idx) {
   const info = RANG_INFO[r];
-  return '<div class="rang-zeile">'
+  return '<div class="rang-zeile rang-anim" style="animation-delay:' + (120 + (idx || 0) * 90) + 'ms">'
     + '<span class="tm-badge tm-' + info.farbe + '"><span class="tm-badge-ico">' + info.ico + '</span>' + info.name + '</span>'
     + '<span class="rang-text">' + text + '</span></div>';
 }
