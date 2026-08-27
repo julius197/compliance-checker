@@ -837,6 +837,84 @@
     .ref-code { font-family:ui-monospace, 'SF Mono', Menlo, monospace; font-size:27px; font-weight:800; letter-spacing:.14em; color:#fff; line-height:1.1; text-shadow:0 0 22px rgba(34,197,94,.55); }
     .ref-hint { font-size:11.5px; line-height:1.55; color:#9CB3A8; margin-top:8px; max-width:400px; margin-left:auto; margin-right:auto; }
     @media print { .ref-box { display:none !important; } }
+
+    /* ================= MOBILE-OPTIMIERUNG ================= */
+    @media (max-width:760px) {
+      /* Kein seitliches Wegscrollen, nichts ragt raus */
+      html, body { overflow-x:hidden; }
+      .app { padding:22px 14px 90px; }
+
+      /* Kopfzeile: umbrechen statt quetschen */
+      .header { flex-wrap:wrap; gap:10px; }
+      .header-right { flex-wrap:wrap; gap:8px; width:100%; justify-content:flex-start; }
+      .header-actions { flex-wrap:wrap; gap:7px; }
+      .logo-svg { height:52px; }
+
+      /* Formular + Karten */
+      .search-card, .sec-card, .kyc-card { padding:18px 15px; }
+      .fields-row { grid-template-columns:1fr !important; gap:12px; }
+      .search-heading { font-size:19px; }
+      .search-sub { font-size:13px; }
+
+      /* Bericht: Kacheln untereinander statt gequetscht */
+      .grid4, .grid3, .grid2 { grid-template-columns:1fr !important; }
+      .kv-row { grid-template-columns:1fr !important; gap:2px; padding:11px 0; }
+      .kv-k { font-size:11.5px; color:var(--gray); }
+      .kv-v { font-size:13.5px; word-break:break-word; }
+      .score-row { flex-direction:column; align-items:flex-start; gap:12px; }
+      .verdict { white-space:normal; text-align:center; }
+
+      /* Lange Inhalte duerfen umbrechen */
+      .rep-title, .hr-name, .dup-name, .kyc-box-file, .info-h1, .lp-h1 { word-break:break-word; hyphens:auto; }
+      table { display:block; overflow-x:auto; -webkit-overflow-scrolling:touch; }
+
+      /* Aktionen: volle Breite, gut treffbar */
+      .actions { flex-direction:column; gap:9px; }
+      .actions .btn-action { width:100%; justify-content:center; padding:14px; }
+      .up-warn-btns { flex-direction:column; }
+      .up-warn-btns button { width:100%; }
+      .kyc-link-row { flex-wrap:wrap; }
+      .kyc-link-input { width:100%; flex:1 1 100%; }
+
+      /* Historie */
+      .history-row { flex-direction:column; align-items:stretch; gap:10px; }
+      .hr-actions { width:100%; justify-content:flex-start; flex-wrap:wrap; }
+
+      /* Pakete + Overlays */
+      .plan-grid { grid-template-columns:1fr !important; }
+      .plan-wrap { max-width:100% !important; }
+      .info-inner { padding:30px 18px 26px; }
+      .info-zu { top:10px; right:10px; }
+
+      /* Schaltflaechen unten kollidieren nicht mehr */
+      .lang-btn { bottom:12px; left:12px; padding:6px 11px; font-size:12px; }
+      .help-btn { bottom:12px; right:12px; width:40px; height:40px; }
+      .help-pop { bottom:60px; right:12px; }
+      .tr-toast { bottom:108px; right:12px; left:12px; max-width:none; }
+      #trOverlay { bottom:58px; }
+    }
+
+    @media (max-width:430px) {
+      .app { padding:18px 11px 88px; }
+      .logo-svg { height:44px; }
+      .search-heading { font-size:17.5px; }
+      .score-num { font-size:40px; }
+      .ref-code { font-size:23px; letter-spacing:.1em; }
+      .plan-name { font-size:19px; }
+      .info-h1 { font-size:21px; }
+      .kyc-grid { gap:11px; }
+    }
+
+    /* ================= PDF / DRUCK auf Mobilgeraeten ================= */
+    @media print {
+      html, body { overflow:visible !important; width:100% !important; }
+      .app { max-width:100% !important; padding:0 !important; }
+      .grid4, .grid3, .grid2, .fields-row { grid-template-columns:1fr 1fr !important; }
+      .kv-row { grid-template-columns:38% 1fr !important; }
+      .sec-card, .rep-card, .kyc-print-page { page-break-inside:avoid; }
+      .rep-title, .kv-v, .risk-text { word-break:break-word !important; }
+      .header, .actions, .search-card, .hist-nav-btn, .mehr-analysen-btn { display:none !important; }
+    }
     .up-warn-einw { font-size:12px; font-weight:700; color:var(--green-d,#16A34A); background:var(--green-pale,#EAF9F0); border-radius:9px; padding:8px 12px; margin-bottom:16px; }
     .tr-toast-t { font-size:13.5px; font-weight:800; color:var(--ink,#10231A); margin-bottom:4px; }
     .tr-toast-d { font-size:12.5px; color:var(--gray,#5B6E64); line-height:1.5; }
@@ -1783,7 +1861,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.59</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.60</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -3061,6 +3139,7 @@ async function uploadAbsenden() {
 function showLanding() {
   hideBoot();
   const lg = document.getElementById('landingGate');
+  if (lg && lg.style.display === 'block') return;   // schon offen -> Animationen nicht erneut starten
   if (lg) { lg.style.display = 'block'; lg.scrollTop = 0; }
   const asrc = document.querySelector('.auth-card .auth-logo');
   ['lpLogo','lpFootLogo'].forEach(function(id){
