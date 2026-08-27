@@ -708,7 +708,13 @@
       transition:transform .42s cubic-bezier(.2,.9,.3,1.35), opacity .38s ease; }
     .tr-toast.an { transform:none; opacity:1; }
     .tr-toast.weg { transform:translateX(40px) scale(.9); opacity:0; transition:transform .32s cubic-bezier(.4,0,.6,1), opacity .28s ease; }
+    .tr-toast { padding-right:34px; }
     .tr-toast:hover { border-color:var(--green,#22C55E); }
+    .tr-toast-klick:hover { transform:translateY(-2px); box-shadow:0 24px 50px -18px rgba(10,15,13,.45); }
+    .tr-toast-x { position:absolute; top:8px; right:8px; width:24px; height:24px; border:none; background:none; border-radius:7px; color:var(--gray,#5B6E64); font-size:13px; cursor:pointer; line-height:1; transition:all .15s; }
+    .tr-toast-x:hover { background:#F1F5F3; color:var(--ink,#10231A); }
+    .tr-toast-cta { margin-top:9px; font-size:12px; font-weight:800; color:var(--green-d,#16A34A); display:flex; align-items:center; gap:4px; transition:gap .18s; }
+    .tr-toast-klick:hover .tr-toast-cta { gap:9px; }
     #trOverlay.an { opacity:1 !important; transform:none !important; }
     /* ===== Einwilligung ===== */
     .einw-box { margin-top:18px; background:#F8FBF9; border:1.5px solid var(--border,#E3EAE6); border-radius:16px; padding:16px; animation:upSlide .45s cubic-bezier(.2,.7,.2,1) both; }
@@ -1599,7 +1605,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.47</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.48</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -4007,17 +4013,29 @@ async function kycNeuePruefen() {
     const { data } = await q.order('created_at', { ascending: false }).limit(20);
     try { localStorage.setItem('cc_kyc_gesehen', jetzt); } catch(e) {}
     if (!seit) return;                       // erster Besuch: nur merken, nicht melden
-    if (data && data.length) zeigeToast(
-      data.length === 1 ? 'Neues Dokument eingegangen' : data.length + ' neue Dokumente eingegangen',
-      'Per Upload-Link \u00fcbermittelt \u2013 du findest sie in der jeweiligen Akte unter \u201eKYC-Ablage\u201c.'
-    );
+    if (data && data.length) {
+      // Gehoeren alle neuen Dokumente zur selben Akte? Dann direkt dorthin verlinken.
+      const ids = [];
+      data.forEach(function(d){ if (ids.indexOf(d.analyse_id) < 0) ids.push(d.analyse_id); });
+      const ziel = (ids.length === 1) ? { analyse_id: ids[0] } : {};
+      zeigeToast(
+        data.length === 1 ? 'Neues Dokument eingegangen' : data.length + ' neue Dokumente eingegangen',
+        ids.length === 1
+          ? 'Per Upload-Link \u00fcbermittelt \u2013 tippe hier, um die Akte zu \u00f6ffnen.'
+          : 'Per Upload-Link \u00fcbermittelt \u2013 tippe hier, um zur Historie zu gehen.',
+        ziel
+      );
+    }
   } catch (e) { console.warn('KYC-Hinweis:', e && e.message); }
 }
 
-function zeigeToast(titel, text) {
+function zeigeToast(titel, text, ziel) {
   const t = document.createElement('div');
-  t.className = 'tr-toast';
-  t.innerHTML = '<div class="tr-toast-t">\uD83D\uDCE5 ' + escapeHtml(titel) + '</div><div class="tr-toast-d">' + escapeHtml(text) + '</div>';
+  t.className = 'tr-toast' + (ziel ? ' tr-toast-klick' : '');
+  t.innerHTML = '<button class="tr-toast-x" title="Schlie\u00dfen">\u2715</button>'
+    + '<div class="tr-toast-t">\uD83D\uDCE5 ' + escapeHtml(titel) + '</div>'
+    + '<div class="tr-toast-d">' + escapeHtml(text) + '</div>'
+    + (ziel ? '<div class="tr-toast-cta">Akte \u00f6ffnen \u2192</div>' : '');
   function toastWeg() {
     if (t.dataset.weg) return;
     t.dataset.weg = '1';
@@ -4025,11 +4043,33 @@ function zeigeToast(titel, text) {
     t.classList.add('weg');
     setTimeout(function(){ if (t.parentNode) t.remove(); }, 340);
   }
-  t.onclick = toastWeg;
+  const x = t.querySelector('.tr-toast-x');
+  if (x) x.onclick = function(ev){ ev.stopPropagation(); toastWeg(); };
+  t.onclick = function(){
+    if (ziel) { toastWeg(); toastZielOeffnen(ziel); }
+    else toastWeg();
+  };
   document.body.appendChild(t);
   requestAnimationFrame(function(){ t.classList.add('an'); });
   setTimeout(toastWeg, 9000);
 }
+
+// Klick auf die Benachrichtigung -> passende Akte oeffnen
+function toastZielOeffnen(ziel) {
+  try {
+    if (ziel.analyse_id) {
+      const idx = HISTORY_ROWS.findIndex(function(r){ return r.id === ziel.analyse_id; });
+      if (idx >= 0) { openFromHistory(idx); return; }
+      // Historie noch nicht geladen -> laden, dann oeffnen
+      KYC_ZIEL_NACH_LADEN = ziel.analyse_id;
+      openHistory();
+      return;
+    }
+    openHistory();
+  } catch(e) { try { openHistory(); } catch(e2) {} }
+}
+
+let KYC_ZIEL_NACH_LADEN = null;
 
 function kycPick(typ) { const i = document.getElementById('kycFile_' + typ); if (i) i.click(); }
 function kycGewaehlt(typ, input) { if (input.files && input.files[0]) kycUpload(typ, input.files[0]); }
@@ -4461,6 +4501,11 @@ async function _openHistory() {
     if (error) throw error;
     HISTORY_ROWS = data || [];
     renderHistoryList();
+    if (KYC_ZIEL_NACH_LADEN) {
+      const ziel = KYC_ZIEL_NACH_LADEN; KYC_ZIEL_NACH_LADEN = null;
+      const idx = HISTORY_ROWS.findIndex(function(r){ return r.id === ziel; });
+      if (idx >= 0) setTimeout(function(){ openFromHistory(idx); }, 260);
+    }
   } catch (e) {
     renderHistoryError((e && e.message) || 'Historie konnte nicht geladen werden.');
   }
