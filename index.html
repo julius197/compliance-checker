@@ -616,10 +616,24 @@
     .lp-final-eyebrow { background:rgba(34,197,94,.14); border-color:rgba(34,197,94,.4); color:#4ADE80; margin-bottom:16px; }
     .lp-final-trust { display:flex; gap:20px; justify-content:center; flex-wrap:wrap; margin-top:22px; font-size:12.5px; color:#93A89D; font-weight:600; }
 
-    .lp-foot { background:linear-gradient(180deg,#F2FBF6,#E9F7EF); border-top:1px solid rgba(34,197,94,.2); }
-    .lp-foot-inner { max-width:1400px; margin:0 auto; padding:24px 28px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; font-size:12.5px; color:#3F7A5B; }
-    .lp-foot-links a { color:#16A34A; cursor:pointer; text-decoration:none; font-weight:600; transition:color .15s; }
-    .lp-foot-links a:hover { color:#16A34A; }
+    .lp-foot { background:linear-gradient(180deg,#F4FBF7,#E9F7EF); border-top:1px solid rgba(34,197,94,.2); padding:56px 28px 26px; }
+    .lp-foot-top { max-width:1240px; margin:0 auto; display:grid; grid-template-columns:1.7fr 1fr 1fr 1fr; gap:36px; }
+    @media(max-width:940px){ .lp-foot-top { grid-template-columns:1fr 1fr; gap:30px; } }
+    @media(max-width:560px){ .lp-foot-top { grid-template-columns:1fr; gap:26px; } }
+    .lp-foot-logo { height:54px; width:auto; margin-bottom:12px; }
+    .lp-foot-claim { font-family:'Sora', inherit; font-size:15px; font-weight:700; color:#0A0F0D; margin:0 0 8px; }
+    .lp-foot-text { font-size:12.5px; line-height:1.65; color:#5B6E64; margin:0 0 14px; max-width:330px; }
+    .lp-foot-social { display:flex; gap:14px; flex-wrap:wrap; }
+    .lp-foot-social a { font-size:12.5px; font-weight:700; color:#16A34A; text-decoration:none; transition:opacity .15s; }
+    .lp-foot-social a:hover { opacity:.7; }
+    .lp-foot-spalte { display:flex; flex-direction:column; gap:9px; }
+    .lp-foot-h { font-size:12px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; color:#0A0F0D; margin-bottom:3px; }
+    .lp-foot-spalte a { font-size:13px; line-height:1.5; color:#4C5F55; text-decoration:none; cursor:pointer; transition:color .15s, transform .15s; width:fit-content; }
+    .lp-foot-spalte a:hover { color:#16A34A; transform:translateX(3px); }
+    .lp-foot-unten { max-width:1240px; margin:38px auto 0; padding-top:20px; border-top:1px solid rgba(34,197,94,.2); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; font-size:12px; color:#5B6E64; }
+    .lp-foot-badges { display:flex; gap:8px; flex-wrap:wrap; }
+    .lp-foot-badge { display:inline-flex; align-items:center; gap:5px; background:#fff; border:1px solid rgba(34,197,94,.3); border-radius:999px; padding:5px 12px; font-size:11.5px; font-weight:700; color:#16A34A; }
+    .lp-foot-badge::before { content:'\2713'; font-weight:800; }
 
     /* Scroll-Reveal + Stagger */
     .lp-reveal { opacity:0; transform:translateY(28px); transition:opacity .7s ease, transform .7s ease; }
@@ -1304,7 +1318,7 @@
       </div>
     </section>
 
-    <section class="lp-sec lp-reveal">
+    <section class="lp-sec lp-reveal" id="lpVorteile">
       <h2 class="lp-h2">Deine Vorteile</h2>
       <p class="lp-secsub">Alles, was du für die geldwäscherechtliche Prüfung deiner Geschäftspartner brauchst – an einem Ort.</p>
       <div class="lp-grid">
@@ -1323,7 +1337,7 @@
       </div>
     </section>
 
-    <section class="lp-dark lp-reveal">
+    <section class="lp-dark lp-reveal" id="lpAblauf">
       <h2 class="lp-h2">So funktioniert's</h2>
       <p class="lp-secsub">Vier Schritte – von der Registrierung bis zum fertigen Nachweis.</p>
       <div class="lp-steps">
@@ -1334,7 +1348,7 @@
       </div>
     </section>
 
-    <section class="lp-sec lp-reveal">
+    <section class="lp-sec lp-reveal" id="lpAkte">
       <div class="lp-neu-badge">Neu</div>
       <h2 class="lp-h2">Die vollständige Akte – nicht nur die Analyse</h2>
       <p class="lp-secsub">Eine Prüfung allein reicht der Aufsicht nicht. Der Compliance-Checker sammelt alles, was zu einem Geschäftspartner gehört, an einem Ort – und gibt es auf Knopfdruck als geschlossenes Dokument aus.</p>
@@ -1362,7 +1376,7 @@
       </div>
     </section>
 
-    <section class="lp-sec lp-who lp-reveal">
+    <section class="lp-sec lp-who lp-reveal" id="lpFuerWen">
       <h2 class="lp-h2">Für wen?</h2>
       <p class="lp-secsub">Für alle, die nach dem Geldwäschegesetz prüfen müssen – oder einfach wissen wollen, mit wem sie Geschäfte machen.</p>
       <div class="lp-chips">
@@ -1382,9 +1396,48 @@
     </section>
 
     <footer class="lp-foot">
-      <div class="lp-foot-inner">
-        <span>© Automati Labs GmbH</span>
-        <span class="lp-foot-links"><a onclick="infoOeffnen('bewertung')">Bewertung</a> · <a onclick="infoOeffnen('quellen')">Datenquellen</a> · <a onclick="openLegal('impressum')">Impressum</a> · <a onclick="openLegal('datenschutz')">Datenschutz</a> · <a onclick="openLegal('agb')">AGB</a></span>
+      <div class="lp-foot-top">
+        <div class="lp-foot-marke">
+          <img class="lp-foot-logo" id="lpFootLogo" alt="Automati Labs" />
+          <p class="lp-foot-claim">Intelligente KI-Systeme für Ihr Unternehmen.</p>
+          <p class="lp-foot-text">Der Compliance-Checker ist ein Produkt der Automati Labs GmbH – entwickelt für Unternehmen, die ihre gesetzlichen Sorgfaltspflichten ernst nehmen.</p>
+          <div class="lp-foot-social">
+            <a href="https://instagram.com/automati_labs" target="_blank" rel="noopener">@automati_labs</a>
+            <a href="https://instagram.com/automati_marketing" target="_blank" rel="noopener">@automati_marketing</a>
+          </div>
+        </div>
+
+        <div class="lp-foot-spalte">
+          <div class="lp-foot-h">Compliance-Checker</div>
+          <a onclick="lpSpringe('lpVorteile')">Vorteile</a>
+          <a onclick="lpSpringe('lpAblauf')">So funktioniert's</a>
+          <a onclick="lpSpringe('lpAkte')">Die digitale Akte</a>
+          <a onclick="lpSpringe('lpFuerWen')">Für wen?</a>
+          <a onclick="landingStart('register')">Kostenlos testen</a>
+          <a onclick="landingStart('login')">Anmelden</a>
+        </div>
+
+        <div class="lp-foot-spalte">
+          <div class="lp-foot-h">Transparenz</div>
+          <a onclick="infoOeffnen('bewertung')">Wie bewertet wird</a>
+          <a onclick="infoOeffnen('quellen')">Woher die Daten stammen</a>
+          <a onclick="openLegal('impressum')">Impressum</a>
+          <a onclick="openLegal('datenschutz')">Datenschutz</a>
+          <a onclick="openLegal('agb')">AGB</a>
+        </div>
+
+        <div class="lp-foot-spalte">
+          <div class="lp-foot-h">Kontakt</div>
+          <a href="tel:+4915174419096">0151 74419096</a>
+          <a href="mailto:info@automatilabs.de">info@automatilabs.de</a>
+          <a href="https://www.google.com/maps/search/?api=1&amp;query=Volbehrstra%C3%9Fe+11+d,+90491+N%C3%BCrnberg" target="_blank" rel="noopener">Volbehrstraße 11 d<br/>90491 Nürnberg</a>
+          <a href="https://automatilabs.de" target="_blank" rel="noopener">automatilabs.de ↗</a>
+        </div>
+      </div>
+
+      <div class="lp-foot-unten">
+        <span>© 2026 Automati Labs GmbH · Alle Rechte vorbehalten.</span>
+        <span class="lp-foot-badges"><span class="lp-foot-badge">Server in der EU</span><span class="lp-foot-badge">DSGVO-konform gehostet</span></span>
       </div>
     </footer>
   </div>
@@ -1711,7 +1764,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.53</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.54</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -2987,8 +3040,10 @@ function showLanding() {
   const lg = document.getElementById('landingGate');
   if (lg) { lg.style.display = 'block'; lg.scrollTop = 0; }
   const asrc = document.querySelector('.auth-card .auth-logo');
-  const li = document.getElementById('lpLogo');
-  if (li && asrc && asrc.src) li.src = asrc.src;
+  ['lpLogo','lpFootLogo'].forEach(function(id){
+    const el = document.getElementById(id);
+    if (el && asrc && asrc.src) el.src = asrc.src;
+  });
   const fw = document.getElementById('lpFinalWater');
   const wsrc = document.getElementById('lpWater');
   if (fw && wsrc && wsrc.src) fw.src = wsrc.src;
@@ -2996,6 +3051,14 @@ function showLanding() {
   lpCountUp();
   applyLang();
 }
+function lpSpringe(id) {
+  const el = document.getElementById(id);
+  const gate = document.getElementById('landingGate');
+  if (!el || !gate) return;
+  const y = el.getBoundingClientRect().top + gate.scrollTop - 70;
+  gate.scrollTo({ top: y, behavior: 'smooth' });
+}
+
 function lpCountUp() {
   document.querySelectorAll('.lp-stat b').forEach(function(b){
     const ziel = parseInt(b.textContent, 10);
