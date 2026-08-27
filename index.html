@@ -505,8 +505,8 @@
     .lp-btn-solid:hover { transform:translateY(-2px) scale(1.02); box-shadow:0 16px 32px -10px rgba(34,197,94,.8); }
     .lp-btn-ghost { background:#fff; color:#10231A; border:1.5px solid rgba(16,35,26,.16); }
     .lp-btn-ghost:hover { border-color:#22C55E; color:#16A34A; transform:translateY(-2px); }
-    .lp-btn-white { background:#fff; color:#0A0F0D; border:1.5px solid #fff; }
-    .lp-btn-white:hover { transform:translateY(-2px) scale(1.02); box-shadow:0 18px 40px -12px rgba(255,255,255,.35); }
+    .lp-btn-white { background:linear-gradient(135deg,#16A34A,#22C55E); color:#fff; border:1.5px solid rgba(255,255,255,.18); box-shadow:0 14px 32px -10px rgba(34,197,94,.85); }
+    .lp-btn-white:hover { transform:translateY(-3px) scale(1.03); box-shadow:0 22px 46px -10px rgba(34,197,94,1); filter:brightness(1.06); }
     .lp-btn-big { font-size:15.5px; padding:16px 28px; border-radius:14px; }
     /* Premium-Polish: pulsierender CTA-Glow */
     .lp-btn-solid.lp-btn-big { animation:ctaGlow 3.4s ease-in-out infinite; }
@@ -601,6 +601,11 @@
         linear-gradient(90deg, rgba(255,255,255,.022) 1px, transparent 1px) 0 0/46px 100%,
         linear-gradient(160deg,#0A0F0D 0%,#101B14 100%); text-align:center; padding:88px 32px; }
     .lp-final .lp-h2 { color:#fff; margin-bottom:26px; }
+    .lp-neu-badge { display:block; width:fit-content; margin:0 auto 12px; font-size:11px; font-weight:800; letter-spacing:.09em; text-transform:uppercase; color:#fff; background:linear-gradient(135deg,#16A34A,#22C55E); padding:5px 14px; border-radius:999px; box-shadow:0 8px 20px -8px rgba(34,197,94,.8); }
+    .lp-dark-cta { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin-top:34px; }
+    .lp-btn-dunkel { background:transparent; color:#fff; border-color:rgba(255,255,255,.28); }
+    .lp-btn-dunkel:hover { background:rgba(255,255,255,.08); border-color:#22C55E; color:#4ADE80; }
+    .lp-dark .lp-step-n { font-size:19px; }
     .lp-final-glow { position:absolute; left:50%; top:-140px; transform:translateX(-50%); width:640px; height:340px; border-radius:50%; background:rgba(34,197,94,.2); filter:blur(90px); animation:lpPulse 5s ease-in-out infinite; pointer-events:none; }
     @keyframes lpPulse { 0%,100% { opacity:.55; transform:translateX(-50%) scale(1); } 50% { opacity:1; transform:translateX(-50%) scale(1.12); } }
     .lp-final .lp-h2, .lp-final .lp-btn, .lp-final-eyebrow, .lp-final-trust { position:relative; z-index:1; }
@@ -773,6 +778,7 @@
     .dup-gelb b, .dup-gelb span { color:#B45309; }
     .dup-rot b, .dup-rot span { color:#B91C1C; }
     .dup-ok { width:auto; margin:0; animation:none; }
+    @media(max-width:560px){ .info-nav-btn { padding:6px 9px; font-size:0; gap:0; } .info-nav-btn svg { width:15px; height:15px; } }
     @media print { .info-gate, .info-links { display:none !important; } }
     #trOverlay.an { opacity:1 !important; transform:none !important; }
     /* ===== Einwilligung ===== */
@@ -1306,7 +1312,7 @@
         <div class="lp-card"><div class="lp-ico">🛡️</div><div class="lp-card-t">Sanktions- &amp; PEP-Screening</div>
           <ul class="lp-list"><li>EU-, OFAC-, UN- &amp; UK-Listen bei jeder Analyse</li><li>PEP-Prüfung der verantwortlichen Personen</li><li>K.O.-Kriterien klar gekennzeichnet</li></ul></div>
         <div class="lp-card"><div class="lp-ico">📄</div><div class="lp-card-t">Nachweise für die Akte</div>
-          <ul class="lp-list"><li>PDF-Bericht mit Quellenangaben</li><li>Manipulationssichere Prüf-ID</li><li>Vollständige Prüf-Historie</li></ul></div>
+          <ul class="lp-list"><li>PDF-Bericht mit Quellenangaben</li><li>Manipulationssichere Prüf-ID</li><li>Ausweis &amp; Foto direkt zur Akte</li></ul></div>
         <div class="lp-card"><div class="lp-ico">🌍</div><div class="lp-card-t">International einsetzbar</div>
           <ul class="lp-list"><li>56 Länder im Detail, weltweit nutzbar</li><li>Suche in Landessprache (KRS, EGRUL &amp; Co.)</li><li>Berichte auf Deutsch oder Englisch</li></ul></div>
         <div class="lp-card"><div class="lp-ico">👥</div><div class="lp-card-t">Für dein ganzes Team</div>
@@ -1324,6 +1330,34 @@
         <div class="lp-step"><div class="lp-step-n">2</div><div><div class="lp-step-t">Unternehmen eingeben</div><div class="lp-step-d">Name des Unternehmens + Land, optional die USt-ID für eine präzise Zuordnung.</div></div></div>
         <div class="lp-step"><div class="lp-step-n">3</div><div><div class="lp-step-t">KI prüft &amp; bewertet</div><div class="lp-step-d">Handelsregister, wirtschaftlich Berechtigte, Sanktions- &amp; PEP-Listen, Presse – alles mit Quellen und Vertrauens-Score.</div></div></div>
         <div class="lp-step"><div class="lp-step-n">4</div><div><div class="lp-step-t">PDF ablegen</div><div class="lp-step-d">Bericht herunterladen und in deiner Akte ablegen – bereit für jede Prüfung.</div></div></div>
+      </div>
+    </section>
+
+    <section class="lp-sec lp-reveal">
+      <div class="lp-neu-badge">Neu</div>
+      <h2 class="lp-h2">Die vollständige Akte – nicht nur die Analyse</h2>
+      <p class="lp-secsub">Eine Prüfung allein reicht der Aufsicht nicht. Der Compliance-Checker sammelt alles, was zu einem Geschäftspartner gehört, an einem Ort – und gibt es auf Knopfdruck als geschlossenes Dokument aus.</p>
+      <div class="lp-grid">
+        <div class="lp-card"><div class="lp-ico">🗂️</div><div class="lp-card-t">Ausweis &amp; Bestätigungsfoto</div>
+          <ul class="lp-list"><li>Personalausweis zu jeder Prüfung hinterlegen</li><li>Bestätigungsfoto der handelnden Person</li><li>Verschlüsselt gespeichert, Server in der EU</li></ul></div>
+        <div class="lp-card"><div class="lp-ico">🔗</div><div class="lp-card-t">Sicherer Upload-Link</div>
+          <ul class="lp-list"><li>Link erzeugen und dem Geschäftspartner schicken</li><li>Er lädt selbst hoch – ganz ohne Konto</li><li>Einmalig nutzbar, danach automatisch ungültig</li></ul></div>
+        <div class="lp-card"><div class="lp-ico">📎</div><div class="lp-card-t">Akte als ein PDF</div>
+          <ul class="lp-list"><li>Bericht, Ausweis und Foto in einem Dokument</li><li>Ganze Ordner auf einmal exportieren</li><li>Jede Anlage sauber beschriftet und zugeordnet</li></ul></div>
+      </div>
+    </section>
+
+    <section class="lp-dark lp-reveal">
+      <h2 class="lp-h2">Nachvollziehbar bis ins Detail</h2>
+      <p class="lp-secsub">Compliance lebt davon, dass jemand später versteht, wie ein Ergebnis zustande kam. Deshalb legen wir offen, wie bewertet wird – und woher die Informationen stammen.</p>
+      <div class="lp-steps" style="grid-template-columns:repeat(auto-fit,minmax(240px,1fr));">
+        <div class="lp-step"><div class="lp-step-n">⚖️</div><div><div class="lp-step-t">Offengelegte Bewertung</div><div class="lp-step-d">Fünf Prüfbereiche, vier eigenständige Warnsignale, drei klare Einstufungen – vollständig dokumentiert und jederzeit einsehbar.</div></div></div>
+        <div class="lp-step"><div class="lp-step-n">🔍</div><div><div class="lp-step-t">Belegte Herkunft</div><div class="lp-step-d">Jede Kernaussage ist ihrer Quellenkategorie zugeordnet. Was nicht belegbar ist, wird als Lücke ausgewiesen statt geschätzt.</div></div></div>
+        <div class="lp-step"><div class="lp-step-n">🌐</div><div><div class="lp-step-t">Deutsch &amp; Englisch</div><div class="lp-step-d">Oberfläche und Berichte auf Knopfdruck in beiden Sprachen – für internationale Geschäftspartner und Konzernprüfungen.</div></div></div>
+      </div>
+      <div class="lp-dark-cta">
+        <button class="lp-btn lp-btn-solid" onclick="infoOeffnen('bewertung')">Bewertung im Detail</button>
+        <button class="lp-btn lp-btn-ghost lp-btn-dunkel" onclick="infoOeffnen('quellen')">Datenquellen ansehen</button>
       </div>
     </section>
 
@@ -1676,13 +1710,21 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.50</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.52</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
       </div>
       <button class="mehr-analysen-btn" id="mehrAnalysenBtn" style="display:none;" onclick="zeigePlaene('upgrade')">Mehr Analysen?</button>
       <div class="header-actions">
+        <button class="hist-nav-btn info-nav-btn" id="infoBewertungBtn" onclick="infoOeffnen('bewertung')" style="display:none;" title="Wie die Bewertung funktioniert">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v18M3 7h18M6 7l-3 6a3 3 0 0 0 6 0zM18 7l-3 6a3 3 0 0 0 6 0z"/></svg>
+          Bewertung
+        </button>
+        <button class="hist-nav-btn info-nav-btn" id="infoQuellenBtn" onclick="infoOeffnen('quellen')" style="display:none;" title="Woher die Daten stammen">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+          Datenquellen
+        </button>
         <button class="hist-nav-btn" id="historyBtn" onclick="openHistory()" style="display:none;">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 2M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
           Historie & Ordner
@@ -1773,11 +1815,6 @@
       <span class="tag">Weltweit</span>
       <span class="tag">Quellen-transparent</span>
     </div>
-  </div>
-
-  <div class="info-links" id="toolInfoLinks">
-    <button class="info-link-btn" onclick="infoOeffnen('bewertung')">⚖️ Wie die Bewertung funktioniert</button>
-    <button class="info-link-btn" onclick="infoOeffnen('quellen')">🔍 Woher die Daten stammen</button>
   </div>
 
   <div class="loading" id="loading">
@@ -2301,6 +2338,7 @@ function enterApp() {
   appUnterseitenReset();
   document.getElementById('logoutBtn').style.display = '';
   const hb = document.getElementById('historyBtn'); if (hb) hb.style.display = '';
+  ['infoBewertungBtn','infoQuellenBtn'].forEach(function(id){ const b = document.getElementById(id); if (b) b.style.display = ''; });
   setTimeout(function(){ try { kycNeuePruefen(); } catch(e) {} }, 1800);
   const kb = document.getElementById('kontoBtn'); if (kb) kb.style.display = '';
   ladeOrdner();
@@ -3004,6 +3042,7 @@ function showGate() {
   setTimeout(appAus, 240);   // App erst nach dem Reinfaden des Gates ausblenden -> Crossfade
   document.getElementById('logoutBtn').style.display = 'none';
   const hb = document.getElementById('historyBtn'); if (hb) hb.style.display = 'none';
+  ['infoBewertungBtn','infoQuellenBtn'].forEach(function(id){ const b = document.getElementById(id); if (b) b.style.display = 'none'; });
   const tb = document.getElementById('teamBtn'); if (tb) tb.style.display = 'none';
   const kb = document.getElementById('kontoBtn'); if (kb) kb.style.display = 'none';
   const kp = document.getElementById('kontingentPill'); if (kp) kp.style.display = 'none'; const mb = document.getElementById('mehrAnalysenBtn'); if (mb) mb.style.display = 'none';
@@ -3308,6 +3347,7 @@ function showOnboarding() {
   document.getElementById('onboardingGate').style.display = 'flex';
   const kp = document.getElementById('kontingentPill'); if (kp) kp.style.display = 'none'; const mb = document.getElementById('mehrAnalysenBtn'); if (mb) mb.style.display = 'none';
   const hb = document.getElementById('historyBtn'); if (hb) hb.style.display = 'none';
+  ['infoBewertungBtn','infoQuellenBtn'].forEach(function(id){ const b = document.getElementById(id); if (b) b.style.display = 'none'; });
   document.getElementById('logoutBtn').style.display = 'none';
 }
 function hideOnboarding() {
