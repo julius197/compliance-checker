@@ -1783,7 +1783,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.57</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.58</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -3676,13 +3676,39 @@ function zumTool() {
   } catch(e) {}
 }
 
-async function workerCall(action, payload) {
-  const res = await fetch(WORKER, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ action, payload })
-  });
-  return res.json();
+async function workerCall(action, payload, versuch) {
+  const v = versuch || 0;
+  const MAX = 3;                       // bis zu 3 Wiederholungen bei Netz-Aussetzern
+  try {
+    const ctrl = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+    // Analysen brauchen lange -> grosszuegiges Zeitlimit, andere Aufrufe kuerzer
+    const limit = (action === 'pruefen') ? 300000 : 60000;
+    const timer = ctrl ? setTimeout(function(){ ctrl.abort(); }, limit) : null;
+    let res;
+    try {
+      res = await fetch(WORKER, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action, payload }),
+        signal: ctrl ? ctrl.signal : undefined
+      });
+    } finally { if (timer) clearTimeout(timer); }
+
+    // Server voruebergehend nicht bereit -> erneut versuchen
+    if (!res.ok && (res.status === 429 || res.status >= 500) && v < MAX) {
+      await new Promise(function(r){ setTimeout(r, 1200 * Math.pow(2, v)); });
+      return workerCall(action, payload, v + 1);
+    }
+    return await res.json();
+  } catch (e) {
+    const msg = ((e && e.message) || '') + '';
+    const netz = /failed to fetch|networkerror|load failed|network|aborted|abgebrochen/i.test(msg) || (e && e.name === 'AbortError');
+    if (netz && v < MAX) {
+      await new Promise(function(r){ setTimeout(r, 1200 * Math.pow(2, v)); });   // 1,2s / 2,4s / 4,8s
+      return workerCall(action, payload, v + 1);
+    }
+    throw e;
+  }
 }
 
 // Übersetzt technische Fehlermeldungen in verständliche, freundliche Hinweise
