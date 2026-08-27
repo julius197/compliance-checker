@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Compliance-Checker · §§ 10–17 GwG</title>
+  <title>Compliance-Checker · KYC &amp; GwG-Prüfung</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
@@ -778,7 +778,8 @@
     .dup-gelb b, .dup-gelb span { color:#B45309; }
     .dup-rot b, .dup-rot span { color:#B91C1C; }
     .dup-ok { width:auto; margin:0; animation:none; }
-    @media(max-width:560px){ .info-nav-btn { padding:6px 9px; font-size:0; gap:0; } .info-nav-btn svg { width:15px; height:15px; } }
+    .info-nav-btn svg { flex-shrink:0; }
+    @media(max-width:560px){ .info-nav-btn { padding:7px 10px; font-size:0; gap:0; } .info-nav-btn svg { width:18px; height:18px; } }
     @media print { .info-gate, .info-links { display:none !important; } }
     #trOverlay.an { opacity:1 !important; transform:none !important; }
     /* ===== Einwilligung ===== */
@@ -1283,9 +1284,9 @@
       <div class="lp-blob lp-blob-a"></div>
       <div class="lp-blob lp-blob-b"></div>
       <div class="lp-hero-inner">
-        <div class="lp-eyebrow lp-an" style="--d:.05s">Compliance-Checker · Prüfung gemäß §§ 10–17 GwG</div>
-        <h1 class="lp-h1 lp-an" style="--d:.15s">Geldwäsche-Prüfung in Minuten.<br/><span class="lp-h1-grad">Sauber dokumentiert.</span></h1>
-        <p class="lp-sub lp-an" style="--d:.25s">Name des Unternehmens eingeben – den Rest übernimmt der Compliance-Checker: Register, wirtschaftlich Berechtigte, Sanktions- &amp; PEP-Listen. Am Ende steht ein PDF-Nachweis mit Quellen für deine Akte.</p>
+        <div class="lp-eyebrow lp-an" style="--d:.05s">KYC &amp; Compliance · Prüfung gemäß §§ 10–17 GwG</div>
+        <h1 class="lp-h1 lp-an" style="--d:.15s">Know Your Customer in Minuten.<br/><span class="lp-h1-grad">Sauber dokumentiert.</span></h1>
+        <p class="lp-sub lp-an" style="--d:.25s">Geschäftspartner prüfen und identifizieren – in einem Werkzeug. Register, wirtschaftlich Berechtigte, Sanktions- &amp; PEP-Listen, dazu Ausweis und Bestätigungsfoto in derselben Akte. Am Ende steht ein PDF-Nachweis mit Quellen.</p>
         <div class="lp-cta-row lp-an" style="--d:.35s">
           <button class="lp-btn lp-btn-solid lp-btn-big" onclick="landingStart('register')">Kostenlos testen – 3 Analysen gratis</button>
           <button class="lp-btn lp-btn-ghost lp-btn-big" onclick="landingStart('login')">Anmelden</button>
@@ -1710,7 +1711,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.52</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.53</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -1718,11 +1719,11 @@
       <button class="mehr-analysen-btn" id="mehrAnalysenBtn" style="display:none;" onclick="zeigePlaene('upgrade')">Mehr Analysen?</button>
       <div class="header-actions">
         <button class="hist-nav-btn info-nav-btn" id="infoBewertungBtn" onclick="infoOeffnen('bewertung')" style="display:none;" title="Wie die Bewertung funktioniert">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v18M3 7h18M6 7l-3 6a3 3 0 0 0 6 0zM18 7l-3 6a3 3 0 0 0 6 0z"/></svg>
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="M5 21h14"/><path d="M3 7h18"/><path d="M6 7l-3 6a3 3 0 0 0 6 0z"/><path d="M18 7l-3 6a3 3 0 0 0 6 0z"/></svg>
           Bewertung
         </button>
         <button class="hist-nav-btn info-nav-btn" id="infoQuellenBtn" onclick="infoOeffnen('quellen')" style="display:none;" title="Woher die Daten stammen">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
           Datenquellen
         </button>
         <button class="hist-nav-btn" id="historyBtn" onclick="openHistory()" style="display:none;">
