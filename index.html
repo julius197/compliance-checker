@@ -781,6 +781,62 @@
     .tr-toast-x:hover { background:#F1F5F3; color:var(--ink,#10231A); }
     .tr-toast-cta { margin-top:9px; font-size:12px; font-weight:800; color:var(--green-d,#16A34A); display:flex; align-items:center; gap:4px; transition:gap .18s; }
     .tr-toast-klick:hover .tr-toast-cta { gap:9px; }
+    /* ===== Preise auf der Startseite ===== */
+    .lp-preise { display:grid; grid-template-columns:repeat(auto-fit,minmax(215px,1fr)); gap:16px; max-width:1120px; margin:0 auto; }
+    .lp-preis-karte { position:relative; background:#fff; border:1.5px solid rgba(16,35,26,.1); border-radius:22px; padding:26px 22px; text-align:center;
+      display:flex; flex-direction:column; gap:8px; transition:transform .22s cubic-bezier(.2,.7,.2,1), box-shadow .22s, border-color .22s; }
+    .lp-preis-karte:hover { transform:translateY(-5px); border-color:rgba(34,197,94,.45); box-shadow:0 26px 50px -26px rgba(10,15,13,.32); }
+    .lp-preis-top { border-color:rgba(34,197,94,.55); box-shadow:0 22px 44px -24px rgba(34,197,94,.55); }
+    .lp-preis-badge { position:absolute; top:-11px; left:50%; transform:translateX(-50%); background:linear-gradient(135deg,#16A34A,#22C55E); color:#fff;
+      font-size:10.5px; font-weight:800; letter-spacing:.05em; text-transform:uppercase; padding:5px 14px; border-radius:999px; white-space:nowrap; box-shadow:0 8px 20px -8px rgba(34,197,94,.8); }
+    .lp-preis-name { font-family:'Sora', inherit; font-size:17px; font-weight:800; color:#0A0F0D; }
+    .lp-preis-zahl b { display:block; font-family:'Sora', inherit; font-size:34px; font-weight:800; color:#16A34A; line-height:1.05; }
+    .lp-preis-zahl span { font-size:11.5px; font-weight:700; color:#5B6E64; }
+    .lp-preis-betrag { font-family:'Sora', inherit; font-size:23px; font-weight:800; color:#0A0F0D; margin-top:8px; }
+    .lp-preis-betrag span { font-size:12px; font-weight:600; color:#5B6E64; margin-left:3px; }
+    .lp-preis-je { font-size:11.5px; color:#8A9A92; margin-bottom:6px; }
+    .lp-preis-karte .lp-btn { width:100%; justify-content:center; margin-top:auto; }
+    .lp-preis-fuss { display:flex; align-items:center; justify-content:center; gap:22px; flex-wrap:wrap; margin-top:32px;
+      background:linear-gradient(135deg,#F2FBF6,#fff); border:1.5px solid rgba(34,197,94,.3); border-radius:20px; padding:22px 26px; max-width:760px; margin-left:auto; margin-right:auto; }
+    .lp-preis-frei { text-align:left; }
+    .lp-preis-frei-t { display:block; font-size:15.5px; font-weight:800; color:#16A34A; }
+    .lp-preis-frei-d { display:block; font-size:12.5px; color:#5B6E64; margin-top:3px; }
+    .lp-preis-inklusive { max-width:900px; margin:26px auto 0; text-align:center; }
+    .lp-pi-t { font-size:12px; font-weight:800; letter-spacing:.05em; text-transform:uppercase; color:#5B6E64; margin-bottom:12px; }
+    .lp-pi-liste { display:flex; flex-wrap:wrap; gap:9px; justify-content:center; }
+    .lp-pi-liste span { display:inline-flex; align-items:center; gap:6px; background:#fff; border:1px solid rgba(16,35,26,.09); border-radius:999px; padding:7px 14px; font-size:12.5px; font-weight:600; color:#2A3B33; }
+    .lp-pi-liste span::before { content:'\2713'; color:#16A34A; font-weight:800; }
+    /* Kontingent-Hinweis */
+    /* Preis-Karten: einzeln herein, beim Sichtbarwerden */
+    .lp-reveal .pk-an { opacity:0; transform:translateY(22px) scale(.97); }
+    .lp-reveal.done .pk-an { opacity:1; transform:none;
+      transition:opacity .55s cubic-bezier(.2,.7,.2,1) var(--pd,0s), transform .55s cubic-bezier(.2,.7,.2,1) var(--pd,0s); }
+    .lp-preis-badge { animation:pkBadge .5s cubic-bezier(.2,.9,.3,1.5) .5s both; }
+    @keyframes pkBadge { from { opacity:0; transform:translateX(-50%) translateY(-8px) scale(.7); } to { opacity:1; transform:translateX(-50%) scale(1); } }
+    .lp-preis-karte .lp-btn { transition:transform .18s, box-shadow .18s, background .18s; }
+    .lp-preis-karte:hover .lp-btn { transform:translateY(-2px); }
+    .lp-preis-zahl b { transition:transform .22s cubic-bezier(.2,.9,.3,1.4); }
+    .lp-preis-karte:hover .lp-preis-zahl b { transform:scale(1.06); }
+    .lp-preis-fuss { animation:teamIn .6s cubic-bezier(.2,.7,.2,1) .42s both; }
+    .lp-pi-liste span { animation:pkChip .4s cubic-bezier(.2,.7,.2,1) both; }
+    .lp-pi-liste span:nth-child(1) { animation-delay:.50s; } .lp-pi-liste span:nth-child(2) { animation-delay:.55s; }
+    .lp-pi-liste span:nth-child(3) { animation-delay:.60s; } .lp-pi-liste span:nth-child(4) { animation-delay:.65s; }
+    .lp-pi-liste span:nth-child(5) { animation-delay:.70s; } .lp-pi-liste span:nth-child(6) { animation-delay:.75s; }
+    .lp-pi-liste span:nth-child(7) { animation-delay:.80s; } .lp-pi-liste span:nth-child(8) { animation-delay:.85s; }
+    @keyframes pkChip { from { opacity:0; transform:translateY(9px) scale(.94); } to { opacity:1; transform:none; } }
+    .lp-pi-liste span { transition:transform .16s, border-color .16s; }
+    .lp-pi-liste span:hover { transform:translateY(-2px); border-color:rgba(34,197,94,.45); }
+
+    .kont-toast { border-color:rgba(34,197,94,.45); }
+    .kont-toast.kont-knapp { border-color:#F59E0B; background:linear-gradient(180deg,#FFFBF3,#fff); }
+    .kont-toast.kont-knapp .tr-toast-cta { color:#B45309; }
+    @media (max-width:760px) {
+      .lp-preise { grid-template-columns:1fr; }
+      .lp-preis-fuss { flex-direction:column; text-align:center; gap:14px; }
+      .lp-preis-frei { text-align:center; }
+      .lp-preis-fuss .lp-btn { width:100%; }
+      .lp-pi-liste span { font-size:11.5px; padding:6px 11px; }
+    }
     /* ===== Info-Seiten ===== */
     .info-gate { position:fixed; inset:0; z-index:10004; display:flex; align-items:flex-start; justify-content:center; overflow-y:auto; padding:40px 20px;
       background:rgba(10,15,13,.55); backdrop-filter:blur(4px); opacity:0; transition:opacity .28s ease; }
@@ -1890,6 +1946,32 @@
       </div>
     </section>
 
+    <section class="lp-sec lp-reveal" id="lpPreise">
+      <h2 class="lp-h2">Preise</h2>
+      <p class="lp-secsub">Alle Pakete enthalten <b>denselben vollen Funktionsumfang</b> – sie unterscheiden sich nur in der Anzahl der Analysen pro Monat. Monatlich kündbar, kein Mindestvertrag.</p>
+      <div class="lp-preise" id="lpPreiseGrid"></div>
+      <div class="lp-preis-fuss">
+        <div class="lp-preis-frei">
+          <span class="lp-preis-frei-t">✓ Die ersten 3 Analysen sind kostenlos</span>
+          <span class="lp-preis-frei-d">Ohne Kreditkarte, ohne Verpflichtung – einfach ausprobieren.</span>
+        </div>
+        <button class="lp-btn lp-btn-solid lp-btn-big" onclick="landingStart('register')">Kostenlos testen</button>
+      </div>
+      <div class="lp-preis-inklusive">
+        <div class="lp-pi-t">In jedem Paket enthalten</div>
+        <div class="lp-pi-liste">
+          <span>Prüfung nach §§ 10–17 GwG</span>
+          <span>PDF-Nachweis mit Quellen</span>
+          <span>Ausweis- und Foto-Ablage</span>
+          <span>Sicherer Upload-Link</span>
+          <span>Ordner &amp; Akten-Export</span>
+          <span>Team mit Rängen</span>
+          <span>Deutsch &amp; Englisch</span>
+          <span>Server in der EU</span>
+        </div>
+      </div>
+    </section>
+
     <section class="lp-sec lp-who lp-reveal" id="lpFuerWen">
       <h2 class="lp-h2">Für wen?</h2>
       <p class="lp-secsub">Für alle, die nach dem Geldwäschegesetz prüfen müssen – oder einfach wissen wollen, mit wem sie Geschäfte machen.</p>
@@ -1926,6 +2008,7 @@
           <a onclick="lpSpringe('lpVorteile')">Vorteile</a>
           <a onclick="lpSpringe('lpAblauf')">So funktioniert's</a>
           <a onclick="lpSpringe('lpAkte')">Die digitale Akte</a>
+          <a onclick="lpSpringe('lpPreise')">Preise</a>
           <a onclick="lpSpringe('lpFuerWen')">Für wen?</a>
           <a onclick="landingStart('register')">Kostenlos testen</a>
           <a onclick="landingStart('login')">Anmelden</a>
@@ -2285,7 +2368,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.78</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.80</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -3893,6 +3976,7 @@ function showLanding() {
   const wsrc = document.getElementById('lpWater');
   if (fw && wsrc && wsrc.src) fw.src = wsrc.src;
   initLpReveal();
+  lpPreiseAufbauen();
   lpCountUp();
   applyLang();
 }
@@ -3913,6 +3997,23 @@ function lpSpringe(id) {
   if (!el || !gate) return;
   const y = el.getBoundingClientRect().top + gate.scrollTop - 70;
   gate.scrollTo({ top: y, behavior: 'smooth' });
+}
+
+// Preis-Karten auf der Startseite (nutzt dieselben Daten wie im Tool)
+function lpPreiseAufbauen() {
+  const grid = document.getElementById('lpPreiseGrid');
+  if (!grid || typeof PLAENE === 'undefined') return;
+  grid.innerHTML = PLAENE.map(function(p, i){
+    const proAnalyse = (parseFloat(String(p.preis).replace(/\./g,'').replace(',','.')) / p.limit);
+    return '<div class="lp-preis-karte pk-an' + (p.empfohlen ? ' lp-preis-top' : '') + '" style="--pd:' + (0.06 + i * 0.09) + 's">'
+      + (p.empfohlen ? '<div class="lp-preis-badge">Beliebteste Wahl</div>' : '')
+      + '<div class="lp-preis-name">' + p.name + '</div>'
+      + '<div class="lp-preis-zahl"><b>' + p.limit.toLocaleString('de-DE') + '</b><span>Analysen / Monat</span></div>'
+      + '<div class="lp-preis-betrag">' + p.preis + ' \u20ac<span>/ Monat</span></div>'
+      + '<div class="lp-preis-je">entspricht ' + proAnalyse.toFixed(2).replace('.', ',') + ' \u20ac pro Analyse</div>'
+      + '<button class="lp-btn ' + (p.empfohlen ? 'lp-btn-solid' : 'lp-btn-ghost') + '" onclick="landingStart(\'register\')">Auswählen</button>'
+      + '</div>';
+  }).join('');
 }
 
 function lpCountUp() {
@@ -4027,6 +4128,51 @@ function updateKontingentAnzeige() {
   pill.style.display = 'inline-flex';
   const mehr = document.getElementById('mehrAnalysenBtn');
   if (mehr) mehr.style.display = unbegrenzt ? 'none' : 'inline-flex';
+  kontingentHinweisPruefen(f, unbegrenzt);
+}
+
+// Freundlicher Hinweis, bevor das Kontingent aufgebraucht ist
+function kontingentHinweisPruefen(f, unbegrenzt) {
+  if (unbegrenzt || !f || !f.aktiv || f.monatslimit <= 0) return;
+  if (istTrialFirma(f)) return;                       // Testphase hat einen eigenen Hinweis
+  const rest = f.monatslimit - f.verbraucht;
+  if (rest <= 0) return;                              // voll -> daf\u00fcr gibt es die Sperre
+  const anteil = f.verbraucht / f.monatslimit;
+  let stufe = null;
+  if (anteil >= 0.95) stufe = '95';
+  else if (anteil >= 0.8) stufe = '80';
+  if (!stufe) return;
+
+  // Pro Monat und Stufe nur einmal zeigen
+  const monat = new Date().getFullYear() + '-' + (new Date().getMonth() + 1);
+  const schluessel = 'cc_kont_' + monat + '_' + stufe;
+  try { if (localStorage.getItem(schluessel)) return; localStorage.setItem(schluessel, '1'); } catch(e) {}
+
+  setTimeout(function(){
+    zeigeKontingentHinweis(rest, f.monatslimit, stufe === '95');
+  }, 1500);
+}
+
+function zeigeKontingentHinweis(rest, limit, knapp) {
+  const t2 = document.createElement('div');
+  t2.className = 'tr-toast tr-toast-klick kont-toast' + (knapp ? ' kont-knapp' : '');
+  t2.innerHTML = '<button class="tr-toast-x" title="Schlie\u00dfen">\u2715</button>'
+    + '<div class="tr-toast-t">' + (knapp ? '\u26A0\uFE0F Kontingent fast aufgebraucht' : '\uD83D\uDCCA Kontingent zu 80 % genutzt') + '</div>'
+    + '<div class="tr-toast-d">Noch <b>' + rest + '</b> von ' + limit + ' Analysen in diesem Monat verf\u00fcgbar.'
+    + (knapp ? ' Danach ist keine weitere Pr\u00fcfung m\u00f6glich, bis der Monat wechselt.' : '') + '</div>'
+    + '<div class="tr-toast-cta">Gr\u00f6\u00dferes Paket ansehen \u2192</div>';
+  function weg() {
+    if (t2.dataset.weg) return;
+    t2.dataset.weg = '1';
+    t2.classList.remove('an'); t2.classList.add('weg');
+    setTimeout(function(){ if (t2.parentNode) t2.remove(); }, 340);
+  }
+  const x = t2.querySelector('.tr-toast-x');
+  if (x) x.onclick = function(ev){ ev.stopPropagation(); weg(); };
+  t2.onclick = function(){ weg(); setTimeout(function(){ zeigePlaene('upgrade'); }, 200); };
+  document.body.appendChild(t2);
+  requestAnimationFrame(function(){ t2.classList.add('an'); });
+  setTimeout(weg, 12000);
 }
 
 // true = Analyse erlaubt; false = blockiert (zeigt Sperre/Upgrade-Hinweis)
