@@ -760,6 +760,19 @@
     .info-links { display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin-top:20px; }
     .info-link-btn { display:inline-flex; align-items:center; gap:7px; background:#fff; border:1.5px solid var(--border,#DCE5E0); border-radius:999px; padding:9px 16px; font-family:inherit; font-size:12.5px; font-weight:700; color:var(--ink2,#2A3B33); cursor:pointer; transition:all .18s; }
     .info-link-btn:hover { border-color:var(--green,#22C55E); color:var(--green-d,#16A34A); transform:translateY(-2px); box-shadow:0 10px 22px -12px rgba(34,197,94,.5); }
+    /* ===== Hinweis: schon geprüft ===== */
+    .dup-ico { width:52px; height:52px; margin:0 auto 14px; border-radius:50%; background:var(--green-pale,#EAF9F0); color:var(--green-d,#16A34A); font-size:27px; font-weight:800; display:flex; align-items:center; justify-content:center; animation:dupDreh .7s cubic-bezier(.2,.9,.3,1.4) both; }
+    @keyframes dupDreh { from { transform:rotate(-180deg) scale(.5); opacity:0; } to { transform:none; opacity:1; } }
+    .dup-karte { background:#F8FBF9; border:1.5px solid var(--border,#E3EAE6); border-radius:14px; padding:16px; margin-bottom:18px; text-align:left; animation:upSlide .5s cubic-bezier(.2,.7,.2,1) .12s both; }
+    .dup-name { font-size:14.5px; font-weight:800; color:#0A0F0D; margin-bottom:4px; word-break:break-word; }
+    .dup-meta { font-size:12px; color:var(--gray,#5B6E64); margin-bottom:12px; }
+    .dup-score { display:flex; align-items:center; gap:11px; padding-top:12px; border-top:1px solid var(--border,#E3EAE6); }
+    .dup-score b { font-family:'Sora', inherit; font-size:26px; line-height:1; }
+    .dup-score span { font-size:12.5px; font-weight:700; }
+    .dup-gruen b, .dup-gruen span { color:#16A34A; }
+    .dup-gelb b, .dup-gelb span { color:#B45309; }
+    .dup-rot b, .dup-rot span { color:#B91C1C; }
+    .dup-ok { width:auto; margin:0; animation:none; }
     @media print { .info-gate, .info-links { display:none !important; } }
     #trOverlay.an { opacity:1 !important; transform:none !important; }
     /* ===== Einwilligung ===== */
@@ -1663,7 +1676,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.49</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.50</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -3401,6 +3414,81 @@ const STEPS = [
 
 let stepIdx = 0, stepTimer = null;
 
+// ===== Hinweis: Firma wurde bereits geprueft =====
+function firmenKern(n) {
+  return String(n || '').toLowerCase()
+    .replace(/\b(gmbh|ag|kg|ohg|ug|mbh|se|e\.?k\.?|gbr|ltd|limited|inc|corp|s\.?a\.?|b\.?v\.?|n\.?v\.?|co|kgaa|haftungsbeschr(ä|ae)nkt)\b/g, ' ')
+    .replace(/[^a-z0-9äöüß]+/g, ' ').trim();
+}
+
+async function findeFruehereAnalyse(name) {
+  if (!sb || !CURRENT_FIRMA) return null;
+  const kern = firmenKern(name);
+  if (kern.length < 3) return null;
+  try {
+    const { data } = await sb.from('analysen')
+      .select('id, pruef_id, firmenname, land, score, verdict, verdict_text, created_at, report_json')
+      .eq('firma_id', CURRENT_FIRMA.firma_id)
+      .order('created_at', { ascending: false })
+      .limit(60);
+    if (!data || !data.length) return null;
+    const treffer = data.find(function(r){ return firmenKern(r.firmenname) === kern; });
+    return treffer || null;
+  } catch (e) { return null; }
+}
+
+function zeigeDuplikatHinweis(alt) {
+  const d = new Date(alt.created_at);
+  const datum = d.toLocaleDateString('de-DE', { day:'2-digit', month:'long', year:'numeric' });
+  const tage = Math.max(0, Math.round((Date.now() - d.getTime()) / 86400000));
+  const wieLange = tage === 0 ? 'heute' : (tage === 1 ? 'gestern' : 'vor ' + tage + ' Tagen');
+  const farbe = (alt.score >= 70) ? 'gruen' : (alt.score >= 45 ? 'gelb' : 'rot');
+  const box = document.createElement('div');
+  box.id = 'dupGate';
+  box.className = 'up-warn-back dup-back';
+  box.innerHTML = '<div class="up-warn-card dup-card">'
+    + '<div class="dup-ico">\u21BB</div>'
+    + '<div class="up-warn-t">Diese Firma wurde bereits gepr\u00fcft</div>'
+    + '<div class="up-warn-d">Es liegt schon eine Analyse zu diesem Unternehmen vor. Du kannst sie \u00f6ffnen \u2013 oder eine neue Pr\u00fcfung starten, die dein Kontingent verbraucht.</div>'
+    + '<div class="dup-karte">'
+    + '<div class="dup-name">' + escapeHtml(alt.firmenname || '') + '</div>'
+    + '<div class="dup-meta">' + escapeHtml(alt.land || '') + ' \u00b7 gepr\u00fcft am ' + datum + ' (' + wieLange + ')</div>'
+    + '<div class="dup-score dup-' + farbe + '"><b>' + (alt.score != null ? alt.score : '\u2013') + '</b><span>' + escapeHtml(alt.verdict_text || '') + '</span></div>'
+    + '</div>'
+    + '<div class="up-warn-btns">'
+    + '<button class="kyc-btn" onclick="dupNeuePruefung()">Trotzdem neu pr\u00fcfen</button>'
+    + '<button class="up-senden dup-ok" onclick="dupOeffnen()">Vorhandene Analyse \u00f6ffnen</button>'
+    + '</div></div>';
+  document.body.appendChild(box);
+  DUP_TREFFER = alt;
+  requestAnimationFrame(function(){ box.classList.add('an'); });
+}
+
+let DUP_TREFFER = null;
+
+function dupSchliessen() {
+  const b = document.getElementById('dupGate');
+  if (!b) return;
+  b.classList.remove('an');
+  setTimeout(function(){ if (b.parentNode) b.remove(); }, 260);
+}
+
+function dupOeffnen() {
+  const alt = DUP_TREFFER;
+  dupSchliessen();
+  if (!alt || !alt.report_json) return;
+  setTimeout(function(){
+    document.getElementById('emptyState').style.display = 'none';
+    showReport(alt.report_json, alt.firmenname, true);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, 220);
+}
+
+function dupNeuePruefung() {
+  dupSchliessen();
+  setTimeout(function(){ startSearch(true); }, 200);
+}
+
 function setStep(txt) { document.getElementById('loadingStep').textContent = txt; }
 
 // ===== Fortschrittsanzeige der Analyse (Schätzung, ca. 2–3 Minuten) =====
@@ -3626,12 +3714,16 @@ async function kontoLoeschenFinal() {
   }
 }
 
-function startSearch() {
+async function startSearch(ignoriereDuplikat) {
   const name = document.getElementById('nameInput').value.trim();
   if (!name) { document.getElementById('nameInput').focus(); return; }
   const land = document.getElementById('landInput').value;
   if (!land) { document.getElementById('landInput').focus(); return; }
   if (!kontingentVerfuegbar()) return;   // Monatslimit voll / Konto inaktiv -> Sperre + Upgrade-Hinweis
+  if (ignoriereDuplikat !== true) {
+    const alt = await findeFruehereAnalyse(name);
+    if (alt) { zeigeDuplikatHinweis(alt); return; }
+  }
   const ordnerSel = document.getElementById('ordnerSelect');
   SELECTED_ORDNER_ID = (ordnerSel && ordnerSel.value) ? ordnerSel.value : null; // gewählter Ordner für diese Analyse
   const ust = document.getElementById('ustInput').value.trim();
