@@ -715,6 +715,52 @@
     .tr-toast-x:hover { background:#F1F5F3; color:var(--ink,#10231A); }
     .tr-toast-cta { margin-top:9px; font-size:12px; font-weight:800; color:var(--green-d,#16A34A); display:flex; align-items:center; gap:4px; transition:gap .18s; }
     .tr-toast-klick:hover .tr-toast-cta { gap:9px; }
+    /* ===== Info-Seiten ===== */
+    .info-gate { position:fixed; inset:0; z-index:10004; display:flex; align-items:flex-start; justify-content:center; overflow-y:auto; padding:40px 20px;
+      background:rgba(10,15,13,.55); backdrop-filter:blur(4px); opacity:0; transition:opacity .28s ease; }
+    .info-gate.an { opacity:1; }
+    .info-wrap { position:relative; width:100%; max-width:880px; background:#fff; border-radius:26px; box-shadow:0 40px 90px -30px rgba(10,15,13,.6);
+      transform:translateY(24px) scale(.97); opacity:0; transition:transform .38s cubic-bezier(.2,.9,.3,1.2), opacity .34s ease; }
+    .info-gate.an .info-wrap { transform:none; opacity:1; }
+    .info-inner { padding:44px 46px 46px; }
+    @media(max-width:640px){ .info-inner { padding:34px 22px 30px; } }
+    .info-zu { position:absolute; top:16px; right:16px; z-index:2; width:38px; height:38px; border-radius:12px; border:1.5px solid var(--border,#E3EAE6); background:#fff; color:var(--gray,#5B6E64); font-size:15px; cursor:pointer; transition:all .18s; }
+    .info-zu:hover { border-color:#DC2626; color:#DC2626; transform:rotate(90deg); }
+    .info-kicker { display:inline-block; font-size:11px; font-weight:800; letter-spacing:.09em; text-transform:uppercase; color:var(--green-d,#16A34A); background:rgba(34,197,94,.1); border:1px solid rgba(34,197,94,.24); padding:6px 14px; border-radius:999px; margin-bottom:16px; }
+    .info-h1 { font-family:'Sora', inherit; font-size:clamp(24px,3.4vw,33px); font-weight:800; color:#0A0F0D; letter-spacing:-.02em; margin:0 0 14px; line-height:1.15; }
+    .info-lead { font-size:15px; line-height:1.7; color:var(--gray,#5B6E64); margin:0 0 12px; }
+    .info-sec { margin-top:34px; }
+    .info-h2 { font-family:'Sora', inherit; font-size:18px; font-weight:800; color:#0A0F0D; margin:0 0 10px; }
+    .info-sec p { font-size:14px; line-height:1.7; color:var(--ink2,#2A3B33); margin:0 0 16px; }
+    .info-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:14px; }
+    .info-karte { background:#F8FBF9; border:1.5px solid var(--border,#E3EAE6); border-radius:16px; padding:18px; transition:all .2s; }
+    .info-karte:hover { transform:translateY(-3px); border-color:rgba(34,197,94,.4); box-shadow:0 16px 32px -18px rgba(10,15,13,.2); }
+    .info-ico { font-size:20px; width:42px; height:42px; display:flex; align-items:center; justify-content:center; background:linear-gradient(135deg,rgba(34,197,94,.16),rgba(22,163,74,.07)); border:1px solid rgba(34,197,94,.2); border-radius:12px; margin-bottom:11px; }
+    .info-karte-t { font-size:14.5px; font-weight:800; color:#0A0F0D; margin-bottom:6px; }
+    .info-karte-d { font-size:12.5px; line-height:1.6; color:var(--gray,#5B6E64); }
+    .info-hint { font-size:12.5px !important; background:#F1F8F4; border-left:3px solid var(--green,#22C55E); border-radius:0 10px 10px 0; padding:12px 14px; margin-top:16px !important; }
+    .info-liste { display:flex; flex-direction:column; gap:11px; }
+    .info-punkt { border-radius:14px; padding:16px 18px; border:1.5px solid var(--border,#E3EAE6); border-left-width:4px; background:#fff; transition:transform .18s; }
+    .info-punkt:hover { transform:translateX(3px); }
+    .info-punkt.info-rot { border-left-color:#DC2626; background:#FEF7F7; }
+    .info-punkt.info-gelb { border-left-color:#F59E0B; background:#FFFBF3; }
+    .info-punkt.info-gruen { border-left-color:#22C55E; background:#F6FDF9; }
+    .info-punkt-t { font-size:14px; font-weight:800; color:#0A0F0D; margin-bottom:5px; }
+    .info-punkt-d { font-size:12.5px; line-height:1.65; color:var(--gray,#5B6E64); }
+    .info-stufen { display:flex; flex-direction:column; gap:10px; }
+    .info-stufe { display:flex; flex-direction:column; gap:3px; padding:14px 16px; border-radius:13px; border:1.5px solid var(--border,#E3EAE6); }
+    .info-stufe b { font-size:14px; color:#0A0F0D; }
+    .info-stufe span { font-size:12.5px; color:var(--gray,#5B6E64); line-height:1.6; }
+    .info-stufe.info-gruen { background:#F6FDF9; border-color:rgba(34,197,94,.35); }
+    .info-stufe.info-gelb { background:#FFFBF3; border-color:rgba(245,158,11,.35); }
+    .info-stufe.info-rot { background:#FEF7F7; border-color:rgba(220,38,38,.3); }
+    .info-warnbox { margin-top:32px; background:#0A0F0D; color:#C9DCD2; border-radius:16px; padding:20px 22px; font-size:13px; line-height:1.7; }
+    .info-warnbox b { color:#fff; font-size:14px; }
+    /* Einstiegs-Buttons */
+    .info-links { display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin-top:20px; }
+    .info-link-btn { display:inline-flex; align-items:center; gap:7px; background:#fff; border:1.5px solid var(--border,#DCE5E0); border-radius:999px; padding:9px 16px; font-family:inherit; font-size:12.5px; font-weight:700; color:var(--ink2,#2A3B33); cursor:pointer; transition:all .18s; }
+    .info-link-btn:hover { border-color:var(--green,#22C55E); color:var(--green-d,#16A34A); transform:translateY(-2px); box-shadow:0 10px 22px -12px rgba(34,197,94,.5); }
+    @media print { .info-gate, .info-links { display:none !important; } }
     #trOverlay.an { opacity:1 !important; transform:none !important; }
     /* ===== Einwilligung ===== */
     .einw-box { margin-top:18px; background:#F8FBF9; border:1.5px solid var(--border,#E3EAE6); border-radius:16px; padding:16px; animation:upSlide .45s cubic-bezier(.2,.7,.2,1) both; }
@@ -1181,6 +1227,14 @@
     <a class="help-pop-mail" href="mailto:info@automatilabs.de">info@automatilabs.de</a>
   </div>
 
+  <!-- ===== INFO-SEITEN: Bewertung & Datenquellen ===== -->
+  <div id="infoGate" class="info-gate" style="display:none;">
+    <div class="info-wrap">
+      <button class="info-zu" onclick="infoSchliessen()" title="Schließen">✕</button>
+      <div class="info-inner" id="infoInner"></div>
+    </div>
+  </div>
+
   <!-- ===== ÖFFENTLICHE UPLOAD-SEITE (per Link, ohne Login) ===== -->
   <div id="uploadGate" class="plan-gate" style="display:none;">
     <div class="plan-wrap" style="max-width:620px;">
@@ -1218,6 +1272,10 @@
           <button class="lp-btn lp-btn-ghost lp-btn-big" onclick="landingStart('login')">Anmelden</button>
         </div>
         <div class="lp-trust lp-an" style="--d:.45s"><span>✓ Keine Kreditkarte nötig</span><span>✓ Server in der EU</span><span>✓ Deutsch &amp; Englisch</span></div>
+        <div class="info-links lp-an" style="--d:.5s">
+          <button class="info-link-btn" onclick="infoOeffnen('bewertung')">⚖️ Wie die Bewertung funktioniert</button>
+          <button class="info-link-btn" onclick="infoOeffnen('quellen')">🔍 Woher die Daten stammen</button>
+        </div>
         <div class="lp-stats lp-an" style="--d:.55s">
           <div class="lp-stat"><b>56</b><span>Länder im Detail</span></div>
           <div class="lp-stat"><b>4</b><span>Sanktionslisten</span></div>
@@ -1278,7 +1336,7 @@
     <footer class="lp-foot">
       <div class="lp-foot-inner">
         <span>© Automati Labs GmbH</span>
-        <span class="lp-foot-links"><a onclick="openLegal('impressum')">Impressum</a> · <a onclick="openLegal('datenschutz')">Datenschutz</a> · <a onclick="openLegal('agb')">AGB</a></span>
+        <span class="lp-foot-links"><a onclick="infoOeffnen('bewertung')">Bewertung</a> · <a onclick="infoOeffnen('quellen')">Datenquellen</a> · <a onclick="openLegal('impressum')">Impressum</a> · <a onclick="openLegal('datenschutz')">Datenschutz</a> · <a onclick="openLegal('agb')">AGB</a></span>
       </div>
     </footer>
   </div>
@@ -1605,7 +1663,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.48</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.49</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -1702,6 +1760,11 @@
       <span class="tag">Weltweit</span>
       <span class="tag">Quellen-transparent</span>
     </div>
+  </div>
+
+  <div class="info-links" id="toolInfoLinks">
+    <button class="info-link-btn" onclick="infoOeffnen('bewertung')">⚖️ Wie die Bewertung funktioniert</button>
+    <button class="info-link-btn" onclick="infoOeffnen('quellen')">🔍 Woher die Daten stammen</button>
   </div>
 
   <div class="loading" id="loading">
@@ -2513,6 +2576,101 @@ async function ordnerAnlegen() {
   } finally {
     if (btn) btn.disabled = false;
   }
+}
+
+// ===== INFO-SEITEN: Bewertung & Datenquellen =====
+function infoOeffnen(welche) {
+  const gate = document.getElementById('infoGate');
+  const inner = document.getElementById('infoInner');
+  if (!gate || !inner) return;
+  inner.innerHTML = (welche === 'quellen') ? infoQuellenHtml() : infoBewertungHtml();
+  gate.style.display = 'flex';
+  gate.scrollTop = 0;
+  requestAnimationFrame(function(){ gate.classList.add('an'); });
+  document.body.style.overflow = 'hidden';
+}
+
+document.addEventListener('keydown', function(e){
+  if (e.key === 'Escape') { const g = document.getElementById('infoGate'); if (g && g.style.display === 'flex') infoSchliessen(); }
+});
+
+function infoSchliessen() {
+  const gate = document.getElementById('infoGate');
+  if (!gate) return;
+  gate.classList.remove('an');
+  document.body.style.overflow = '';
+  setTimeout(function(){ gate.style.display = 'none'; }, 280);
+}
+
+function infoBewertungHtml() {
+  return '<div class="info-kicker">Transparenz</div>'
+    + '<h2 class="info-h1">Wie die Bewertung funktioniert</h2>'
+    + '<p class="info-lead">Jede Pr\u00fcfung endet mit einem Vertrauens-Score von 0 bis 100. Er ist kein Urteil \u00fcber ein Unternehmen, sondern ein Hinweis darauf, wie belastbar und widerspruchsfrei die auffindbare Datenlage ist \u2013 und wo Sie im Rahmen Ihrer Sorgf\u00e4ltigkeitspflichten genauer hinsehen sollten.</p>'
+
+    + '<div class="info-sec"><h3 class="info-h2">1. F\u00fcnf Pr\u00fcfbereiche</h3>'
+    + '<p>Die Analyse betrachtet das Unternehmen aus f\u00fcnf Blickwinkeln. Jeder Bereich wird eigenst\u00e4ndig bewertet:</p>'
+    + '<div class="info-grid">'
+    + infoKarte('\uD83C\uDFDB\uFE0F', 'Grunddaten', 'Rechtsform, Registereintrag, Steuer-Identifikation, Gesch\u00e4ftsadresse und Gr\u00fcndungszeitpunkt \u2013 also die formale Existenz des Unternehmens.')
+    + infoKarte('\uD83D\uDC65', 'Personen', 'Leitungsebene und wirtschaftlich Berechtigte: Sind sie benannt, plausibel und \u00fcberpr\u00fcfbar?')
+    + infoKarte('\uD83D\uDCCA', 'Finanzen', 'Gr\u00f6\u00dfenordnung, Besch\u00e4ftigte und wirtschaftliche Substanz \u2013 passt das Bild zusammen?')
+    + infoKarte('\uD83D\uDCF0', 'Reputation', 'Öffentliche Wahrnehmung, Berichterstattung und Auff\u00e4lligkeiten im Marktumfeld.')
+    + infoKarte('\uD83C\uDF10', 'Online-Pr\u00e4senz', 'Erreichbarkeit, Konsistenz der Kontaktdaten und Spuren einer echten Gesch\u00e4ftst\u00e4tigkeit.')
+    + '</div>'
+    + '<p class="info-hint">Bereiche ohne belastbare Datenlage flie\u00dfen <b>nicht</b> in den Gesamtwert ein. So dr\u00fcckt eine fehlende Information den Score nicht k\u00fcnstlich \u2013 sie wird stattdessen als L\u00fccke ausgewiesen.</p></div>'
+
+    + '<div class="info-sec"><h3 class="info-h2">2. Vier eigenst\u00e4ndige Warnsignale</h3>'
+    + '<p>Unabh\u00e4ngig vom Punktwert pr\u00fcft das System auf vier Sachverhalte, die eine eigene Bedeutung haben und den Gesamtwert begrenzen oder ihn \u00fcberlagern:</p>'
+    + '<div class="info-liste">'
+    + infoWarn('Sanktions-Treffer', 'Steht das Unternehmen, seine Leitung oder ein wirtschaftlich Berechtigter auf einer einschl\u00e4gigen Liste, ist das ein Ausschlusskriterium. Der Score wird hart begrenzt und der Befund deutlich hervorgehoben.', 'rot')
+    + infoWarn('Politisch exponierte Person', 'Eine Verbindung zu einer politisch exponierten Person ist kein Ausschlussgrund, l\u00f6st aber verst\u00e4rkte Sorgfaltspflichten aus und begrenzt den Score.', 'gelb')
+    + infoWarn('Strohmann-Indizien', 'Deuten konkrete Anhaltspunkte darauf hin, dass die formal handelnden Personen nicht die wirtschaftlich Handelnden sind, wird das gesondert ausgewiesen \u2013 nur bei belegbaren Indizien, nicht bei blo\u00dfen Vermutungen.', 'rot')
+    + infoWarn('Insolvenzhinweise', 'Anzeichen f\u00fcr ein laufendes oder er\u00f6ffnetes Insolvenzverfahren werden getrennt von der Finanzbewertung ausgewiesen, da sie eine eigene Risikodimension darstellen.', 'gelb')
+    + '</div></div>'
+
+    + '<div class="info-sec"><h3 class="info-h2">3. Was streng bewertet wird</h3>'
+    + '<p>Bei Unternehmen, die im EU-Raum registriert sein m\u00fcssen, gelten Registernummer und Steuer-Identifikation als Pflichtangaben. Sind sie nicht auffindbar, wertet das System das als ernsthaftes Warnsignal \u2013 ebenso wie eine reine Briefkastenadresse oder ein Missverh\u00e4ltnis zwischen angegebener Gesch\u00e4ftsgr\u00f6\u00dfe und nachweisbarer Substanz.</p></div>'
+
+    + '<div class="info-sec"><h3 class="info-h2">4. Die drei Einstufungen</h3>'
+    + '<div class="info-stufen">'
+    + '<div class="info-stufe info-gruen"><b>Geringe Auff\u00e4lligkeiten</b><span>Die Datenlage ist stimmig. Die \u00fcbliche Sorgfalt gen\u00fcgt.</span></div>'
+    + '<div class="info-stufe info-gelb"><b>Erh\u00f6hte Sorgfaltspflicht</b><span>Es bestehen L\u00fccken oder Unstimmigkeiten. Einzelne Punkte sollten vor Gesch\u00e4ftsabschluss gekl\u00e4rt werden.</span></div>'
+    + '<div class="info-stufe info-rot"><b>Verst\u00e4rkte Sorgfaltspflicht</b><span>Es liegen gewichtige Befunde vor. Eine vertiefte Pr\u00fcfung und Dokumentation ist geboten.</span></div>'
+    + '</div></div>'
+
+    + '<div class="info-warnbox"><b>Wichtig zur Einordnung</b><br/>Der Score ist eine Entscheidungshilfe, keine Entscheidung. Er ersetzt weder Ihr eigenes Risikomanagement noch die gesetzlich vorgeschriebene Identifizierung von Vertragspartnern, und er trifft keine Aussage \u00fcber die Rechtm\u00e4\u00dfigkeit einer Gesch\u00e4ftsbeziehung. Die abschlie\u00dfende Bewertung und jede Meldepflicht verbleiben bei Ihnen als verpflichtetem Unternehmen.</div>';
+}
+
+function infoQuellenHtml() {
+  return '<div class="info-kicker">Transparenz</div>'
+    + '<h2 class="info-h1">Woher die Informationen stammen</h2>'
+    + '<p class="info-lead">Jede Analyse st\u00fctzt sich ausschlie\u00dflich auf \u00f6ffentlich zug\u00e4ngliche Informationen. Es werden keine internen Datenbanken Dritter angezapft, keine Ausk\u00fcnfte erschlichen und keine personenbezogenen Daten aus nicht-\u00f6ffentlichen Quellen verarbeitet. Jede Angabe im Bericht ist mit ihrer Herkunft gekennzeichnet.</p>'
+
+    + '<div class="info-sec"><h3 class="info-h2">Die f\u00fcnf Quellenkategorien</h3>'
+    + '<div class="info-grid">'
+    + infoKarte('\uD83C\uDFDB\uFE0F', 'Amtliche Unternehmensregister', 'Öffentliche Registerdaten zu Existenz, Rechtsform, Vertretungsberechtigten und Sitz \u2013 die formale Grundlage jeder Pr\u00fcfung.')
+    + infoKarte('\u2696\uFE0F', 'Steuerliche Identifikationsdaten', 'Amtliche Best\u00e4tigungsverfahren zur Pr\u00fcfung, ob eine angegebene Steuer-Identifikation tats\u00e4chlich existiert und dem Unternehmen zugeordnet ist.')
+    + infoKarte('\uD83D\uDEE1\uFE0F', 'Sanktions- und Embargolisten', 'Einschl\u00e4gige internationale und europ\u00e4ische Listen sowie \u00f6ffentlich dokumentierte Informationen zu politisch exponierten Personen.')
+    + infoKarte('\uD83D\uDCF0', 'Presse und \u00f6ffentliche Berichterstattung', 'Redaktionelle Ver\u00f6ffentlichungen und \u00f6ffentlich verf\u00fcgbare Bekanntmachungen mit Bezug zum Unternehmen oder zu handelnden Personen.')
+    + infoKarte('\uD83C\uDF10', 'Öffentliche Online-Pr\u00e4senz', 'Unternehmenseigene Auftritte, \u00f6ffentlich einsehbare Profile in sozialen Netzwerken, Standort- und Kontaktangaben sowie \u00f6ffentliche Bewertungen.')
+    + '</div></div>'
+
+    + '<div class="info-sec"><h3 class="info-h2">Wie mit den Daten umgegangen wird</h3>'
+    + '<div class="info-liste">'
+    + infoWarn('Herkunft nachvollziehbar', 'Jede Kernaussage im Bericht wird der Quellenkategorie zugeordnet, aus der sie stammt. Was nicht belegbar ist, wird als L\u00fccke ausgewiesen statt gesch\u00e4tzt.', 'gruen')
+    + infoWarn('Widerspr\u00fcche werden benannt', 'Weichen Angaben aus verschiedenen Kategorien voneinander ab, wird das im Bericht kenntlich gemacht \u2013 nicht stillschweigend gegl\u00e4ttet.', 'gruen')
+    + infoWarn('Aktualit\u00e4t', 'Jede Pr\u00fcfung bildet den Stand zum Zeitpunkt der Abfrage ab und wird mit Datum und einer f\u00e4lschungssicheren Pr\u00fcf-ID dokumentiert.', 'gruen')
+    + infoWarn('Keine Bonit\u00e4tsauskunft', 'Es werden keine Scoring-Daten von Wirtschaftsauskunfteien verwendet. Die Bewertung ist eine geldw\u00e4scherechtliche Plausibilit\u00e4tspr\u00fcfung, keine Kreditw\u00fcrdigkeitspr\u00fcfung.', 'gelb')
+    + '</div></div>'
+
+    + '<div class="info-warnbox"><b>Grenzen der Recherche</b><br/>\u00d6ffentliche Quellen k\u00f6nnen unvollst\u00e4ndig, veraltet oder widerspr\u00fcchlich sein \u2013 gerade bei kleineren oder au\u00dfereurop\u00e4ischen Unternehmen. Ein unauff\u00e4lliges Ergebnis ist daher kein Nachweis der Unbedenklichkeit, sondern die Feststellung, dass in \u00f6ffentlich zug\u00e4nglichen Quellen keine Auff\u00e4lligkeiten gefunden wurden. Die pers\u00f6nliche Identifizierung Ihres Vertragspartners nach den gesetzlichen Vorgaben kann und darf diese Recherche nicht ersetzen.</div>';
+}
+
+function infoKarte(ico, titel, text) {
+  return '<div class="info-karte"><div class="info-ico">' + ico + '</div><div class="info-karte-t">' + titel + '</div><div class="info-karte-d">' + text + '</div></div>';
+}
+
+function infoWarn(titel, text, farbe) {
+  return '<div class="info-punkt info-' + farbe + '"><div class="info-punkt-t">' + titel + '</div><div class="info-punkt-d">' + text + '</div></div>';
 }
 
 // ===== ÖFFENTLICHE UPLOAD-SEITE (per Link) =====
