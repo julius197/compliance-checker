@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Compliance-Checker · KYC &amp; GwG-Prüfung</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -501,7 +501,7 @@
     #kontoGate .konto-card:nth-of-type(4) { animation-delay:.25s; }
     #kontoGate .konto-card:nth-of-type(5) { animation-delay:.32s; }
     /* ===== Landing Page (Premium) ===== */
-    .lp-gate { position:fixed; inset:0; z-index:9980; overflow-y:auto; -webkit-overflow-scrolling:touch; background:
+    .lp-gate { position:fixed; inset:0; z-index:9980; overflow-y:auto; overflow-x:hidden; -webkit-overflow-scrolling:touch; max-width:100vw; background:
         radial-gradient(rgba(16,163,74,.055) 1px, transparent 1.4px) 0 0/28px 28px,
         linear-gradient(180deg,#FAFDFB 0%,#F6FBF8 100%); }
     .lp-gate h1, .lp-gate h2, .lp-gate .lp-btn { font-family:'Sora', inherit; }
@@ -838,6 +838,73 @@
     .ref-hint { font-size:11.5px; line-height:1.55; color:#9CB3A8; margin-top:8px; max-width:400px; margin-left:auto; margin-right:auto; }
     @media print { .ref-box { display:none !important; } }
 
+    /* ========== LANDING-PAGE MOBIL ========== */
+    @media (max-width:860px) {
+      .lp-gate, .lp-hero, .lp-sec, .lp-dark, .lp-final, .lp-foot { max-width:100vw; overflow-x:hidden; }
+
+      /* Kopfzeile: Logo + Buttons brauchen Luft */
+      .lp-head-inner { padding:10px 14px; gap:10px; }
+      .lp-logo { height:38px; }
+      .lp-head-actions { gap:7px; flex-shrink:0; display:flex; }
+      .lp-head-actions .lp-btn { padding:9px 12px; font-size:12.5px; white-space:nowrap; }
+
+      /* Hero */
+      .lp-hero-inner { padding:40px 16px 48px; }
+      .lp-h1 { font-size:clamp(27px,7.4vw,40px); letter-spacing:-.02em; }
+      .lp-sub { font-size:14px; line-height:1.6; }
+      .lp-eyebrow { font-size:10.5px; padding:5px 11px; }
+      .lp-cta-row { flex-direction:column; width:100%; gap:10px; }
+      .lp-cta-row .lp-btn { width:100%; justify-content:center; padding:15px 20px; }
+      .lp-trust { flex-direction:column; gap:7px; font-size:12px; }
+      .info-links { flex-direction:column; width:100%; }
+      .info-link-btn { width:100%; justify-content:center; }
+      .lp-stats { gap:9px; }
+      .lp-stat { padding:10px 16px; flex:1 1 90px; }
+      .lp-stat b { font-size:17px; }
+
+      /* Dekoration darf nicht ueber den Rand */
+      .lp-blob, .lp-fblob-a, .lp-fblob-b { max-width:70vw; max-height:70vw; filter:blur(60px); }
+      .lp-blob-a { left:-18vw !important; }
+      .lp-blob-b { right:-18vw !important; }
+      .lp-water { height:230px !important; opacity:.055 !important; }
+      .lp-final-water { right:-6vw !important; height:190px !important; }
+
+      /* Sektionen */
+      .lp-sec, .lp-dark, .lp-final { padding:52px 16px; }
+      .lp-h2 { font-size:clamp(21px,5.4vw,30px); }
+      .lp-secsub { font-size:13.5px; }
+      .lp-grid, .lp-steps { grid-template-columns:1fr !important; gap:13px; }
+      .lp-card, .lp-step { padding:18px 16px; }
+      .lp-card-t { font-size:15px; }
+      .lp-list li { font-size:12.5px; }
+      .lp-step { gap:13px; }
+      .lp-who .lp-chip { font-size:12.5px; padding:10px 16px; }
+      .lp-dark-cta { flex-direction:column; }
+      .lp-dark-cta .lp-btn { width:100%; justify-content:center; }
+      .lp-final-trust { flex-direction:column; gap:8px; }
+      .lp-btn-big { width:100%; justify-content:center; }
+
+      /* Footer */
+      .lp-foot { padding:40px 16px 20px; }
+      .lp-foot-top { grid-template-columns:1fr 1fr; gap:24px; }
+      .lp-foot-marke { grid-column:1 / -1; }
+      .lp-foot-text { max-width:none; }
+      .lp-foot-unten { flex-direction:column; align-items:flex-start; gap:10px; }
+    }
+
+    @media (max-width:430px) {
+      .lp-head-inner { padding:9px 12px; }
+      .lp-logo { height:32px; }
+      .lp-head-actions .lp-btn { padding:8px 10px; font-size:11.5px; }
+      .lp-hero-inner { padding:32px 13px 40px; }
+      .lp-h1 { font-size:clamp(24px,8vw,32px); }
+      .lp-sec, .lp-dark, .lp-final { padding:44px 13px; }
+      .lp-foot-top { grid-template-columns:1fr; }
+      .lp-water { height:180px !important; }
+      .lp-stat { padding:9px 13px; }
+      .lp-stat span { font-size:10.5px; }
+    }
+
     /* ================= MOBILE-OPTIMIERUNG ================= */
     @media (max-width:760px) {
       /* Kein seitliches Wegscrollen, nichts ragt raus */
@@ -858,14 +925,14 @@
 
       /* Bericht: Kacheln untereinander statt gequetscht */
       .grid4, .grid3, .grid2 { grid-template-columns:1fr !important; }
-      .kv-row { grid-template-columns:1fr !important; gap:2px; padding:11px 0; }
+      .kv { grid-template-columns:1fr !important; gap:2px; padding:11px 0; }
       .kv-k { font-size:11.5px; color:var(--gray); }
       .kv-v { font-size:13.5px; word-break:break-word; }
-      .score-row { flex-direction:column; align-items:flex-start; gap:12px; }
+      .score-card { flex-direction:column; align-items:center; gap:14px; text-align:center; }
       .verdict { white-space:normal; text-align:center; }
 
       /* Lange Inhalte duerfen umbrechen */
-      .rep-title, .hr-name, .dup-name, .kyc-box-file, .info-h1, .lp-h1 { word-break:break-word; hyphens:auto; }
+      .sec-title, .hr-name, .dup-name, .kyc-box-file, .info-h1, .lp-h1, .kv-v { word-break:break-word; hyphens:auto; }
       table { display:block; overflow-x:auto; -webkit-overflow-scrolling:touch; }
 
       /* Aktionen: volle Breite, gut treffbar */
@@ -878,10 +945,10 @@
 
       /* Historie */
       .history-row { flex-direction:column; align-items:stretch; gap:10px; }
-      .hr-actions { width:100%; justify-content:flex-start; flex-wrap:wrap; }
+      .hr-right { width:100%; justify-content:flex-start; flex-wrap:wrap; gap:8px; }
 
       /* Pakete + Overlays */
-      .plan-grid { grid-template-columns:1fr !important; }
+      .plan-cards { grid-template-columns:1fr !important; }
       .plan-wrap { max-width:100% !important; }
       .info-inner { padding:30px 18px 26px; }
       .info-zu { top:10px; right:10px; }
@@ -898,7 +965,7 @@
       .app { padding:18px 11px 88px; }
       .logo-svg { height:44px; }
       .search-heading { font-size:17.5px; }
-      .score-num { font-size:40px; }
+      .gauge-wrap svg { max-width:100%; height:auto; }
       .ref-code { font-size:23px; letter-spacing:.1em; }
       .plan-name { font-size:19px; }
       .info-h1 { font-size:21px; }
@@ -910,9 +977,9 @@
       html, body { overflow:visible !important; width:100% !important; }
       .app { max-width:100% !important; padding:0 !important; }
       .grid4, .grid3, .grid2, .fields-row { grid-template-columns:1fr 1fr !important; }
-      .kv-row { grid-template-columns:38% 1fr !important; }
+      .kv { grid-template-columns:38% 1fr !important; }
       .sec-card, .rep-card, .kyc-print-page { page-break-inside:avoid; }
-      .rep-title, .kv-v, .risk-text { word-break:break-word !important; }
+      .sec-title, .kv-v, .risk-text, .hr-name { word-break:break-word !important; }
       .header, .actions, .search-card, .hist-nav-btn, .mehr-analysen-btn { display:none !important; }
     }
     .up-warn-einw { font-size:12px; font-weight:700; color:var(--green-d,#16A34A); background:var(--green-pale,#EAF9F0); border-radius:9px; padding:8px 12px; margin-bottom:16px; }
@@ -1861,7 +1928,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.60</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.61</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -3139,7 +3206,13 @@ async function uploadAbsenden() {
 function showLanding() {
   hideBoot();
   const lg = document.getElementById('landingGate');
-  if (lg && lg.style.display === 'block') return;   // schon offen -> Animationen nicht erneut starten
+  // Schutz gegen doppeltes Anzeigen (Abmelden loest zwei Aufrufe aus)
+  const jetzt = Date.now();
+  if (lg && (lg.style.display === 'block' || (window._LANDING_ZEIT && jetzt - window._LANDING_ZEIT < 2500))) {
+    if (lg) lg.style.display = 'block';
+    return;
+  }
+  window._LANDING_ZEIT = jetzt;
   if (lg) { lg.style.display = 'block'; lg.scrollTop = 0; }
   const asrc = document.querySelector('.auth-card .auth-logo');
   ['lpLogo','lpFootLogo'].forEach(function(id){
