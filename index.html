@@ -877,6 +877,31 @@
     .einl-liste { min-height:34px; }
     .team-block { margin-bottom:22px; }
     .team-liste { display:flex; flex-direction:column; gap:10px; margin-top:14px; }
+    /* Ordner-Freigabe an einzelne Personen */
+    .of-fg { display:inline-flex; align-items:center; gap:5px; font-size:11px; font-weight:700; padding:6px 11px; border-radius:999px; cursor:pointer; font-family:inherit;
+      background:var(--neutral2,#EFF2F4); color:var(--gray,#5A6670); border:1px solid var(--border,#E2E6E9); transition:all .18s; white-space:nowrap; }
+    .of-fg:hover { transform:translateY(-1px); border-color:var(--green,#22C55E); color:var(--green-d,#16A34A); }
+    .of-fg.hat-fg { background:#EEF2FF; color:#4338CA; border-color:#C7D2FE; }
+    .fg-card { max-width:480px; text-align:left; }
+    .fg-kopf { display:flex; align-items:center; gap:9px; margin-bottom:10px; }
+    .fg-titel { font-size:16px; font-weight:800; color:var(--ink,#111827); word-break:break-word; }
+    .fg-liste { display:flex; flex-direction:column; gap:8px; max-height:280px; overflow-y:auto; margin-bottom:18px; padding:4px; }
+    .fg-zeile { display:flex; align-items:center; gap:10px; padding:9px 11px; border:1px solid var(--border,#E2E6E9); border-radius:11px; cursor:pointer; transition:all .15s; }
+    .fg-zeile:hover { border-color:var(--green,#22C55E); background:#F7FDF9; }
+    .fg-zeile input { position:absolute; opacity:0; width:0; height:0; }
+    .fg-mail { flex:1; min-width:0; font-size:12.5px; font-weight:600; color:var(--ink2,#1F2937); word-break:break-all; }
+    .fg-leer { font-size:12.5px; color:var(--gray-l,#8A949D); font-style:italic; padding:14px; text-align:center; }
+    /* Aktivitaets-Protokoll: Score-Markierung */
+    .audit-score { display:inline-block; font-size:10.5px; font-weight:800; padding:2px 8px; border-radius:999px; margin-left:6px; }
+    .audit-s-gruen { background:var(--ok-bg,#ECFDF3); color:var(--ok-text,#15803D); }
+    .audit-s-gelb { background:var(--warn-bg,#FFF8EB); color:var(--warn-text,#A16207); }
+    .audit-s-rot { background:var(--bad-bg,#FEF1F1); color:var(--bad-text,#B42318); }
+    .audit-ic.check { background:var(--green-pale,#EAF9F0); color:var(--green-d,#16A34A); }
+    @media (max-width:760px) {
+      .fg-card { max-width:100%; }
+      .fg-zeile { flex-wrap:wrap; }
+      .of-fg { flex:1 1 auto; justify-content:center; }
+    }
     /* ===== Historie: Überblick ===== */
     .hu-leiste { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)) 1.6fr; gap:12px; margin-bottom:20px; animation:teamIn .45s cubic-bezier(.2,.7,.2,1) both; }
     .hu-karte { background:var(--card,#fff); border:1px solid var(--border,#E2E6E9); border-radius:14px; padding:14px 16px; }
@@ -2211,7 +2236,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.74</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.75</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -3046,26 +3071,42 @@ function renderAudit() {
   const tv = document.getElementById('teamView');
   if (!tv) return;
   const old = document.getElementById('auditBody'); if (old) old.remove();
-  const verb = { befoerdert:'zum Host befördert', zurueckgestuft:'zum Mitarbeiter zurückgestuft', entfernt:'aus der Firma entfernt', ordner_geloescht:'Ordner gelöscht' };
-  const icCls = { befoerdert:'up', zurueckgestuft:'down', entfernt:'kick', ordner_geloescht:'folder' };
+  const verb = { befoerdert:'im Rang bef\u00f6rdert', zurueckgestuft:'im Rang zur\u00fcckgestuft', entfernt:'aus der Firma entfernt', ordner_geloescht:'Ordner gelöscht' , geprueft:'eine Pr\u00fcfung durchgef\u00fchrt' };
+  const icCls = { befoerdert:'up', zurueckgestuft:'down', entfernt:'kick', ordner_geloescht:'folder', geprueft:'check' };
   const icSvg = {
     up:'<path d="M12 19V5M5 12l7-7 7 7"/>',
     down:'<path d="M12 5v14M5 12l7 7 7-7"/>',
     kick:'<path d="M18 6 6 18M6 6l12 12"/>',
-    folder:'<path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>'
+    folder:'<path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>',
+    check:'<path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>'
   };
+  // Pruefungen aus der Historie als Aktivitaeten ergaenzen
+  const ausPruefungen = (HISTORY_ROWS || []).slice(0, 60).map(function(r){
+    return {
+      aktion: 'geprueft',
+      akteur_email: (r.report_json && r.report_json._email) ? r.report_json._email : '',
+      ziel_text: r.firmenname || '',
+      created_at: r.created_at,
+      _score: (typeof r.score === 'number') ? r.score : null
+    };
+  });
+  const alleAktivitaeten = (AUDIT_ROWS || []).concat(ausPruefungen)
+    .sort(function(a, b){ return new Date(b.created_at) - new Date(a.created_at); })
+    .slice(0, 40);
+
   let listHtml;
-  if (!AUDIT_ROWS.length) {
+  if (!alleAktivitaeten.length) {
     listHtml = '<div class="audit-empty">Noch keine Aktivitäten protokolliert. Beförderungen, Zurückstufungen, Entfernungen und gelöschte Ordner erscheinen hier.</div>';
   } else {
-    listHtml = '<div class="audit-list">' + AUDIT_ROWS.map(function(a){
+    listHtml = '<div class="audit-list">' + alleAktivitaeten.map(function(a){
       const cls = icCls[a.aktion] || 'down';
       const v = verb[a.aktion] || a.aktion;
       const dt = a.created_at ? new Date(a.created_at) : null;
       const when = dt ? (dt.toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric'}) + ' · ' + dt.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'})) : '';
       return '<div class="audit-row">'
         + '<span class="audit-ic ' + cls + '"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">' + (icSvg[cls]||'') + '</svg></span>'
-        + '<div class="audit-txt"><b>' + escapeHtml(a.akteur_email||'(unbekannt)') + '</b> hat ' + v + (a.ziel_text ? ': <b>' + escapeHtml(a.ziel_text) + '</b>' : '') + '</div>'
+        + '<div class="audit-txt"><b>' + escapeHtml(a.akteur_email||'(unbekannt)') + '</b> hat ' + v + (a.ziel_text ? ': <b>' + escapeHtml(a.ziel_text) + '</b>' : '')
+          + (a._score != null ? ' <span class="audit-score audit-s-' + (a._score >= 70 ? 'gruen' : (a._score >= 45 ? 'gelb' : 'rot')) + '">Score ' + a._score + '</span>' : '') + '</div>'
         + '<span class="audit-time">' + when + '</span>'
         + '</div>';
     }).join('') + '</div>';
@@ -5922,7 +5963,7 @@ function toggleOrdnerVerwalten() {
   if (!box) return;
   const offen = box.style.display !== 'none';
   if (offen) { sektionZu(box); }
-  else { renderOrdnerManage(); box.style.display = 'block'; }
+  else { ladeFreigaben().then(renderOrdnerManage); renderOrdnerManage(); box.style.display = 'block'; }
   const btn = document.getElementById('btnVerwalten');
   if (btn) btn.classList.toggle('active', !offen);
 }
@@ -5941,6 +5982,7 @@ function renderOrdnerManage() {
     const cnt = counts[o.id] || 0;
     const geteilt = o.sichtbarkeit === 'oeffentlich';
     const darfTeilen = rangWert(CURRENT_USER_RANG) >= 2 || o.ersteller_id === CURRENT_USER_ID;
+    const fgAnzahl = (ORDNER_FREIGABEN[o.id] || []).length;
     const swatches = ORDNER_FARBEN.map(function(f){
       return '<span class="om-swatch ' + (o.farbe === f ? 'active' : '') + '" style="background:' + f + '" onclick="ordnerFarbe(\'' + o.id + '\',\'' + f + '\')" title="Farbe w\u00e4hlen"></span>';
     }).join('');
@@ -5960,6 +6002,9 @@ function renderOrdnerManage() {
                 : '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg> Nur f\u00fcr mich')
             + '</button>'
           : '<span class="of-vis nur-info">' + (geteilt ? 'Geteilt' : 'Privat') + '</span>'))
+      + (einzel || geteilt ? '' : '<button class="of-fg' + (fgAnzahl ? ' hat-fg' : '') + '" onclick="freigabeOeffnen(\'' + o.id + '\')" title="Gezielt f\u00fcr einzelne Personen freigeben">'
+          + '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 11h-6"/></svg>'
+          + (fgAnzahl ? ' ' + fgAnzahl : ' Freigeben') + '</button>')
       + '<button class="of-del" onclick="ordnerLoeschen(\'' + o.id + '\')" title="Ordner l\u00f6schen">'
       + '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg></button>'
       + '</div></div></div>';
@@ -5999,6 +6044,105 @@ function renderOrdnerManage() {
             ? '<div class="of-gruppe"><div class="of-liste">' + ORDNER_LIST.map(karte).join('') + '</div></div>'
             : gruppe('Mit dem Team geteilt', 'Diese Ordner sehen alle Mitglieder deines Unternehmens.', geteilte, 'gr-geteilt')
               + gruppe('Nur f\u00fcr mich', 'Diese Ordner sieht au\u00dfer dir niemand.', private_, 'gr-privat')));
+}
+
+let ORDNER_FREIGABEN = {};   // ordner_id -> [ {user_id, email, rang} ]
+
+async function ladeFreigaben() {
+  ORDNER_FREIGABEN = {};
+  if (!sb || !CURRENT_FIRMA || CURRENT_FIRMA.typ === 'einzel') return;
+  try {
+    const { data } = await sb.from('ordner_freigaben').select('ordner_id, user_id');
+    (data || []).forEach(function(f){
+      if (!ORDNER_FREIGABEN[f.ordner_id]) ORDNER_FREIGABEN[f.ordner_id] = [];
+      ORDNER_FREIGABEN[f.ordner_id].push(f.user_id);
+    });
+  } catch (e) { ORDNER_FREIGABEN = {}; }
+}
+
+// ===== Ordner gezielt freigeben =====
+let FREIGABE_ORDNER = null;
+
+async function freigabeOeffnen(ordnerId) {
+  const o = ORDNER_LIST.find(function(x){ return x.id === ordnerId; });
+  if (!o) return;
+  FREIGABE_ORDNER = o;
+  if (!TEAM_MEMBERS.length) {
+    try {
+      const { data } = await sb.rpc('team_mitglieder');
+      TEAM_MEMBERS = (data || []).map(function(m){
+        return { user_id: m.user_id, email: m.email, rang: m.rang || 'member' };
+      });
+    } catch (e) {}
+  }
+  let bereits = [];
+  try {
+    const { data } = await sb.rpc('ordner_freigaben_liste', { p_ordner: ordnerId });
+    bereits = (data || []).map(function(f){ return f.user_id; });
+  } catch (e) {}
+
+  const andere = TEAM_MEMBERS.filter(function(m){ return m.user_id !== CURRENT_USER_ID; });
+  const zeilen = andere.length
+    ? andere.map(function(m){
+        const an = bereits.indexOf(m.user_id) >= 0;
+        const info = RANG_INFO[m.rang] || RANG_INFO.member;
+        return '<label class="fg-zeile">'
+          + '<input type="checkbox" class="fg-check" value="' + m.user_id + '"' + (an ? ' checked' : '') + ' />'
+          + '<span class="einw-mark"></span>'
+          + '<span class="fg-mail">' + escapeHtml(m.email || '') + '</span>'
+          + '<span class="tm-badge tm-' + info.farbe + '">' + info.name + '</span>'
+          + '</label>';
+      }).join('')
+    : '<div class="fg-leer">Es sind noch keine weiteren Mitglieder im Team. Lade zuerst jemanden \u00fcber \u201eTeam verwalten\u201c ein.</div>';
+
+  const box = document.createElement('div');
+  box.id = 'fgGate';
+  box.className = 'up-warn-back';
+  box.innerHTML = '<div class="up-warn-card fg-card">'
+    + '<div class="fg-kopf"><span class="of-punkt" style="background:' + (o.farbe || '#22C55E') + '"></span>'
+    + '<span class="fg-titel">' + escapeHtml(o.name) + '</span></div>'
+    + '<div class="up-warn-d">W\u00e4hle aus, wer diesen Ordner sehen darf. Ausgew\u00e4hlte Personen sehen den Ordner und alle darin enthaltenen Pr\u00fcfungen.</div>'
+    + '<div class="fg-liste">' + zeilen + '</div>'
+    + '<div class="up-warn-btns">'
+    + '<button class="kyc-btn" onclick="freigabeSchliessen()">Abbrechen</button>'
+    + '<button class="up-senden up-warn-ok" onclick="freigabeSpeichern()">Freigaben speichern</button>'
+    + '</div></div>';
+  document.body.appendChild(box);
+  requestAnimationFrame(function(){ box.classList.add('an'); });
+}
+
+function freigabeSchliessen() {
+  const b = document.getElementById('fgGate');
+  if (!b) return;
+  b.classList.remove('an');
+  setTimeout(function(){ if (b.parentNode) b.remove(); }, 240);
+}
+
+async function freigabeSpeichern() {
+  if (!FREIGABE_ORDNER || !sb) return;
+  const gewaehlt = [];
+  document.querySelectorAll('#fgGate .fg-check').forEach(function(c){ if (c.checked) gewaehlt.push(c.value); });
+  const btn = document.querySelector('#fgGate .up-warn-ok');
+  if (btn) { btn.disabled = true; btn.textContent = 'Wird gespeichert\u2026'; }
+  try {
+    await sb.from('ordner_freigaben').delete().eq('ordner_id', FREIGABE_ORDNER.id);
+    if (gewaehlt.length) {
+      const neu = gewaehlt.map(function(uid){
+        return { ordner_id: FREIGABE_ORDNER.id, user_id: uid, firma_id: CURRENT_FIRMA.firma_id, erstellt_von: CURRENT_USER_ID };
+      });
+      const { error } = await sb.from('ordner_freigaben').insert(neu);
+      if (error) throw error;
+    }
+    await ladeFreigaben();
+    freigabeSchliessen();
+    renderOrdnerManage();
+    zeigeToast('Freigaben aktualisiert',
+      gewaehlt.length ? 'Der Ordner ist jetzt f\u00fcr ' + gewaehlt.length + ' weitere Person' + (gewaehlt.length === 1 ? '' : 'en') + ' sichtbar.'
+                      : 'Der Ordner ist wieder nur f\u00fcr dich sichtbar.');
+  } catch (e) {
+    alert('Freigaben konnten nicht gespeichert werden: ' + ((e && e.message) || ''));
+    if (btn) { btn.disabled = false; btn.textContent = 'Freigaben speichern'; }
+  }
 }
 
 async function ordnerSichtbarkeit(id, neu) {
