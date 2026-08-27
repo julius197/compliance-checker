@@ -668,9 +668,9 @@
     .kyc-link-gen { width:100%; padding:12px; font-size:13px; }
     .up-ok { border-style:solid !important; border-color:rgba(34,197,94,.55) !important; background:var(--green-pale,#EAF9F0) !important; }
     #uploadGate .plan-wrap { animation:scaleIn .5s cubic-bezier(.16,1,.3,1) both; }
-    .up-grid .kyc-box { opacity:0; animation:histIn .5s cubic-bezier(.2,.7,.2,1) both; }
-    .up-grid .kyc-box:nth-child(1) { animation-delay:.08s; }
-    .up-grid .kyc-box:nth-child(2) { animation-delay:.2s; }
+    .up-grid.up-erst .kyc-box { opacity:0; animation:histIn .5s cubic-bezier(.2,.7,.2,1) both; }
+    .up-grid.up-erst .kyc-box:nth-child(1) { animation-delay:.08s; }
+    .up-grid.up-erst .kyc-box:nth-child(2) { animation-delay:.2s; }
     .up-btns { display:flex; gap:8px; justify-content:center; margin-top:12px; flex-wrap:wrap; }
     .up-vorschau { width:78px; height:78px; object-fit:cover; border-radius:12px; border:1.5px solid rgba(34,197,94,.4); margin:0 auto 10px; display:block; animation:upPop .4s cubic-bezier(.2,.9,.3,1.4) both; }
     .up-vorschau-pdf { display:flex; align-items:center; justify-content:center; font-weight:800; color:var(--green-d,#16A34A); background:var(--green-pale,#EAF9F0); }
@@ -731,6 +731,7 @@
     .einw-hinweis { font-style:italic; color:#B45309 !important; background:#FEF9EC; border-radius:8px; padding:8px 10px; }
     .up-senden-aus, .up-senden:disabled { background:#D5E3DB !important; box-shadow:none !important; cursor:not-allowed; animation:none; }
     .up-senden-aus:hover, .up-senden:disabled:hover { transform:none !important; box-shadow:none !important; }
+    .up-pid { font-family:ui-monospace, Menlo, monospace; font-size:.94em; letter-spacing:.02em; }
     .up-warn-einw { font-size:12px; font-weight:700; color:var(--green-d,#16A34A); background:var(--green-pale,#EAF9F0); border-radius:9px; padding:8px 12px; margin-bottom:16px; }
     .tr-toast-t { font-size:13.5px; font-weight:800; color:var(--ink,#10231A); margin-bottom:4px; }
     .tr-toast-d { font-size:12.5px; color:var(--gray,#5B6E64); line-height:1.5; }
@@ -1598,7 +1599,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.46</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.47</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -1886,12 +1887,16 @@ async function _trPaket(teil, tiefe) {
       await _trPaket(teil.slice(0, m), tiefe + 1);
       await _trPaket(teil.slice(m), tiefe + 1);
     } else {
+      // Nicht uebersetzbar -> Original merken, sonst wird es endlos erneut versucht
+      teil.forEach(function(de){ if (_TR_CACHE[de] === undefined) _TR_CACHE[de] = de; });
+      _trSpeichern();
       console.warn('Uebersetzung fehlgeschlagen:', (e && e.message) || '', teil[0] && teil[0].slice(0, 40));
     }
   }
 }
 
 let _TR_NOCHMAL = false;
+let _TR_RUNDEN = 0;   // Schutz gegen endlose Nachlaeufe
 async function _trNachladen(offen) {
   if (_TR_LAUFT) { _TR_NOCHMAL = true; _trOverlay(true); return; }   // laeuft schon: vormerken, Anzeige bleibt
   _TR_LAUFT = true;
@@ -1919,7 +1924,7 @@ async function _trNachladen(offen) {
         const de = (_LANG_DE.get(n) || '').trim();
         if (de && _trUebersetzbar(de) && _TR_CACHE[de] === undefined && rest.indexOf(de) < 0) rest.push(de);
       });
-      if (rest.length) _TR_NOCHMAL = true;
+      if (rest.length && _TR_RUNDEN < 3) { _TR_NOCHMAL = true; _TR_RUNDEN++; }
     } catch(e) {}
   } finally { _TR_LAUFT = false; }
   // Wurde waehrenddessen neu gerendert? Dann direkt noch eine Runde.
@@ -2032,6 +2037,7 @@ function toggleHelp() {
 }
 
 function toggleLang() {
+  _TR_RUNDEN = 0;
   LANG = LANG === 'de' ? 'en' : 'de';
   try { localStorage.setItem('cc_lang', LANG); } catch(e) {}
   applyLang();
@@ -2533,6 +2539,7 @@ async function showUploadGate() {
 
 let UPLOAD_GEWAEHLT = {};      // typ -> { file, vorschau }
 let UPLOAD_ABGESCHLOSSEN = false;
+let UPLOAD_GEZEICHNET = false;   // Eingangs-Animation nur beim ersten Zeichnen
 
 function uploadRender() {
   const body = document.getElementById('uploadBody');
@@ -2578,7 +2585,9 @@ function uploadRender() {
 
   const anzahl = Object.keys(UPLOAD_GEWAEHLT).length;
   const firma = (UPLOAD_INFO && UPLOAD_INFO.firmenname) ? escapeHtml(UPLOAD_INFO.firmenname) : 'das pr\u00fcfende Unternehmen';
-  body.innerHTML = '<div class="kyc-grid up-grid" style="margin-top:6px;">'
+  const erst = !UPLOAD_GEZEICHNET;
+  UPLOAD_GEZEICHNET = true;
+  body.innerHTML = '<div class="kyc-grid up-grid' + (erst ? ' up-erst' : '') + '" style="margin-top:6px;">'
     + box('ausweis', 'Personalausweis', 'Bild oder PDF hierher ziehen \u2013 oder unten w\u00e4hlen', 'environment')
     + box('selfie', 'Best\u00e4tigungsfoto (Selfie)', 'Ein Foto von dir mit Bezug zum Ausweis', 'user')
     + '</div>'
@@ -2650,7 +2659,11 @@ function uploadFehlerHtml() {
 
 function uploadSubSetzen() {
   const sub = document.getElementById('uploadSub');
-  if (sub && UPLOAD_INFO && !UPLOAD_ABGESCHLOSSEN) sub.textContent = 'Sichere \u00dcbermittlung an die Akte von \u201e' + UPLOAD_INFO.firmenname + '\u201c \u00b7 Pr\u00fcf-ID ' + UPLOAD_INFO.pruef_id;
+  if (!sub || !UPLOAD_INFO || UPLOAD_ABGESCHLOSSEN) return;
+  // Firmenname + Pruef-ID stehen getrennt -> der uebersetzte Satz bleibt stabil im Speicher
+  const neu = '<span>Sichere \u00dcbermittlung an die Akte von</span> \u201e<b>' + escapeHtml(UPLOAD_INFO.firmenname)
+    + '</b>\u201c \u00b7 <span>Pr\u00fcf-ID</span> <span class="up-pid">' + escapeHtml(UPLOAD_INFO.pruef_id) + '</span>';
+  if (sub.innerHTML !== neu) sub.innerHTML = neu;
 }
 
 function uploadPick(typ, kamera) { const i = document.getElementById((kamera ? 'upCam_' : 'upFile_') + typ); if (i) i.click(); }
