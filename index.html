@@ -553,7 +553,12 @@
     @keyframes lpUp { from { opacity:0; transform:translateY(30px); } to { opacity:1; transform:none; } }
     .lp-eyebrow { display:inline-block; font-size:11.5px; font-weight:800; letter-spacing:.09em; text-transform:uppercase; color:#16A34A; background:rgba(34,197,94,.1); border:1px solid rgba(34,197,94,.24); padding:7px 16px; border-radius:999px; margin-bottom:22px; }
     .lp-h1 { font-size:clamp(34px,5.8vw,64px); line-height:1.05; font-weight:800; color:#0A0F0D; letter-spacing:-.025em; margin:0 0 20px; }
-    .lp-h1-grad { background:linear-gradient(120deg,#16A34A,#22C55E 30%,#0A0F0D 62%,#16A34A 95%); background-size:220% 100%; -webkit-background-clip:text; background-clip:text; color:transparent; animation:lpShimmer 7s ease-in-out infinite; }
+    .lp-h1-grad { background:linear-gradient(100deg, #0A0F0D 0%, #0A0F0D 26%, #16A34A 42%, #4ADE80 52%, #16A34A 62%, #0A0F0D 78%, #0A0F0D 100%);
+      background-size:250% 100%; -webkit-background-clip:text; background-clip:text; color:transparent; -webkit-text-fill-color:transparent;
+      animation:lpShimmer 5.5s ease-in-out infinite; }
+    .lp-h1-zeile2 { background:linear-gradient(100deg, #16A34A 0%, #16A34A 24%, #86EFAC 44%, #ffffff 52%, #86EFAC 60%, #16A34A 80%, #16A34A 100%);
+      background-size:250% 100%; -webkit-background-clip:text; background-clip:text; color:transparent; -webkit-text-fill-color:transparent;
+      animation:lpShimmer 5.5s ease-in-out infinite; }
     @keyframes lpShimmer { 0%,100% { background-position:0% 50%; } 50% { background-position:100% 50%; } }
     .lp-sub { font-size:clamp(15px,2.2vw,19px); line-height:1.65; color:#4C5F55; max-width:680px; margin:0 auto 30px; }
     .lp-cta-row { display:flex; gap:14px; justify-content:center; flex-wrap:wrap; margin-bottom:20px; }
@@ -837,6 +842,9 @@
     .ref-code { font-family:ui-monospace, 'SF Mono', Menlo, monospace; font-size:27px; font-weight:800; letter-spacing:.14em; color:#fff; line-height:1.1; text-shadow:0 0 22px rgba(34,197,94,.55); }
     .ref-hint { font-size:11.5px; line-height:1.55; color:#9CB3A8; margin-top:8px; max-width:400px; margin-left:auto; margin-right:auto; }
     @media print { .ref-box { display:none !important; } }
+
+    /* Eingangs-Animation nur beim ersten Anzeigen (kein Doppel-Effekt beim Abmelden) */
+    .lp-gate.lp-animiert .lp-an { animation:none !important; opacity:1 !important; transform:none !important; }
 
     /* ========== LANDING-PAGE MOBIL ========== */
     @media (max-width:860px) {
@@ -1463,7 +1471,7 @@
       <div class="lp-blob lp-blob-b"></div>
       <div class="lp-hero-inner">
         <div class="lp-eyebrow lp-an" style="--d:.05s">KYC &amp; Compliance · Prüfung gemäß §§ 10–17 GwG</div>
-        <h1 class="lp-h1 lp-an" style="--d:.15s">Know Your Customer in Minuten.<br/><span class="lp-h1-grad">Sauber dokumentiert.</span></h1>
+        <h1 class="lp-h1 lp-h1-grad lp-an" style="--d:.15s">Know Your Customer in Minuten.<br/><span class="lp-h1-zeile2">Sauber dokumentiert.</span></h1>
         <p class="lp-sub lp-an" style="--d:.25s">Geschäftspartner prüfen und identifizieren – in einem Werkzeug. Register, wirtschaftlich Berechtigte, Sanktions- &amp; PEP-Listen, dazu Ausweis und Bestätigungsfoto in derselben Akte. Am Ende steht ein PDF-Nachweis mit Quellen.</p>
         <div class="lp-cta-row lp-an" style="--d:.35s">
           <button class="lp-btn lp-btn-solid lp-btn-big" onclick="landingStart('register')">Kostenlos testen – 3 Analysen gratis</button>
@@ -1928,7 +1936,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.61</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.62</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -3206,14 +3214,19 @@ async function uploadAbsenden() {
 function showLanding() {
   hideBoot();
   const lg = document.getElementById('landingGate');
-  // Schutz gegen doppeltes Anzeigen (Abmelden loest zwei Aufrufe aus)
-  const jetzt = Date.now();
-  if (lg && (lg.style.display === 'block' || (window._LANDING_ZEIT && jetzt - window._LANDING_ZEIT < 2500))) {
-    if (lg) lg.style.display = 'block';
-    return;
+  if (lg) {
+    const schonGezeigt = lg.dataset.gezeigt === '1';
+    lg.style.display = 'block';
+    if (!schonGezeigt) {
+      lg.dataset.gezeigt = '1';
+      lg.scrollTop = 0;
+      // Eingangs-Animationen genau einmal laufen lassen, danach dauerhaft abschalten
+      setTimeout(function(){ lg.classList.add('lp-animiert'); }, 1600);
+    } else {
+      lg.classList.add('lp-animiert');   // erneutes Anzeigen -> kein zweiter Durchlauf
+      return;
+    }
   }
-  window._LANDING_ZEIT = jetzt;
-  if (lg) { lg.style.display = 'block'; lg.scrollTop = 0; }
   const asrc = document.querySelector('.auth-card .auth-logo');
   ['lpLogo','lpFootLogo'].forEach(function(id){
     const el = document.getElementById(id);
