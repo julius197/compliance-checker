@@ -2055,7 +2055,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.64</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.65</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -2716,7 +2716,7 @@ function enterApp() {
   setTimeout(function(){ try { kycNeuePruefen(); } catch(e) {} }, 1800);
   const kb = document.getElementById('kontoBtn'); if (kb) kb.style.display = '';
   ladeOrdner();
-  ladeMeineRolle();
+  ladeMeineRolle().then(function(){ try { ladeMeinenRang(); } catch(e) {} });
   fadeInView(document.getElementById('mainView'));
   if (aktiv) {
     aktiv.classList.add('screen-out');               // Gate sanft rausfaden -> App erscheint
@@ -2766,6 +2766,7 @@ async function ladeMeinenRang() {
 
 function openTeam() { mitAusBlende(_openTeam); }
 async function _openTeam() {
+  try { await ladeMeinenRang(); } catch(e) {}
   const main = document.getElementById('mainView');
   const hv = document.getElementById('historyView');
   const tv = document.getElementById('teamView');
