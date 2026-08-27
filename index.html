@@ -605,7 +605,10 @@
     .lp-dark-cta { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin-top:34px; }
     .lp-btn-dunkel { background:transparent; color:#fff; border-color:rgba(255,255,255,.28); }
     .lp-btn-dunkel:hover { background:rgba(255,255,255,.08); border-color:#22C55E; color:#4ADE80; }
-    .lp-dark .lp-step-n { font-size:19px; }
+    .lp-step-ico { background:linear-gradient(135deg, rgba(34,197,94,.22), rgba(22,163,74,.1)) !important;
+      border:1px solid rgba(34,197,94,.42); color:#4ADE80; box-shadow:0 8px 22px -12px rgba(34,197,94,.7) !important; }
+    .lp-step-ico svg { width:21px; height:21px; }
+    .lp-step:hover .lp-step-ico { color:#86EFAC; border-color:rgba(34,197,94,.75); background:linear-gradient(135deg, rgba(34,197,94,.32), rgba(22,163,74,.16)) !important; }
     .lp-final-glow { position:absolute; left:50%; top:-140px; transform:translateX(-50%); width:640px; height:340px; border-radius:50%; background:rgba(34,197,94,.2); filter:blur(90px); animation:lpPulse 5s ease-in-out infinite; pointer-events:none; }
     @keyframes lpPulse { 0%,100% { opacity:.55; transform:translateX(-50%) scale(1); } 50% { opacity:1; transform:translateX(-50%) scale(1.12); } }
     .lp-final .lp-h2, .lp-final .lp-btn, .lp-final-eyebrow, .lp-final-trust { position:relative; z-index:1; }
@@ -1366,9 +1369,9 @@
       <h2 class="lp-h2">Nachvollziehbar bis ins Detail</h2>
       <p class="lp-secsub">Compliance lebt davon, dass jemand später versteht, wie ein Ergebnis zustande kam. Deshalb legen wir offen, wie bewertet wird – und woher die Informationen stammen.</p>
       <div class="lp-steps" style="grid-template-columns:repeat(auto-fit,minmax(240px,1fr));">
-        <div class="lp-step"><div class="lp-step-n">⚖️</div><div><div class="lp-step-t">Offengelegte Bewertung</div><div class="lp-step-d">Fünf Prüfbereiche, vier eigenständige Warnsignale, drei klare Einstufungen – vollständig dokumentiert und jederzeit einsehbar.</div></div></div>
-        <div class="lp-step"><div class="lp-step-n">🔍</div><div><div class="lp-step-t">Belegte Herkunft</div><div class="lp-step-d">Jede Kernaussage ist ihrer Quellenkategorie zugeordnet. Was nicht belegbar ist, wird als Lücke ausgewiesen statt geschätzt.</div></div></div>
-        <div class="lp-step"><div class="lp-step-n">🌐</div><div><div class="lp-step-t">Deutsch &amp; Englisch</div><div class="lp-step-d">Oberfläche und Berichte auf Knopfdruck in beiden Sprachen – für internationale Geschäftspartner und Konzernprüfungen.</div></div></div>
+        <div class="lp-step"><div class="lp-step-n lp-step-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="M5 21h14"/><path d="M3 7h18"/><path d="M6 7l-3 6a3 3 0 0 0 6 0z"/><path d="M18 7l-3 6a3 3 0 0 0 6 0z"/></svg></div><div><div class="lp-step-t">Offengelegte Bewertung</div><div class="lp-step-d">Fünf Prüfbereiche, vier eigenständige Warnsignale, drei klare Einstufungen – vollständig dokumentiert und jederzeit einsehbar.</div></div></div>
+        <div class="lp-step"><div class="lp-step-n lp-step-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/><path d="M8.5 11h5M11 8.5v5"/></svg></div><div><div class="lp-step-t">Belegte Herkunft</div><div class="lp-step-d">Jede Kernaussage ist ihrer Quellenkategorie zugeordnet. Was nicht belegbar ist, wird als Lücke ausgewiesen statt geschätzt.</div></div></div>
+        <div class="lp-step"><div class="lp-step-n lp-step-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a15 15 0 0 1 0 18a15 15 0 0 1 0-18z"/></svg></div><div><div class="lp-step-t">Deutsch &amp; Englisch</div><div class="lp-step-d">Oberfläche und Berichte auf Knopfdruck in beiden Sprachen – für internationale Geschäftspartner und Konzernprüfungen.</div></div></div>
       </div>
       <div class="lp-dark-cta">
         <button class="lp-btn lp-btn-solid" onclick="infoOeffnen('bewertung')">Bewertung im Detail</button>
@@ -1764,7 +1767,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.54</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.55</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
