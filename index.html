@@ -840,6 +840,55 @@
     .ref-hint { font-size:11.5px; line-height:1.55; color:#9CB3A8; margin-top:8px; max-width:400px; margin-left:auto; margin-right:auto; }
     @media print { .ref-box { display:none !important; } }
 
+    /* ===== TEAM: Raenge & Einladungen ===== */
+    .tm-badge { display:inline-flex; align-items:center; gap:6px; font-size:11.5px; font-weight:800; padding:5px 12px; border-radius:999px; white-space:nowrap; }
+    .tm-badge-ico { font-size:11px; }
+    .tm-pres   { background:linear-gradient(135deg,#FEF3C7,#FDE68A); color:#92400E; border:1px solid rgba(217,119,6,.35); }
+    .tm-vice   { background:linear-gradient(135deg,#EDE9FE,#DDD6FE); color:#5B21B6; border:1px solid rgba(109,40,217,.3); }
+    .tm-senior { background:var(--green-pale,#EAF9F0); color:var(--green-d,#16A34A); border:1px solid rgba(34,197,94,.35); }
+    .tm-member { background:var(--neutral2,#EFF2F4); color:var(--gray,#5A6670); border:1px solid var(--border,#E2E6E9); }
+    .tm-select { font-family:inherit; font-size:12px; font-weight:600; color:var(--ink2,#1F2937); background:#fff; border:1.5px solid var(--border,#E2E6E9); border-radius:9px; padding:6px 10px; cursor:pointer; transition:border-color .15s; }
+    .tm-select:hover { border-color:var(--green,#22C55E); }
+    .tm-hinweis { font-size:11px; font-weight:700; color:var(--gray-l,#8A949D); font-style:italic; }
+
+    .team-block { background:var(--card,#fff); border:1px solid var(--border,#E2E6E9); border-radius:18px; padding:20px; margin-bottom:18px; }
+    .team-block-h { font-size:14.5px; font-weight:800; color:var(--ink,#111827); margin-bottom:6px; }
+    .team-block-d { font-size:12.5px; line-height:1.6; color:var(--gray,#5A6670); margin-bottom:14px; }
+    .einl-neu { display:flex; gap:9px; flex-wrap:wrap; align-items:center; }
+    .einl-neu .om-name-input { flex:1; min-width:180px; }
+    .einl-liste { margin-top:14px; display:flex; flex-direction:column; gap:11px; }
+    .einl-leer { font-size:12.5px; color:var(--gray-l,#8A949D); font-style:italic; }
+    .einl-row { background:var(--neutral,#F6F8F9); border:1px solid var(--border2,#EDF0F2); border-radius:13px; padding:12px; animation:histIn .4s cubic-bezier(.2,.7,.2,1) both; }
+    .einl-info { display:flex; align-items:center; gap:9px; flex-wrap:wrap; margin-bottom:9px; }
+    .einl-notiz { font-size:12.5px; font-weight:700; color:var(--ink2,#1F2937); }
+    .einl-rest { font-size:11.5px; color:var(--gray,#5A6670); margin-left:auto; }
+    .einl-link-row { display:flex; gap:7px; }
+    .einl-link-row .kyc-link-input { flex:1; min-width:0; }
+
+    .rang-tabelle { display:flex; flex-direction:column; gap:11px; }
+    .rang-zeile { display:flex; align-items:flex-start; gap:12px; }
+    .rang-zeile .tm-badge { flex-shrink:0; min-width:132px; justify-content:center; }
+    .rang-text { font-size:12.5px; line-height:1.6; color:var(--gray,#5A6670); }
+
+    .einl-willkommen { background:var(--green-pale,#EAF9F0); border:1.5px solid rgba(34,197,94,.35); border-radius:14px; padding:14px 16px; margin-bottom:18px; animation:histIn .5s cubic-bezier(.2,.7,.2,1) both; }
+    .einl-willkommen.einl-w-fehler { background:#FEF2F2; border-color:#FCA5A5; }
+    .einl-w-t { font-size:14px; font-weight:800; color:var(--green-d,#16A34A); margin-bottom:5px; }
+    .einl-w-fehler .einl-w-t { color:#B91C1C; }
+    .einl-w-d { font-size:12.5px; line-height:1.6; color:var(--ink2,#1F2937); }
+
+    @media (max-width:760px) {
+      .einl-neu { flex-direction:column; align-items:stretch; }
+      .einl-neu > * { width:100%; box-sizing:border-box; }
+      .einl-link-row { flex-wrap:wrap; }
+      .einl-link-row .kyc-link-input { flex:1 1 100%; }
+      .einl-rest { margin-left:0; }
+      .rang-zeile { flex-direction:column; gap:6px; }
+      .rang-zeile .tm-badge { min-width:0; }
+      .tm-right { width:100%; }
+      .tm-actions { flex-wrap:wrap; gap:7px; width:100%; }
+      .tm-select { width:100%; }
+    }
+
     /* Eingangs-Animation nur beim ersten Anzeigen (kein Doppel-Effekt beim Abmelden) */
     .lp-gate.lp-animiert .lp-an { animation:none !important; opacity:1 !important; transform:none !important; }
 
@@ -2006,7 +2055,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.63</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.64</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -2551,6 +2600,16 @@ const ORDNER_FARBEN = ['#22C55E','#3B82F6','#F59E0B','#EF4444','#8B5CF6','#EC489
 // ===== TEAM (v9.2) =====
 let CURRENT_USER_ROLLE = '';     // 'admin' (Host) | 'mitglied' (Mitarbeiter)
 let TEAM_MEMBERS = [];
+let CURRENT_USER_RANG = 'member';
+const RANG_INFO = {
+  president: { name:'President',      wert:4, farbe:'pres',   ico:'\u2605' },
+  vice:      { name:'Vice President', wert:3, farbe:'vice',   ico:'\u2726' },
+  senior:    { name:'Senior',         wert:2, farbe:'senior', ico:'\u25C6' },
+  member:    { name:'Member',         wert:1, farbe:'member', ico:'\u25CF' }
+};
+function rangWert(r) { return (RANG_INFO[r] || RANG_INFO.member).wert; }
+function rangName(r) { return (RANG_INFO[r] || RANG_INFO.member).name; }
+function darfVerwalten() { return rangWert(CURRENT_USER_RANG) >= 3; }   // President + Vice
 let AUDIT_ROWS = [];
 
 // kleine Helfer
@@ -2613,6 +2672,24 @@ function sektionZu(el, after) {
 
 let SESSION_GEROUTET = false;
 
+async function einladungPruefen() {
+  if (!EINLADUNG_TOKEN || !sb) return false;
+  try {
+    const { data, error } = await sb.rpc('einladung_annehmen', { p_token: EINLADUNG_TOKEN });
+    if (error) throw error;
+    if (data && data.ok) {
+      try { history.replaceState({}, '', location.pathname); } catch(e) {}
+      if (data.hinweis !== 'schon_mitglied') {
+        setTimeout(function(){ zeigeToast('Willkommen im Team!', 'Du wurdest dem Unternehmen als ' + rangName(data.rang) + ' hinzugef\u00fcgt.'); }, 900);
+      }
+      return true;
+    }
+    const gruende = { abgelaufen:'Diese Einladung ist abgelaufen.', aufgebraucht:'Diese Einladung wurde bereits verwendet.', unbekannt:'Diese Einladung ist ung\u00fcltig.' };
+    setTimeout(function(){ alert(gruende[data && data.grund] || 'Die Einladung konnte nicht angenommen werden.'); }, 600);
+  } catch (e) { console.warn('Einladung:', e && e.message); }
+  return false;
+}
+
 function showApp(session) {
   SESSION_GEROUTET = true;
   showBoot(); // Splash zeigen, App erst freigeben wenn Firmen-Status geklärt ist (kein Aufblitzen)
@@ -2634,6 +2711,7 @@ function enterApp() {
   appUnterseitenReset();
   document.getElementById('logoutBtn').style.display = '';
   const hb = document.getElementById('historyBtn'); if (hb) hb.style.display = '';
+  if (EINLADUNG_TOKEN) { einladungPruefen().then(function(ok){ if (ok) { try { ladeKontingent(); ladeMeinenRang(); } catch(e) {} } }); }
   ['infoBewertungBtn','infoQuellenBtn'].forEach(function(id){ const b = document.getElementById(id); if (b) b.style.display = ''; });
   setTimeout(function(){ try { kycNeuePruefen(); } catch(e) {} }, 1800);
   const kb = document.getElementById('kontoBtn'); if (kb) kb.style.display = '';
@@ -2677,6 +2755,14 @@ async function ladeMeineRolle() {
   const einzel = !!(CURRENT_FIRMA && CURRENT_FIRMA.typ === 'einzel');
   if (tb) tb.style.display = (CURRENT_USER_ROLLE === 'admin' && !einzel) ? '' : 'none';
 }
+async function ladeMeinenRang() {
+  try {
+    const { data, error } = await sb.rpc('mein_rang');
+    if (!error && data) CURRENT_USER_RANG = data;
+    else CURRENT_USER_RANG = (CURRENT_USER_ROLLE === 'admin') ? 'president' : 'member';
+  } catch (e) { CURRENT_USER_RANG = (CURRENT_USER_ROLLE === 'admin') ? 'president' : 'member'; }
+}
+
 
 function openTeam() { mitAusBlende(_openTeam); }
 async function _openTeam() {
@@ -2706,9 +2792,16 @@ async function _openTeam() {
 
   if (!sb) { teamError('Keine Verbindung zur Datenbank.'); return; }
   try {
-    const { data, error } = await sb.rpc('firma_mitglieder');
-    if (error) throw error;
-    TEAM_MEMBERS = data || [];
+    let { data, error } = await sb.rpc('team_mitglieder');
+    if (error) {                                   // Rueckfall auf die alte Funktion
+      const alt = await sb.rpc('firma_mitglieder');
+      if (alt.error) throw alt.error;
+      data = (alt.data || []).map(function(m){ return Object.assign({}, m, { rang: m.rolle === 'admin' ? 'president' : 'member' }); });
+    }
+    TEAM_MEMBERS = (data || []).map(function(m){
+      return { user_id: m.user_id, email: m.email, rang: m.rang || (m.rolle === 'admin' ? 'president' : 'member'),
+               rolle: m.rolle, beigetreten: m.seit || m.beigetreten };
+    });
     renderTeam();
   } catch (e) {
     teamError((e && e.message) || 'Team konnte nicht geladen werden.');
@@ -2785,26 +2878,41 @@ function renderTeam() {
   const loading = tv.querySelector('.history-loading'); if (loading) loading.remove();
   const old = document.getElementById('teamBody'); if (old) old.remove();
 
-  const adminCount = TEAM_MEMBERS.filter(function(m){ return m.rolle === 'admin'; }).length;
+  const presAnz = TEAM_MEMBERS.filter(function(m){ return m.rang === 'president'; }).length;
+  const meinWert = rangWert(CURRENT_USER_RANG);
 
   const rows = TEAM_MEMBERS.map(function(m){
-    const istHost = m.rolle === 'admin';
+    const info = RANG_INFO[m.rang] || RANG_INFO.member;
     const istSelf = m.user_id === CURRENT_USER_ID;
     const dt = m.beigetreten ? new Date(m.beigetreten) : null;
-    const datum = dt ? dt.toLocaleDateString('de-DE', { day:'2-digit', month:'2-digit', year:'numeric' }) : '–';
-    const badge = istHost
-      ? '<span class="tm-badge host"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m2 7 5 5 5-9 5 9 5-5-2 13H4z"/></svg>Host</span>'
-      : '<span class="tm-badge member">Mitarbeiter</span>';
-    const letzterHost = istHost && adminCount <= 1;
+    const datum = dt ? dt.toLocaleDateString('de-DE', { day:'2-digit', month:'2-digit', year:'numeric' }) : '\u2013';
+    const badge = '<span class="tm-badge tm-' + info.farbe + '"><span class="tm-badge-ico">' + info.ico + '</span>' + info.name + '</span>';
+
+    // Wen darf ich veraendern?
+    let darf = meinWert >= 3;
+    if (CURRENT_USER_RANG === 'vice' && m.rang === 'president') darf = false;   // Vize kann den President nicht antasten
+    const letzterPres = m.rang === 'president' && presAnz <= 1;
+
     let actions = '';
-    if (istHost) {
-      actions += '<button class="tm-btn down" onclick="teamAktion(\'degradieren\',\'' + m.user_id + '\')" ' + (letzterHost ? 'disabled title="Es muss mindestens ein Host aktiv bleiben"' : '') + '>Zurückstufen</button>';
-    } else {
-      actions += '<button class="tm-btn up" onclick="teamAktion(\'befoerdern\',\'' + m.user_id + '\')">Zum Host befördern</button>';
+    if (darf) {
+      const optionen = ['president','vice','senior','member'].filter(function(r){
+        if (r === m.rang) return false;
+        if (CURRENT_USER_RANG === 'vice' && r === 'president') return false;    // Vize kann niemanden zum President machen
+        if (istSelf && rangWert(r) > meinWert) return false;                    // keine Selbst-Befoerderung
+        return true;
+      });
+      if (optionen.length && !(letzterPres)) {
+        actions += '<select class="tm-select" onchange="rangAendern(\'' + m.user_id + '\', this.value, this)">'
+          + '<option value="">Rang \u00e4ndern\u2026</option>'
+          + optionen.map(function(r){ return '<option value="' + r + '">' + rangName(r) + '</option>'; }).join('')
+          + '</select>';
+      }
+      if (!istSelf && !letzterPres) {
+        actions += '<button class="tm-btn kick" onclick="teamAktion(\'entfernen\',\'' + m.user_id + '\')">Entfernen</button>';
+      }
+      if (letzterPres) actions += '<span class="tm-hinweis">Letzter President</span>';
     }
-    if (!istSelf) {
-      actions += '<button class="tm-btn kick" onclick="teamAktion(\'entfernen\',\'' + m.user_id + '\')" ' + (letzterHost ? 'disabled title="Es muss mindestens ein Host aktiv bleiben"' : '') + '>Rauswerfen</button>';
-    }
+
     return '<div class="team-row">'
       + '<div class="tm-main">'
       + '<div class="tm-email">' + escapeHtml(m.email || '(unbekannt)') + (istSelf ? '<span class="tm-you">Du</span>' : '') + '</div>'
@@ -2814,7 +2922,156 @@ function renderTeam() {
       + '</div>';
   }).join('');
 
-  tv.insertAdjacentHTML('beforeend', '<div id="teamBody"><div class="history-list">' + rows + '</div></div>');
+  const einladungsBereich = darfVerwalten() ? (''
+    + '<div class="team-block">'
+    + '<div class="team-block-h">Neue Mitglieder einladen</div>'
+    + '<div class="team-block-d">Erzeuge einen Einladungslink und schick ihn per E-Mail oder Nachricht. Wer ihn \u00f6ffnet, kann sich anmelden oder registrieren und landet automatisch in deinem Team.</div>'
+    + '<div class="einl-neu">'
+    + '<select class="tm-select" id="einlRang">'
+    + '<option value="member">Als Member einladen</option>'
+    + '<option value="senior">Als Senior einladen</option>'
+    + (CURRENT_USER_RANG === 'president' ? '<option value="vice">Als Vice President einladen</option>' : '')
+    + '</select>'
+    + '<input class="om-name-input" id="einlNotiz" placeholder="Notiz (optional) \u2013 z.B. f\u00fcr Herrn Meier" />'
+    + '<button class="btn-action primary" onclick="einladungErstellen()">Einladungslink erzeugen</button>'
+    + '</div>'
+    + '<div id="einlListe" class="einl-liste"></div>'
+    + '</div>') : '';
+
+  const rangErklaerung = '<div class="team-block">'
+    + '<div class="team-block-h">Die vier R\u00e4nge</div>'
+    + '<div class="rang-tabelle">'
+    + rangZeile('president','Verwaltet das gesamte Team, vergibt alle R\u00e4nge, kauft Pakete. Kann als Einziger jemanden zum President machen.')
+    + rangZeile('vice','Wie der President \u2013 kann jedoch den President nicht absetzen und niemanden zum President bef\u00f6rdern.')
+    + rangZeile('senior','Erstellt und verwaltet Ordner und teilt sie mit dem Team. Keine Team-Verwaltung.')
+    + rangZeile('member','F\u00fchrt Pr\u00fcfungen durch und arbeitet mit den freigegebenen Ordnern.')
+    + '</div></div>';
+
+  tv.insertAdjacentHTML('beforeend', '<div id="teamBody">'
+    + einladungsBereich
+    + '<div class="team-block-h" style="margin-top:26px;">Mitglieder (' + TEAM_MEMBERS.length + ')</div>'
+    + '<div class="history-list">' + rows + '</div>'
+    + rangErklaerung
+    + '</div>');
+
+  if (darfVerwalten()) ladeEinladungen();
+}
+
+function rangZeile(r, text) {
+  const info = RANG_INFO[r];
+  return '<div class="rang-zeile">'
+    + '<span class="tm-badge tm-' + info.farbe + '"><span class="tm-badge-ico">' + info.ico + '</span>' + info.name + '</span>'
+    + '<span class="rang-text">' + text + '</span></div>';
+}
+
+// ===== Rang aendern =====
+async function rangAendern(userId, rang, sel) {
+  if (!rang || !sb) return;
+  if (sel) sel.disabled = true;
+  try {
+    const { data, error } = await sb.rpc('rang_setzen', { p_user: userId, p_rang: rang });
+    if (error) throw error;
+    if (!data || data.ok !== true) throw new Error((data && data.grund) || 'Nicht m\u00f6glich');
+    await ladeMeinenRang();
+    await _openTeam();
+  } catch (e) {
+    alert((e && e.message) || 'Rang konnte nicht ge\u00e4ndert werden.');
+    if (sel) { sel.disabled = false; sel.value = ''; }
+  }
+}
+
+// ===== Einladungslinks =====
+async function einladungHinweis() {
+  if (!EINLADUNG_TOKEN || !sb) return;
+  try {
+    const { data } = await sb.rpc('einladung_vorschau', { p_token: EINLADUNG_TOKEN });
+    const v = (data && data[0]) || null;
+    const karte = document.querySelector('.auth-card');
+    if (!karte) return;
+    const box = document.createElement('div');
+    box.className = 'einl-willkommen';
+    if (v && v.gueltig) {
+      box.innerHTML = '<div class="einl-w-t">Du wurdest eingeladen</div>'
+        + '<div class="einl-w-d">Melde dich an oder erstelle ein Konto \u2013 danach bist du automatisch Teil von <b>' + escapeHtml(v.firma_name || 'diesem Unternehmen') + '</b>.</div>';
+    } else {
+      box.className += ' einl-w-fehler';
+      box.innerHTML = '<div class="einl-w-t">Einladung ung\u00fcltig</div>'
+        + '<div class="einl-w-d">Dieser Einladungslink ist abgelaufen oder wurde bereits verwendet. Bitte fordere einen neuen an.</div>';
+    }
+    karte.insertBefore(box, karte.firstChild);
+  } catch (e) {}
+}
+
+function einlToken() {
+  const z = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789';
+  const a = new Uint8Array(24); crypto.getRandomValues(a);
+  let t = ''; for (let i = 0; i < a.length; i++) t += z[a[i] % z.length];
+  return t;
+}
+
+async function einladungErstellen() {
+  if (!sb || !CURRENT_FIRMA) return;
+  const rang = (document.getElementById('einlRang') || {}).value || 'member';
+  const notiz = ((document.getElementById('einlNotiz') || {}).value || '').trim().slice(0, 80);
+  try {
+    const { error } = await sb.from('team_einladungen').insert({
+      token: einlToken(),
+      firma_id: CURRENT_FIRMA.firma_id,
+      rang: rang,
+      rolle: (rang === 'vice' || rang === 'president') ? 'admin' : 'mitglied',
+      erstellt_von: CURRENT_USER_ID,
+      notiz: notiz || null,
+      ablauf: new Date(Date.now() + 7 * 24 * 3600 * 1000).toISOString(),
+      max_nutzungen: 1
+    });
+    if (error) throw error;
+    const n = document.getElementById('einlNotiz'); if (n) n.value = '';
+    await ladeEinladungen();
+  } catch (e) { alert('Einladung konnte nicht erstellt werden: ' + ((e && e.message) || '')); }
+}
+
+async function ladeEinladungen() {
+  const ziel = document.getElementById('einlListe');
+  if (!ziel || !sb) return;
+  try {
+    const { data } = await sb.from('team_einladungen')
+      .select('*').eq('aktiv', true).gt('ablauf', new Date().toISOString())
+      .order('created_at', { ascending: false }).limit(10);
+    const liste = data || [];
+    if (!liste.length) { ziel.innerHTML = '<div class="einl-leer">Noch keine offenen Einladungen.</div>'; return; }
+    ziel.innerHTML = liste.map(function(e){
+      const url = location.origin + location.pathname + '?einladung=' + e.token;
+      const rest = Math.max(0, Math.ceil((new Date(e.ablauf).getTime() - Date.now()) / 86400000));
+      return '<div class="einl-row">'
+        + '<div class="einl-info">'
+        + '<span class="tm-badge tm-' + (RANG_INFO[e.rang] || RANG_INFO.member).farbe + '">' + rangName(e.rang) + '</span>'
+        + (e.notiz ? '<span class="einl-notiz">' + escapeHtml(e.notiz) + '</span>' : '')
+        + '<span class="einl-rest">noch ' + rest + ' Tag' + (rest === 1 ? '' : 'e') + '</span>'
+        + '</div>'
+        + '<div class="einl-link-row">'
+        + '<input class="kyc-link-input" readonly value="' + url + '" onclick="this.select()" />'
+        + '<button class="kyc-btn" onclick="einlKopieren(this)">Kopieren</button>'
+        + '<button class="kyc-btn kyc-btn-del" onclick="einlWiderrufen(\'' + e.id + '\')">Widerrufen</button>'
+        + '</div></div>';
+    }).join('');
+  } catch (e) { ziel.innerHTML = ''; }
+}
+
+function einlKopieren(btn) {
+  const inp = btn.parentNode.querySelector('input');
+  if (!inp) return;
+  inp.select(); inp.setSelectionRange(0, 99999);
+  try { navigator.clipboard.writeText(inp.value); } catch(e) { try { document.execCommand('copy'); } catch(e2) {} }
+  const alt = btn.textContent; btn.textContent = 'Kopiert \u2713';
+  setTimeout(function(){ btn.textContent = alt; }, 1400);
+}
+
+async function einlWiderrufen(id) {
+  if (!confirm('Diesen Einladungslink wirklich ung\u00fcltig machen?')) return;
+  try {
+    await sb.from('team_einladungen').update({ aktiv: false }).eq('id', id);
+    await ladeEinladungen();
+  } catch (e) { alert('Konnte nicht widerrufen werden.'); }
 }
 
 async function teamAktion(aktion, userId) {
@@ -2828,7 +3085,8 @@ async function teamAktion(aktion, userId) {
   try {
     const { error } = await sb.rpc(rpc, { p_user: userId });
     if (error) throw error;
-    await ladeMeineRolle();                       // evtl. eigene Rolle geändert (Selbst-Zurückstufung)
+    await ladeMeineRolle();
+  try { await ladeMeinenRang(); } catch(e) {}                       // evtl. eigene Rolle geändert (Selbst-Zurückstufung)
     if (CURRENT_USER_ROLLE === 'admin') await _openTeam();
     else backToMain();                            // kein Host mehr -> zurück zur Analyse
   } catch (e) {
@@ -3022,6 +3280,7 @@ function infoWarn(titel, text, farbe) {
 
 // ===== ÖFFENTLICHE UPLOAD-SEITE (per Link) =====
 const UPLOAD_TOKEN = (function(){ try { return new URLSearchParams(location.search).get('upload') || ''; } catch(e) { return ''; } })();
+const EINLADUNG_TOKEN = (function(){ try { return new URLSearchParams(location.search).get('einladung') || ''; } catch(e) { return ''; } })();
 let UPLOAD_INFO = null;
 
 async function showUploadGate() {
@@ -3752,7 +4011,7 @@ if (sb) {
   (async () => {
     try {
       const { data } = await sb.auth.getSession();
-      if (UPLOAD_TOKEN) { showUploadGate(); } else if (data && data.session) showApp(data.session); else showLanding();
+      if (UPLOAD_TOKEN) { showUploadGate(); } else if (data && data.session) showApp(data.session); else if (EINLADUNG_TOKEN) { showGate(); einladungHinweis(); } else showLanding();
     } catch (e) {
       if (UPLOAD_TOKEN) { showUploadGate(); } else showLanding();
     }
