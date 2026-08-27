@@ -835,6 +835,16 @@
     .einw-details p:first-child { margin-top:16px; }
     .einw-details b { color:var(--ink2,#2A3B33); }
     .einw-hinweis { font-style:italic; color:#B45309 !important; background:#FEF9EC; border-radius:8px; padding:8px 10px; }
+    /* Datenschutzhinweis auf der Upload-Seite */
+    .ds-hinweis { background:linear-gradient(180deg,#F7FBFF,#fff); border:1.5px solid #C7DDF5; border-radius:14px; padding:14px 16px; margin-bottom:14px; animation:upSlide .5s cubic-bezier(.2,.7,.2,1) both; }
+    .ds-kopf { display:flex; align-items:center; gap:8px; font-size:12.5px; font-weight:800; color:#1E4E8C; margin-bottom:7px; }
+    .ds-text { font-size:11.5px; line-height:1.65; color:#41566E; }
+    /* Haftungsausschluss im Tool */
+    .haft-box { margin-top:14px; padding:13px 15px; background:var(--neutral,#F6F8F9); border:1px solid var(--border,#E2E6E9); border-left:3px solid var(--gray-l,#8A949D); border-radius:0 12px 12px 0; }
+    .haft-t { font-size:11.5px; font-weight:800; letter-spacing:.04em; text-transform:uppercase; color:var(--gray,#5A6670); margin-bottom:6px; }
+    .haft-d { font-size:11.5px; line-height:1.7; color:var(--gray,#5A6670); }
+    .kyc-print-haft { font-size:9px; line-height:1.5; color:#555; margin-top:10px; padding-top:8px; border-top:1px solid #ddd; }
+    @media (max-width:760px) { .ds-hinweis { padding:12px 13px; } .ds-text { font-size:11px; } }
     .up-senden-aus, .up-senden:disabled { background:#D5E3DB !important; box-shadow:none !important; cursor:not-allowed; animation:none; }
     .up-senden-aus:hover, .up-senden:disabled:hover { transform:none !important; box-shadow:none !important; }
     .up-pid { font-family:ui-monospace, Menlo, monospace; font-size:.94em; letter-spacing:.02em; }
@@ -2201,7 +2211,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.73</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.74</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -3575,11 +3585,19 @@ function uploadRender() {
   const firma = (UPLOAD_INFO && UPLOAD_INFO.firmenname) ? escapeHtml(UPLOAD_INFO.firmenname) : 'das pr\u00fcfende Unternehmen';
   const erst = !UPLOAD_GEZEICHNET;
   UPLOAD_GEZEICHNET = true;
+  const dsHtml = '<div class="ds-hinweis">'
+    + '<div class="ds-kopf"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>'
+    + '<span>Datenschutzhinweis f\u00fcr diesen Upload</span></div>'
+    + '<div class="ds-text">Deine Dokumente werden ausschlie\u00dflich an das Unternehmen \u00fcbermittelt, das dich zu diesem Upload eingeladen hat. Dieses Unternehmen ist f\u00fcr die Verarbeitung deiner Daten verantwortlich. '
+    + 'Die Automati Labs GmbH stellt die Technik bereit und verarbeitet die Daten ausschlie\u00dflich im Auftrag \u2013 auf Servern innerhalb der EU. '
+    + 'Grundlage sind deine Einwilligung sowie die gesetzlichen Sorgfaltspflichten nach dem Geldw\u00e4schegesetz. Einzelheiten findest du unten bei \u201eDetails zur Datenverarbeitung\u201c.</div>'
+    + '</div>';
+
   const refHtml = (UPLOAD_INFO && UPLOAD_INFO.ref_code)
     ? '<div class="ref-box ref-box-up"><div class="ref-label">Best\u00e4tigungscode</div><div class="ref-code">' + escapeHtml(UPLOAD_INFO.ref_code) + '</div>'
       + '<div class="ref-hint">Gleiche diesen Code mit der Person ab, die dir den Link geschickt hat. Stimmt er nicht \u00fcberein, lade nichts hoch.</div></div>'
     : '';
-  body.innerHTML = refHtml + '<div class="kyc-grid up-grid' + (erst ? ' up-erst' : '') + '" style="margin-top:6px;">'
+  body.innerHTML = dsHtml + refHtml + '<div class="kyc-grid up-grid' + (erst ? ' up-erst' : '') + '" style="margin-top:6px;">'
     + box('ausweis', 'Personalausweis', 'Bild oder PDF hierher ziehen \u2013 oder unten w\u00e4hlen', 'environment')
     + box('selfie', 'Best\u00e4tigungsfoto (Selfie)', 'Ein Foto von dir mit Bezug zum Ausweis', 'user')
     + '</div>'
@@ -3593,7 +3611,7 @@ function uploadRender() {
 }
 
 // ===== Einwilligung (ENTWURF - juristische Freigabe steht aus) =====
-const EINWILLIGUNG_VERSION = 'entwurf-2026-08';
+const EINWILLIGUNG_VERSION = 'v2-2026-08';   // Fassung nach anwaltlicher Vorgabe
 let EINWILLIGUNG_OK = false;
 
 function einwilligungHtml(firma) {
@@ -3612,7 +3630,7 @@ function einwilligungHtml(firma) {
     + '<p><b>Wie lange?</b><br/>Die Aufbewahrung richtet sich nach den gesetzlichen Fristen des Geldw\u00e4schegesetzes (in der Regel f\u00fcnf Jahre nach Ende der Gesch\u00e4ftsbeziehung). Danach werden die Daten gel\u00f6scht.</p>'
     + '<p><b>Freiwilligkeit &amp; Widerruf</b><br/>Die Bereitstellung ist freiwillig; ohne die Dokumente kann die Gesch\u00e4ftsbeziehung jedoch gegebenenfalls nicht zustande kommen. Du kannst deine Einwilligung jederzeit mit Wirkung f\u00fcr die Zukunft gegen\u00fcber ' + firma + ' widerrufen. Gesetzliche Aufbewahrungspflichten bleiben davon unber\u00fchrt.</p>'
     + '<p><b>Deine Rechte</b><br/>Dir stehen Auskunft, Berichtigung, L\u00f6schung, Einschr\u00e4nkung, Daten\u00fcbertragbarkeit und Widerspruch zu; au\u00dferdem das Recht auf Beschwerde bei einer Datenschutz-Aufsichtsbeh\u00f6rde. Wende dich dazu bitte an ' + firma + '.</p>'
-    + '<p class="einw-hinweis">Hinweis: Dieser Text ist ein Entwurf und wird derzeit anwaltlich gepr\u00fcft.</p>'
+    + '<p><b>Haftungsausschluss der Automati Labs GmbH</b><br/>Wir erkl\u00e4ren ausdr\u00fccklich, dass wir keinerlei Haftung f\u00fcr die Authentizit\u00e4t, die Richtigkeit und/oder Vollst\u00e4ndigkeit der hochgeladenen und/oder erstellten Aufnahmen \u00fcbernehmen. Es obliegt einzig und allein in der Verantwortung des Nutzers zu ermitteln, ob die verifizierte Person identisch mit den \u00fcbermittelten Ausweisdokumenten ist. Jedwede Art von Verantwortlichkeit wird unsererseits ausdr\u00fccklich ausgeschlossen.</p>'
     + '</div></div>';
 }
 
@@ -5090,6 +5108,10 @@ function kycRender() {
     + (KYC.doks.ausweis || KYC.doks.selfie ? '' : '')
     + kycLinkHtml()
     + '<div class="kyc-note">Beim Drucken der Akte werden hochgeladene Bilder automatisch als Anlagen angeh\u00e4ngt. Zugriff nur f\u00fcr dein Unternehmen.</div>'
+    + '<div class="haft-box"><div class="haft-t">Haftungsausschluss</div>'
+    + '<div class="haft-d">Wir \u00fcbernehmen keinerlei Haftung f\u00fcr die Authentizit\u00e4t, die Richtigkeit und/oder Vollst\u00e4ndigkeit der hochgeladenen und/oder erstellten Aufnahmen. '
+    + 'Es obliegt einzig und allein in Ihrer Verantwortung zu ermitteln, ob die verifizierte Person identisch mit den \u00fcbermittelten Ausweisdokumenten ist. '
+    + 'Jedwede Art von Verantwortlichkeit wird unsererseits ausdr\u00fccklich ausgeschlossen.</div></div>'
     + '</div>'
     + kycPrintHtml();
   mount.style.display = 'block';
@@ -6241,7 +6263,8 @@ async function _akteDrucken(folderId) {
         let seite;
         const url = urlMap[d.storage_path];
         if (url) {
-          seite = '<div class="kyc-print-page"><div class="kyc-print-t">' + escapeHtml(titel) + '</div><img class="kyc-print-img" src="' + url + '" alt="" /></div>';
+          seite = '<div class="kyc-print-page"><div class="kyc-print-t">' + escapeHtml(titel) + '</div><img class="kyc-print-img" src="' + url + '" alt="" />'
+            + '<div class="kyc-print-haft">Haftungsausschluss: Die Automati Labs GmbH \u00fcbernimmt keinerlei Haftung f\u00fcr die Authentizit\u00e4t, die Richtigkeit und/oder Vollst\u00e4ndigkeit der hochgeladenen und/oder erstellten Aufnahmen. Es obliegt einzig und allein in der Verantwortung des Nutzers zu ermitteln, ob die verifizierte Person identisch mit den \u00fcbermittelten Ausweisdokumenten ist. Jedwede Art von Verantwortlichkeit wird ausdr\u00fccklich ausgeschlossen.</div></div>';
         } else {
           seite = '<div class="kyc-print-page"><div class="kyc-print-t">' + escapeHtml(titel) + '</div><div style="font-size:12px;">Dokument liegt als PDF-Datei in der digitalen Akte vor (' + escapeHtml(d.datei_name || '') + ').</div></div>';
         }
