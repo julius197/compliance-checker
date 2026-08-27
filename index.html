@@ -875,6 +875,19 @@
     .rang-zeile .tm-badge { flex-shrink:0; min-width:132px; justify-content:center; }
     .rang-text { font-size:12.5px; line-height:1.6; color:var(--gray,#5A6670); }
     /* Team: Eingangs-Animationen */
+    /* Lade-Platzhalter (kein Springen beim Aufbau) */
+    #teamSkeleton { transition:opacity .22s ease; animation:histIn .35s ease both; }
+    .sk-block { background:var(--card,#fff); border:1px solid var(--border,#E2E6E9); border-radius:18px; padding:20px; margin-bottom:18px; }
+    .sk-line, .sk-pill, .sk-member { background:linear-gradient(90deg, #EDF1F3 25%, #F6F9FA 50%, #EDF1F3 75%); background-size:200% 100%; animation:skGlanz 1.4s ease-in-out infinite; border-radius:8px; }
+    @keyframes skGlanz { 0% { background-position:200% 0; } 100% { background-position:-200% 0; } }
+    .sk-line { height:13px; margin-bottom:10px; }
+    .sk-w25 { width:25%; } .sk-w40 { width:40%; } .sk-w70 { width:70%; }
+    .sk-row { display:flex; gap:9px; margin-top:16px; }
+    .sk-pill { height:36px; width:150px; border-radius:10px; }
+    .sk-flex { flex:1; } .sk-btn { width:190px; }
+    .sk-member { height:66px; border-radius:14px; margin-bottom:10px; }
+    @media (max-width:760px) { .sk-row { flex-direction:column; } .sk-pill, .sk-btn { width:100%; } }
+
     .tm-anim { opacity:0; animation:histIn .45s cubic-bezier(.2,.7,.2,1) both; }
     .rang-anim { opacity:0; animation:histIn .45s cubic-bezier(.2,.7,.2,1) both; }
     .tb-anim { opacity:0; animation:histIn .5s cubic-bezier(.2,.7,.2,1) .05s both; }
@@ -2080,7 +2093,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.67</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.68</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -2699,8 +2712,47 @@ let SESSION_GEROUTET = false;
 
 let EINLADUNG_ERLEDIGT = false;
 
+// Fragt nach, bevor jemand sein bestehendes Konto gegen ein Team eintauscht
+function einladungWechselFrage(firmaName, alteFirma) {
+  return new Promise(function(res){
+    const box = document.createElement('div');
+    box.className = 'up-warn-back';
+    box.innerHTML = '<div class="up-warn-card">'
+      + '<div class="up-warn-ico">\u21C4</div>'
+      + '<div class="up-warn-t">Zu diesem Team wechseln?</div>'
+      + '<div class="up-warn-d">Du bist aktuell im Konto <b>' + escapeHtml(alteFirma || 'Eigenes Konto') + '</b>.<br/>'
+      + 'Wenn du beitrittst, arbeitest du ab sofort im Team <b>' + escapeHtml(firmaName || '') + '</b>. '
+      + 'Deine bisherigen Pr\u00fcfungen bleiben in deinem alten Konto gespeichert und sind im Team nicht sichtbar.</div>'
+      + '<div class="up-warn-btns">'
+      + '<button class="kyc-btn" id="ewNein">Abbrechen</button>'
+      + '<button class="up-senden up-warn-ok" id="ewJa">Ja, dem Team beitreten</button>'
+      + '</div></div>';
+    document.body.appendChild(box);
+    requestAnimationFrame(function(){ box.classList.add('an'); });
+    function schliessen(antwort) {
+      box.classList.remove('an');
+      setTimeout(function(){ if (box.parentNode) box.remove(); res(antwort); }, 240);
+    }
+    box.querySelector('#ewJa').onclick = function(){ schliessen(true); };
+    box.querySelector('#ewNein').onclick = function(){ schliessen(false); };
+  });
+}
+
 async function einladungPruefen() {
   if (!EINLADUNG_TOKEN || !sb || EINLADUNG_ERLEDIGT) return false;
+  // Gehoert der Nutzer schon zu einem Konto? Dann vorher fragen.
+  if (CURRENT_FIRMA && CURRENT_FIRMA.firma_id) {
+    let zielName = '';
+    try {
+      const { data } = await sb.rpc('einladung_vorschau', { p_token: EINLADUNG_TOKEN });
+      const v = (data && data[0]) || null;
+      if (!v || !v.gueltig) { EINLADUNG_ERLEDIGT = true; einladungVergessen(); return false; }
+      zielName = v.firma_name || '';
+      if (CURRENT_FIRMA.firma_name === zielName) { EINLADUNG_ERLEDIGT = true; einladungVergessen(); return false; }
+    } catch(e) {}
+    const ja = await einladungWechselFrage(zielName, CURRENT_FIRMA.firma_name);
+    if (!ja) { EINLADUNG_ERLEDIGT = true; einladungVergessen(); return false; }
+  }
   EINLADUNG_ERLEDIGT = true;
   try {
     const { data, error } = await sb.rpc('einladung_annehmen', { p_token: EINLADUNG_TOKEN });
@@ -2709,6 +2761,7 @@ async function einladungPruefen() {
       einladungVergessen();
       try { history.replaceState({}, '', location.pathname); } catch(e) {}
       if (data.hinweis !== 'schon_mitglied') {
+        try { await ladeMeinenRang(); } catch(e) {}
         setTimeout(function(){ zeigeToast('Willkommen im Team!', 'Du wurdest dem Unternehmen als ' + rangName(data.rang) + ' hinzugef\u00fcgt.'); }, 1200);
       }
       return true;
@@ -2818,7 +2871,11 @@ async function _openTeam() {
         Zurück zur Analyse
       </button>
     </div>
-    <div class="history-loading"><div class="spinner"></div><div>Team wird geladen…</div></div>`;
+    <div id="teamSkeleton">
+      <div class="sk-block"><div class="sk-line sk-w40"></div><div class="sk-line sk-w70"></div><div class="sk-row"><div class="sk-pill"></div><div class="sk-pill sk-flex"></div><div class="sk-pill sk-btn"></div></div></div>
+      <div class="sk-line sk-w25" style="margin:22px 0 12px;"></div>
+      <div class="sk-member"></div><div class="sk-member"></div><div class="sk-member"></div>
+    </div>`;
 
   if (!sb) { teamError('Keine Verbindung zur Datenbank.'); return; }
   try {
@@ -2905,6 +2962,8 @@ function teamError(msg) {
 
 function renderTeam() {
   const tv = document.getElementById('teamView');
+  const sk = document.getElementById('teamSkeleton');
+  if (sk) { sk.style.opacity = '0'; setTimeout(function(){ if (sk.parentNode) sk.remove(); }, 220); }
   const loading = tv.querySelector('.history-loading'); if (loading) loading.remove();
   const old = document.getElementById('teamBody'); if (old) old.remove();
 
@@ -3680,16 +3739,15 @@ function istTrialFirma(f) {
 
 async function ladeKontingent() {
   if (!sb) return;
+  // Einladung zuerst: gilt auch dann, wenn bereits ein eigenes Konto besteht
+  if (EINLADUNG_TOKEN && !EINLADUNG_ERLEDIGT) {
+    try { await einladungPruefen(); } catch(e) {}
+  }
   try {
     const { data, error } = await sb.rpc('kontingent_status');
     if (error) throw error;
     const row = (data && data.length) ? data[0] : null;
     if (!row) {                 // Nutzer gehört zu keiner Firma
-      // Liegt eine Einladung vor? Dann zuerst beitreten, statt das Onboarding zu zeigen.
-      if (EINLADUNG_TOKEN && !EINLADUNG_ERLEDIGT) {
-        const ok = await einladungPruefen();
-        if (ok) { try { await ladeMeinenRang(); } catch(e) {} await ladeKontingent(); return; }
-      }
       CURRENT_FIRMA = null;
       showOnboarding();
       return;
