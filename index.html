@@ -831,6 +831,12 @@
     .up-senden-aus, .up-senden:disabled { background:#D5E3DB !important; box-shadow:none !important; cursor:not-allowed; animation:none; }
     .up-senden-aus:hover, .up-senden:disabled:hover { transform:none !important; box-shadow:none !important; }
     .up-pid { font-family:ui-monospace, Menlo, monospace; font-size:.94em; letter-spacing:.02em; }
+    .ref-box { background:linear-gradient(135deg,#0A0F0D,#131E17); border:1px solid rgba(34,197,94,.3); border-radius:14px; padding:14px 16px; margin:12px 0; text-align:center; animation:upSlide .5s cubic-bezier(.2,.7,.2,1) both; }
+    .ref-box-up { margin:0 0 16px; }
+    .ref-label { font-size:10.5px; font-weight:800; letter-spacing:.11em; text-transform:uppercase; color:#7FCFA0; margin-bottom:5px; }
+    .ref-code { font-family:ui-monospace, 'SF Mono', Menlo, monospace; font-size:27px; font-weight:800; letter-spacing:.14em; color:#fff; line-height:1.1; text-shadow:0 0 22px rgba(34,197,94,.55); }
+    .ref-hint { font-size:11.5px; line-height:1.55; color:#9CB3A8; margin-top:8px; max-width:400px; margin-left:auto; margin-right:auto; }
+    @media print { .ref-box { display:none !important; } }
     .up-warn-einw { font-size:12px; font-weight:700; color:var(--green-d,#16A34A); background:var(--green-pale,#EAF9F0); border-radius:9px; padding:8px 12px; margin-bottom:16px; }
     .tr-toast-t { font-size:13.5px; font-weight:800; color:var(--ink,#10231A); margin-bottom:4px; }
     .tr-toast-d { font-size:12.5px; color:var(--gray,#5B6E64); line-height:1.5; }
@@ -1777,7 +1783,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.56</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.57</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -2869,7 +2875,11 @@ function uploadRender() {
   const firma = (UPLOAD_INFO && UPLOAD_INFO.firmenname) ? escapeHtml(UPLOAD_INFO.firmenname) : 'das pr\u00fcfende Unternehmen';
   const erst = !UPLOAD_GEZEICHNET;
   UPLOAD_GEZEICHNET = true;
-  body.innerHTML = '<div class="kyc-grid up-grid' + (erst ? ' up-erst' : '') + '" style="margin-top:6px;">'
+  const refHtml = (UPLOAD_INFO && UPLOAD_INFO.ref_code)
+    ? '<div class="ref-box ref-box-up"><div class="ref-label">Best\u00e4tigungscode</div><div class="ref-code">' + escapeHtml(UPLOAD_INFO.ref_code) + '</div>'
+      + '<div class="ref-hint">Gleiche diesen Code mit der Person ab, die dir den Link geschickt hat. Stimmt er nicht \u00fcberein, lade nichts hoch.</div></div>'
+    : '';
+  body.innerHTML = refHtml + '<div class="kyc-grid up-grid' + (erst ? ' up-erst' : '') + '" style="margin-top:6px;">'
     + box('ausweis', 'Personalausweis', 'Bild oder PDF hierher ziehen \u2013 oder unten w\u00e4hlen', 'environment')
     + box('selfie', 'Best\u00e4tigungsfoto (Selfie)', 'Ein Foto von dir mit Bezug zum Ausweis', 'user')
     + '</div>'
@@ -4312,6 +4322,10 @@ function kycLinkHtml() {
     const rest = Math.max(0, Math.ceil((new Date(KYC.link.ablauf).getTime() - Date.now()) / 3600000));
     return '<div class="kyc-link">'
       + '<div class="kyc-link-t">\uD83D\uDD17 Upload-Link \u00b7 g\u00fcltig noch ' + rest + ' Std.</div>'
+      + (KYC.link.ref_code
+          ? '<div class="ref-box"><div class="ref-label">Best\u00e4tigungscode</div><div class="ref-code">' + escapeHtml(KYC.link.ref_code) + '</div>'
+            + '<div class="ref-hint">Nenne der Person diesen Code am Telefon. Sie sieht ihn auf der Upload-Seite \u2013 so wei\u00df sie sicher, dass der Link wirklich von dir stammt.</div></div>'
+          : '')
       + '<div class="kyc-link-row">'
       + '<input class="kyc-link-input" id="kycLinkInput" readonly value="' + url + '" onclick="this.select()" />'
       + '<button class="kyc-btn" onclick="kycLinkKopieren()">Kopieren</button>'
@@ -4335,6 +4349,15 @@ function kycToken() {
   return t;
 }
 
+function kycRefCode() {
+  const z = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';   // ohne I, O, 0, 1 -> keine Verwechslung
+  const a = new Uint8Array(6);
+  crypto.getRandomValues(a);
+  let c = '';
+  for (let i = 0; i < 6; i++) c += z[a[i] % z.length];
+  return c.slice(0,3) + '-' + c.slice(3);
+}
+
 async function kycLinkNeu() {
   if (!KYC.analyseId || !CURRENT_FIRMA || !sb) return;
   try {
@@ -4344,6 +4367,7 @@ async function kycLinkNeu() {
       analyse_id: KYC.analyseId,
       firma_id: CURRENT_FIRMA.firma_id,
       erstellt_von: (typeof CURRENT_USER_ID !== 'undefined' ? CURRENT_USER_ID : null),
+      ref_code: kycRefCode(),
       ablauf: new Date(Date.now() + 72 * 3600 * 1000).toISOString()
     });
     if (error) throw error;
