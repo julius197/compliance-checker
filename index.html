@@ -867,6 +867,37 @@
     .einl-liste { min-height:34px; }
     .team-block { margin-bottom:22px; }
     .team-liste { display:flex; flex-direction:column; gap:10px; margin-top:14px; }
+    /* ===== Historie: Überblick ===== */
+    .hu-leiste { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)) 1.6fr; gap:12px; margin-bottom:20px; animation:teamIn .45s cubic-bezier(.2,.7,.2,1) both; }
+    .hu-karte { background:var(--card,#fff); border:1px solid var(--border,#E2E6E9); border-radius:14px; padding:14px 16px; }
+    .hu-wert { font-family:'Sora', inherit; font-size:26px; font-weight:800; line-height:1.1; color:var(--ink,#111827); }
+    .hu-wert.hu-gruen { color:#16A34A; } .hu-wert.hu-gelb { color:#A16207; } .hu-wert.hu-rot { color:#B42318; } .hu-wert.hu-grau { color:var(--gray-l,#8A949D); }
+    .hu-label { font-size:11px; font-weight:700; letter-spacing:.03em; color:var(--gray,#5A6670); margin-top:3px; }
+    .hu-weit { display:flex; flex-direction:column; justify-content:center; }
+    .hu-balken { display:flex; height:11px; border-radius:999px; overflow:hidden; background:var(--neutral2,#EFF2F4); }
+    .hu-teil { display:block; height:100%; transition:width .5s cubic-bezier(.2,.7,.2,1); }
+    .hu-b-gruen { background:linear-gradient(90deg,#16A34A,#22C55E); }
+    .hu-b-gelb { background:linear-gradient(90deg,#D97706,#F59E0B); }
+    .hu-b-rot { background:linear-gradient(90deg,#B42318,#DC2626); }
+    .hu-b-leer { background:var(--neutral2,#EFF2F4); }
+    .hu-legende { display:flex; gap:14px; flex-wrap:wrap; margin-top:9px; font-size:11px; font-weight:600; color:var(--gray,#5A6670); }
+    .hu-legende span { display:inline-flex; align-items:center; gap:5px; }
+    .hu-p { width:8px; height:8px; border-radius:50%; display:inline-block; }
+
+    /* ===== Historie: Sortierleiste ===== */
+    .hs-leiste { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin:4px 0 14px; padding-bottom:12px; border-bottom:1px solid var(--border2,#EDF0F2); }
+    .hs-anzahl { font-size:12.5px; font-weight:700; color:var(--gray,#5A6670); }
+    .hs-sort { display:flex; align-items:center; gap:8px; }
+    .hs-sort label { font-size:11.5px; font-weight:700; color:var(--gray-l,#8A949D); }
+
+    @media (max-width:760px) {
+      .hu-leiste { grid-template-columns:1fr 1fr; }
+      .hu-weit { grid-column:1 / -1; }
+      .hu-wert { font-size:22px; }
+      .hs-leiste { flex-direction:column; align-items:stretch; gap:9px; }
+      .hs-sort { width:100%; }
+      .hs-sort .tm-select { flex:1; }
+    }
     /* Filter-Chips fuer geteilte/private Ordner */
     .chip-geteilt.active { background:#16A34A; border-color:#16A34A; color:#fff; }
     .chip-privat.active { background:#5A6670; border-color:#5A6670; color:#fff; }
@@ -1438,7 +1469,7 @@
     .auth-card, #planGate .plan-wrap, #zahlungGate .plan-wrap { animation: premiumIn .42s cubic-bezier(.16,1,.3,1); }
     .view-anim { animation: premiumIn .42s cubic-bezier(.16,1,.3,1); }
     @keyframes premiumOut { from { opacity:1; transform:none; } to { opacity:0; transform:translateY(-8px); } }
-    .view-out { animation: premiumOut .16s cubic-bezier(.4,0,1,1) forwards; pointer-events:none; }
+    .view-out { animation: premiumOut .19s cubic-bezier(.4,0,.6,1) forwards; pointer-events:none; }
     /* Gates sanft rausfaden */
     @keyframes screenOut { from { opacity:1; } to { opacity:0; } }
     .screen-out { animation: screenOut .2s ease forwards !important; pointer-events:none; }
@@ -2158,7 +2189,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.71</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.72</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -2698,7 +2729,9 @@ let CURRENT_FIRMA = null; // { firma_id, firma_name, typ, monatslimit, verbrauch
 let ORDNER_LIST = [];            // sichtbare Ordner des Nutzers
 let NEUER_ORDNER_SICHT = 'privat';
 let SELECTED_ORDNER_ID = null;   // beim Analysieren gewählter Ordner
-let HISTORY_FILTER = 'alle';     // 'alle' | 'ohne' | <ordner_id>
+let HISTORY_FILTER = 'alle';
+let HISTORY_SORT = 'neu';
+function setHistorySort(v) { HISTORY_SORT = v; renderHistoryList(); }     // 'alle' | 'ohne' | <ordner_id>
 const ORDNER_FARBEN = ['#22C55E','#3B82F6','#F59E0B','#EF4444','#8B5CF6','#EC4899','#14B8A6','#6B7280'];
 // ===== TEAM (v9.2) =====
 let CURRENT_USER_ROLLE = '';     // 'admin' (Host) | 'mitglied' (Mitarbeiter)
@@ -2752,7 +2785,12 @@ function mitAusBlende(cb) {
   if (cur) {
     cur.classList.remove('view-anim');
     cur.classList.add('view-out');
-    setTimeout(function () { if (cur) cur.classList.remove('view-out'); cb(); }, 160);
+    setTimeout(function () {
+      cb();                                   // erst wechseln (alte Ansicht wird versteckt)
+      requestAnimationFrame(function(){       // dann erst die Klasse loesen -> kein Aufblitzen
+        if (cur) cur.classList.remove('view-out');
+      });
+    }, 190);
   } else {
     cb();
   }
@@ -5683,6 +5721,37 @@ function renderHistoryList() {
 
   const einzel = !!(CURRENT_FIRMA && CURRENT_FIRMA.typ === 'einzel');
 
+  // ---------- Überblick: Kennzahlen ----------
+  const jetzt = new Date();
+  const monatStart = new Date(jetzt.getFullYear(), jetzt.getMonth(), 1).getTime();
+  const scores = HISTORY_ROWS.map(function(r){ return (r.score != null ? r.score : null); }).filter(function(s){ return s !== null; });
+  const schnitt = scores.length ? Math.round(scores.reduce(function(a,b){ return a+b; }, 0) / scores.length) : null;
+  const nGruen = HISTORY_ROWS.filter(function(r){ return r.score >= 70; }).length;
+  const nGelb  = HISTORY_ROWS.filter(function(r){ return r.score >= 45 && r.score < 70; }).length;
+  const nRot   = HISTORY_ROWS.filter(function(r){ return r.score != null && r.score < 45; }).length;
+  const nMonat = HISTORY_ROWS.filter(function(r){ return new Date(r.created_at).getTime() >= monatStart; }).length;
+  const gesamtBewertet = nGruen + nGelb + nRot;
+  function anteil(n) { return gesamtBewertet ? Math.round(n / gesamtBewertet * 100) : 0; }
+  const schnittFarbe = schnitt === null ? 'grau' : (schnitt >= 70 ? 'gruen' : (schnitt >= 45 ? 'gelb' : 'rot'));
+
+  const uebersicht = '<div class="hu-leiste">'
+    + '<div class="hu-karte"><div class="hu-wert">' + HISTORY_ROWS.length + '</div><div class="hu-label">Pr\u00fcfungen gesamt</div></div>'
+    + '<div class="hu-karte"><div class="hu-wert">' + nMonat + '</div><div class="hu-label">Diesen Monat</div></div>'
+    + '<div class="hu-karte"><div class="hu-wert hu-' + schnittFarbe + '">' + (schnitt === null ? '\u2013' : schnitt) + '</div><div class="hu-label">\u00d8 Vertrauens-Score</div></div>'
+    + '<div class="hu-karte hu-weit">'
+    + '<div class="hu-label" style="margin-bottom:8px;">Verteilung der Einstufungen</div>'
+    + '<div class="hu-balken">'
+    + (nGruen ? '<span class="hu-teil hu-b-gruen" style="width:' + anteil(nGruen) + '%" title="Geringe Auff\u00e4lligkeiten: ' + nGruen + '"></span>' : '')
+    + (nGelb  ? '<span class="hu-teil hu-b-gelb"  style="width:' + anteil(nGelb)  + '%" title="Erh\u00f6hte Sorgfaltspflicht: ' + nGelb + '"></span>' : '')
+    + (nRot   ? '<span class="hu-teil hu-b-rot"   style="width:' + anteil(nRot)   + '%" title="Verst\u00e4rkte Sorgfaltspflicht: ' + nRot + '"></span>' : '')
+    + (gesamtBewertet ? '' : '<span class="hu-teil hu-b-leer" style="width:100%"></span>')
+    + '</div>'
+    + '<div class="hu-legende">'
+    + '<span><i class="hu-p hu-b-gruen"></i>' + nGruen + ' unauff\u00e4llig</span>'
+    + '<span><i class="hu-p hu-b-gelb"></i>' + nGelb + ' zu pr\u00fcfen</span>'
+    + '<span><i class="hu-p hu-b-rot"></i>' + nRot + ' kritisch</span>'
+    + '</div></div></div>';
+
   // Zähler pro Ordner / gesamt / ohne
   const total = HISTORY_ROWS.length;
   const ohneCount = HISTORY_ROWS.filter(function(r){ return !r.ordner_id; }).length;
@@ -5728,6 +5797,18 @@ function renderHistoryList() {
   // Ordner-Optionen für das Verschieben-Dropdown
   const moveOpts = '<option value="">In Ordner verschieben…</option><option value="__none">→ Ohne Ordner</option>'
     + ORDNER_LIST.map(function(o){ return '<option value="' + o.id + '">' + escapeHtml(o.name) + '</option>'; }).join('');
+
+  // ---------- Sortierung ----------
+  rowsData = rowsData.slice().sort(function(a, b){
+    const sa = (a.score != null ? a.score : -1), sb = (b.score != null ? b.score : -1);
+    switch (HISTORY_SORT) {
+      case 'alt':       return new Date(a.created_at) - new Date(b.created_at);
+      case 'score_auf': return sa - sb;
+      case 'score_ab':  return sb - sa;
+      case 'name':      return String(a.firmenname || '').localeCompare(String(b.firmenname || ''), 'de');
+      default:          return new Date(b.created_at) - new Date(a.created_at);
+    }
+  });
 
   let listHtml;
   if (!rowsData.length) {
@@ -5786,7 +5867,18 @@ function renderHistoryList() {
     }
   }
 
-  view.insertAdjacentHTML('beforeend', '<div id="histBody">' + filterBar + exportBar + listHtml + '</div>');
+  const sortLeiste = '<div class="hs-leiste">'
+    + '<div class="hs-anzahl">' + rowsData.length + (rowsData.length === 1 ? ' Eintrag' : ' Eintr\u00e4ge') + '</div>'
+    + '<div class="hs-sort"><label>Sortieren</label>'
+    + '<select class="tm-select" onchange="setHistorySort(this.value)">'
+    + '<option value="neu"' + (HISTORY_SORT === 'neu' ? ' selected' : '') + '>Neueste zuerst</option>'
+    + '<option value="alt"' + (HISTORY_SORT === 'alt' ? ' selected' : '') + '>\u00c4lteste zuerst</option>'
+    + '<option value="score_auf"' + (HISTORY_SORT === 'score_auf' ? ' selected' : '') + '>Score: niedrigster zuerst</option>'
+    + '<option value="score_ab"' + (HISTORY_SORT === 'score_ab' ? ' selected' : '') + '>Score: h\u00f6chster zuerst</option>'
+    + '<option value="name"' + (HISTORY_SORT === 'name' ? ' selected' : '') + '>Name A\u2013Z</option>'
+    + '</select></div></div>';
+
+  view.insertAdjacentHTML('beforeend', '<div id="histBody">' + uebersicht + filterBar + sortLeiste + exportBar + listHtml + '</div>');
 }
 
 // ===== ORDNER VERWALTEN (umbenennen, Farbe, löschen) + Analysen verschieben =====
