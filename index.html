@@ -862,7 +862,65 @@
     .einl-neu { display:flex; gap:9px; flex-wrap:wrap; align-items:center; }
     .einl-neu .om-name-input { flex:1; min-width:180px; }
     .einl-liste { margin-top:14px; display:flex; flex-direction:column; gap:11px; }
-    .einl-leer { font-size:12.5px; color:var(--gray-l,#8A949D); font-style:italic; }
+    .einl-leer { font-size:12.5px; color:var(--gray-l,#8A949D); font-style:italic; padding:6px 0; }
+    .einl-platzhalter { height:34px; border-radius:10px; background:linear-gradient(90deg,#EDF1F3 25%,#F6F9FA 50%,#EDF1F3 75%); background-size:200% 100%; animation:skGlanz 1.4s ease-in-out infinite; }
+    .einl-liste { min-height:34px; }
+    .team-block { margin-bottom:22px; }
+    .team-liste { display:flex; flex-direction:column; gap:10px; margin-top:14px; }
+    /* Filter-Chips fuer geteilte/private Ordner */
+    .chip-geteilt.active { background:#16A34A; border-color:#16A34A; color:#fff; }
+    .chip-privat.active { background:#5A6670; border-color:#5A6670; color:#fff; }
+    .hist-chip svg { flex-shrink:0; }
+
+    /* ===== Ordnerverwaltung ===== */
+    .ordner-manage { animation:teamIn .4s cubic-bezier(.2,.7,.2,1) both; }
+    .of-kopfzeile { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; padding-bottom:16px; margin-bottom:18px; border-bottom:1px solid var(--border,#E2E6E9); }
+    .of-titel { font-size:16px; font-weight:800; color:var(--ink,#111827); margin-bottom:4px; }
+    .of-untertitel { font-size:12.5px; line-height:1.55; color:var(--gray,#5A6670); max-width:520px; }
+    .of-zaehler { flex-shrink:0; text-align:center; background:var(--neutral,#F6F8F9); border:1px solid var(--border,#E2E6E9); border-radius:13px; padding:9px 16px; }
+    .of-zaehler b { display:block; font-family:'Sora', inherit; font-size:21px; line-height:1; color:var(--green-d,#16A34A); }
+    .of-zaehler span { font-size:10.5px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:var(--gray,#5A6670); }
+    .of-neu { background:linear-gradient(180deg,#F7FDF9,#fff); border:1.5px solid rgba(34,197,94,.3); border-radius:16px; padding:16px; margin-bottom:24px; }
+    .of-neu-t { font-size:13px; font-weight:800; color:var(--green-d,#16A34A); margin-bottom:11px; }
+    .of-neu-row { display:flex; gap:9px; align-items:center; flex-wrap:wrap; }
+    .of-neu-row .om-name-input { flex:1; min-width:180px; }
+    .of-gruppe { margin-bottom:26px; animation:teamIn .45s cubic-bezier(.2,.7,.2,1) both; }
+    .gr-geteilt { animation-delay:.06s; } .gr-privat { animation-delay:.16s; }
+    .of-gruppe-kopf { display:flex; align-items:center; gap:9px; margin-bottom:3px; }
+    .of-gruppe-t { font-size:13.5px; font-weight:800; color:var(--ink,#111827); }
+    .of-gruppe-n { font-size:11px; font-weight:800; color:var(--gray,#5A6670); background:var(--neutral2,#EFF2F4); border-radius:999px; padding:2px 9px; }
+    .of-gruppe-d { font-size:12px; color:var(--gray-l,#8A949D); margin-bottom:12px; }
+    .of-liste { display:grid; grid-template-columns:repeat(auto-fill,minmax(290px,1fr)); gap:12px; }
+    .of-karte { background:var(--card,#fff); border:1px solid var(--border,#E2E6E9); border-left:4px solid var(--of-farbe,#22C55E); border-radius:14px; padding:14px; transition:transform .18s, box-shadow .18s; }
+    .of-karte:hover { transform:translateY(-2px); box-shadow:0 14px 30px -18px rgba(10,15,13,.3); }
+    .of-kopf { display:flex; align-items:center; gap:9px; margin-bottom:12px; }
+    .of-punkt { width:10px; height:10px; border-radius:50%; background:var(--of-farbe,#22C55E); flex-shrink:0; }
+    .of-name { flex:1; min-width:0; border:none; background:transparent; font-family:inherit; font-size:14px; font-weight:700; color:var(--ink,#111827); padding:3px 5px; border-radius:7px; transition:background .15s; }
+    .of-name:hover, .of-name:focus { background:var(--neutral2,#EFF2F4); outline:none; }
+    .of-anzahl { font-size:11px; font-weight:700; color:var(--gray,#5A6670); white-space:nowrap; flex-shrink:0; }
+    .of-fuss { display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; padding-top:11px; border-top:1px solid var(--border2,#EDF0F2); }
+    .of-aktionen { display:flex; align-items:center; gap:7px; }
+    .of-vis { display:inline-flex; align-items:center; gap:5px; font-size:11px; font-weight:700; padding:6px 11px; border-radius:999px; cursor:pointer; font-family:inherit; border:1px solid transparent; transition:all .18s; white-space:nowrap; }
+    .of-vis.ist-geteilt { background:var(--green-pale,#EAF9F0); color:var(--green-d,#16A34A); border-color:rgba(34,197,94,.4); }
+    .of-vis.ist-privat { background:var(--neutral2,#EFF2F4); color:var(--gray,#5A6670); border-color:var(--border,#E2E6E9); }
+    .of-vis:hover:not(.nur-info) { transform:translateY(-1px); box-shadow:0 6px 14px -8px rgba(10,15,13,.45); }
+    .of-vis.nur-info { cursor:default; }
+    .of-del { background:none; border:none; color:var(--gray-l,#8A949D); cursor:pointer; padding:5px; border-radius:8px; transition:all .15s; }
+    .of-del:hover { color:#DC2626; background:#FEF2F2; }
+    .of-leer { text-align:center; padding:36px 20px; background:var(--neutral,#F6F8F9); border:1px dashed var(--border,#E2E6E9); border-radius:16px; }
+    .of-leer-ico { font-size:34px; margin-bottom:10px; opacity:.5; }
+    .of-leer-t { font-size:14.5px; font-weight:800; color:var(--ink,#111827); margin-bottom:5px; }
+    .of-leer-d { font-size:12.5px; line-height:1.6; color:var(--gray,#5A6670); max-width:380px; margin:0 auto; }
+    @media (max-width:760px) {
+      .of-kopfzeile { flex-direction:column; gap:12px; }
+      .of-zaehler { align-self:flex-start; }
+      .of-neu-row { flex-direction:column; align-items:stretch; }
+      .of-neu-row > * { width:100%; box-sizing:border-box; }
+      .of-liste { grid-template-columns:1fr; }
+      .of-fuss { flex-direction:column; align-items:stretch; gap:10px; }
+      .of-aktionen { justify-content:space-between; }
+    }
+    .team-liste .team-row { margin:0; }
     .einl-row { background:var(--neutral,#F6F8F9); border:1px solid var(--border2,#EDF0F2); border-radius:13px; padding:12px; animation:histIn .4s cubic-bezier(.2,.7,.2,1) both; }
     .einl-info { display:flex; align-items:center; gap:9px; flex-wrap:wrap; margin-bottom:9px; }
     .einl-notiz { font-size:12.5px; font-weight:700; color:var(--ink2,#1F2937); }
@@ -889,7 +947,12 @@
     @media (max-width:760px) { .sk-row { flex-direction:column; } .sk-pill, .sk-btn { width:100%; } }
 
     .tm-anim, .rang-anim, .tb-anim { opacity:1 !important; animation:none !important; transform:none !important; }
-    #teamBody { animation:teamIn .42s cubic-bezier(.2,.7,.2,1) both; }
+    /* Jede Sektion kommt einzeln und ruhig herein */
+    .sec-in { opacity:0; animation:teamIn .5s cubic-bezier(.2,.7,.2,1) both; }
+    .sec-in-1 { animation-delay:.02s; }
+    .sec-in-2 { animation-delay:.14s; }
+    .sec-in-3 { animation-delay:.26s; }
+    .sec-in-4 { animation-delay:.38s; }
     @keyframes teamIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:none; } }
     
     
@@ -2095,7 +2158,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.69</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.70</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -3015,7 +3078,7 @@ function renderTeam() {
   }).join('');
 
   const einladungsBereich = darfVerwalten() ? (''
-    + '<div class="team-block tb-anim">'
+    + '<div class="team-block sec-in sec-in-1">'
     + '<div class="team-block-h">Neue Mitglieder einladen</div>'
     + '<div class="team-block-d">Erzeuge einen Einladungslink und schick ihn per E-Mail oder Nachricht. Wer ihn \u00f6ffnet, kann sich anmelden oder registrieren und landet automatisch in deinem Team.</div>'
     + '<div class="einl-neu">'
@@ -3027,10 +3090,10 @@ function renderTeam() {
     + '<input class="om-name-input" id="einlNotiz" placeholder="Notiz (optional) \u2013 z.B. f\u00fcr Herrn Meier" />'
     + '<button class="btn-action primary" onclick="einladungErstellen()">Einladungslink erzeugen</button>'
     + '</div>'
-    + '<div id="einlListe" class="einl-liste"></div>'
+    + '<div id="einlListe" class="einl-liste"><div class="einl-platzhalter"></div></div>'
     + '</div>') : '';
 
-  const rangErklaerung = '<div class="team-block tb-anim tb-spaet">'
+  const rangErklaerung = '<div class="team-block sec-in sec-in-3">'
     + '<div class="team-block-h">Die vier R\u00e4nge</div>'
     + '<div class="rang-tabelle">'
     + rangZeile('president','Verwaltet das gesamte Team, vergibt alle R\u00e4nge, kauft Pakete. Kann als Einziger jemanden zum President machen.', 0)
@@ -3041,8 +3104,11 @@ function renderTeam() {
 
   tv.insertAdjacentHTML('beforeend', '<div id="teamBody">'
     + einladungsBereich
-    + '<div class="team-block-h" style="margin-top:26px;">Mitglieder (' + TEAM_MEMBERS.length + ')</div>'
-    + '<div class="history-list">' + rows + '</div>'
+    + '<div class="team-block sec-in sec-in-2" style="margin-top:22px;">'
+    + '<div class="team-block-h">Mitglieder (' + TEAM_MEMBERS.length + ')</div>'
+    + '<div class="team-block-d">Klicke bei einem Mitglied auf \u201eRang \u00e4ndern\u201c, um es zu bef\u00f6rdern oder zur\u00fcckzustufen.</div>'
+    + '<div class="history-list team-liste">' + rows + '</div>'
+    + '</div>'
     + rangErklaerung
     + '</div>');
 
@@ -5740,36 +5806,72 @@ function renderOrdnerManage() {
   const einzel = !!(CURRENT_FIRMA && CURRENT_FIRMA.typ === 'einzel');
   const counts = {};
   HISTORY_ROWS.forEach(function(r){ if (r.ordner_id) counts[r.ordner_id] = (counts[r.ordner_id]||0)+1; });
-  let rows;
-  if (!ORDNER_LIST.length) {
-    rows = '<div class="om-empty">Noch keine Ordner. Lege oben auf der Startseite einen an („Neuer Ordner“).</div>';
-  } else {
-    rows = ORDNER_LIST.map(function(o){
-      const swatches = ORDNER_FARBEN.map(function(f){
-        return '<span class="om-swatch ' + (o.farbe === f ? 'active' : '') + '" style="background:' + f + '" onclick="ordnerFarbe(\'' + o.id + '\',\'' + f + '\')" title="Farbe ' + f + '"></span>';
-      }).join('');
-      const geteilt = o.sichtbarkeit === 'oeffentlich';
-      const darfTeilen = rangWert(CURRENT_USER_RANG) >= 2 || o.ersteller_id === CURRENT_USER_ID;   // ab Senior oder eigener Ordner
-      const vis = einzel ? '' : (darfTeilen
-        ? '<button class="om-vis om-vis-btn ' + (geteilt ? 'ist-geteilt' : 'ist-privat') + '" onclick="ordnerSichtbarkeit(\'' + o.id + '\', \'' + (geteilt ? 'privat' : 'oeffentlich') + '\')" title="' + (geteilt ? 'Klicken: nur f\u00fcr mich' : 'Klicken: mit dem Team teilen') + '">'
-            + (geteilt ? 'Geteilt' : 'Privat') + '</button>'
-        : '<span class="om-vis">' + (geteilt ? 'Geteilt' : 'Privat') + '</span>');
-      const cnt = counts[o.id] || 0;
-      return '<div class="om-row">'
-        + '<input class="om-name-input" value="' + escapeHtml(o.name) + '" onchange="ordnerUmbenennen(\'' + o.id + '\', this.value)" />'
-        + '<div class="om-swatches">' + swatches + '</div>'
-        + vis
-        + '<span class="om-count">' + cnt + (cnt === 1 ? ' Analyse' : ' Analysen') + '</span>'
-        + '<button class="om-del" onclick="ordnerLoeschen(\'' + o.id + '\')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>Löschen</button>'
-        + '</div>';
+
+  const geteilte = ORDNER_LIST.filter(function(o){ return o.sichtbarkeit === 'oeffentlich'; });
+  const private_ = ORDNER_LIST.filter(function(o){ return o.sichtbarkeit !== 'oeffentlich'; });
+
+  function karte(o) {
+    const cnt = counts[o.id] || 0;
+    const geteilt = o.sichtbarkeit === 'oeffentlich';
+    const darfTeilen = rangWert(CURRENT_USER_RANG) >= 2 || o.ersteller_id === CURRENT_USER_ID;
+    const swatches = ORDNER_FARBEN.map(function(f){
+      return '<span class="om-swatch ' + (o.farbe === f ? 'active' : '') + '" style="background:' + f + '" onclick="ordnerFarbe(\'' + o.id + '\',\'' + f + '\')" title="Farbe w\u00e4hlen"></span>';
     }).join('');
+    return '<div class="of-karte" style="--of-farbe:' + (o.farbe || '#22C55E') + '">'
+      + '<div class="of-kopf">'
+      + '<span class="of-punkt"></span>'
+      + '<input class="of-name" value="' + escapeHtml(o.name) + '" onchange="ordnerUmbenennen(\'' + o.id + '\', this.value)" title="Zum Umbenennen tippen" />'
+      + '<span class="of-anzahl">' + cnt + (cnt === 1 ? ' Analyse' : ' Analysen') + '</span>'
+      + '</div>'
+      + '<div class="of-fuss">'
+      + '<div class="om-swatches">' + swatches + '</div>'
+      + '<div class="of-aktionen">'
+      + (einzel ? '' : (darfTeilen
+          ? '<button class="of-vis ' + (geteilt ? 'ist-geteilt' : 'ist-privat') + '" onclick="ordnerSichtbarkeit(\'' + o.id + '\', \'' + (geteilt ? 'privat' : 'oeffentlich') + '\')">'
+            + (geteilt
+                ? '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg> Mit Team geteilt'
+                : '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg> Nur f\u00fcr mich')
+            + '</button>'
+          : '<span class="of-vis nur-info">' + (geteilt ? 'Geteilt' : 'Privat') + '</span>'))
+      + '<button class="of-del" onclick="ordnerLoeschen(\'' + o.id + '\')" title="Ordner l\u00f6schen">'
+      + '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg></button>'
+      + '</div></div></div>';
   }
-  box.innerHTML = '<div class="om-title"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/></svg>Ordner verwalten</div>' + rows
-    + '<div class="om-new">'
-    + '<input id="omNeuName" class="om-name-input" placeholder="Neuer Ordner – Name eingeben…" onkeydown="if(event.key===\'Enter\')ordnerAnlegenVerwaltung()" />'
+
+  function gruppe(titel, hinweis, liste, klasse) {
+    if (!liste.length) return '';
+    return '<div class="of-gruppe ' + klasse + '">'
+      + '<div class="of-gruppe-kopf"><span class="of-gruppe-t">' + titel + '</span><span class="of-gruppe-n">' + liste.length + '</span></div>'
+      + '<div class="of-gruppe-d">' + hinweis + '</div>'
+      + '<div class="of-liste">' + liste.map(karte).join('') + '</div>'
+      + '</div>';
+  }
+
+  const leer = !ORDNER_LIST.length;
+  const anlegen = '<div class="of-neu">'
+    + '<div class="of-neu-t">Neuen Ordner anlegen</div>'
+    + '<div class="of-neu-row">'
+    + '<input id="omNeuName" class="om-name-input" placeholder="Name \u2013 z.B. Kunden 2026" onkeydown="if(event.key===\'Enter\')ordnerAnlegenVerwaltung()" />'
     + (einzel ? '' : '<select id="omNeuSicht" class="tm-select"><option value="privat">Nur f\u00fcr mich</option><option value="oeffentlich">Mit dem Team teilen</option></select>')
-    + '<button class="om-new-btn" onclick="ordnerAnlegenVerwaltung()">+ Neuer Ordner</button>'
-    + '</div>';
+    + '<button class="om-new-btn" onclick="ordnerAnlegenVerwaltung()">Ordner erstellen</button>'
+    + '</div></div>';
+
+  box.innerHTML = '<div class="of-kopfzeile">'
+    + '<div>'
+    + '<div class="of-titel">Ordnerverwaltung</div>'
+    + '<div class="of-untertitel">' + (einzel
+        ? 'Sortiere deine Pr\u00fcfungen in Ordner. Farbe und Name kannst du jederzeit \u00e4ndern.'
+        : 'Sortiere Pr\u00fcfungen in Ordner und entscheide, wer sie sehen darf: nur du \u2013 oder das ganze Team.') + '</div>'
+    + '</div>'
+    + '<div class="of-zaehler"><b>' + ORDNER_LIST.length + '</b><span>' + (ORDNER_LIST.length === 1 ? 'Ordner' : 'Ordner') + '</span></div>'
+    + '</div>'
+    + anlegen
+    + (leer
+        ? '<div class="of-leer"><div class="of-leer-ico">\uD83D\uDCC1</div><div class="of-leer-t">Noch keine Ordner</div><div class="of-leer-d">Lege oben deinen ersten Ordner an, um Pr\u00fcfungen zu sortieren \u2013 zum Beispiel nach Kunde, Jahr oder Standort.</div></div>'
+        : (einzel
+            ? '<div class="of-gruppe"><div class="of-liste">' + ORDNER_LIST.map(karte).join('') + '</div></div>'
+            : gruppe('Mit dem Team geteilt', 'Diese Ordner sehen alle Mitglieder deines Unternehmens.', geteilte, 'gr-geteilt')
+              + gruppe('Nur f\u00fcr mich', 'Diese Ordner sieht au\u00dfer dir niemand.', private_, 'gr-privat')));
 }
 
 async function ordnerSichtbarkeit(id, neu) {
