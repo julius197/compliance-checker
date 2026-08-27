@@ -710,6 +710,28 @@
     .tr-toast.weg { transform:translateX(40px) scale(.9); opacity:0; transition:transform .32s cubic-bezier(.4,0,.6,1), opacity .28s ease; }
     .tr-toast:hover { border-color:var(--green,#22C55E); }
     #trOverlay.an { opacity:1 !important; transform:none !important; }
+    /* ===== Einwilligung ===== */
+    .einw-box { margin-top:18px; background:#F8FBF9; border:1.5px solid var(--border,#E3EAE6); border-radius:16px; padding:16px; animation:upSlide .45s cubic-bezier(.2,.7,.2,1) both; }
+    .einw-box.einw-wackel { animation:einwWackel .45s ease; border-color:#F59E0B; }
+    @keyframes einwWackel { 0%,100% { transform:translateX(0); } 20% { transform:translateX(-7px); } 40% { transform:translateX(7px); } 60% { transform:translateX(-4px); } 80% { transform:translateX(4px); } }
+    .einw-zeile { display:flex; align-items:flex-start; gap:11px; cursor:pointer; user-select:none; }
+    .einw-zeile input { position:absolute; opacity:0; width:0; height:0; }
+    .einw-mark { flex-shrink:0; width:22px; height:22px; border-radius:7px; border:2px solid #C9D6CF; background:#fff; margin-top:1px; position:relative; transition:all .2s cubic-bezier(.2,.9,.3,1.4); }
+    .einw-mark::after { content:'\2713'; position:absolute; inset:0; display:flex; align-items:center; justify-content:center; color:#fff; font-size:14px; font-weight:800; opacity:0; transform:scale(.4); transition:all .2s cubic-bezier(.2,.9,.3,1.6); }
+    .einw-zeile input:checked ~ .einw-mark { background:linear-gradient(135deg,#16A34A,#22C55E); border-color:#16A34A; box-shadow:0 6px 16px -6px rgba(34,197,94,.8); }
+    .einw-zeile input:checked ~ .einw-mark::after { opacity:1; transform:scale(1); }
+    .einw-zeile:hover .einw-mark { border-color:var(--green,#22C55E); }
+    .einw-text { font-size:12.5px; line-height:1.55; color:var(--ink2,#2A3B33); }
+    .einw-mehr { display:block; margin:12px 0 0 33px; background:none; border:none; padding:0; font-family:inherit; font-size:12px; font-weight:700; color:var(--green-d,#16A34A); cursor:pointer; text-decoration:underline; text-underline-offset:3px; }
+    .einw-mehr:hover { opacity:.75; }
+    .einw-details { max-height:0; overflow:hidden; transition:max-height .42s cubic-bezier(.2,.7,.2,1); }
+    .einw-details p { font-size:11.5px; line-height:1.6; color:var(--gray,#5B6E64); margin:12px 0 0 33px; }
+    .einw-details p:first-child { margin-top:16px; }
+    .einw-details b { color:var(--ink2,#2A3B33); }
+    .einw-hinweis { font-style:italic; color:#B45309 !important; background:#FEF9EC; border-radius:8px; padding:8px 10px; }
+    .up-senden-aus, .up-senden:disabled { background:#D5E3DB !important; box-shadow:none !important; cursor:not-allowed; animation:none; }
+    .up-senden-aus:hover, .up-senden:disabled:hover { transform:none !important; box-shadow:none !important; }
+    .up-warn-einw { font-size:12px; font-weight:700; color:var(--green-d,#16A34A); background:var(--green-pale,#EAF9F0); border-radius:9px; padding:8px 12px; margin-bottom:16px; }
     .tr-toast-t { font-size:13.5px; font-weight:800; color:var(--ink,#10231A); margin-bottom:4px; }
     .tr-toast-d { font-size:12.5px; color:var(--gray,#5B6E64); line-height:1.5; }
     .up-an1, .up-an2, .up-an3 { opacity:0; animation:histIn .5s cubic-bezier(.2,.7,.2,1) both; }
@@ -1576,7 +1598,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.45</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.46</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -2555,14 +2577,60 @@ function uploadRender() {
   }
 
   const anzahl = Object.keys(UPLOAD_GEWAEHLT).length;
+  const firma = (UPLOAD_INFO && UPLOAD_INFO.firmenname) ? escapeHtml(UPLOAD_INFO.firmenname) : 'das pr\u00fcfende Unternehmen';
   body.innerHTML = '<div class="kyc-grid up-grid" style="margin-top:6px;">'
     + box('ausweis', 'Personalausweis', 'Bild oder PDF hierher ziehen \u2013 oder unten w\u00e4hlen', 'environment')
     + box('selfie', 'Best\u00e4tigungsfoto (Selfie)', 'Ein Foto von dir mit Bezug zum Ausweis', 'user')
     + '</div>'
+    + (anzahl > 0 ? einwilligungHtml(firma) : '')
     + (anzahl > 0
-        ? '<button class="up-senden" onclick="uploadBestaetigen()">Verbindlich absenden (' + anzahl + ')</button>'
+        ? '<button class="up-senden" id="upSendenBtn" disabled onclick="uploadBestaetigen()">Verbindlich absenden (' + anzahl + ')</button>'
         : '')
     + '<div class="kyc-note" id="uploadStatus" style="text-align:center; margin-top:14px;">Deine Dateien werden verschl\u00fcsselt \u00fcbertragen und sicher in der Akte abgelegt.</div>';
+  const cb = document.getElementById('einwCheck');
+  if (cb) { cb.checked = EINWILLIGUNG_OK; einwilligungGeaendert(); }
+}
+
+// ===== Einwilligung (ENTWURF - juristische Freigabe steht aus) =====
+const EINWILLIGUNG_VERSION = 'entwurf-2026-08';
+let EINWILLIGUNG_OK = false;
+
+function einwilligungHtml(firma) {
+  return '<div class="einw-box">'
+    + '<label class="einw-zeile">'
+    + '<input type="checkbox" id="einwCheck" onchange="einwilligungGeaendert()" />'
+    + '<span class="einw-mark"></span>'
+    + '<span class="einw-text">Ich best\u00e4tige, dass ich die abgebildete Person bin, die Dokumente echt und unver\u00e4ndert sind, und willige in die Verarbeitung meiner Ausweisdaten und meines Lichtbilds zum Zweck der gesetzlichen Identit\u00e4tspr\u00fcfung ein.</span>'
+    + '</label>'
+    + '<button type="button" class="einw-mehr" onclick="einwilligungDetails()">Details zur Datenverarbeitung anzeigen</button>'
+    + '<div class="einw-details" id="einwDetails">'
+    + '<p><b>Wer verarbeitet die Daten?</b><br/>Verantwortlich ist ' + firma + '. Die technische Bereitstellung erfolgt durch die Automati Labs GmbH als Auftragsverarbeiter; die Speicherung erfolgt auf Servern innerhalb der EU (Frankfurt am Main).</p>'
+    + '<p><b>Welche Daten?</b><br/>Das hochgeladene Ausweisdokument (Bild oder PDF) sowie das Best\u00e4tigungsfoto, jeweils mit Zeitpunkt des Uploads.</p>'
+    + '<p><b>Wozu?</b><br/>Zur Erf\u00fcllung der geldw\u00e4scherechtlichen Sorgfaltspflichten \u2013 insbesondere zur Identifizierung von Vertragspartnern nach den \u00a7\u00a7 10 ff. GwG \u2013 sowie zur Dokumentation gegen\u00fcber Aufsichtsbeh\u00f6rden.</p>'
+    + '<p><b>Rechtsgrundlage</b><br/>Deine Einwilligung (Art. 6 Abs. 1 lit. a DSGVO) sowie die Erf\u00fcllung einer rechtlichen Verpflichtung (Art. 6 Abs. 1 lit. c DSGVO i.V.m. dem Geldw\u00e4schegesetz).</p>'
+    + '<p><b>Wie lange?</b><br/>Die Aufbewahrung richtet sich nach den gesetzlichen Fristen des Geldw\u00e4schegesetzes (in der Regel f\u00fcnf Jahre nach Ende der Gesch\u00e4ftsbeziehung). Danach werden die Daten gel\u00f6scht.</p>'
+    + '<p><b>Freiwilligkeit &amp; Widerruf</b><br/>Die Bereitstellung ist freiwillig; ohne die Dokumente kann die Gesch\u00e4ftsbeziehung jedoch gegebenenfalls nicht zustande kommen. Du kannst deine Einwilligung jederzeit mit Wirkung f\u00fcr die Zukunft gegen\u00fcber ' + firma + ' widerrufen. Gesetzliche Aufbewahrungspflichten bleiben davon unber\u00fchrt.</p>'
+    + '<p><b>Deine Rechte</b><br/>Dir stehen Auskunft, Berichtigung, L\u00f6schung, Einschr\u00e4nkung, Daten\u00fcbertragbarkeit und Widerspruch zu; au\u00dferdem das Recht auf Beschwerde bei einer Datenschutz-Aufsichtsbeh\u00f6rde. Wende dich dazu bitte an ' + firma + '.</p>'
+    + '<p class="einw-hinweis">Hinweis: Dieser Text ist ein Entwurf und wird derzeit anwaltlich gepr\u00fcft.</p>'
+    + '</div></div>';
+}
+
+function einwilligungGeaendert() {
+  const cb = document.getElementById('einwCheck');
+  const btn = document.getElementById('upSendenBtn');
+  EINWILLIGUNG_OK = !!(cb && cb.checked);
+  if (btn) {
+    btn.disabled = !EINWILLIGUNG_OK;
+    btn.classList.toggle('up-senden-aus', !EINWILLIGUNG_OK);
+  }
+}
+
+function einwilligungDetails() {
+  const d = document.getElementById('einwDetails');
+  if (!d) return;
+  const offen = d.classList.contains('auf');
+  if (offen) { d.style.maxHeight = d.scrollHeight + 'px'; requestAnimationFrame(function(){ d.style.maxHeight = '0px'; }); d.classList.remove('auf'); }
+  else { d.classList.add('auf'); d.style.maxHeight = d.scrollHeight + 'px'; setTimeout(function(){ if (d.classList.contains('auf')) d.style.maxHeight = 'none'; }, 420); }
 }
 
 function uploadFertigRender() {
@@ -2622,6 +2690,11 @@ async function uploadWaehlen(typ, file) {
 function uploadBestaetigen() {
   const anzahl = Object.keys(UPLOAD_GEWAEHLT).length;
   if (!anzahl) return;
+  if (!EINWILLIGUNG_OK) {
+    const box = document.querySelector('.einw-box');
+    if (box) { box.classList.remove('einw-wackel'); void box.offsetWidth; box.classList.add('einw-wackel'); }
+    return;
+  }
   const namen = Object.keys(UPLOAD_GEWAEHLT).map(function(t){
     return (t === 'ausweis' ? 'Personalausweis' : 'Best\u00e4tigungsfoto') + ': ' + UPLOAD_GEWAEHLT[t].file.name;
   }).join('<br/>');
@@ -2633,6 +2706,7 @@ function uploadBestaetigen() {
     + '<div class="up-warn-t">Verbindlich absenden?</div>'
     + '<div class="up-warn-d">Nach dem Absenden k\u00f6nnen die Dokumente <b>nicht mehr ge\u00e4ndert, ersetzt oder gel\u00f6scht</b> werden. Der Link wird sofort ung\u00fcltig und l\u00e4sst sich nicht erneut \u00f6ffnen.</div>'
     + '<div class="up-warn-liste">' + namen + '</div>'
+    + '<div class="up-warn-einw">\u2713 Einwilligung zur Datenverarbeitung erteilt</div>'
     + '<div class="up-warn-btns">'
     + '<button class="kyc-btn" onclick="uploadWarnungZu()">Abbrechen</button>'
     + '<button class="up-senden up-warn-ok" onclick="uploadAbsenden()">Ja, verbindlich absenden</button>'
@@ -2660,7 +2734,8 @@ async function uploadAbsenden() {
       const g = UPLOAD_GEWAEHLT[typ];
       const b64 = await dateiAlsB64(g.file);
       const res = await workerCall('kyc_link_upload', {
-        token: UPLOAD_TOKEN, typ: typ, datei_b64: b64, datei_name: g.file.name, mime_type: g.file.type
+        token: UPLOAD_TOKEN, typ: typ, datei_b64: b64, datei_name: g.file.name, mime_type: g.file.type,
+        einwilligung: true, einwilligung_version: EINWILLIGUNG_VERSION
       });
       if (!res || !res.ok) throw new Error((res && res.error) || 'Fehler beim Senden');
     }
