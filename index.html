@@ -827,6 +827,63 @@
     .lp-pi-liste span { transition:transform .16s, border-color .16s; }
     .lp-pi-liste span:hover { transform:translateY(-2px); border-color:rgba(34,197,94,.45); }
 
+    /* ===== Überwachung: Stern in der Historie ===== */
+    .fav-stern { background:none; border:none; padding:6px; border-radius:9px; cursor:pointer; color:var(--gray-ll,#CBD2D8); line-height:0;
+      transition:color .2s, transform .22s cubic-bezier(.2,.9,.3,1.5), background .18s; }
+    .fav-stern svg { fill:currentColor; }
+    .fav-stern:hover { color:#F59E0B; background:#FFFBEB; transform:scale(1.18) rotate(-8deg); }
+    .fav-stern.ist-fav { color:#F59E0B; animation:favAn .45s cubic-bezier(.2,.9,.3,1.6) both; }
+    .fav-stern.ist-fav:hover { color:#B45309; transform:scale(1.14); }
+    @keyframes favAn { 0% { transform:scale(.4) rotate(-45deg); opacity:0; } 60% { transform:scale(1.25) rotate(6deg); opacity:1; } 100% { transform:scale(1) rotate(0); } }
+    .fav-stern.fav-puls { animation:favPuls .5s ease both; }
+    @keyframes favPuls { 0% { box-shadow:0 0 0 0 rgba(245,158,11,.55); } 100% { box-shadow:0 0 0 14px rgba(245,158,11,0); } }
+    .chip-fav.active { background:#F59E0B; border-color:#F59E0B; color:#fff; }
+    .chip-fav svg { fill:currentColor; }
+
+    /* ===== Überwachungs-Panel ===== */
+    .fav-panel { background:linear-gradient(180deg,#FFFDF7,#fff); border:1.5px solid rgba(245,158,11,.32); border-radius:20px; padding:20px; margin-bottom:18px;
+      animation:favPanelIn .5s cubic-bezier(.2,.7,.2,1) both; }
+    @keyframes favPanelIn { from { opacity:0; transform:translateY(14px) scale(.985); } to { opacity:1; transform:none; } }
+    .fav-kopf { display:flex; align-items:flex-start; justify-content:space-between; gap:14px; padding-bottom:14px; margin-bottom:14px; border-bottom:1px solid rgba(245,158,11,.22); }
+    .fav-titel { font-size:15px; font-weight:800; color:var(--ink,#111827); margin-bottom:4px; }
+    .fav-untertitel { font-size:12.5px; line-height:1.6; color:var(--gray,#5A6670); max-width:560px; }
+    .fav-badge-offen { flex-shrink:0; background:linear-gradient(135deg,#DC2626,#EF4444); color:#fff; font-size:11.5px; font-weight:800; padding:7px 13px; border-radius:999px;
+      animation:favBadge 2.4s ease-in-out infinite; box-shadow:0 8px 20px -8px rgba(220,38,38,.8); }
+    @keyframes favBadge { 0%,100% { transform:scale(1); } 50% { transform:scale(1.06); } }
+    .fav-liste { display:flex; flex-direction:column; gap:10px; }
+    .fav-zeile { display:flex; align-items:center; justify-content:space-between; gap:14px; background:#fff; border:1px solid var(--border,#E2E6E9); border-radius:13px; padding:13px 15px;
+      opacity:0; animation:favZeileIn .45s cubic-bezier(.2,.7,.2,1) var(--fd,0s) both; transition:transform .18s, box-shadow .18s, opacity .3s; }
+    @keyframes favZeileIn { from { opacity:0; transform:translateX(-12px); } to { opacity:1; transform:none; } }
+    .fav-zeile:hover { transform:translateY(-2px); box-shadow:0 12px 26px -16px rgba(10,15,13,.3); }
+    .fav-zeile.fav-raus { opacity:0; transform:translateX(26px) scale(.96); }
+    .fav-haupt { min-width:0; flex:1; }
+    .fav-name { font-size:14px; font-weight:700; color:var(--ink,#111827); word-break:break-word; display:flex; align-items:center; gap:8px; }
+    .fav-neu { background:#DC2626; color:#fff; font-size:9.5px; font-weight:800; letter-spacing:.05em; text-transform:uppercase; padding:2px 7px; border-radius:999px;
+      animation:favBadge 2s ease-in-out infinite; }
+    .fav-meta { font-size:11.5px; color:var(--gray,#5A6670); margin-top:3px; }
+    .fav-rechts { display:flex; align-items:center; gap:9px; flex-shrink:0; }
+    .fav-score { font-family:'Sora', inherit; font-size:19px; font-weight:800; }
+    .fav-s-gruen { color:#16A34A; } .fav-s-gelb { color:#A16207; } .fav-s-rot { color:#B42318; } .fav-s-grau { color:#8A949D; }
+    .fav-marke { font-size:11px; font-weight:800; padding:5px 11px; border-radius:999px; white-space:nowrap; }
+    .fav-m-rot { background:var(--bad-bg,#FEF1F1); color:var(--bad-text,#B42318); border:1px solid rgba(220,38,38,.3); animation:favBadge 2.4s ease-in-out infinite; }
+    .fav-m-gelb { background:var(--warn-bg,#FFF8EB); color:var(--warn-text,#A16207); border:1px solid rgba(234,154,11,.35); }
+    .fav-m-gruen { background:var(--ok-bg,#ECFDF3); color:var(--ok-text,#15803D); border:1px solid rgba(22,163,74,.3); }
+    .fav-m-grau { background:var(--neutral2,#EFF2F4); color:var(--gray,#5A6670); border:1px solid var(--border,#E2E6E9); }
+    .fav-weg { background:none; border:none; color:var(--gray-ll,#CBD2D8); cursor:pointer; padding:5px; border-radius:8px; transition:all .15s; }
+    .fav-weg:hover { color:#DC2626; background:#FEF2F2; transform:rotate(90deg); }
+    .fav-leer-panel { text-align:center; padding:34px 22px; }
+    .fav-leer-ico { color:#F59E0B; opacity:.45; margin-bottom:11px; animation:favLeerIn .6s cubic-bezier(.2,.9,.3,1.5) both; }
+    @keyframes favLeerIn { from { opacity:0; transform:scale(.5) rotate(-30deg); } to { opacity:.45; transform:none; } }
+    .fav-leer-t { font-size:15px; font-weight:800; color:var(--ink,#111827); margin-bottom:7px; }
+    .fav-leer-d { font-size:12.5px; line-height:1.65; color:var(--gray,#5A6670); max-width:440px; margin:0 auto; }
+
+    @media (max-width:760px) {
+      .fav-kopf { flex-direction:column; gap:10px; }
+      .fav-zeile { flex-direction:column; align-items:stretch; gap:10px; }
+      .fav-rechts { justify-content:space-between; width:100%; }
+      .fav-untertitel { max-width:none; }
+    }
+
     .kont-toast { border-color:rgba(34,197,94,.45); }
     .kont-toast.kont-knapp { border-color:#F59E0B; background:linear-gradient(180deg,#FFFBF3,#fff); }
     .kont-toast.kont-knapp .tr-toast-cta { color:#B45309; }
@@ -2368,7 +2425,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.80</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.81</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -2910,6 +2967,116 @@ let NEUER_ORDNER_SICHT = 'privat';
 let SELECTED_ORDNER_ID = null;   // beim Analysieren gewählter Ordner
 let HISTORY_FILTER = 'alle';
 let HISTORY_SORT = 'neu';
+let FAVORITEN = [];              // Liste der ueberwachten Firmen
+let FAV_KERNE = {};              // normalisierter Name -> Favoriten-Datensatz
+
+// Übersicht der überwachten Firmen
+function favUebersichtHtml() {
+  if (!FAVORITEN.length) {
+    return '<div class="fav-panel fav-leer-panel">'
+      + '<div class="fav-leer-ico"><svg viewBox="0 0 24 24" width="30" height="30" fill="currentColor"><path d="M12 2.6l2.9 5.9 6.5.95-4.7 4.6 1.1 6.5L12 17.5 6.2 20.5l1.1-6.5-4.7-4.6 6.5-.95z"/></svg></div>'
+      + '<div class="fav-leer-t">Noch keine Firma in der \u00dcberwachung</div>'
+      + '<div class="fav-leer-d">Markiere eine gepr\u00fcfte Firma mit dem Stern, um sie dauerhaft zu \u00fcberwachen. Sie wird dann <b>alle drei Monate automatisch neu gepr\u00fcft</b> \u2013 du erf\u00e4hrst sofort, wenn sich etwas \u00e4ndert.</div>'
+      + '</div>';
+  }
+  const offen = FAVORITEN.reduce(function(s, f){ return s + (parseInt(f.offene_meldungen, 10) || 0); }, 0);
+  const zeilen = FAVORITEN.map(function(f, i){
+    const naechste = f.naechste_pruefung ? new Date(f.naechste_pruefung) : null;
+    const tage = naechste ? Math.ceil((naechste.getTime() - Date.now()) / 86400000) : null;
+    const letzte = f.letzte_pruefung ? new Date(f.letzte_pruefung).toLocaleDateString('de-DE', { day:'2-digit', month:'2-digit', year:'numeric' }) : 'noch nicht';
+    const v = f.letzte_veraenderung || 'keine';
+    const marke = (v === 'kritisch') ? '<span class="fav-marke fav-m-rot">Kritische Ver\u00e4nderung</span>'
+                : (v === 'verschlechtert') ? '<span class="fav-marke fav-m-gelb">Ver\u00e4nderung erkannt</span>'
+                : (v === 'verbessert') ? '<span class="fav-marke fav-m-gruen">Verbessert</span>'
+                : (f.letzte_pruefung ? '<span class="fav-marke fav-m-grau">Unver\u00e4ndert</span>' : '<span class="fav-marke fav-m-grau">Erstpr\u00fcfung ausstehend</span>');
+    const sc = (f.letzter_score != null) ? f.letzter_score : null;
+    const scFarbe = sc === null ? 'grau' : (sc >= 70 ? 'gruen' : (sc >= 45 ? 'gelb' : 'rot'));
+    return '<div class="fav-zeile" style="--fd:' + (0.05 + i * 0.07) + 's">'
+      + '<div class="fav-haupt">'
+      + '<div class="fav-name">' + escapeHtml(f.firmenname) + (parseInt(f.offene_meldungen,10) ? '<span class="fav-neu">neu</span>' : '') + '</div>'
+      + '<div class="fav-meta">Zuletzt gepr\u00fcft: ' + letzte + (tage !== null ? ' \u00b7 n\u00e4chste Pr\u00fcfung in ' + (tage <= 0 ? 'K\u00fcrze' : tage + ' Tagen') : '') + '</div>'
+      + '</div>'
+      + '<div class="fav-rechts">'
+      + (sc !== null ? '<span class="fav-score fav-s-' + scFarbe + '">' + sc + '</span>' : '')
+      + marke
+      + '<button class="fav-weg" onclick="favEntfernen(\'' + f.id + '\', event)" title="Aus der \u00dcberwachung nehmen">'
+      + '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button>'
+      + '</div></div>';
+  }).join('');
+
+  return '<div class="fav-panel">'
+    + '<div class="fav-kopf">'
+    + '<div><div class="fav-titel">Laufende \u00dcberwachung</div>'
+    + '<div class="fav-untertitel">Diese Firmen werden <b>alle drei Monate automatisch neu gepr\u00fcft</b>. Jede Pr\u00fcfung wird zu den geltenden Konditionen abgerechnet und als Bericht in der Akte abgelegt.</div></div>'
+    + (offen ? '<div class="fav-badge-offen">' + offen + ' neue Meldung' + (offen === 1 ? '' : 'en') + '</div>' : '')
+    + '</div>'
+    + '<div class="fav-liste">' + zeilen + '</div>'
+    + '</div>';
+}
+
+async function favEntfernen(id, ev) {
+  if (ev) ev.stopPropagation();
+  const zeile = ev && ev.currentTarget && ev.currentTarget.closest('.fav-zeile');
+  if (zeile) { zeile.classList.add('fav-raus'); }
+  try {
+    await sb.from('favoriten').update({ aktiv: false }).eq('id', id);
+    setTimeout(async function(){
+      await ladeFavoriten();
+      renderHistoryList();
+    }, 320);
+  } catch (e) {
+    if (zeile) zeile.classList.remove('fav-raus');
+    alert('Konnte nicht entfernt werden.');
+  }
+}
+
+async function ladeFavoriten() {
+  FAVORITEN = []; FAV_KERNE = {};
+  if (!sb || !CURRENT_FIRMA) return;
+  try {
+    const { data } = await sb.rpc('meine_favoriten');
+    FAVORITEN = data || [];
+    FAVORITEN.forEach(function(f){ FAV_KERNE[firmenKern(f.firmenname)] = f; });
+  } catch (e) { FAVORITEN = []; }
+}
+
+function istFavorit(name) { return !!FAV_KERNE[firmenKern(name || '')]; }
+
+// Stern setzen oder entfernen
+async function favToggle(ev, pruefId) {
+  if (ev) { ev.stopPropagation(); ev.preventDefault(); }
+  const r = HISTORY_ROWS.find(function(x){ return x.pruef_id === pruefId; });
+  if (!r || !sb || !CURRENT_FIRMA) return;
+  const kern = firmenKern(r.firmenname);
+  const vorhanden = FAV_KERNE[kern];
+  const btn = ev && ev.currentTarget;
+  if (btn) { btn.classList.add('fav-puls'); setTimeout(function(){ btn.classList.remove('fav-puls'); }, 500); }
+  try {
+    if (vorhanden) {
+      await sb.from('favoriten').update({ aktiv: false }).eq('id', vorhanden.id);
+      await ladeFavoriten();
+      renderHistoryList();
+      zeigeToast('Aus der \u00dcberwachung entfernt', escapeHtml(r.firmenname) + ' wird nicht mehr automatisch gepr\u00fcft.');
+    } else {
+      const { error } = await sb.from('favoriten').insert({
+        firma_id: CURRENT_FIRMA.firma_id,
+        analyse_id: r.id || null,
+        firmenname: r.firmenname,
+        firmen_kern: kern,
+        land: r.land || null,
+        ust_id: r.ust_id || null,
+        ordner_id: r.ordner_id || null,
+        hinzugefuegt_von: CURRENT_USER_ID,
+        letzter_score: (typeof r.score === 'number') ? r.score : null
+      });
+      if (error) throw error;
+      await ladeFavoriten();
+      renderHistoryList();
+      zeigeToast('Zur \u00dcberwachung hinzugef\u00fcgt',
+        escapeHtml(r.firmenname) + ' wird ab jetzt alle 3 Monate automatisch gepr\u00fcft. Der Bericht landet in der Akte.');
+    }
+  } catch (e) { alert('Konnte nicht gespeichert werden: ' + ((e && e.message) || '')); }
+}
 function setHistorySort(v) { HISTORY_SORT = v; renderHistoryList(); }     // 'alle' | 'ohne' | <ordner_id>
 const ORDNER_FARBEN = ['#22C55E','#3B82F6','#F59E0B','#EF4444','#8B5CF6','#EC4899','#14B8A6','#6B7280'];
 // ===== TEAM (v9.2) =====
@@ -5954,6 +6121,7 @@ async function _openHistory() {
       .order('created_at', { ascending: false });
     if (error) throw error;
     HISTORY_ROWS = data || [];
+    try { await ladeFavoriten(); } catch(e) {}
     renderHistoryList();
     if (KYC_ZIEL_NACH_LADEN) {
       const ziel = KYC_ZIEL_NACH_LADEN; KYC_ZIEL_NACH_LADEN = null;
@@ -6053,6 +6221,9 @@ function renderHistoryList() {
     chips += '<button class="hist-chip chip-geteilt ' + (HISTORY_FILTER === '__geteilt' ? 'active' : '') + '" onclick="setHistoryFilter(\'__geteilt\')">'
       + '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>'
       + ' Geteilte Ordner (' + cGeteilt + ')</button>';
+    chips += '<button class="hist-chip chip-fav ' + (HISTORY_FILTER === '__fav' ? 'active' : '') + '" onclick="setHistoryFilter(\'__fav\')">'
+      + '<svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.6l2.9 5.9 6.5.95-4.7 4.6 1.1 6.5L12 17.5 6.2 20.5l1.1-6.5-4.7-4.6 6.5-.95z"/></svg>'
+      + ' \u00dcberwachung (' + FAVORITEN.length + ')</button>';
     chips += '<button class="hist-chip chip-privat ' + (HISTORY_FILTER === '__privat' ? 'active' : '') + '" onclick="setHistoryFilter(\'__privat\')">'
       + '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>'
       + ' Private Ordner (' + cPrivat + ')</button>';
@@ -6070,6 +6241,10 @@ function renderHistoryList() {
   else if (HISTORY_FILTER === '__geteilt') {
     const ids = ORDNER_LIST.filter(function(o){ return o.sichtbarkeit === 'oeffentlich'; }).map(function(o){ return o.id; });
     rowsData = rowsData.filter(function(r){ return r.ordner_id && ids.indexOf(r.ordner_id) >= 0; });
+  }
+  else if (HISTORY_FILTER === '__fav') {
+    const kerne = Object.keys(FAV_KERNE);
+    rowsData = rowsData.filter(function(r){ return kerne.indexOf(firmenKern(r.firmenname)) >= 0; });
   }
   else if (HISTORY_FILTER === '__privat') {
     const ids = ORDNER_LIST.filter(function(o){ return o.sichtbarkeit !== 'oeffentlich'; }).map(function(o){ return o.id; });
@@ -6109,6 +6284,7 @@ function renderHistoryList() {
       const land = r.land ? ' · ' + r.land : '';
       // Autor (E-Mail des Prüfers) aus dem gespeicherten Bericht
       const autor = (r.report_json && r.report_json._email) ? r.report_json._email : '';
+      const einzelPruef = false;
       const autorZeile = autor ? '<div class="hr-author">Geprüft von ' + escapeHtml(autor) + '</div>' : '';
       // Ordner-Tag
       const folder = r.ordner_id ? ORDNER_LIST.find(function(o){ return o.id === r.ordner_id; }) : null;
@@ -6127,6 +6303,8 @@ function renderHistoryList() {
         + folderTag
         + '</div>'
         + '<div class="hr-right">'
+        + (einzelPruef ? '' : '<button class="fav-stern' + (istFavorit(r.firmenname) ? ' ist-fav' : '') + '" onclick="favToggle(event, \'' + (r.pruef_id || '') + '\')" title="' + (istFavorit(r.firmenname) ? 'Wird alle 3 Monate automatisch gepr\u00fcft \u2013 klicken zum Entfernen' : 'Zur laufenden \u00dcberwachung hinzuf\u00fcgen') + '">'
+            + '<svg viewBox="0 0 24 24" width="17" height="17"><path d="M12 2.6l2.9 5.9 6.5.95-4.7 4.6 1.1 6.5L12 17.5 6.2 20.5l1.1-6.5-4.7-4.6 6.5-.95z"/></svg></button>')
         + '<span class="hr-score" style="color:' + scoreCol + '">' + (score === null ? 'N/A' : score) + '</span>'
         + '<span class="verdict ' + histVerdictClass(r.verdict) + '">' + histVerdictIcon(r.verdict) + ' ' + vt + '</span>'
         + '<svg class="hr-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>'
@@ -6162,7 +6340,9 @@ function renderHistoryList() {
     + '<option value="name"' + (HISTORY_SORT === 'name' ? ' selected' : '') + '>Name A\u2013Z</option>'
     + '</select></div></div>';
 
-  view.insertAdjacentHTML('beforeend', '<div id="histBody">' + uebersicht + filterBar + sortLeiste + exportBar + listHtml + '</div>');
+  const favPanel = (HISTORY_FILTER === '__fav') ? favUebersichtHtml() : '';
+
+  view.insertAdjacentHTML('beforeend', '<div id="histBody">' + uebersicht + filterBar + favPanel + sortLeiste + exportBar + listHtml + '</div>');
 }
 
 // ===== ORDNER VERWALTEN (umbenennen, Farbe, löschen) + Analysen verschieben =====
