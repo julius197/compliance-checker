@@ -465,10 +465,10 @@
         radial-gradient(800px 700px at -10% 110%, rgba(22,163,74,.14) 0%, transparent 50%),
         linear-gradient(180deg, #EFF9F3 0%, #F7FAF8 45%, #F2F8F4 100%);
     }
-    #authGate::before { content:''; position:absolute; width:420px; height:420px; left:-130px; top:8%; border-radius:50%; background:rgba(34,197,94,.15); filter:blur(72px); animation:lpDrift 18s ease-in-out infinite alternate; pointer-events:none; }
-    #authGate::after { content:''; position:absolute; width:340px; height:340px; right:-110px; bottom:6%; border-radius:50%; background:rgba(22,163,74,.12); filter:blur(72px); animation:lpDrift 22s ease-in-out infinite alternate-reverse; pointer-events:none; }
+    #authGate::before { content:''; position:fixed; width:420px; height:420px; left:-130px; top:8%; border-radius:50%; background:rgba(34,197,94,.15); filter:blur(72px); animation:lpDrift 18s ease-in-out infinite alternate; pointer-events:none; }
+    #authGate::after { content:''; position:fixed; width:340px; height:340px; right:-110px; bottom:6%; border-radius:50%; background:rgba(22,163,74,.12); filter:blur(72px); animation:lpDrift 22s ease-in-out infinite alternate-reverse; pointer-events:none; }
     /* feines Punkt-Raster wie auf der Hauptseite (ersetzt die frühere grüne Aurora) */
-    #authGate::before { content:''; position:absolute; inset:0; z-index:0; pointer-events:none; opacity:.5;
+    #authGate::before { content:''; position:fixed; inset:0; z-index:0; pointer-events:none; opacity:.5;
       background-image: radial-gradient(rgba(26,43,35,.025) 1px, transparent 1px);
       background-size: 28px 28px;
       mask-image: linear-gradient(180deg, black, transparent 70%);
@@ -907,6 +907,43 @@
 
     /* ===== Überwachung auf der Startseite ===== */
     .lp-badge-hell { background:linear-gradient(135deg,#D97706,#F59E0B); box-shadow:0 8px 20px -8px rgba(245,158,11,.9); }
+    /* ===== Anmeldung / Registrierung mobil ===== */
+    @media (max-width:760px) {
+      #authGate { padding:18px 14px; align-items:flex-start; }
+      .auth-card { padding:26px 18px; margin:auto 0; width:100%; box-sizing:border-box; }
+      .auth-logo { height:52px; margin:0 auto 14px; }
+      .auth-title { font-size:20px; }
+      .auth-sub { font-size:12.5px; line-height:1.5; margin-bottom:22px; }
+      .auth-card input { font-size:16px; }
+      .auth-label { font-size:11.5px; margin-bottom:5px; }
+      .auth-field { margin-bottom:13px; }
+      .auth-btn { padding:14px; font-size:14.5px; }
+      .einl-willkommen { padding:12px 14px; margin-bottom:14px; }
+      .einl-w-d { font-size:12px; }
+      #authGate::before { width:min(300px,70vw); height:min(300px,70vw); }
+      #authGate::after { width:min(240px,60vw); height:min(240px,60vw); }
+    }
+    @media (max-width:430px) {
+      #authGate { padding:14px 11px; }
+      .auth-card { padding:22px 15px; border-radius:16px; }
+      .auth-logo { height:46px; }
+      .auth-title { font-size:18.5px; }
+    }
+    @media (max-height:620px) {
+      #authGate { align-items:flex-start; padding-top:16px; padding-bottom:16px; }
+      .auth-card { padding:20px 18px; }
+      .auth-logo { height:42px; margin-bottom:10px; }
+    }
+
+    #lpMonitoring { margin-top:32px; }
+    #lpMonitoring .lp-neu-badge { margin-bottom:18px; }
+    @media (max-width:860px) {
+      #lpMonitoring { margin-top:26px; padding-top:56px; }
+      #lpMonitoring .lp-neu-badge { margin-bottom:16px; }
+      #lpMonitoring .lp-h2 { margin-bottom:14px; }
+      #lpMonitoring .lp-secsub { margin-bottom:26px; }
+      #lpMonitoring .lp-steps { gap:14px; }
+    }
     .lp-ico-stern { color:#FBBF24 !important; border-color:rgba(245,158,11,.5) !important; background:linear-gradient(135deg, rgba(245,158,11,.22), rgba(217,119,6,.1)) !important; }
     .lp-ico-stern svg { animation:lpSternPuls 3.2s ease-in-out infinite; }
     @keyframes lpSternPuls { 0%,100% { transform:scale(1) rotate(0); } 50% { transform:scale(1.12) rotate(6deg); } }
@@ -2008,7 +2045,6 @@
     </section>
 
     <section class="lp-sec lp-reveal" id="lpAkte">
-      <div class="lp-neu-badge">Neu</div>
       <h2 class="lp-h2">Die vollständige Akte – nicht nur die Analyse</h2>
       <p class="lp-secsub">Eine Prüfung allein reicht der Aufsicht nicht. Der Compliance-Checker sammelt alles, was zu einem Geschäftspartner gehört, an einem Ort – und gibt es auf Knopfdruck als geschlossenes Dokument aus.</p>
       <div class="lp-grid">
@@ -2343,6 +2379,120 @@
 .legal-content h3:first-child { margin-top:0; }
 .legal-content p { font-size:13px; line-height:1.62; color:#3A4744; margin:0 0 10px; }
 @media (max-width:640px){ .legal-box{ max-height:92vh; } .legal-content{ padding:16px 18px 22px; } }
+
+    /* ============================================================
+       MOBILE KORREKTUREN - stehen bewusst ganz am Ende,
+       damit sie spaeter definierte Grundregeln ueberschreiben
+       ============================================================ */
+    @media (max-width:760px) {
+      /* Historie-Zeilen: untereinander statt zusammengequetscht */
+      .history-row { flex-direction:column !important; align-items:stretch !important; gap:11px !important; padding:14px !important; }
+      .hr-main { width:100% !important; min-width:0 !important; flex:1 1 auto !important; }
+      .hr-right { width:100% !important; flex-shrink:1 !important; flex-wrap:wrap !important; justify-content:flex-start !important; gap:10px !important; align-items:center !important; }
+      .hr-name { white-space:normal !important; overflow:visible !important; text-overflow:clip !important; word-break:break-word !important; font-size:14.5px !important; line-height:1.35 !important; }
+      .hr-meta, .hr-author, .hr-id { white-space:normal !important; word-break:break-word !important; }
+      .hr-arrow { display:none !important; }
+      .hr-score { font-size:22px !important; }
+      .fav-stern { order:-1; }
+
+      /* Ordner-Verwaltung */
+      .om-row, .ordner-row { flex-direction:column !important; align-items:stretch !important; }
+      .om-title { white-space:normal !important; word-break:break-word !important; }
+
+      /* Team */
+      .team-row { flex-direction:column !important; align-items:stretch !important; }
+      .tm-right { width:100% !important; justify-content:space-between !important; }
+
+      /* Aktionen und Druck-Schaltflaechen */
+      .actions { flex-direction:column !important; gap:9px !important; }
+      .actions .btn-action { width:100% !important; justify-content:center !important; }
+      .akte-export-bar { flex-direction:column !important; gap:9px !important; }
+      .akte-export-bar > * { width:100% !important; box-sizing:border-box !important; }
+    }
+
+    /* ============================================================
+       DRUCK - ganz am Ende, damit die Regeln Vorrang haben.
+       Wichtig: Auf schmalen Seiten greifen sonst die Handy-Regeln
+       (u.a. overflow:hidden) und der Ausdruck bleibt leer.
+       ============================================================ */
+    @media print {
+      html, body {
+        overflow:visible !important; height:auto !important; width:100% !important;
+        max-width:none !important; position:static !important; background:#fff !important;
+      }
+      .app { max-width:100% !important; padding:0 !important; overflow:visible !important; }
+      .app, .app * { max-width:none !important; }
+      body::before, body::after, .bg-flasche { display:none !important; }
+      #landingGate, #authGate, #planGate, #kontoGate, #zahlungGate, #onboardingGate,
+      #uploadGate, #infoGate, #bootGate, .lang-btn, .help-btn, .help-pop, .tr-toast,
+      #trOverlay, .header, .search-card, .actions, .hist-nav-btn, .mehr-analysen-btn,
+      .fav-stern, .hr-arrow, .akte-export-bar, .kyc-link, .ref-box { display:none !important; }
+      .report, #report, .akte-view { display:block !important; overflow:visible !important; }
+      .sec-card, .rec-card, .flags-card, .kyc-print-page, .akte-analyse { page-break-inside:avoid; }
+      .kyc-print-page { display:block !important; page-break-before:always; }
+      .grid4, .fields-row { grid-template-columns:1fr 1fr !important; }
+      .evidence-gallery { grid-template-columns:1fr 1fr !important; }
+      .kv { grid-template-columns:38% 1fr !important; }
+      .sec-title, .kv-v, .rec-text, .flag-text, .hr-name { word-break:break-word !important; }
+      a[href]:after { content:none !important; }
+    }
+
+    /* ============================================================
+       ANMELDUNG / REGISTRIERUNG MOBIL - ganz am Ende fuer Vorrang.
+       Kompakter, damit die Karte vollstaendig auf den Schirm passt.
+       ============================================================ */
+    @media (max-width:760px) {
+      #authGate {
+        padding:14px 12px !important;
+        align-items:flex-start !important;
+        overflow-y:auto !important;
+        -webkit-overflow-scrolling:touch;
+      }
+      .auth-card {
+        padding:22px 16px !important;
+        width:100% !important; max-width:420px !important;
+        margin:0 auto !important; box-sizing:border-box !important;
+        border-radius:16px !important;
+      }
+      .auth-logo { height:44px !important; margin:0 auto 12px !important; }
+      .auth-title { font-size:18.5px !important; margin-bottom:4px !important; }
+      .auth-sub { font-size:12px !important; line-height:1.45 !important; margin-bottom:16px !important; }
+      .auth-field { margin-bottom:11px !important; }
+      .auth-label { font-size:11px !important; margin-bottom:4px !important; }
+      .auth-card input,
+      .auth-input { font-size:16px !important; padding:11px 13px !important; }   /* 16px verhindert das Zoomen auf iPhones */
+      .auth-btn { padding:13px !important; font-size:14px !important; margin-top:4px !important; }
+      .auth-msg { font-size:11.5px !important; padding:9px 11px !important; }
+      .auth-card a, .auth-card small, .auth-foot, .auth-toggle { font-size:12px !important; }
+      .auth-legal { font-size:10.5px !important; line-height:1.45 !important; margin-top:10px !important; }
+      .auth-check { font-size:11.5px !important; gap:8px !important; margin-bottom:10px !important; }
+      .einl-willkommen { padding:11px 13px !important; margin-bottom:12px !important; }
+      .einl-w-t { font-size:13px !important; }
+      .einl-w-d { font-size:11.5px !important; }
+      #authGate::before { width:min(260px,62vw) !important; height:min(260px,62vw) !important; }
+      #authGate::after  { width:min(210px,52vw) !important; height:min(210px,52vw) !important; }
+    }
+
+    @media (max-width:430px) {
+      #authGate { padding:11px 9px !important; }
+      .auth-card { padding:19px 14px !important; }
+      .auth-logo { height:40px !important; margin-bottom:10px !important; }
+      .auth-title { font-size:17.5px !important; }
+      .auth-sub { font-size:11.5px !important; margin-bottom:14px !important; }
+      .auth-field { margin-bottom:10px !important; }
+      .auth-card input, .auth-input { padding:10px 12px !important; }
+      .auth-btn { padding:12px !important; font-size:13.5px !important; }
+    }
+
+    /* Querformat oder sehr niedrige Schirme */
+    @media (max-height:680px) {
+      #authGate { align-items:flex-start !important; padding-top:12px !important; padding-bottom:12px !important; }
+      .auth-card { padding:17px 15px !important; }
+      .auth-logo { height:36px !important; margin-bottom:8px !important; }
+      .auth-title { font-size:17px !important; }
+      .auth-sub { margin-bottom:12px !important; }
+      .auth-field { margin-bottom:9px !important; }
+    }
 </style>
 <div id="legalGate" class="legal-gate" style="display:none;">
   <div class="legal-box">
@@ -2473,7 +2623,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.82</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.87</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -4881,6 +5031,28 @@ function dupNeuePruefung() {
   setTimeout(function(){ startSearch(true); }, 200);
 }
 
+// Druck anstossen - mit kleinen Vorbereitungen, damit es auch auf dem Handy klappt
+function druckeJetzt() {
+  try {
+    // Offene Overlays schliessen, sonst druckt Safari sie mit oder gar nichts
+    ['helpPop','trOverlay'].forEach(function(id){ const e = document.getElementById(id); if (e) e.style.display = 'none'; });
+    document.querySelectorAll('.tr-toast').forEach(function(t){ t.remove(); });
+    // Nach oben, damit der Ausdruck vollstaendig erfasst wird
+    window.scrollTo(0, 0);
+    setTimeout(function(){
+      try { window.print(); }
+      catch (e) { druckHinweis(); }
+    }, 220);
+  } catch (e) { druckHinweis(); }
+}
+
+function druckHinweis() {
+  const mobil = /iPhone|iPad|Android/i.test(navigator.userAgent);
+  alert(mobil
+    ? 'Bitte nutze die Teilen-Funktion deines Browsers und w\u00e4hle dort \u201eDrucken\u201c oder \u201eAls PDF sichern\u201c.'
+    : 'Der Druckdialog konnte nicht ge\u00f6ffnet werden. Bitte nutze Strg+P bzw. Cmd+P.');
+}
+
 function setStep(txt) { document.getElementById('loadingStep').textContent = txt; }
 
 // ===== Fortschrittsanzeige der Analyse (Schätzung, ca. 2–3 Minuten) =====
@@ -6038,7 +6210,7 @@ function showReport(d, rawName, fromHistory) {
     </div>
     <div id="kycMount" style="display:none;"></div>
     <div class="actions reveal">
-      <button class="btn-action primary" onclick="window.print()">
+      <button class="btn-action primary" onclick="druckeJetzt()">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
         Drucken / PDF
       </button>
@@ -6876,7 +7048,7 @@ async function _akteDrucken(folderId) {
     + '</div>';
 
   const actions = '<div class="akte-actions">'
-    + '<button class="btn-action primary" onclick="window.print()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>Drucken / Als PDF speichern</button>'
+    + '<button class="btn-action primary" onclick="druckeJetzt()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>Drucken / Als PDF speichern</button>'
     + '<button class="btn-action" onclick="backToMain()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>Zurück</button>'
     + '</div>';
 
@@ -6922,4 +7094,4 @@ async function _akteDrucken(folderId) {
 }
 </script>
 </body>
-</html>
+</html>#
