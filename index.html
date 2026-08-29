@@ -2552,6 +2552,57 @@
       border:1px solid rgba(34,197,94,.35); border-radius:999px; padding:2px 8px; }
     .druck-weg-d { font-size:12px; line-height:1.55; color:var(--gray,#5A6670); }
     @media (max-width:760px) { .druck-card { max-width:100% !important; } .druck-weg { padding:11px 12px !important; } .druck-weg-d { font-size:11.5px !important; } }
+
+    /* Druck-Ausweg: Bewegung rein und raus */
+    .druck-card { transition:transform .3s cubic-bezier(.2,.9,.3,1.25), opacity .28s ease; }
+    .druck-card.karte-weg { transform:translateY(16px) scale(.95) !important; opacity:0 !important; }
+    .druck-weg { transition:transform .18s, border-color .18s, background .18s; }
+    .druck-weg:hover, .druck-weg:active { transform:translateX(3px); border-color:rgba(34,197,94,.45); background:#F7FDF9; }
+    .druck-weg-n { transition:transform .2s cubic-bezier(.2,.9,.3,1.5); }
+    .druck-weg:hover .druck-weg-n { transform:scale(1.14); }
+    .druck-card .up-warn-ok { transition:transform .18s, box-shadow .18s; }
+    .druck-card .up-warn-ok:active { transform:scale(.96); }
+    .druck-tipp { animation:druckTipp .5s cubic-bezier(.2,.9,.3,1.5) .35s both; }
+    @keyframes druckTipp { from { opacity:0; transform:scale(.6); } to { opacity:1; transform:none; } }
+    @media (max-width:760px) {
+      .druck-ico { width:44px !important; height:44px !important; margin-bottom:11px !important; }
+      .druck-ico svg { width:21px !important; height:21px !important; }
+      .druck-weg { gap:10px !important; margin-bottom:9px !important; }
+      .druck-weg-n { width:23px !important; height:23px !important; font-size:12px !important; }
+      .druck-weg-t { font-size:12.5px !important; }
+      .druck-tipp { font-size:9px !important; padding:2px 6px !important; }
+    }
+
+    /* ===== Paket-Hinweis auf der Anmeldeseite ===== */
+    .paket-hinweis { background:linear-gradient(135deg,#F2FBF6,#fff); border:1.5px solid rgba(34,197,94,.4); border-radius:14px; padding:13px 15px; margin-bottom:16px;
+      opacity:0; transform:translateY(-10px); transition:opacity .4s ease, transform .4s cubic-bezier(.2,.9,.3,1.2); }
+    .paket-hinweis.an { opacity:1; transform:none; }
+    .paket-hinweis.weg { opacity:0; transform:translateY(-8px) scale(.97); }
+    .ph-kopf { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:7px; }
+    .ph-marke { display:inline-flex; align-items:center; gap:6px; background:linear-gradient(135deg,#16A34A,#22C55E); color:#fff;
+      font-size:11px; font-weight:800; letter-spacing:.04em; text-transform:uppercase; padding:4px 12px; border-radius:999px;
+      animation:phMarke .5s cubic-bezier(.2,.9,.3,1.5) .15s both; box-shadow:0 8px 18px -8px rgba(34,197,94,.8); }
+    @keyframes phMarke { from { opacity:0; transform:scale(.6); } to { opacity:1; transform:none; } }
+    .ph-weg { background:none; border:none; color:var(--gray-l,#8A949D); font-size:13px; cursor:pointer; padding:3px 5px; border-radius:7px; line-height:1; transition:all .15s; }
+    .ph-weg:hover { color:#DC2626; background:#FEF2F2; transform:rotate(90deg); }
+    .ph-text { font-size:12.5px; line-height:1.55; color:var(--ink2,#1F2937); }
+    .ph-frei { font-size:11.5px; font-weight:700; color:var(--green-d,#16A34A); margin-top:6px; }
+
+    /* Hervorhebung des gewaehlten Pakets nach der Anmeldung */
+    .plan-card.plan-hervor { animation:planHervor 2.6s cubic-bezier(.2,.7,.2,1) both; }
+    @keyframes planHervor {
+      0%   { transform:scale(1); box-shadow:0 0 0 0 rgba(34,197,94,.55); }
+      12%  { transform:scale(1.035); box-shadow:0 0 0 12px rgba(34,197,94,0); }
+      24%  { transform:scale(1); box-shadow:0 0 0 0 rgba(34,197,94,.5); }
+      36%  { transform:scale(1.025); box-shadow:0 0 0 12px rgba(34,197,94,0); }
+      100% { transform:scale(1); box-shadow:0 0 0 0 rgba(34,197,94,0); }
+    }
+    @media (max-width:760px) {
+      .paket-hinweis { padding:11px 13px !important; margin-bottom:13px !important; }
+      .ph-text { font-size:11.5px !important; }
+      .ph-marke { font-size:10px !important; padding:3px 10px !important; }
+      .ph-frei { font-size:10.5px !important; }
+    }
 </style>
 <div id="legalGate" class="legal-gate" style="display:none;">
   <div class="legal-box">
@@ -2682,7 +2733,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.90</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.92</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -3561,6 +3612,24 @@ function enterApp() {
   appUnterseitenReset();
   document.getElementById('logoutBtn').style.display = '';
   const hb = document.getElementById('historyBtn'); if (hb) hb.style.display = '';
+  // Kam der Nutzer ueber einen Paket-Button auf der Startseite? Dann direkt dorthin.
+  if (WUNSCH_PAKET) {
+    const wunsch = WUNSCH_PAKET;
+    wunschPaketVergessen();
+    setTimeout(function(){
+      try {
+        zeigePlaene('upgrade');
+        setTimeout(function(){
+          const karte = document.querySelector('.plan-card[data-plan="' + wunsch + '"]');
+          if (karte) {
+            karte.classList.add('plan-hervor');
+            karte.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            setTimeout(function(){ karte.classList.remove('plan-hervor'); }, 2600);
+          }
+        }, 420);
+      } catch(e) {}
+    }, 900);
+  }
   ['infoBewertungBtn','infoQuellenBtn'].forEach(function(id){ const b = document.getElementById(id); if (b) b.style.display = ''; });
   setTimeout(function(){ try { kycNeuePruefen(); } catch(e) {} }, 1800);
   const kb = document.getElementById('kontoBtn'); if (kb) kb.style.display = '';
@@ -3857,6 +3926,32 @@ async function rangAendern(userId, rang, sel) {
 }
 
 // ===== Einladungslinks =====
+// Zeigt auf der Anmeldeseite, welches Paket gewaehlt wurde
+function paketHinweisAnzeigen() {
+  if (!WUNSCH_PAKET || typeof PLAENE === 'undefined') return;
+  const p = PLAENE.find(function(x){ return x.id === WUNSCH_PAKET; });
+  const karte = document.querySelector('.auth-card');
+  if (!p || !karte || document.getElementById('paketHinweis')) return;
+  const box = document.createElement('div');
+  box.id = 'paketHinweis';
+  box.className = 'paket-hinweis';
+  box.innerHTML = '<div class="ph-kopf">'
+    + '<span class="ph-marke">' + escapeHtml(p.name) + '</span>'
+    + '<button class="ph-weg" onclick="paketHinweisWeg()" title="Auswahl aufheben">\u2715</button>'
+    + '</div>'
+    + '<div class="ph-text">Nach der Registrierung kannst du direkt mit <b>' + escapeHtml(p.name) + '</b> starten \u2013 '
+    + p.limit.toLocaleString('de-DE') + ' Analysen f\u00fcr ' + p.preis + ' \u20ac im Monat.</div>'
+    + '<div class="ph-frei">Deine ersten 3 Analysen sind kostenlos \u2013 du zahlst erst danach.</div>';
+  karte.insertBefore(box, karte.firstChild);
+  requestAnimationFrame(function(){ box.classList.add('an'); });
+}
+
+function paketHinweisWeg() {
+  const b = document.getElementById('paketHinweis');
+  if (b) { b.classList.add('weg'); setTimeout(function(){ if (b.parentNode) b.remove(); }, 280); }
+  wunschPaketVergessen();
+}
+
 async function einladungHinweis() {
   if (!EINLADUNG_TOKEN || !sb) return;
   try {
@@ -4494,7 +4589,7 @@ function lpPreiseAufbauen() {
       + '<div class="lp-preis-zahl"><b>' + p.limit.toLocaleString('de-DE') + '</b><span>Analysen / Monat</span></div>'
       + '<div class="lp-preis-betrag">' + p.preis + ' \u20ac<span>/ Monat</span></div>'
       + '<div class="lp-preis-je">entspricht ' + proAnalyse.toFixed(2).replace('.', ',') + ' \u20ac pro Analyse</div>'
-      + '<button class="lp-btn ' + (p.empfohlen ? 'lp-btn-solid' : 'lp-btn-ghost') + '" onclick="landingStart(\'register\')">Auswählen</button>'
+      + '<button class="lp-btn ' + (p.empfohlen ? 'lp-btn-solid' : 'lp-btn-ghost') + '" onclick="landingStart(\'register\', \'' + p.id + '\')">' + p.name + ' w\u00e4hlen</button>'
       + '</div>';
   }).join('');
 }
@@ -4515,7 +4610,12 @@ function lpCountUp() {
   });
 }
 
-function landingStart(mode) {
+function landingStart(mode, paketId) {
+  // Gewaehltes Paket merken, damit es nach der Anmeldung direkt angeboten wird
+  if (paketId) {
+    WUNSCH_PAKET = paketId;
+    try { localStorage.setItem('cc_wunsch_paket', paketId); } catch(e) {}
+  }
   const lg = document.getElementById('landingGate');
   if (lg) lg.style.display = 'none';
   showGate();
@@ -4538,6 +4638,7 @@ function initLpReveal() {
 }
 
 function showGate() {
+  setTimeout(function(){ try { paketHinweisAnzeigen(); } catch(e) {} }, 60);
   const lgd = document.getElementById('landingGate'); if (lgd) lgd.style.display = 'none';
   hideBoot();
   alleGatesAus();
@@ -4764,7 +4865,7 @@ function renderPlaene() {
   const check = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg>';
   wrap.innerHTML = PLAENE.map(function(p) {
     const feats = ((LANG==='en'&&p.features_en)?p.features_en:p.features).map(function(f){ return '<li>' + check + '<span>' + f + '</span></li>'; }).join('');
-    return '<div class="plan-card' + (p.empfohlen ? ' featured' : '') + '">'
+    return '<div class="plan-card' + (p.empfohlen ? ' featured' : '') + '" data-plan="' + p.id + '">'
       + (p.empfohlen ? '<div class="plan-badge">' + t('plan_badge','\u2605 Beliebteste Wahl') + '</div>' : '')
       + (PLAN_LOGOS[p.id] ? '<img class="plan-card-logo" src="' + PLAN_LOGOS[p.id] + '" alt="" />' : '')
       + '<div class="plan-name">' + p.name + '</div>'
@@ -5091,6 +5192,9 @@ function dupNeuePruefung() {
 }
 
 // Druck anstossen - mit kleinen Vorbereitungen, damit es auch auf dem Handy klappt
+let WUNSCH_PAKET = (function(){ try { return localStorage.getItem('cc_wunsch_paket') || ''; } catch(e) { return ''; } })();
+function wunschPaketVergessen() { WUNSCH_PAKET = ''; try { localStorage.removeItem('cc_wunsch_paket'); } catch(e) {} }
+
 let DRUCK_NAME = '';
 let DRUCK_ID = '';
 
@@ -5179,8 +5283,10 @@ function druckAusweg() {
 function druckGateZu() {
   const b = document.getElementById('druckGate');
   if (!b) return;
+  const karte = b.querySelector('.druck-card');
+  if (karte) karte.classList.add('karte-weg');
   b.classList.remove('an');
-  setTimeout(function(){ if (b.parentNode) b.remove(); }, 240);
+  setTimeout(function(){ if (b.parentNode) b.remove(); }, 280);
 }
 
 function inSafariOeffnen() {
