@@ -2603,6 +2603,127 @@
       .ph-marke { font-size:10px !important; padding:3px 10px !important; }
       .ph-frei { font-size:10.5px !important; }
     }
+
+    /* ============================================================
+       UPLOAD-SEITE: Erklaerung mit Schritten
+       ============================================================ */
+    .up-erklaerung { background:linear-gradient(180deg,#F8FBFF,#fff); border:1.5px solid #C7DDF5; border-radius:18px; padding:18px; margin-bottom:16px;
+      animation:upErkIn .55s cubic-bezier(.2,.7,.2,1) both; }
+    @keyframes upErkIn { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:none; } }
+    .up-e-kopf { display:flex; gap:13px; align-items:flex-start; padding-bottom:15px; margin-bottom:15px; border-bottom:1px solid #DCEAF8; }
+    .up-e-ico { flex-shrink:0; width:44px; height:44px; border-radius:13px; background:linear-gradient(135deg,#DBEAFE,#EFF6FF); color:#1E4E8C;
+      display:flex; align-items:center; justify-content:center; animation:upErkIco .6s cubic-bezier(.2,.9,.3,1.5) .1s both; }
+    @keyframes upErkIco { from { opacity:0; transform:scale(.5) rotate(-12deg); } to { opacity:1; transform:none; } }
+    .up-e-t { font-size:16px; font-weight:800; color:#0A1F3C; margin-bottom:5px; }
+    .up-e-d { font-size:12.5px; line-height:1.65; color:#41566E; }
+    .up-e-d b { color:#0A1F3C; }
+
+    .up-schritte { display:flex; flex-direction:column; gap:11px; }
+    .up-schritt { display:flex; gap:12px; align-items:flex-start; opacity:0;
+      animation:upSchrittIn .45s cubic-bezier(.2,.7,.2,1) var(--sd,0s) both; transition:opacity .3s; }
+    @keyframes upSchrittIn { from { opacity:0; transform:translateX(-10px); } to { opacity:1; transform:none; } }
+    .up-s-nr { flex-shrink:0; width:26px; height:26px; border-radius:50%; background:#fff; border:2px solid #C7DDF5; color:#1E4E8C;
+      font-size:12.5px; font-weight:800; display:flex; align-items:center; justify-content:center;
+      transition:all .3s cubic-bezier(.2,.9,.3,1.5); }
+    .up-s-t { font-size:13.5px; font-weight:700; color:#0A1F3C; margin-bottom:2px; }
+    .up-s-d { font-size:12px; line-height:1.55; color:#5A7186; }
+    /* Erledigter Schritt */
+    .up-s-fertig .up-s-nr { background:linear-gradient(135deg,#16A34A,#22C55E); border-color:#16A34A; color:#fff;
+      animation:upSchrittFertig .5s cubic-bezier(.2,.9,.3,1.6) both; box-shadow:0 6px 16px -6px rgba(34,197,94,.75); }
+    @keyframes upSchrittFertig { 0% { transform:scale(.6) rotate(-25deg); } 60% { transform:scale(1.2) rotate(6deg); } 100% { transform:scale(1); } }
+    .up-s-fertig .up-s-t { color:#15803D; }
+    .up-s-fertig .up-s-d { opacity:.7; }
+
+    .up-e-fuss { display:flex; gap:14px; flex-wrap:wrap; margin-top:16px; padding-top:13px; border-top:1px solid #DCEAF8; }
+    .up-e-fuss span { display:inline-flex; align-items:center; gap:5px; font-size:11px; font-weight:700; color:#5A7186;
+      animation:upSchrittIn .4s cubic-bezier(.2,.7,.2,1) .46s both; }
+    .up-e-fuss svg { color:#16A34A; flex-shrink:0; }
+
+    /* ---------- Handy ---------- */
+    @media (max-width:760px) {
+      .up-erklaerung { padding:15px 14px !important; border-radius:16px !important; margin-bottom:14px !important; }
+      .up-e-kopf { gap:11px !important; padding-bottom:13px !important; margin-bottom:13px !important; }
+      .up-e-ico { width:38px !important; height:38px !important; border-radius:11px !important; }
+      .up-e-ico svg { width:19px !important; height:19px !important; }
+      .up-e-t { font-size:14.5px !important; }
+      .up-e-d { font-size:11.5px !important; line-height:1.6 !important; }
+      .up-schritte { gap:10px !important; }
+      .up-s-nr { width:23px !important; height:23px !important; font-size:11.5px !important; }
+      .up-s-t { font-size:12.5px !important; }
+      .up-s-d { font-size:11px !important; line-height:1.5 !important; }
+      .up-e-fuss { gap:9px !important; margin-top:13px !important; padding-top:11px !important; }
+      .up-e-fuss span { font-size:10px !important; }
+      #uploadGate .plan-wrap { max-width:100% !important; }
+      #uploadGate { padding:14px 12px !important; align-items:flex-start !important; }
+      .up-grid { grid-template-columns:1fr !important; gap:11px !important; }
+      .up-btns { flex-direction:column !important; }
+      .up-btns .kyc-btn { width:100% !important; padding:12px !important; }
+      .up-senden { padding:15px !important; font-size:14.5px !important; }
+      .ds-hinweis { padding:12px 13px !important; }
+      .ds-text { font-size:11px !important; }
+      .ref-code { font-size:24px !important; letter-spacing:.11em !important; }
+      .ref-hint { font-size:11px !important; }
+      .einw-text { font-size:11.5px !important; }
+      .einw-details p { font-size:11px !important; margin-left:28px !important; }
+    }
+    @media (max-width:430px) {
+      .up-erklaerung { padding:13px 12px !important; }
+      .up-e-t { font-size:13.5px !important; }
+      .up-s-d { font-size:10.5px !important; }
+    }
+
+    /* ============================================================
+       ANMELDUNG / REGISTRIERUNG MOBIL - grosszuegiger,
+       nutzt den vorhandenen Platz statt ihn leer zu lassen
+       ============================================================ */
+    @media (max-width:760px) {
+      #authGate { padding:20px 14px !important; align-items:center !important; }
+      .auth-card { padding:30px 20px !important; max-width:430px !important; border-radius:20px !important; }
+
+      /* Logo deutlich groesser */
+      .auth-logo { height:84px !important; margin:0 auto 20px !important; }
+
+      .auth-title { font-size:22px !important; margin-bottom:6px !important; }
+      .auth-sub { font-size:13px !important; line-height:1.5 !important; margin-bottom:24px !important; }
+      .auth-field { margin-bottom:15px !important; }
+      .auth-label { font-size:12px !important; margin-bottom:6px !important; }
+      .auth-card input, .auth-input { font-size:16px !important; padding:14px 14px !important; }
+      .auth-btn { padding:15px !important; font-size:15px !important; margin-top:6px !important; }
+      .auth-foot, .auth-toggle { font-size:13px !important; margin-top:18px !important; }
+      .auth-legal { font-size:11px !important; line-height:1.5 !important; margin-top:14px !important; }
+      .auth-check { font-size:12px !important; margin-bottom:14px !important; }
+      .auth-msg { font-size:12.5px !important; padding:11px 13px !important; }
+    }
+
+    /* Etwas kleinere Geraete: Logo bleibt gross, Rest wird enger */
+    @media (max-width:430px) {
+      #authGate { padding:16px 12px !important; }
+      .auth-card { padding:26px 17px !important; }
+      .auth-logo { height:74px !important; margin-bottom:17px !important; }
+      .auth-title { font-size:20.5px !important; }
+      .auth-sub { font-size:12.5px !important; margin-bottom:20px !important; }
+      .auth-field { margin-bottom:13px !important; }
+    }
+
+    /* Wenig Hoehe (Querformat, kleine iPhones): kompakter, aber lesbar */
+    @media (max-height:700px) {
+      #authGate { align-items:flex-start !important; padding-top:14px !important; padding-bottom:14px !important; }
+      .auth-card { padding:22px 18px !important; }
+      .auth-logo { height:60px !important; margin-bottom:13px !important; }
+      .auth-title { font-size:19px !important; }
+      .auth-sub { margin-bottom:16px !important; }
+      .auth-field { margin-bottom:11px !important; }
+      .auth-card input, .auth-input { padding:12px 13px !important; }
+    }
+
+    /* Sehr wenig Hoehe: alles auf das Noetigste */
+    @media (max-height:560px) {
+      .auth-logo { height:46px !important; margin-bottom:10px !important; }
+      .auth-card { padding:18px 16px !important; }
+      .auth-title { font-size:17.5px !important; }
+      .auth-sub { font-size:11.5px !important; margin-bottom:13px !important; }
+      .auth-field { margin-bottom:9px !important; }
+    }
 </style>
 <div id="legalGate" class="legal-gate" style="display:none;">
   <div class="legal-box">
@@ -2733,7 +2854,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.92</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.94</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -4337,6 +4458,38 @@ function uploadRender() {
   const firma = (UPLOAD_INFO && UPLOAD_INFO.firmenname) ? escapeHtml(UPLOAD_INFO.firmenname) : 'das pr\u00fcfende Unternehmen';
   const erst = !UPLOAD_GEZEICHNET;
   UPLOAD_GEZEICHNET = true;
+  // ---------- Erklärung für jemanden, der den Link ohne Kontext bekommt ----------
+  const fertigA = !!(UPLOAD_INFO.vorhanden && UPLOAD_INFO.vorhanden.ausweis) || !!UPLOAD_GEWAEHLT.ausweis;
+  const fertigS = !!(UPLOAD_INFO.vorhanden && UPLOAD_INFO.vorhanden.selfie) || !!UPLOAD_GEWAEHLT.selfie;
+
+  function schritt(nr, titel, text, erledigt, verzoeg) {
+    return '<div class="up-schritt' + (erledigt ? ' up-s-fertig' : '') + '" style="--sd:' + verzoeg + 's">'
+      + '<div class="up-s-nr">' + (erledigt ? '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>' : nr) + '</div>'
+      + '<div class="up-s-inhalt"><div class="up-s-t">' + titel + '</div><div class="up-s-d">' + text + '</div></div>'
+      + '</div>';
+  }
+
+  const erklaerung = '<div class="up-erklaerung">'
+    + '<div class="up-e-kopf">'
+    + '<div class="up-e-ico"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">'
+    + '<rect x="2" y="5" width="20" height="14" rx="2"/><circle cx="8.5" cy="12" r="2.5"/><path d="M14 10h4M14 14h4M4.5 16.5c.9-1.6 2.3-2.4 4-2.4s3.1.8 4 2.4"/></svg></div>'
+    + '<div><div class="up-e-t">Identit\u00e4tspr\u00fcfung</div>'
+    + '<div class="up-e-d"><b>' + firma + '</b> ben\u00f6tigt eine einmalige Best\u00e4tigung deiner Identit\u00e4t. '
+    + 'Unternehmen sind gesetzlich verpflichtet, ihre Gesch\u00e4ftspartner zu identifizieren \u2013 das schreibt das Geldw\u00e4schegesetz vor (\u00a7\u00a7 10\u201317 GwG). '
+    + 'Diese Seite ist der sichere Weg daf\u00fcr: Du l\u00e4dst deine Unterlagen direkt hoch, ohne sie per E-Mail oder Messenger zu verschicken.</div></div>'
+    + '</div>'
+    + '<div class="up-schritte">'
+    + schritt(1, 'Code abgleichen', 'Vergleiche den Best\u00e4tigungscode unten mit dem, den dir die Person genannt hat. Stimmt er nicht \u00fcberein, lade nichts hoch.', false, 0.14)
+    + schritt(2, 'Ausweis fotografieren', 'Personalausweis oder Reisepass \u2013 gut lesbar, alle Ecken sichtbar, ohne Spiegelungen.', fertigA, 0.22)
+    + schritt(3, 'Foto von dir aufnehmen', 'Ein einfaches Foto deines Gesichts. Damit wird best\u00e4tigt, dass du die Person auf dem Ausweis bist.', fertigS, 0.30)
+    + schritt(4, 'Verbindlich absenden', 'Zustimmung geben und absenden. Danach ist der Vorgang abgeschlossen und der Link erlischt.', false, 0.38)
+    + '</div>'
+    + '<div class="up-e-fuss">'
+    + '<span><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Verschl\u00fcsselt \u00fcbertragen</span>'
+    + '<span><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg> Dauert 2 Minuten</span>'
+    + '<span><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg> Server in der EU</span>'
+    + '</div></div>';
+
   const dsHtml = '<div class="ds-hinweis">'
     + '<div class="ds-kopf"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>'
     + '<span>Datenschutzhinweis f\u00fcr diesen Upload</span></div>'
@@ -4349,7 +4502,7 @@ function uploadRender() {
     ? '<div class="ref-box ref-box-up"><div class="ref-label">Best\u00e4tigungscode</div><div class="ref-code">' + escapeHtml(UPLOAD_INFO.ref_code) + '</div>'
       + '<div class="ref-hint">Gleiche diesen Code mit der Person ab, die dir den Link geschickt hat. Stimmt er nicht \u00fcberein, lade nichts hoch.</div></div>'
     : '';
-  body.innerHTML = dsHtml + refHtml + '<div class="kyc-grid up-grid' + (erst ? ' up-erst' : '') + '" style="margin-top:6px;">'
+  body.innerHTML = erklaerung + refHtml + dsHtml + '<div class="kyc-grid up-grid' + (erst ? ' up-erst' : '') + '" style="margin-top:6px;">'
     + box('ausweis', 'Personalausweis', 'Bild oder PDF hierher ziehen \u2013 oder unten w\u00e4hlen', 'environment')
     + box('selfie', 'Best\u00e4tigungsfoto (Selfie)', 'Ein Foto von dir mit Bezug zum Ausweis', 'user')
     + '</div>'
