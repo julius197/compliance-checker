@@ -2493,6 +2493,48 @@
       .auth-sub { margin-bottom:12px !important; }
       .auth-field { margin-bottom:9px !important; }
     }
+
+    /* ============================================================
+       DIALOGE MOBIL - ganz am Ende fuer Vorrang
+       ============================================================ */
+    @media (max-width:760px) {
+      .up-warn-back { padding:14px 12px !important; align-items:flex-start !important; overflow-y:auto !important; -webkit-overflow-scrolling:touch; }
+      .up-warn-card { padding:20px 16px !important; max-width:100% !important; width:100% !important; box-sizing:border-box !important;
+                      border-radius:18px !important; margin:auto 0 !important; }
+      .up-warn-t { font-size:16.5px !important; line-height:1.3 !important; }
+      .up-warn-d { font-size:12.5px !important; line-height:1.55 !important; margin-bottom:12px !important; }
+      .up-warn-ico { width:44px !important; height:44px !important; font-size:22px !important; margin-bottom:11px !important; }
+      .up-warn-btns { flex-direction:column !important; gap:9px !important; }
+      .up-warn-btns > * { width:100% !important; box-sizing:border-box !important; justify-content:center !important; }
+      .up-warn-liste { font-size:11.5px !important; padding:10px !important; }
+
+      /* Überwachung: Bestätigung vor dem Hinzufügen */
+      .fav-card { max-width:100% !important; }
+      .fav-dlg-ico { width:44px !important; height:44px !important; margin-bottom:11px !important; }
+      .fav-dlg-ico svg { width:21px !important; height:21px !important; }
+      .fav-kosten { padding:12px 13px !important; margin-bottom:13px !important; }
+      .fav-kosten-t { font-size:11.5px !important; margin-bottom:7px !important; }
+      .fav-kosten-l { padding-left:15px !important; }
+      .fav-kosten-l li { font-size:11.5px !important; line-height:1.55 !important; margin-bottom:5px !important; }
+      .fav-check-zeile { padding:10px !important; margin-bottom:14px !important; gap:9px !important; }
+      .fav-check-text { font-size:11.5px !important; line-height:1.45 !important; }
+
+      /* Duplikat-Hinweis und Freigabe-Dialog */
+      .dup-karte { padding:12px !important; margin-bottom:14px !important; }
+      .dup-name { font-size:13.5px !important; }
+      .dup-score b { font-size:22px !important; }
+      .fg-liste { max-height:44vh !important; }
+      .fg-zeile { padding:9px 10px !important; }
+      .fg-mail { font-size:11.5px !important; }
+    }
+
+    @media (max-height:680px) {
+      .up-warn-back { align-items:flex-start !important; padding-top:12px !important; padding-bottom:12px !important; }
+      .up-warn-card { padding:16px 15px !important; }
+      .fav-dlg-ico, .up-warn-ico { width:38px !important; height:38px !important; margin-bottom:9px !important; }
+      .fav-kosten { padding:10px 12px !important; margin-bottom:11px !important; }
+      .up-warn-d { margin-bottom:10px !important; }
+    }
 </style>
 <div id="legalGate" class="legal-gate" style="display:none;">
   <div class="legal-box">
@@ -2623,7 +2665,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.87</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.88</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -5033,17 +5075,17 @@ function dupNeuePruefung() {
 
 // Druck anstossen - mit kleinen Vorbereitungen, damit es auch auf dem Handy klappt
 function druckeJetzt() {
+  // WICHTIG: window.print() muss direkt in der Nutzer-Aktion laufen.
+  // In einem Timer blockiert iOS Safari den Aufruf komplett.
   try {
-    // Offene Overlays schliessen, sonst druckt Safari sie mit oder gar nichts
     ['helpPop','trOverlay'].forEach(function(id){ const e = document.getElementById(id); if (e) e.style.display = 'none'; });
     document.querySelectorAll('.tr-toast').forEach(function(t){ t.remove(); });
-    // Nach oben, damit der Ausdruck vollstaendig erfasst wird
-    window.scrollTo(0, 0);
-    setTimeout(function(){
-      try { window.print(); }
-      catch (e) { druckHinweis(); }
-    }, 220);
-  } catch (e) { druckHinweis(); }
+  } catch (e) {}
+  try {
+    window.print();
+  } catch (e) {
+    druckHinweis();
+  }
 }
 
 function druckHinweis() {
@@ -7094,4 +7136,4 @@ async function _akteDrucken(folderId) {
 }
 </script>
 </body>
-</html>#
+</html>
