@@ -2535,6 +2535,23 @@
       .fav-kosten { padding:10px 12px !important; margin-bottom:11px !important; }
       .up-warn-d { margin-bottom:10px !important; }
     }
+
+    /* ===== Hinweis, wenn der Browser nicht drucken kann ===== */
+    .druck-card { max-width:460px; text-align:left; }
+    .druck-ico { width:52px; height:52px; margin:0 auto 14px; border-radius:50%; background:var(--green-pale,#EAF9F0); color:var(--green-d,#16A34A);
+      display:flex; align-items:center; justify-content:center; animation:druckIco .55s cubic-bezier(.2,.9,.3,1.5) both; }
+    @keyframes druckIco { 0% { transform:scale(.4) translateY(10px); opacity:0; } 60% { transform:scale(1.12); opacity:1; } 100% { transform:scale(1); } }
+    .druck-card .up-warn-t, .druck-card .up-warn-d { text-align:center; }
+    .druck-weg { display:flex; gap:12px; align-items:flex-start; background:var(--neutral,#F6F8F9); border:1px solid var(--border,#E2E6E9); border-radius:13px;
+      padding:13px 14px; margin-bottom:10px; animation:upSlide .45s cubic-bezier(.2,.7,.2,1) both; }
+    .druck-weg:nth-of-type(1) { animation-delay:.1s; } .druck-weg:nth-of-type(2) { animation-delay:.2s; }
+    .druck-weg-n { flex-shrink:0; width:26px; height:26px; border-radius:50%; background:linear-gradient(135deg,#16A34A,#22C55E); color:#fff;
+      font-size:13px; font-weight:800; display:flex; align-items:center; justify-content:center; }
+    .druck-weg-t { font-size:13.5px; font-weight:800; color:var(--ink,#111827); margin-bottom:3px; display:flex; align-items:center; gap:7px; flex-wrap:wrap; }
+    .druck-tipp { font-size:9.5px; font-weight:800; letter-spacing:.05em; text-transform:uppercase; background:var(--green-pale,#EAF9F0); color:var(--green-d,#16A34A);
+      border:1px solid rgba(34,197,94,.35); border-radius:999px; padding:2px 8px; }
+    .druck-weg-d { font-size:12px; line-height:1.55; color:var(--gray,#5A6670); }
+    @media (max-width:760px) { .druck-card { max-width:100% !important; } .druck-weg { padding:11px 12px !important; } .druck-weg-d { font-size:11.5px !important; } }
 </style>
 <div id="legalGate" class="legal-gate" style="display:none;">
   <div class="legal-box">
@@ -2665,7 +2682,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.88</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.90</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -5074,18 +5091,54 @@ function dupNeuePruefung() {
 }
 
 // Druck anstossen - mit kleinen Vorbereitungen, damit es auch auf dem Handy klappt
+let DRUCK_NAME = '';
+let DRUCK_ID = '';
+
+// Baut den Dateinamen fuer das PDF: Firmenname zuerst
+function druckDateiname() {
+  const roh = (DRUCK_NAME || '').trim();
+  if (!roh) return 'Compliance-Pr\u00fcfung - ' + new Date().toLocaleDateString('de-DE');
+  // Zeichen entfernen, die in Dateinamen Probleme machen
+  const sauber = roh.replace(/[\\/:*?"<>|]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 70);
+  const d = new Date();
+  const datum = ('0' + d.getDate()).slice(-2) + '.' + ('0' + (d.getMonth() + 1)).slice(-2) + '.' + d.getFullYear();
+  return sauber + ' - Compliance-Pr\u00fcfung' + (DRUCK_ID ? ' - ' + DRUCK_ID : '') + ' - ' + datum;
+}
+
+// Browser erkennen, die auf dem iPhone nicht drucken koennen
+function druckenMoeglich() {
+  const ua = navigator.userAgent || '';
+  const iOS = /iPhone|iPad|iPod/.test(ua);
+  if (!iOS) return true;
+  // Auf iOS kann nur Safari drucken. Chrome (CriOS), Firefox (FxiOS),
+  // Edge (EdgiOS) und Opera (OPT) nutzen zwar WebKit, haben die Funktion aber nicht.
+  const fremd = ['CriOS','FxiOS','EdgiOS','OPT/','YaBrowser','DuckDuckGo','Brave'].some(function(k){ return ua.indexOf(k) >= 0; });
+  return !fremd;
+}
+
 function druckeJetzt() {
+  if (!druckenMoeglich()) { druckAusweg(); return; }
   // WICHTIG: window.print() muss direkt in der Nutzer-Aktion laufen.
   // In einem Timer blockiert iOS Safari den Aufruf komplett.
+  const alterTitel = document.title;
   try {
     ['helpPop','trOverlay'].forEach(function(id){ const e = document.getElementById(id); if (e) e.style.display = 'none'; });
     document.querySelectorAll('.tr-toast').forEach(function(t){ t.remove(); });
+    document.title = druckDateiname();            // legt den Namen der PDF-Datei fest
   } catch (e) {}
   try {
     window.print();
   } catch (e) {
     druckHinweis();
   }
+  // Titel wieder herstellen, sobald der Dialog durch ist
+  setTimeout(function(){ document.title = alterTitel; }, 3000);
+  try {
+    window.addEventListener('afterprint', function zurueck(){
+      document.title = alterTitel;
+      window.removeEventListener('afterprint', zurueck);
+    });
+  } catch (e) {}
 }
 
 function druckHinweis() {
@@ -5093,6 +5146,50 @@ function druckHinweis() {
   alert(mobil
     ? 'Bitte nutze die Teilen-Funktion deines Browsers und w\u00e4hle dort \u201eDrucken\u201c oder \u201eAls PDF sichern\u201c.'
     : 'Der Druckdialog konnte nicht ge\u00f6ffnet werden. Bitte nutze Strg+P bzw. Cmd+P.');
+}
+
+// Wird gezeigt, wenn der Browser auf dem iPhone nicht drucken kann
+function druckAusweg() {
+  const box = document.createElement('div');
+  box.id = 'druckGate';
+  box.className = 'up-warn-back';
+  box.innerHTML = '<div class="up-warn-card druck-card">'
+    + '<div class="druck-ico"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'
+    + '<polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg></div>'
+    + '<div class="up-warn-t">PDF-Export in diesem Browser</div>'
+    + '<div class="up-warn-d">Dieser Browser unterst\u00fctzt das Drucken auf dem iPhone leider nicht. Du hast zwei M\u00f6glichkeiten:</div>'
+    + '<div class="druck-weg">'
+    + '<div class="druck-weg-n">1</div>'
+    + '<div><div class="druck-weg-t">In Safari \u00f6ffnen <span class="druck-tipp">empfohlen</span></div>'
+    + '<div class="druck-weg-d">Dort funktioniert der PDF-Export zuverl\u00e4ssig \u2013 du bleibst angemeldet.</div></div>'
+    + '</div>'
+    + '<div class="druck-weg">'
+    + '<div class="druck-weg-n">2</div>'
+    + '<div><div class="druck-weg-t">Teilen-Men\u00fc verwenden</div>'
+    + '<div class="druck-weg-d">Unten oder oben auf das Teilen-Symbol tippen und dort \u201eDrucken\u201c w\u00e4hlen. Im Druckfenster kannst du das PDF sichern.</div></div>'
+    + '</div>'
+    + '<div class="up-warn-btns">'
+    + '<button class="kyc-btn" onclick="druckGateZu()">Schlie\u00dfen</button>'
+    + '<button class="up-senden up-warn-ok" onclick="inSafariOeffnen()">In Safari \u00f6ffnen</button>'
+    + '</div></div>';
+  document.body.appendChild(box);
+  requestAnimationFrame(function(){ box.classList.add('an'); });
+}
+
+function druckGateZu() {
+  const b = document.getElementById('druckGate');
+  if (!b) return;
+  b.classList.remove('an');
+  setTimeout(function(){ if (b.parentNode) b.remove(); }, 240);
+}
+
+function inSafariOeffnen() {
+  const ziel = location.href.replace(/^https?:\/\//, '');
+  druckGateZu();
+  setTimeout(function(){
+    try { location.href = 'x-safari-https://' + ziel; }
+    catch (e) { alert('Bitte \u00f6ffne die Seite manuell in Safari.'); }
+  }, 260);
 }
 
 function setStep(txt) { document.getElementById('loadingStep').textContent = txt; }
@@ -6078,6 +6175,8 @@ function showReport(d, rawName, fromHistory) {
   if (!d._createdAt) d._createdAt = new Date().toISOString();
   if (!d._email) d._email = CURRENT_USER_EMAIL || '';
   d.firmenname = d.firmenname || rawName || 'Unbekanntes Unternehmen';
+  DRUCK_NAME = d.firmenname;                       // fuer den Dateinamen beim PDF-Export
+  DRUCK_ID = d.pruefId || '';
   d.kontakt = d.kontakt || {};
   d.kontakt.socialLinks = Array.isArray(d.kontakt.socialLinks) ? d.kontakt.socialLinks : [];
   d.grunddaten = d.grunddaten || { felder: [] };
@@ -7126,6 +7225,8 @@ async function _akteDrucken(folderId) {
     }
   } catch (e) { console.warn('Akte-Anh\u00e4nge:', e && e.message); }
 
+  DRUCK_NAME = ((folder && folder.name) ? folder.name : 'Akte');   // Dateiname des Sammel-PDFs
+  DRUCK_ID = '';
   const body = rows.map(function(r){ return buildAkteAnalyse(r.report_json || {}) + (anhaenge[r.id] || ''); }).join('');
 
   av.innerHTML = actions + cover + body;
