@@ -2212,6 +2212,9 @@
       </label>
     </div>
     <button class="auth-btn" id="authBtn" onclick="doAuth()">Anmelden</button>
+    <div class="auth-vergessen" id="authVergessen">
+      <a onclick="passwortVergessen()">Passwort vergessen?</a>
+    </div>
     <div class="auth-toggle" id="authToggle">
       Noch kein Konto? <a onclick="toggleAuthMode()">Jetzt registrieren</a>
     </div>
@@ -2724,6 +2727,66 @@
       .auth-sub { font-size:11.5px !important; margin-bottom:13px !important; }
       .auth-field { margin-bottom:9px !important; }
     }
+
+    /* ============================================================
+       ANMELDUNG / REGISTRIERUNG: Bewegung
+       ============================================================ */
+    /* Beim Oeffnen: Elemente kommen einzeln herein */
+    .auth-card > * { animation:authTeil .5s cubic-bezier(.2,.7,.2,1) both; }
+    .auth-card > *:nth-child(1) { animation-delay:.04s; }
+    .auth-card > *:nth-child(2) { animation-delay:.10s; }
+    .auth-card > *:nth-child(3) { animation-delay:.16s; }
+    .auth-card > *:nth-child(4) { animation-delay:.22s; }
+    .auth-card > *:nth-child(5) { animation-delay:.28s; }
+    .auth-card > *:nth-child(6) { animation-delay:.34s; }
+    .auth-card > *:nth-child(7) { animation-delay:.40s; }
+    .auth-card > *:nth-child(8) { animation-delay:.46s; }
+    @keyframes authTeil { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:none; } }
+
+    /* Beim Wechsel Anmelden <-> Registrieren nochmal */
+    .auth-card.auth-neu > * { animation:authTeil .42s cubic-bezier(.2,.7,.2,1) both; }
+    .auth-card.auth-neu > *:nth-child(n+5) { animation-delay:.2s; }
+
+    /* Eingabefelder reagieren */
+    .auth-input, .auth-card input[type="email"], .auth-card input[type="password"], .auth-card input[type="text"] {
+      transition:border-color .2s, box-shadow .25s, transform .18s;
+    }
+    .auth-input:focus, .auth-card input:focus {
+      border-color:#359651 !important;
+      box-shadow:0 0 0 4px rgba(53,150,81,.13) !important;
+      outline:none !important;
+    }
+    .feld-wackel { animation:feldWackel .45s ease; border-color:#DC2626 !important; }
+    @keyframes feldWackel { 0%,100% { transform:translateX(0); } 20% { transform:translateX(-6px); } 40% { transform:translateX(6px); } 60% { transform:translateX(-3px); } 80% { transform:translateX(3px); } }
+
+    /* Hauptknopf */
+    .auth-btn { transition:transform .18s cubic-bezier(.2,.9,.3,1.3), box-shadow .2s, filter .18s; }
+    .auth-btn:hover:not(:disabled) { transform:translateY(-2px); box-shadow:0 14px 28px -12px rgba(53,150,81,.85); filter:brightness(1.04); }
+    .auth-btn:active:not(:disabled) { transform:translateY(0) scale(.985); }
+
+    /* Haekchen bei den Zustimmungen */
+    .auth-check { transition:opacity .2s; }
+    .auth-check input { transition:transform .18s cubic-bezier(.2,.9,.3,1.6); }
+    .auth-check input:checked { transform:scale(1.14); }
+
+    /* Meldungen */
+    .auth-msg { animation:authMsgIn .4s cubic-bezier(.2,.7,.2,1) both; }
+    @keyframes authMsgIn { from { opacity:0; transform:translateY(-7px) scale(.98); } to { opacity:1; transform:none; } }
+
+    /* Passwort vergessen */
+    .auth-vergessen { text-align:center; margin-top:12px; animation:authTeil .5s cubic-bezier(.2,.7,.2,1) .5s both; }
+    .auth-vergessen a { font-size:12.5px; font-weight:600; color:#5A6670; cursor:pointer; text-decoration:none;
+      border-bottom:1px solid transparent; transition:all .18s; }
+    .auth-vergessen a:hover { color:#359651; border-bottom-color:rgba(53,150,81,.45); }
+
+    /* Umschalt-Link */
+    .auth-toggle a { transition:color .16s, opacity .16s; }
+    .auth-toggle a:hover { opacity:.75; }
+
+    @media (max-width:760px) {
+      .auth-vergessen { margin-top:10px !important; }
+      .auth-vergessen a { font-size:12px !important; }
+    }
 </style>
 <div id="legalGate" class="legal-gate" style="display:none;">
   <div class="legal-box">
@@ -2854,7 +2917,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.94</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.95</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -3259,6 +3322,8 @@ function refreshAuthTexts() {
   title.textContent = reg ? t('auth_t_reg','Konto erstellen') : t('auth_t_login','Anmelden');
   btn.textContent = reg ? t('auth_b_reg','Registrieren') : t('auth_b_login','Anmelden');
   toggle.innerHTML = authToggleHtml(reg);
+  const verg = document.getElementById('authVergessen');
+  if (verg) verg.style.display = reg ? 'none' : '';
 }
 
 function applyLang() {
@@ -3311,8 +3376,48 @@ if (LANG === 'en') {
   else applyLang();
 }
 
+// Passwort zuruecksetzen: Supabase schickt eine E-Mail mit Link
+async function passwortVergessen() {
+  const feld = document.getElementById('authEmail');
+  const mail = ((feld && feld.value) || '').trim();
+  const msg = document.getElementById('authMsg');
+
+  function zeige(text, art) {
+    if (!msg) return;
+    msg.textContent = text;
+    msg.className = 'auth-msg ' + (art === 'ok' ? 'ok' : 'error');
+    msg.style.display = '';
+    msg.style.animation = 'none'; void msg.offsetWidth;
+    msg.style.animation = 'authMsgIn .4s cubic-bezier(.2,.7,.2,1) both';
+  }
+
+  if (!mail || mail.indexOf('@') < 0) {
+    zeige('Bitte gib zuerst deine E-Mail-Adresse oben ein.', 'error');
+    if (feld) { feld.focus(); feld.classList.add('feld-wackel'); setTimeout(function(){ feld.classList.remove('feld-wackel'); }, 500); }
+    return;
+  }
+
+  const link = document.querySelector('#authVergessen a');
+  if (link) { link.textContent = 'Wird gesendet\u2026'; link.style.pointerEvents = 'none'; }
+  try {
+    const { error } = await sb.auth.resetPasswordForEmail(mail, {
+      redirectTo: location.origin + location.pathname
+    });
+    if (error) throw error;
+    zeige('E-Mail ist unterwegs. Schau in dein Postfach \u2013 auch im Spam-Ordner.', 'ok');
+  } catch (e) {
+    zeige('Konnte nicht gesendet werden: ' + ((e && e.message) || 'Bitte erneut versuchen.'), 'error');
+  }
+  if (link) { link.textContent = 'Passwort vergessen?'; link.style.pointerEvents = ''; }
+}
+
 function toggleAuthMode() {
   authMode = authMode === 'login' ? 'register' : 'login';
+  // Formular neu einblenden, damit der Wechsel sichtbar wird
+  try {
+    const karte = document.querySelector('.auth-card');
+    if (karte) { karte.classList.remove('auth-neu'); void karte.offsetWidth; karte.classList.add('auth-neu'); }
+  } catch (e) {}
   const title = document.getElementById('authTitle');
   const btn = document.getElementById('authBtn');
   const toggle = document.getElementById('authToggle');
