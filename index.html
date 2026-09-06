@@ -2274,10 +2274,15 @@
     </div>
 
     <div id="obStepEinzel" style="display:none;">
-      <div class="auth-title">Einzel-Konto</div>
-      <div class="auth-sub">Wir richten dein persönliches Konto ein.</div>
+      <div class="auth-title">Bereit für die Testphase?</div>
+      <div class="auth-sub">Wir richten dein persönliches Konto ein – mit <b>3 kostenlosen Analysen</b> zum Ausprobieren. Kein Abo, keine Zahlungsdaten nötig.</div>
+      <div class="ob-frei">
+        <div class="ob-frei-z"><span class="ob-frei-h">✓</span>3 vollständige Prüfungen inklusive PDF-Nachweis</div>
+        <div class="ob-frei-z"><span class="ob-frei-h">✓</span>Alle Funktionen freigeschaltet</div>
+        <div class="ob-frei-z"><span class="ob-frei-h">✓</span>Jederzeit auf ein Paket wechselbar</div>
+      </div>
       <div class="auth-msg" id="obMsgEinzel"></div>
-      <button class="auth-btn" id="obBtnEinzel" onclick="obEinzelAnlegen()">Konto einrichten</button>
+      <button class="auth-btn" id="obBtnEinzel" onclick="obEinzelAnlegen()">Testphase starten</button>
       <div class="auth-toggle"><a onclick="obZurueck()">← Zurück</a></div>
     </div>
 
@@ -2787,6 +2792,32 @@
       .auth-vergessen { margin-top:10px !important; }
       .auth-vergessen a { font-size:12px !important; }
     }
+
+    /* ===== Onboarding: Testphase-Hinweis ===== */
+    .ob-frei { background:linear-gradient(180deg,#F7FDF9,#fff); border:1.5px solid rgba(53,150,81,.3); border-radius:14px;
+      padding:14px 16px; margin:16px 0 18px; animation:obFreiIn .5s cubic-bezier(.2,.7,.2,1) .12s both; }
+    @keyframes obFreiIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:none; } }
+    .ob-frei-z { display:flex; align-items:flex-start; gap:9px; font-size:12.5px; line-height:1.5; color:#2A3B33; margin-bottom:8px;
+      animation:obZeileIn .4s cubic-bezier(.2,.7,.2,1) both; }
+    .ob-frei-z:last-child { margin-bottom:0; }
+    .ob-frei-z:nth-child(1) { animation-delay:.20s; }
+    .ob-frei-z:nth-child(2) { animation-delay:.28s; }
+    .ob-frei-z:nth-child(3) { animation-delay:.36s; }
+    @keyframes obZeileIn { from { opacity:0; transform:translateX(-8px); } to { opacity:1; transform:none; } }
+    .ob-frei-h { flex-shrink:0; width:17px; height:17px; border-radius:50%; background:linear-gradient(135deg,#359651,#22C55E); color:#fff;
+      font-size:10px; font-weight:800; display:flex; align-items:center; justify-content:center; margin-top:1px; }
+
+    /* Button in der Testphase hervorheben */
+    .mehr-analysen-btn.mehr-trial { background:linear-gradient(135deg,#359651,#22C55E) !important; color:#fff !important;
+      border-color:transparent !important; box-shadow:0 8px 20px -8px rgba(53,150,81,.8);
+      animation:mehrTrialPuls 3s ease-in-out infinite; }
+    @keyframes mehrTrialPuls { 0%,100% { box-shadow:0 8px 20px -8px rgba(53,150,81,.7); } 50% { box-shadow:0 12px 28px -8px rgba(53,150,81,1); } }
+    .mehr-analysen-btn.mehr-trial:hover { transform:translateY(-1px); filter:brightness(1.05); }
+
+    @media (max-width:760px) {
+      .ob-frei { padding:12px 13px !important; margin:13px 0 15px !important; }
+      .ob-frei-z { font-size:11.5px !important; gap:8px !important; }
+    }
 </style>
 <div id="legalGate" class="legal-gate" style="display:none;">
   <div class="legal-box">
@@ -2917,7 +2948,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.95</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.96</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -4969,7 +5000,18 @@ function updateKontingentAnzeige() {
   else if (f.verbraucht >= f.monatslimit * 0.85) pill.classList.add('warn');
   pill.style.display = 'inline-flex';
   const mehr = document.getElementById('mehrAnalysenBtn');
-  if (mehr) mehr.style.display = unbegrenzt ? 'none' : 'inline-flex';
+  if (mehr) {
+    mehr.style.display = unbegrenzt ? 'none' : 'inline-flex';
+    // In der Testphase anders ansprechen als bei einem bezahlten Paket
+    if (istTrialFirma(f)) {
+      const rest = Math.max(0, f.monatslimit - f.verbraucht);
+      mehr.textContent = (rest > 0) ? 'Bereit f\u00fcr ein Paket?' : 'Jetzt Paket w\u00e4hlen';
+      mehr.classList.add('mehr-trial');
+    } else {
+      mehr.textContent = 'Mehr Analysen?';
+      mehr.classList.remove('mehr-trial');
+    }
+  }
   kontingentHinweisPruefen(f, unbegrenzt);
 }
 
@@ -5079,6 +5121,11 @@ function zeigePlaene(grund) {
   if (grund === 'voll') {
     title.textContent = t('pl_voll_t','Mehr Analysen gefällig?');
     sub.textContent = t('pl_voll_s','Du hast dein Monats-Kontingent ausgeschöpft. Wähle einen größeren Plan und leg sofort wieder los – sonst setzt sich das Kontingent erst zum Monatsanfang zurück.');
+    if (back) back.style.display = '';
+  } else if (grund === 'upgrade' && istTrialFirma(CURRENT_FIRMA)) {
+    // In der Testphase geht es nicht um "mehr", sondern um den Start
+    title.textContent = 'Bereit, richtig loszulegen?';
+    sub.textContent = 'Du bist gerade in der kostenlosen Testphase. W\u00e4hle dein Paket und pr\u00fcfe ohne Begrenzung weiter \u2013 deine bisherigen Analysen, Ordner und Akten bleiben selbstverst\u00e4ndlich erhalten.';
     if (back) back.style.display = '';
   } else if (grund === 'upgrade') {
     title.textContent = t('pl_up_t','Brauchst du mehr Analysen?');
