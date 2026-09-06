@@ -2892,6 +2892,47 @@
       .auth-namen .auth-field { margin-bottom:13px !important; }
       .konto-namen .om-name-input { margin-bottom:9px !important; }
     }
+
+    /* ============================================================
+       LINK PER E-MAIL VERSENDEN
+       ============================================================ */
+    .kyc-btn-mail { background:#EEF4FF !important; color:#1E4E8C !important; border-color:#C7DDF5 !important; }
+    .kyc-btn-mail:hover { background:#DBEAFE !important; border-color:#93B8E8 !important; transform:translateY(-1px); }
+
+    .mail-card { max-width:520px; text-align:left; transition:transform .3s cubic-bezier(.2,.9,.3,1.25), opacity .28s ease; }
+    .mail-card.karte-weg { transform:translateY(16px) scale(.95) !important; opacity:0 !important; }
+    .mail-ico { width:52px; height:52px; margin:0 auto 14px; border-radius:50%; background:linear-gradient(135deg,#DBEAFE,#EFF6FF); color:#1E4E8C;
+      display:flex; align-items:center; justify-content:center; animation:mailIco .55s cubic-bezier(.2,.9,.3,1.5) both; }
+    @keyframes mailIco { 0% { opacity:0; transform:scale(.4) translateY(8px); } 60% { opacity:1; transform:scale(1.12); } 100% { transform:scale(1); } }
+    .mail-card .up-warn-t, .mail-card .up-warn-d { text-align:center; }
+
+    .mail-feld { margin-bottom:14px; animation:upSlide .45s cubic-bezier(.2,.7,.2,1) both; }
+    .mail-feld:nth-of-type(1) { animation-delay:.10s; }
+    .mail-feld:nth-of-type(2) { animation-delay:.18s; }
+    .mail-feld .om-name-input { width:100%; box-sizing:border-box; }
+
+    .mail-sprachen { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+    .mail-sprache { padding:11px; border:1.5px solid var(--border,#E2E6E9); border-radius:11px; background:#fff;
+      font-family:inherit; font-size:13px; font-weight:700; color:var(--gray,#5A6670); cursor:pointer; transition:all .18s; }
+    .mail-sprache:hover { border-color:var(--green,#22C55E); }
+    .mail-sprache.aktiv { border-color:var(--green-d,#16A34A); background:var(--green-pale,#EAF9F0); color:var(--green-d,#16A34A);
+      box-shadow:0 6px 16px -8px rgba(34,197,94,.6); }
+
+    .mail-vorschau { background:var(--neutral,#F6F8F9); border:1px solid var(--border2,#EDF0F2); border-radius:13px;
+      padding:13px 15px; margin-bottom:18px; animation:upSlide .45s cubic-bezier(.2,.7,.2,1) .26s both; }
+    .mail-v-kopf { font-size:10.5px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; color:var(--gray-l,#8A949D); margin-bottom:8px; }
+    .mail-v-text { font-size:11.5px; line-height:1.6; color:var(--ink2,#1F2937); white-space:pre-wrap; word-break:break-word;
+      max-height:190px; overflow-y:auto; -webkit-overflow-scrolling:touch; }
+    @keyframes mailVor { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
+
+    @media (max-width:760px) {
+      .mail-card { max-width:100% !important; }
+      .mail-ico { width:44px !important; height:44px !important; margin-bottom:11px !important; }
+      .mail-ico svg { width:20px !important; height:20px !important; }
+      .mail-sprache { padding:10px !important; font-size:12.5px !important; }
+      .mail-v-text { font-size:11px !important; max-height:150px !important; }
+      .kyc-btn-mail { flex:1 1 auto; }
+    }
 </style>
 <div id="legalGate" class="legal-gate" style="display:none;">
   <div class="legal-box">
@@ -3022,7 +3063,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.98</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.99</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -4362,6 +4403,134 @@ async function einladungHinweis() {
   } catch (e) {}
 }
 
+// ============================================================
+// LINK PER E-MAIL VERSENDEN (oeffnet das Mailprogramm des Nutzers)
+// ============================================================
+let MAIL_DATEN = null;
+
+function mailVersendenOeffnen(art, link, extra) {
+  MAIL_DATEN = { art: art, link: link, extra: extra || {} };
+  const box = document.createElement('div');
+  box.id = 'mailGate';
+  box.className = 'up-warn-back';
+  box.innerHTML = '<div class="up-warn-card mail-card">'
+    + '<div class="mail-ico"><svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">'
+    + '<rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6 10-6"/></svg></div>'
+    + '<div class="up-warn-t">Per E-Mail versenden</div>'
+    + '<div class="up-warn-d">Wir bereiten die Nachricht vor \u2013 du musst sie in deinem Mailprogramm nur noch abschicken.</div>'
+    + '<div class="mail-feld">'
+    + '<label class="auth-label">Empf\u00e4nger</label>'
+    + '<input type="email" class="om-name-input" id="mailAn" placeholder="name@firma.de" autocomplete="email" />'
+    + '</div>'
+    + '<div class="mail-feld">'
+    + '<label class="auth-label">Sprache der Nachricht</label>'
+    + '<div class="mail-sprachen">'
+    + '<button class="mail-sprache aktiv" data-lang="de" onclick="mailSpracheWaehlen(\'de\')">\uD83C\uDDE9\uD83C\uDDEA Deutsch</button>'
+    + '<button class="mail-sprache" data-lang="en" onclick="mailSpracheWaehlen(\'en\')">\uD83C\uDDEC\uD83C\uDDE7 English</button>'
+    + '</div></div>'
+    + '<div class="mail-vorschau"><div class="mail-v-kopf">Vorschau</div><div class="mail-v-text" id="mailVorschau"></div></div>'
+    + '<div class="up-warn-btns">'
+    + '<button class="kyc-btn" onclick="mailGateZu()">Abbrechen</button>'
+    + '<button class="up-senden up-warn-ok" onclick="mailOeffnen()">E-Mail \u00f6ffnen</button>'
+    + '</div></div>';
+  document.body.appendChild(box);
+  requestAnimationFrame(function(){ box.classList.add('an'); });
+  MAIL_DATEN.sprache = 'de';
+  mailVorschauAktualisieren();
+}
+
+function mailSpracheWaehlen(l) {
+  if (!MAIL_DATEN) return;
+  MAIL_DATEN.sprache = l;
+  document.querySelectorAll('#mailGate .mail-sprache').forEach(function(b){
+    b.classList.toggle('aktiv', b.getAttribute('data-lang') === l);
+  });
+  mailVorschauAktualisieren();
+}
+
+function mailTexte() {
+  const d = MAIL_DATEN || {};
+  const e = d.extra || {};
+  const de = d.sprache !== 'en';
+  const firma = e.firma || 'unser Unternehmen';
+
+  if (d.art === 'einladung') {
+    return de ? {
+      betreff: 'Einladung zum Compliance-Checker \u2013 ' + firma,
+      text: 'Hallo,\n\n'
+        + 'du wurdest eingeladen, den Compliance-Checker von ' + firma + ' mitzunutzen.\n\n'
+        + 'Mit dem folgenden Link kannst du dich anmelden oder ein Konto erstellen \u2013 danach bist du automatisch im Team:\n'
+        + d.link + '\n\n'
+        + (e.rang ? 'Dein Rang: ' + e.rang + '\n\n' : '')
+        + 'Der Link ist 7 Tage g\u00fcltig und kann nur einmal verwendet werden.\n\n'
+        + 'Viele Gr\u00fc\u00dfe\n' + (e.absender || '')
+    } : {
+      betreff: 'Invitation to the Compliance Checker \u2013 ' + firma,
+      text: 'Hello,\n\n'
+        + 'You have been invited to use the Compliance Checker of ' + firma + '.\n\n'
+        + 'Use the following link to sign in or create an account \u2013 you will then automatically join the team:\n'
+        + d.link + '\n\n'
+        + (e.rang ? 'Your role: ' + e.rang + '\n\n' : '')
+        + 'The link is valid for 7 days and can only be used once.\n\n'
+        + 'Best regards\n' + (e.absender || '')
+    };
+  }
+
+  // Dokumenten-Upload
+  return de ? {
+    betreff: 'Identit\u00e4tspr\u00fcfung \u2013 Dokumente hochladen',
+    text: 'Guten Tag,\n\n'
+      + 'f\u00fcr unsere gesetzlich vorgeschriebene Identit\u00e4tspr\u00fcfung nach dem Geldw\u00e4schegesetz ben\u00f6tigen wir eine einmalige Best\u00e4tigung Ihrer Identit\u00e4t.\n\n'
+      + '\u00dcber den folgenden Link k\u00f6nnen Sie Ihren Ausweis und ein Best\u00e4tigungsfoto sicher hochladen \u2013 ganz ohne Anmeldung:\n'
+      + d.link + '\n\n'
+      + (e.code ? 'Best\u00e4tigungscode: ' + e.code + '\n'
+                + 'Bitte gleichen Sie diesen Code mit uns ab, bevor Sie etwas hochladen. So wissen Sie sicher, dass der Link von uns stammt.\n\n' : '')
+      + 'Der Link ist 72 Stunden g\u00fcltig und kann nur einmal verwendet werden. Ihre Daten werden verschl\u00fcsselt \u00fcbertragen und auf Servern innerhalb der EU gespeichert.\n\n'
+      + 'Mit freundlichen Gr\u00fc\u00dfen\n' + (e.absender || '') + (e.firma ? '\n' + e.firma : '')
+  } : {
+    betreff: 'Identity verification \u2013 please upload your documents',
+    text: 'Hello,\n\n'
+      + 'For our legally required identity verification under anti-money-laundering regulations, we need a one-time confirmation of your identity.\n\n'
+      + 'Please use the link below to securely upload your ID document and a confirmation photo \u2013 no account needed:\n'
+      + d.link + '\n\n'
+      + (e.code ? 'Confirmation code: ' + e.code + '\n'
+                + 'Please verify this code with us before uploading anything, so you can be certain the link came from us.\n\n' : '')
+      + 'The link is valid for 72 hours and can only be used once. Your data is transferred encrypted and stored on servers within the EU.\n\n'
+      + 'Kind regards\n' + (e.absender || '') + (e.firma ? '\n' + e.firma : '')
+  };
+}
+
+function mailVorschauAktualisieren() {
+  const v = document.getElementById('mailVorschau');
+  if (!v) return;
+  const t = mailTexte();
+  v.textContent = t.text;
+  v.style.animation = 'none'; void v.offsetWidth;
+  v.style.animation = 'mailVor .35s cubic-bezier(.2,.7,.2,1) both';
+}
+
+function mailOeffnen() {
+  const an = ((document.getElementById('mailAn') || {}).value || '').trim();
+  const t = mailTexte();
+  const adresse = 'mailto:' + encodeURIComponent(an)
+    + '?subject=' + encodeURIComponent(t.betreff)
+    + '&body=' + encodeURIComponent(t.text);
+  mailGateZu();
+  setTimeout(function(){
+    try { window.location.href = adresse; }
+    catch (e) { alert('Mailprogramm konnte nicht ge\u00f6ffnet werden.'); }
+  }, 260);
+}
+
+function mailGateZu() {
+  const b = document.getElementById('mailGate');
+  if (!b) return;
+  const k = b.querySelector('.mail-card');
+  if (k) k.classList.add('karte-weg');
+  b.classList.remove('an');
+  setTimeout(function(){ if (b.parentNode) b.remove(); MAIL_DATEN = null; }, 280);
+}
+
 function einlToken() {
   const z = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789';
   const a = new Uint8Array(24); crypto.getRandomValues(a);
@@ -4411,6 +4580,7 @@ async function ladeEinladungen() {
         + '<div class="einl-link-row">'
         + '<input class="kyc-link-input" readonly value="' + url + '" onclick="this.select()" />'
         + '<button class="kyc-btn" onclick="einlKopieren(this)">Kopieren</button>'
+        + '<button class="kyc-btn kyc-btn-mail" onclick="mailVersendenOeffnen(\'einladung\', \'' + url + '\', { firma: ' + JSON.stringify(escapeHtml((CURRENT_FIRMA && CURRENT_FIRMA.firma_name) || '')) + ', rang: ' + JSON.stringify(rangName(e.rang)) + ', absender: ' + JSON.stringify(CURRENT_USER_NAME || '') + ' })">\u2709 E-Mail</button>'
         + '<button class="kyc-btn kyc-btn-del" onclick="einlWiderrufen(\'' + e.id + '\')">Widerrufen</button>'
         + '</div></div>';
     }).join('');
@@ -6666,6 +6836,7 @@ function kycLinkHtml() {
       + '<div class="kyc-link-row">'
       + '<input class="kyc-link-input" id="kycLinkInput" readonly value="' + url + '" onclick="this.select()" />'
       + '<button class="kyc-btn" onclick="kycLinkKopieren()">Kopieren</button>'
+      + '<button class="kyc-btn kyc-btn-mail" onclick="mailVersendenOeffnen(\'upload\', ' + JSON.stringify(url) + ', { firma: ' + JSON.stringify((CURRENT_FIRMA && CURRENT_FIRMA.firma_name) || '') + ', code: ' + JSON.stringify(KYC.link.ref_code || '') + ', absender: ' + JSON.stringify(CURRENT_USER_NAME || '') + ' })">\u2709 E-Mail</button>'
       + '<button class="kyc-btn kyc-btn-del" onclick="kycLinkNeu()">Neu</button>'
       + '</div>'
       + '<div class="kyc-note" style="margin-top:8px;">Schick diesen Link der Person \u2013 sie kann Ausweis und Foto ohne Anmeldung hochladen. Die Dateien landen automatisch hier in der Akte.</div>'
