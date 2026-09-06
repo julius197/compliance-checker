@@ -2970,6 +2970,40 @@
       .kyc-btn-mail { flex:1 1 auto; padding:10px 12px !important; }
       .kyc-btn .btn-ico { width:14px; height:14px; }
     }
+
+    /* ===== Nachricht versenden: groessere Flaggen, zwei Wege ===== */
+    .mail-sprache { display:flex; align-items:center; justify-content:center; gap:9px; padding:13px 11px !important; }
+    .mail-flagge { font-size:22px; line-height:1; display:inline-block;
+      transition:transform .22s cubic-bezier(.2,.9,.3,1.5); }
+    .mail-sprache:hover .mail-flagge { transform:scale(1.14); }
+    .mail-sprache.aktiv .mail-flagge { transform:scale(1.1); }
+
+    .mail-wege { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:16px; }
+    .mail-weg { display:flex; flex-direction:column; align-items:flex-start; gap:3px; text-align:left;
+      background:#fff; border:1.5px solid var(--border,#E2E6E9); border-radius:14px; padding:14px;
+      font-family:inherit; cursor:pointer; transition:all .18s;
+      animation:upSlide .45s cubic-bezier(.2,.7,.2,1) both; }
+    .mail-weg:nth-of-type(1) { animation-delay:.30s; }
+    .mail-weg:nth-of-type(2) { animation-delay:.38s; }
+    .mail-weg:hover { border-color:var(--green,#22C55E); background:#F7FDF9; transform:translateY(-2px);
+      box-shadow:0 12px 24px -14px rgba(10,15,13,.35); }
+    .mail-weg:active { transform:translateY(0) scale(.98); }
+    .mail-weg-ico { color:var(--green-d,#16A34A); margin-bottom:5px; display:block;
+      transition:transform .22s cubic-bezier(.2,.9,.3,1.5); }
+    .mail-weg:hover .mail-weg-ico { transform:scale(1.14); }
+    .mail-weg-t { font-size:13.5px; font-weight:800; color:var(--ink,#111827); }
+    .mail-weg-d { font-size:11px; line-height:1.45; color:var(--gray,#5A6670); }
+    .mail-weg.mail-weg-ok { border-color:var(--green-d,#16A34A); background:var(--green-pale,#EAF9F0); }
+    .mail-weg.mail-weg-ok .mail-weg-t { color:var(--green-d,#16A34A); }
+    .mail-weg.mail-weg-ok .mail-weg-ico { animation:mailWegOk .5s cubic-bezier(.2,.9,.3,1.6) both; }
+    @keyframes mailWegOk { 0% { transform:scale(.7); } 60% { transform:scale(1.25); } 100% { transform:scale(1); } }
+
+    @media (max-width:760px) {
+      .mail-wege { grid-template-columns:1fr !important; gap:9px !important; }
+      .mail-weg { padding:12px 13px !important; }
+      .mail-flagge { font-size:20px !important; }
+      .mail-sprache { padding:12px 10px !important; }
+    }
 </style>
 <div id="legalGate" class="legal-gate" style="display:none;">
   <div class="legal-box">
@@ -3100,7 +3134,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.01</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.02</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -4448,9 +4482,9 @@ let EINLADUNGEN_GELADEN = [];      // fuer den Mail-Versand gemerkt
 
 // Briefsymbol - sauber gezeichnet statt Textzeichen
 function mailIconSvg() {
-  return '<svg class="btn-ico" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" '
+  return '<svg class="btn-ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" '
     + 'stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'
-    + '<rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6 10-6"/></svg>';
+    + '<path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4z"/></svg>';
 }
 
 // Upload-Link per Mail - holt die Daten selbst, statt sie durchs HTML zu reichen
@@ -4460,7 +4494,7 @@ function mailUploadLink() {
   mailVersendenOeffnen('upload', url, {
     firma: (CURRENT_FIRMA && CURRENT_FIRMA.firma_name) || '',
     code: KYC.link.ref_code || '',
-    absender: CURRENT_USER_NAME || ''
+    absender: (CURRENT_USER_NAME && CURRENT_USER_NAME.indexOf('@') < 0) ? CURRENT_USER_NAME : ''
   });
 }
 
@@ -4472,7 +4506,7 @@ function mailEinladung(id) {
   mailVersendenOeffnen('einladung', url, {
     firma: (CURRENT_FIRMA && CURRENT_FIRMA.firma_name) || '',
     rang: rangName(e.rang),
-    absender: CURRENT_USER_NAME || ''
+    absender: (CURRENT_USER_NAME && CURRENT_USER_NAME.indexOf('@') < 0) ? CURRENT_USER_NAME : ''
   });
 }
 
@@ -4484,22 +4518,27 @@ function mailVersendenOeffnen(art, link, extra) {
   box.innerHTML = '<div class="up-warn-card mail-card">'
     + '<div class="mail-ico"><svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">'
     + '<rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6 10-6"/></svg></div>'
-    + '<div class="up-warn-t">Per E-Mail versenden</div>'
-    + '<div class="up-warn-d">Wir bereiten die Nachricht vor \u2013 du musst sie in deinem Mailprogramm nur noch abschicken.</div>'
-    + '<div class="mail-feld">'
-    + '<label class="auth-label">Empf\u00e4nger</label>'
-    + '<input type="email" class="om-name-input" id="mailAn" placeholder="name@firma.de" autocomplete="email" />'
-    + '</div>'
+    + '<div class="up-warn-t">Nachricht versenden</div>'
+    + '<div class="up-warn-d">Wir formulieren die Nachricht \u2013 du entscheidest, wie du sie verschickst.</div>'
     + '<div class="mail-feld">'
     + '<label class="auth-label">Sprache der Nachricht</label>'
     + '<div class="mail-sprachen">'
-    + '<button class="mail-sprache aktiv" data-lang="de" onclick="mailSpracheWaehlen(\'de\')">\uD83C\uDDE9\uD83C\uDDEA Deutsch</button>'
-    + '<button class="mail-sprache" data-lang="en" onclick="mailSpracheWaehlen(\'en\')">\uD83C\uDDEC\uD83C\uDDE7 English</button>'
+    + '<button class="mail-sprache aktiv" data-lang="de" onclick="mailSpracheWaehlen(\'de\')"><span class="mail-flagge">\uD83C\uDDE9\uD83C\uDDEA</span>Deutsch</button>'
+    + '<button class="mail-sprache" data-lang="en" onclick="mailSpracheWaehlen(\'en\')"><span class="mail-flagge">\uD83C\uDDEC\uD83C\uDDE7</span>English</button>'
     + '</div></div>'
     + '<div class="mail-vorschau"><div class="mail-v-kopf">Vorschau</div><div class="mail-v-text" id="mailVorschau"></div></div>'
+    + '<div class="mail-wege">'
+    + '<button class="mail-weg" onclick="mailTextKopieren(this)">'
+    + '<span class="mail-weg-ico"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></span>'
+    + '<span class="mail-weg-t">Text kopieren</span>'
+    + '<span class="mail-weg-d">F\u00fcr WhatsApp, SMS oder eigene Mail</span></button>'
+    + '<button class="mail-weg" onclick="mailOeffnen()">'
+    + '<span class="mail-weg-ico"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6 10-6"/></svg></span>'
+    + '<span class="mail-weg-t">Mailprogramm \u00f6ffnen</span>'
+    + '<span class="mail-weg-d">Mit fertigem Betreff und Text</span></button>'
+    + '</div>'
     + '<div class="up-warn-btns">'
-    + '<button class="kyc-btn" onclick="mailGateZu()">Abbrechen</button>'
-    + '<button class="up-senden up-warn-ok" onclick="mailOeffnen()">E-Mail \u00f6ffnen</button>'
+    + '<button class="kyc-btn" onclick="mailGateZu()">Schlie\u00dfen</button>'
     + '</div></div>';
   document.body.appendChild(box);
   requestAnimationFrame(function(){ box.classList.add('an'); });
@@ -4531,7 +4570,7 @@ function mailTexte() {
         + d.link + '\n\n'
         + (e.rang ? 'Dein Rang: ' + e.rang + '\n\n' : '')
         + 'Der Link ist 7 Tage g\u00fcltig und kann nur einmal verwendet werden.\n\n'
-        + 'Viele Gr\u00fc\u00dfe\n' + (e.absender || '')
+        + 'Viele Gr\u00fc\u00dfe\n' + (e.absender || e.firma || '')
     } : {
       betreff: 'Invitation to the Compliance Checker \u2013 ' + firma,
       text: 'Hello,\n\n'
@@ -4540,7 +4579,7 @@ function mailTexte() {
         + d.link + '\n\n'
         + (e.rang ? 'Your role: ' + e.rang + '\n\n' : '')
         + 'The link is valid for 7 days and can only be used once.\n\n'
-        + 'Best regards\n' + (e.absender || '')
+        + 'Best regards\n' + (e.absender || e.firma || '')
     };
   }
 
@@ -4554,7 +4593,7 @@ function mailTexte() {
       + (e.code ? 'Best\u00e4tigungscode: ' + e.code + '\n'
                 + 'Bitte gleichen Sie diesen Code mit uns ab, bevor Sie etwas hochladen. So wissen Sie sicher, dass der Link von uns stammt.\n\n' : '')
       + 'Der Link ist 72 Stunden g\u00fcltig und kann nur einmal verwendet werden. Ihre Daten werden verschl\u00fcsselt \u00fcbertragen und auf Servern innerhalb der EU gespeichert.\n\n'
-      + 'Mit freundlichen Gr\u00fc\u00dfen\n' + (e.absender || '') + (e.firma ? '\n' + e.firma : '')
+      + 'Mit freundlichen Gr\u00fc\u00dfen\n' + [e.absender, e.firma].filter(function(x){ return x; }).join('\n')
   } : {
     betreff: 'Identity verification \u2013 please upload your documents',
     text: 'Hello,\n\n'
@@ -4564,7 +4603,7 @@ function mailTexte() {
       + (e.code ? 'Confirmation code: ' + e.code + '\n'
                 + 'Please verify this code with us before uploading anything, so you can be certain the link came from us.\n\n' : '')
       + 'The link is valid for 72 hours and can only be used once. Your data is transferred encrypted and stored on servers within the EU.\n\n'
-      + 'Kind regards\n' + (e.absender || '') + (e.firma ? '\n' + e.firma : '')
+      + 'Kind regards\n' + [e.absender, e.firma].filter(function(x){ return x; }).join('\n')
   };
 }
 
@@ -4577,11 +4616,42 @@ function mailVorschauAktualisieren() {
   v.style.animation = 'mailVor .35s cubic-bezier(.2,.7,.2,1) both';
 }
 
-function mailOeffnen() {
-  const an = ((document.getElementById('mailAn') || {}).value || '').trim();
+// Nur den Nachrichtentext kopieren - fuer WhatsApp, SMS oder eigene Mail
+function mailTextKopieren(btn) {
   const t = mailTexte();
-  const adresse = 'mailto:' + encodeURIComponent(an)
-    + '?subject=' + encodeURIComponent(t.betreff)
+  const txt = t.text;
+  function erfolg() {
+    if (!btn) return;
+    btn.classList.add('mail-weg-ok');
+    const label = btn.querySelector('.mail-weg-t');
+    const alt = label ? label.textContent : '';
+    if (label) label.textContent = 'Kopiert \u2713';
+    setTimeout(function(){
+      btn.classList.remove('mail-weg-ok');
+      if (label) label.textContent = alt;
+    }, 1800);
+  }
+  try {
+    navigator.clipboard.writeText(txt).then(erfolg).catch(function(){ kopierNotloesung(txt, erfolg); });
+  } catch (e) { kopierNotloesung(txt, erfolg); }
+}
+
+function kopierNotloesung(txt, fertig) {
+  try {
+    const f = document.createElement('textarea');
+    f.value = txt;
+    f.style.cssText = 'position:fixed;top:-9999px;opacity:0;';
+    document.body.appendChild(f);
+    f.select(); f.setSelectionRange(0, 999999);
+    document.execCommand('copy');
+    f.remove();
+    if (fertig) fertig();
+  } catch (e) { alert('Kopieren nicht m\u00f6glich \u2013 bitte den Text in der Vorschau markieren.'); }
+}
+
+function mailOeffnen() {
+  const t = mailTexte();
+  const adresse = 'mailto:?subject=' + encodeURIComponent(t.betreff)
     + '&body=' + encodeURIComponent(t.text);
   mailGateZu();
   setTimeout(function(){
@@ -4649,7 +4719,7 @@ async function ladeEinladungen() {
         + '<div class="einl-link-row">'
         + '<input class="kyc-link-input" readonly value="' + url + '" onclick="this.select()" />'
         + '<button class="kyc-btn" onclick="einlKopieren(this)">Kopieren</button>'
-        + '<button class="kyc-btn kyc-btn-mail" onclick="mailEinladung(\'' + e.id + '\')">' + mailIconSvg() + 'Per E-Mail senden</button>'
+        + '<button class="kyc-btn kyc-btn-mail" onclick="mailEinladung(\'' + e.id + '\')">' + mailIconSvg() + 'Nachricht senden</button>'
         + '<button class="kyc-btn kyc-btn-del" onclick="einlWiderrufen(\'' + e.id + '\')">Widerrufen</button>'
         + '</div></div>';
     }).join('');
@@ -6990,7 +7060,7 @@ function kycLinkHtml() {
       + '<div class="kyc-link-row">'
       + '<input class="kyc-link-input" id="kycLinkInput" readonly value="' + url + '" onclick="this.select()" />'
       + '<button class="kyc-btn" onclick="kycLinkKopieren()">Kopieren</button>'
-      + '<button class="kyc-btn kyc-btn-mail" onclick="mailUploadLink()">' + mailIconSvg() + 'Per E-Mail senden</button>'
+      + '<button class="kyc-btn kyc-btn-mail" onclick="mailUploadLink()">' + mailIconSvg() + 'Nachricht senden</button>'
       + '<button class="kyc-btn kyc-btn-del" onclick="kycLinkNeu()">Neu</button>'
       + '</div>'
       + '<div class="kyc-note" style="margin-top:8px;">Schick diesen Link der Person \u2013 sie kann Ausweis und Foto ohne Anmeldung hochladen. Die Dateien landen automatisch hier in der Akte.</div>'
