@@ -2363,6 +2363,15 @@
         <button class="plan-btn" id="kontoNameBtn" onclick="kontoNameSpeichern()">Name speichern</button>
         <div id="kontoNameMsg" class="auth-msg" style="display:none; margin-top:12px;"></div>
       </div>
+      <div class="konto-card" id="kontoSanktionenCard" style="display:none;">
+        <div class="konto-card-h">Sanktionslisten</div>
+        <p class="konto-card-p">Stand der gespiegelten EU-Sanktionsliste. Die Aktualisierung läuft automatisch – hier kannst du sie zusätzlich von Hand anstoßen.</p>
+        <div id="sankStand" class="sank-stand">
+          <div class="sank-laden">Wird geladen…</div>
+        </div>
+        <button class="plan-btn" id="sankBtn" onclick="sanktionenJetztLaden()">Jetzt aktualisieren</button>
+        <div id="sankMsg" class="auth-msg" style="display:none; margin-top:12px;"></div>
+      </div>
       <div class="konto-card" id="kontoBeitretenCard" style="display:none;">
         <div class="konto-card-h">Einem Unternehmen beitreten</div>
         <p class="konto-card-p">Du hast einen Unternehmens-Code von einem Kollegen erhalten? Dann trage ihn hier ein und arbeite ab sofort im Team.</p>
@@ -3004,6 +3013,31 @@
       .mail-flagge { font-size:20px !important; }
       .mail-sprache { padding:12px 10px !important; }
     }
+
+    /* ===== Sanktionslisten-Stand ===== */
+    #kontoSanktionenCard { border-color:rgba(245,158,11,.35) !important; background:linear-gradient(180deg,#FFFDF7,#fff); }
+    #kontoSanktionenCard .konto-card-h { color:#B45309; }
+    .sank-stand { display:flex; flex-direction:column; gap:8px; margin-bottom:13px; }
+    .sank-zeile { display:flex; align-items:center; gap:11px; background:#fff; border:1px solid var(--border,#E2E6E9);
+      border-radius:12px; padding:11px 13px; opacity:0;
+      animation:sankZeile .45s cubic-bezier(.2,.7,.2,1) var(--sz,0s) both; }
+    @keyframes sankZeile { from { opacity:0; transform:translateX(-9px); } to { opacity:1; transform:none; } }
+    .sank-q { font-family:'Sora', inherit; font-size:13px; font-weight:800; color:var(--ink,#111827); min-width:42px; }
+    .sank-info { flex:1; font-size:12.5px; color:var(--gray,#5A6670); display:flex; flex-direction:column; }
+    .sank-info b { color:var(--ink,#111827); }
+    .sank-datum { font-size:11px; color:var(--gray-l,#8A949D); margin-top:2px; }
+    .sank-punkt { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+    .sank-gruen { background:#16A34A; box-shadow:0 0 0 3px rgba(22,163,74,.18); }
+    .sank-gelb { background:#F59E0B; box-shadow:0 0 0 3px rgba(245,158,11,.18); }
+    .sank-rot { background:#DC2626; box-shadow:0 0 0 3px rgba(220,38,38,.18); animation:sankPuls 2.2s ease-in-out infinite; }
+    .sank-grau { background:#CBD2D8; }
+    @keyframes sankPuls { 0%,100% { transform:scale(1); } 50% { transform:scale(1.2); } }
+    .sank-leer, .sank-laden { font-size:12.5px; color:var(--gray-l,#8A949D); font-style:italic; padding:10px 0; }
+    #kontoSanktionenCard .plan-btn { background:linear-gradient(135deg,#B45309,#D97706); color:#fff; border:none;
+      box-shadow:0 10px 24px -10px rgba(180,83,9,.7); transition:transform .18s, box-shadow .18s; }
+    #kontoSanktionenCard .plan-btn:hover:not(:disabled) { transform:translateY(-2px); }
+    #kontoSanktionenCard .plan-btn:disabled { opacity:.7; cursor:wait; }
+    @media (max-width:760px) { .sank-zeile { padding:10px 11px !important; } .sank-info { font-size:11.5px !important; } }
 </style>
 <div id="legalGate" class="legal-gate" style="display:none;">
   <div class="legal-box">
@@ -3134,7 +3168,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.02</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.03</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -6219,9 +6253,15 @@ async function workerCall(action, payload, versuch) {
     const timer = ctrl ? setTimeout(function(){ ctrl.abort(); }, limit) : null;
     let res;
     try {
+      const kopf = { 'Content-Type': 'application/json' };
+      // Anmelde-Nachweis mitschicken, damit der Server interne Aufrufe erkennt
+      try {
+        const s = (await sb.auth.getSession()).data.session;
+        if (s && s.access_token) kopf['Authorization'] = 'Bearer ' + s.access_token;
+      } catch (e) {}
       res = await fetch(WORKER, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: kopf,
         body: JSON.stringify({ action, payload }),
         signal: ctrl ? ctrl.signal : undefined
       });
@@ -6338,6 +6378,12 @@ function openKonto() {
       const m = document.getElementById('kontoNameMsg'); if (m) m.style.display = 'none';
     } catch(e) {}
   })();
+  const sank = document.getElementById('kontoSanktionenCard');
+  if (sank) {
+    const eigen = (CURRENT_USER_EMAIL || '').toLowerCase().indexOf('@automatilabs.de') > 0;
+    sank.style.display = eigen ? '' : 'none';
+    if (eigen) sanktionenStandLaden();
+  }
   const bei = document.getElementById('kontoBeitretenCard');
   if (bei) {
     bei.style.display = (CURRENT_FIRMA && CURRENT_FIRMA.typ === 'einzel') ? '' : 'none';
@@ -6363,6 +6409,60 @@ function closeKonto() {
   g.classList.add('screen-out');
   setTimeout(function () { g.classList.remove('screen-out'); g.style.display = 'none'; appAn(); }, 200);
 }
+// ===== Sanktionslisten: Stand anzeigen und aktualisieren =====
+async function sanktionenStandLaden() {
+  const ziel = document.getElementById('sankStand');
+  if (!ziel || !sb) return;
+  try {
+    const { data } = await sb.rpc('sanktionen_stand_info');
+    const liste = data || [];
+    if (!liste.length) {
+      ziel.innerHTML = '<div class="sank-leer">Noch keine Liste geladen. Klicke auf \u201eJetzt aktualisieren\u201c.</div>';
+      return;
+    }
+    ziel.innerHTML = liste.map(function(s, i){
+      const d = s.stand ? new Date(s.stand).toLocaleDateString('de-DE') : '\u2013';
+      const alt = s.stand ? Math.floor((Date.now() - new Date(s.stand).getTime()) / 86400000) : null;
+      const farbe = (alt === null) ? 'grau' : (alt <= 2 ? 'gruen' : (alt <= 7 ? 'gelb' : 'rot'));
+      return '<div class="sank-zeile" style="--sz:' + (0.05 + i * 0.08) + 's">'
+        + '<div class="sank-q">' + escapeHtml(s.quelle) + '</div>'
+        + '<div class="sank-info"><b>' + (s.eintraege || 0).toLocaleString('de-DE') + '</b> Eintr\u00e4ge'
+        + '<span class="sank-datum">Stand ' + d + (alt !== null ? ' \u00b7 vor ' + (alt === 0 ? 'wenigen Stunden' : alt + ' Tagen') : '') + '</span></div>'
+        + '<span class="sank-punkt sank-' + farbe + '"></span>'
+        + '</div>';
+    }).join('');
+  } catch (e) {
+    ziel.innerHTML = '<div class="sank-leer">Stand konnte nicht geladen werden.</div>';
+  }
+}
+
+async function sanktionenJetztLaden() {
+  const btn = document.getElementById('sankBtn');
+  const msg = document.getElementById('sankMsg');
+  function zeige(text, art) {
+    if (!msg) return;
+    msg.textContent = text;
+    msg.className = 'auth-msg ' + (art === 'ok' ? 'ok' : 'error');
+    msg.style.display = '';
+    msg.style.animation = 'none'; void msg.offsetWidth;
+    msg.style.animation = 'authMsgIn .4s cubic-bezier(.2,.7,.2,1) both';
+  }
+  if (btn) { btn.disabled = true; btn.textContent = 'L\u00e4dt \u2013 das dauert etwa eine Minute\u2026'; }
+  zeige('Die Liste wird von der EU abgerufen. Bitte das Fenster offen lassen.', 'ok');
+  try {
+    const r = await workerCall('sanktionen_laden', { geheim: 'aus-dem-worker' });
+    if (r && r.ok) {
+      zeige('Fertig: ' + (r.gespeichert || 0).toLocaleString('de-DE') + ' Eintr\u00e4ge gespeichert (Stand ' + (r.stand || '') + ').', 'ok');
+      await sanktionenStandLaden();
+    } else {
+      zeige((r && r.error) ? r.error : 'Abruf fehlgeschlagen.', 'error');
+    }
+  } catch (e) {
+    zeige('Abruf fehlgeschlagen: ' + ((e && e.message) || ''), 'error');
+  }
+  if (btn) { btn.disabled = false; btn.textContent = 'Jetzt aktualisieren'; }
+}
+
 async function kontoBeitreten() {
   const feld = document.getElementById('kontoBeitrittCode');
   const btn  = document.getElementById('kontoBeitrittBtn');
