@@ -2363,6 +2363,13 @@
         <button class="plan-btn" id="kontoNameBtn" onclick="kontoNameSpeichern()">Name speichern</button>
         <div id="kontoNameMsg" class="auth-msg" style="display:none; margin-top:12px;"></div>
       </div>
+      <div class="konto-card" id="kontoBeitretenCard" style="display:none;">
+        <div class="konto-card-h">Einem Unternehmen beitreten</div>
+        <p class="konto-card-p">Du hast einen Unternehmens-Code von einem Kollegen erhalten? Dann trage ihn hier ein und arbeite ab sofort im Team.</p>
+        <input class="om-name-input" id="kontoBeitrittCode" placeholder="Code eingeben – z.B. A3F9C1" autocomplete="off" style="width:100%; box-sizing:border-box; margin-bottom:10px; text-transform:uppercase;" />
+        <button class="plan-btn" id="kontoBeitrittBtn" onclick="kontoBeitreten()">Beitreten</button>
+        <div id="kontoBeitrittMsg" class="auth-msg" style="display:none; margin-top:12px;"></div>
+      </div>
       <div class="konto-card" id="kontoUpgradeCard" style="display:none;">
         <div class="konto-card-h">Zu einem Unternehmen wechseln</div>
         <p class="konto-card-p">Aus deinem Einzelkonto wird ein Unternehmens-Konto: Du kannst Mitarbeiter einladen, Ränge vergeben und Ordner im Team teilen. <b>Alle bisherigen Prüfungen, Ordner und dein Kontingent bleiben erhalten.</b></p>
@@ -2933,6 +2940,36 @@
       .mail-v-text { font-size:11px !important; max-height:150px !important; }
       .kyc-btn-mail { flex:1 1 auto; }
     }
+
+    /* Unternehmen beitreten */
+    #kontoBeitretenCard { border-color:#C7DDF5 !important; background:linear-gradient(180deg,#F8FBFF,#fff); }
+    #kontoBeitretenCard .konto-card-h { color:#1E4E8C; }
+    #kontoBeitretenCard .plan-btn { background:linear-gradient(135deg,#1E4E8C,#2E6FBF); color:#fff; border:none;
+      box-shadow:0 10px 24px -10px rgba(30,78,140,.75); transition:transform .18s, box-shadow .18s; }
+    #kontoBeitretenCard .plan-btn:hover:not(:disabled) { transform:translateY(-2px); box-shadow:0 16px 32px -10px rgba(30,78,140,.85); }
+    #kontoBeitretenCard .plan-btn:disabled { opacity:.65; cursor:wait; }
+    #kontoBeitrittCode { letter-spacing:.08em; font-family:ui-monospace, Menlo, monospace; }
+    .bt-card { transition:transform .3s cubic-bezier(.2,.9,.3,1.25), opacity .28s ease; }
+    .bt-card.karte-weg { transform:translateY(16px) scale(.95) !important; opacity:0 !important; }
+
+    /* ============================================================
+       BUTTONS MIT SYMBOL - saubere Ausrichtung
+       ============================================================ */
+    .kyc-btn { display:inline-flex; align-items:center; justify-content:center; gap:7px; line-height:1; }
+    .kyc-btn .btn-ico { flex-shrink:0; display:block; }
+    .kyc-btn-mail { background:#EEF4FF !important; color:#1E4E8C !important; border-color:#C7DDF5 !important;
+      transition:background .18s, border-color .18s, transform .18s, box-shadow .18s; }
+    .kyc-btn-mail:hover { background:#DBEAFE !important; border-color:#93B8E8 !important;
+      transform:translateY(-1px); box-shadow:0 8px 18px -10px rgba(30,78,140,.6); }
+    .kyc-btn-mail:active { transform:translateY(0) scale(.97); }
+    .kyc-btn-mail .btn-ico { transition:transform .2s cubic-bezier(.2,.9,.3,1.5); }
+    .kyc-btn-mail:hover .btn-ico { transform:translateY(-1px) scale(1.1); }
+
+    @media (max-width:760px) {
+      .kyc-link-row, .einl-link-row { flex-wrap:wrap; gap:7px; }
+      .kyc-btn-mail { flex:1 1 auto; padding:10px 12px !important; }
+      .kyc-btn .btn-ico { width:14px; height:14px; }
+    }
 </style>
 <div id="legalGate" class="legal-gate" style="display:none;">
   <div class="legal-box">
@@ -3063,7 +3100,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.99</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.01</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -4407,6 +4444,37 @@ async function einladungHinweis() {
 // LINK PER E-MAIL VERSENDEN (oeffnet das Mailprogramm des Nutzers)
 // ============================================================
 let MAIL_DATEN = null;
+let EINLADUNGEN_GELADEN = [];      // fuer den Mail-Versand gemerkt
+
+// Briefsymbol - sauber gezeichnet statt Textzeichen
+function mailIconSvg() {
+  return '<svg class="btn-ico" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" '
+    + 'stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'
+    + '<rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6 10-6"/></svg>';
+}
+
+// Upload-Link per Mail - holt die Daten selbst, statt sie durchs HTML zu reichen
+function mailUploadLink() {
+  if (!KYC || !KYC.link) return;
+  const url = location.origin + location.pathname + '?upload=' + KYC.link.token;
+  mailVersendenOeffnen('upload', url, {
+    firma: (CURRENT_FIRMA && CURRENT_FIRMA.firma_name) || '',
+    code: KYC.link.ref_code || '',
+    absender: CURRENT_USER_NAME || ''
+  });
+}
+
+// Einladungslink per Mail
+function mailEinladung(id) {
+  const e = EINLADUNGEN_GELADEN.find(function(x){ return x.id === id; });
+  if (!e) return;
+  const url = location.origin + location.pathname + '?einladung=' + e.token;
+  mailVersendenOeffnen('einladung', url, {
+    firma: (CURRENT_FIRMA && CURRENT_FIRMA.firma_name) || '',
+    rang: rangName(e.rang),
+    absender: CURRENT_USER_NAME || ''
+  });
+}
 
 function mailVersendenOeffnen(art, link, extra) {
   MAIL_DATEN = { art: art, link: link, extra: extra || {} };
@@ -4567,6 +4635,7 @@ async function ladeEinladungen() {
       .select('*').eq('aktiv', true).gt('ablauf', new Date().toISOString())
       .order('created_at', { ascending: false }).limit(10);
     const liste = data || [];
+    EINLADUNGEN_GELADEN = liste;
     if (!liste.length) { ziel.innerHTML = '<div class="einl-leer">Noch keine offenen Einladungen.</div>'; return; }
     ziel.innerHTML = liste.map(function(e){
       const url = location.origin + location.pathname + '?einladung=' + e.token;
@@ -4580,7 +4649,7 @@ async function ladeEinladungen() {
         + '<div class="einl-link-row">'
         + '<input class="kyc-link-input" readonly value="' + url + '" onclick="this.select()" />'
         + '<button class="kyc-btn" onclick="einlKopieren(this)">Kopieren</button>'
-        + '<button class="kyc-btn kyc-btn-mail" onclick="mailVersendenOeffnen(\'einladung\', \'' + url + '\', { firma: ' + JSON.stringify(escapeHtml((CURRENT_FIRMA && CURRENT_FIRMA.firma_name) || '')) + ', rang: ' + JSON.stringify(rangName(e.rang)) + ', absender: ' + JSON.stringify(CURRENT_USER_NAME || '') + ' })">\u2709 E-Mail</button>'
+        + '<button class="kyc-btn kyc-btn-mail" onclick="mailEinladung(\'' + e.id + '\')">' + mailIconSvg() + 'Per E-Mail senden</button>'
         + '<button class="kyc-btn kyc-btn-del" onclick="einlWiderrufen(\'' + e.id + '\')">Widerrufen</button>'
         + '</div></div>';
     }).join('');
@@ -6199,6 +6268,13 @@ function openKonto() {
       const m = document.getElementById('kontoNameMsg'); if (m) m.style.display = 'none';
     } catch(e) {}
   })();
+  const bei = document.getElementById('kontoBeitretenCard');
+  if (bei) {
+    bei.style.display = (CURRENT_FIRMA && CURRENT_FIRMA.typ === 'einzel') ? '' : 'none';
+    const bm = document.getElementById('kontoBeitrittMsg'); if (bm) bm.style.display = 'none';
+    const bc = document.getElementById('kontoBeitrittCode'); if (bc) bc.value = '';
+    const bb = document.getElementById('kontoBeitrittBtn'); if (bb) { bb.disabled = false; bb.textContent = 'Beitreten'; }
+  }
   const up = document.getElementById('kontoUpgradeCard');
   if (up) {
     up.style.display = (CURRENT_FIRMA && CURRENT_FIRMA.typ === 'einzel') ? '' : 'none';
@@ -6217,6 +6293,84 @@ function closeKonto() {
   g.classList.add('screen-out');
   setTimeout(function () { g.classList.remove('screen-out'); g.style.display = 'none'; appAn(); }, 200);
 }
+async function kontoBeitreten() {
+  const feld = document.getElementById('kontoBeitrittCode');
+  const btn  = document.getElementById('kontoBeitrittBtn');
+  const msg  = document.getElementById('kontoBeitrittMsg');
+  const code = ((feld && feld.value) || '').trim().toUpperCase();
+
+  function zeige(text, art) {
+    if (!msg) return;
+    msg.textContent = text;
+    msg.className = 'auth-msg ' + (art === 'ok' ? 'ok' : 'error');
+    msg.style.display = '';
+    msg.style.animation = 'none'; void msg.offsetWidth;
+    msg.style.animation = 'authMsgIn .4s cubic-bezier(.2,.7,.2,1) both';
+  }
+
+  if (!code) {
+    zeige('Bitte den Unternehmens-Code eingeben.', 'error');
+    if (feld) { feld.focus(); feld.classList.add('feld-wackel'); setTimeout(function(){ feld.classList.remove('feld-wackel'); }, 500); }
+    return;
+  }
+
+  // Vor dem Wechsel warnen - die eigenen Analysen bleiben im alten Konto
+  const anzahl = (HISTORY_ROWS && HISTORY_ROWS.length) || 0;
+  const ja = await beitrittFrage(anzahl);
+  if (!ja) return;
+
+  if (btn) { btn.disabled = true; btn.textContent = 'Wird gepr\u00fcft\u2026'; }
+  try {
+    const { data, error } = await sb.rpc('firma_beitreten', { p_code: code });
+    if (error) throw error;
+    if (data === true) {
+      zeige('Beitritt erfolgreich. Wir laden dein neues Team\u2026', 'ok');
+      try { await ladeKontingent(); await ladeMeinenRang(); } catch(e) {}
+      setTimeout(function(){ location.reload(); }, 1400);
+      return;
+    }
+    zeige('Dieser Code ist unbekannt. Bitte pr\u00fcfe die Schreibweise.', 'error');
+  } catch (e) {
+    zeige((e && e.message) || 'Beitritt fehlgeschlagen.', 'error');
+  }
+  if (btn) { btn.disabled = false; btn.textContent = 'Beitreten'; }
+}
+
+// Hinweis, dass die bisherigen Pruefungen im alten Konto bleiben
+function beitrittFrage(anzahl) {
+  return new Promise(function(res){
+    const box = document.createElement('div');
+    box.id = 'btGate';
+    box.className = 'up-warn-back';
+    box.innerHTML = '<div class="up-warn-card bt-card">'
+      + '<div class="up-warn-ico">\u21C4</div>'
+      + '<div class="up-warn-t">Konto wechseln?</div>'
+      + '<div class="up-warn-d">Du arbeitest ab sofort im Konto des Unternehmens und nutzt dessen Kontingent gemeinsam mit dem Team.'
+      + (anzahl ? '<br/><br/>Deine bisherigen <b>' + anzahl + ' Pr\u00fcfungen</b> bleiben in deinem eigenen Konto gespeichert und sind im Team nicht sichtbar.' : '')
+      + '</div>'
+      + '<div class="up-warn-btns">'
+      + '<button class="kyc-btn" onclick="btAntwort(false)">Abbrechen</button>'
+      + '<button class="up-senden up-warn-ok" onclick="btAntwort(true)">Ja, beitreten</button>'
+      + '</div></div>';
+    document.body.appendChild(box);
+    requestAnimationFrame(function(){ box.classList.add('an'); });
+    window._btRes = res;
+  });
+}
+
+function btAntwort(ja) {
+  const b = document.getElementById('btGate');
+  const r = window._btRes;
+  if (b) {
+    const k = b.querySelector('.bt-card');
+    if (k) k.classList.add('karte-weg');
+    b.classList.remove('an');
+    setTimeout(function(){ if (b.parentNode) b.remove(); }, 260);
+  }
+  window._btRes = null;
+  if (r) r(!!ja);
+}
+
 async function kontoNameSpeichern() {
   const v = ((document.getElementById('kontoVorname') || {}).value || '').trim();
   const n = ((document.getElementById('kontoNachname') || {}).value || '').trim();
@@ -6836,7 +6990,7 @@ function kycLinkHtml() {
       + '<div class="kyc-link-row">'
       + '<input class="kyc-link-input" id="kycLinkInput" readonly value="' + url + '" onclick="this.select()" />'
       + '<button class="kyc-btn" onclick="kycLinkKopieren()">Kopieren</button>'
-      + '<button class="kyc-btn kyc-btn-mail" onclick="mailVersendenOeffnen(\'upload\', ' + JSON.stringify(url) + ', { firma: ' + JSON.stringify((CURRENT_FIRMA && CURRENT_FIRMA.firma_name) || '') + ', code: ' + JSON.stringify(KYC.link.ref_code || '') + ', absender: ' + JSON.stringify(CURRENT_USER_NAME || '') + ' })">\u2709 E-Mail</button>'
+      + '<button class="kyc-btn kyc-btn-mail" onclick="mailUploadLink()">' + mailIconSvg() + 'Per E-Mail senden</button>'
       + '<button class="kyc-btn kyc-btn-del" onclick="kycLinkNeu()">Neu</button>'
       + '</div>'
       + '<div class="kyc-note" style="margin-top:8px;">Schick diesen Link der Person \u2013 sie kann Ausweis und Foto ohne Anmeldung hochladen. Die Dateien landen automatisch hier in der Akte.</div>'
