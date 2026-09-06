@@ -2370,7 +2370,7 @@
           <div class="sank-laden">Wird geladen…</div>
         </div>
         <button class="plan-btn" id="sankBtn" onclick="sanktionenJetztLaden()">Jetzt aktualisieren</button>
-        <div id="sankMsg" class="auth-msg" style="display:none; margin-top:12px;"></div>
+        <div id="sankLog" class="sank-log" style="display:none;"></div>
       </div>
       <div class="konto-card" id="kontoBeitretenCard" style="display:none;">
         <div class="konto-card-h">Einem Unternehmen beitreten</div>
@@ -3049,6 +3049,21 @@
       transform:translateY(-1px) !important;
     }
     .plan-btn.konto-export:active { transform:translateY(0) scale(.985) !important; }
+
+    /* Diagnose-Ausgabe der Sanktionslisten */
+    .sank-log { margin-top:12px; background:#0F1720; border-radius:12px; padding:11px 13px;
+      max-height:260px; overflow-y:auto; -webkit-overflow-scrolling:touch;
+      font-family:ui-monospace, Menlo, Consolas, monospace; font-size:11px; line-height:1.6;
+      animation:teamIn .35s cubic-bezier(.2,.7,.2,1) both; }
+    .sank-log-z { color:#8FA3B0; word-break:break-word; white-space:pre-wrap; padding:2px 0;
+      animation:sankLogZ .3s ease both; }
+    @keyframes sankLogZ { from { opacity:0; transform:translateX(-5px); } to { opacity:1; transform:none; } }
+    .sank-log-ok { color:#4ADE80; }
+    .sank-log-warn { color:#FBBF24; }
+    .sank-log-err { color:#F87171; font-weight:600; }
+    .sank-log-info { color:#7DD3FC; }
+    .sank-log-daten { color:#CBD5E1; background:rgba(255,255,255,.05); border-radius:6px; padding:6px 8px; margin:3px 0; }
+    @media (max-width:760px) { .sank-log { font-size:10px !important; max-height:220px !important; } }
 </style>
 <div id="legalGate" class="legal-gate" style="display:none;">
   <div class="legal-box">
@@ -3179,7 +3194,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.04</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.05</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -6449,28 +6464,59 @@ async function sanktionenStandLaden() {
 
 async function sanktionenJetztLaden() {
   const btn = document.getElementById('sankBtn');
-  const msg = document.getElementById('sankMsg');
-  function zeige(text, art) {
-    if (!msg) return;
-    msg.textContent = text;
-    msg.className = 'auth-msg ' + (art === 'ok' ? 'ok' : 'error');
-    msg.style.display = '';
-    msg.style.animation = 'none'; void msg.offsetWidth;
-    msg.style.animation = 'authMsgIn .4s cubic-bezier(.2,.7,.2,1) both';
+  const log = document.getElementById('sankLog');
+
+  function schreib(text, art) {
+    if (!log) { alert(text); return; }
+    log.style.display = '';
+    const z = document.createElement('div');
+    z.className = 'sank-log-z' + (art ? ' sank-log-' + art : '');
+    z.textContent = text;
+    log.appendChild(z);
+    log.scrollTop = log.scrollHeight;
   }
-  if (btn) { btn.disabled = true; btn.textContent = 'L\u00e4dt \u2013 das dauert etwa eine Minute\u2026'; }
-  zeige('Die Liste wird von der EU abgerufen. Bitte das Fenster offen lassen.', 'ok');
+
+  if (log) log.innerHTML = '';
+  schreib('Start \u2013 ' + new Date().toLocaleTimeString('de-DE'), 'info');
+
+  if (btn) { btn.disabled = true; btn.textContent = 'L\u00e4uft \u2026'; }
+
   try {
-    const r = await workerCall('sanktionen_laden', { geheim: 'aus-dem-worker' });
-    if (r && r.ok) {
-      zeige('Fertig: ' + (r.gespeichert || 0).toLocaleString('de-DE') + ' Eintr\u00e4ge gespeichert (Stand ' + (r.stand || '') + ').', 'ok');
+    schreib('Sende Anfrage an den Server\u2026', 'info');
+
+    // Direkt aufrufen, damit wir die Rohantwort sehen
+    const kopf = { 'Content-Type': 'application/json' };
+    try {
+      const s = (await sb.auth.getSession()).data.session;
+      if (s && s.access_token) { kopf['Authorization'] = 'Bearer ' + s.access_token; schreib('Anmeldung erkannt \u2713', 'ok'); }
+      else schreib('Keine Anmeldung gefunden \u2013 das ist vermutlich das Problem.', 'warn');
+    } catch (e) { schreib('Anmeldung nicht lesbar: ' + ((e && e.message) || ''), 'warn'); }
+
+    const res = await fetch(WORKER, {
+      method: 'POST',
+      headers: kopf,
+      body: JSON.stringify({ action: 'sanktionen_laden', payload: {} })
+    });
+
+    schreib('Server antwortet mit Status ' + res.status, res.ok ? 'ok' : 'warn');
+
+    const roh = await res.text();
+    schreib('Antwort (' + roh.length + ' Zeichen):', 'info');
+    schreib(roh.slice(0, 600) || '(leer)', roh ? 'daten' : 'warn');
+
+    let d = null;
+    try { d = JSON.parse(roh.trim()); } catch (e) { schreib('Antwort ist kein gueltiges JSON.', 'warn'); }
+
+    if (d && d.ok) {
+      schreib('ERFOLG: ' + (d.gespeichert || 0) + ' von ' + (d.gefunden || 0) + ' Eintr\u00e4gen gespeichert.', 'ok');
       await sanktionenStandLaden();
-    } else {
-      zeige((r && r.error) ? r.error : 'Abruf fehlgeschlagen.', 'error');
+    } else if (d && d.error) {
+      schreib('FEHLER vom Server: ' + d.error, 'err');
     }
   } catch (e) {
-    zeige('Abruf fehlgeschlagen: ' + ((e && e.message) || ''), 'error');
+    schreib('Abbruch: ' + ((e && e.message) || 'unbekannter Fehler'), 'err');
   }
+
   if (btn) { btn.disabled = false; btn.textContent = 'Jetzt aktualisieren'; }
 }
 
