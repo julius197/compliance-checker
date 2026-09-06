@@ -2193,6 +2193,16 @@
     <div class="auth-title" id="authTitle">Anmelden</div>
     <div class="auth-sub" id="authSub">Compliance-Checker · Zugang nur für Kunden</div>
     <div class="auth-msg" id="authMsg"></div>
+    <div class="auth-namen" id="authNamen" style="display:none;">
+      <div class="auth-field">
+        <label class="auth-label">Vorname</label>
+        <input type="text" class="auth-input" id="authVorname" placeholder="Max" autocomplete="given-name" />
+      </div>
+      <div class="auth-field">
+        <label class="auth-label">Nachname</label>
+        <input type="text" class="auth-input" id="authNachname" placeholder="Mustermann" autocomplete="family-name" />
+      </div>
+    </div>
     <div class="auth-field">
       <label class="auth-label">E-Mail</label>
       <input type="email" class="auth-input" id="authEmail" placeholder="name@firma.de" autocomplete="email" />
@@ -2343,6 +2353,16 @@
       <p class="plan-subtitle" id="kontoEmail">—</p>
     </div>
     <div style="display:flex; flex-direction:column; gap:14px; margin-top:8px;">
+      <div class="konto-card">
+        <div class="konto-card-h">Dein Name</div>
+        <p class="konto-card-p">Wird im Team, im Aktivitätsprotokoll und beim Versand von Upload-Links angezeigt – statt deiner E-Mail-Adresse.</p>
+        <div class="konto-namen">
+          <input class="om-name-input" id="kontoVorname" placeholder="Vorname" autocomplete="given-name" />
+          <input class="om-name-input" id="kontoNachname" placeholder="Nachname" autocomplete="family-name" />
+        </div>
+        <button class="plan-btn" id="kontoNameBtn" onclick="kontoNameSpeichern()">Name speichern</button>
+        <div id="kontoNameMsg" class="auth-msg" style="display:none; margin-top:12px;"></div>
+      </div>
       <div class="konto-card" id="kontoUpgradeCard" style="display:none;">
         <div class="konto-card-h">Zu einem Unternehmen wechseln</div>
         <p class="konto-card-p">Aus deinem Einzelkonto wird ein Unternehmens-Konto: Du kannst Mitarbeiter einladen, Ränge vergeben und Ordner im Team teilen. <b>Alle bisherigen Prüfungen, Ordner und dein Kontingent bleiben erhalten.</b></p>
@@ -2860,6 +2880,18 @@
       .fw-name { font-size:13px !important; }
       .fw-meta, .fw-hinweis { font-size:11px !important; }
     }
+
+    /* ===== Namensfelder ===== */
+    .auth-namen { display:grid; grid-template-columns:1fr 1fr; gap:10px;
+      animation:authTeil .5s cubic-bezier(.2,.7,.2,1) both; }
+    .auth-namen .auth-field { margin-bottom:0; }
+    .konto-namen { display:grid; grid-template-columns:1fr 1fr; gap:9px; margin-bottom:11px; }
+    .konto-namen .om-name-input { width:100%; box-sizing:border-box; }
+    @media (max-width:430px) {
+      .auth-namen, .konto-namen { grid-template-columns:1fr !important; gap:0 !important; }
+      .auth-namen .auth-field { margin-bottom:13px !important; }
+      .konto-namen .om-name-input { margin-bottom:9px !important; }
+    }
 </style>
 <div id="legalGate" class="legal-gate" style="display:none;">
   <div class="legal-box">
@@ -2990,7 +3022,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.97</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.98</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -3397,6 +3429,8 @@ function refreshAuthTexts() {
   toggle.innerHTML = authToggleHtml(reg);
   const verg = document.getElementById('authVergessen');
   if (verg) verg.style.display = reg ? 'none' : '';
+  const nam = document.getElementById('authNamen');
+  if (nam) nam.style.display = reg ? '' : 'none';
 }
 
 function applyLang() {
@@ -3539,8 +3573,15 @@ async function doAuth() {
 
   try {
     if (authMode === 'register') {
-      const { data, error } = await sb.auth.signUp({ email, password });
+      const vn = ((document.getElementById('authVorname') || {}).value || '').trim();
+      const nn = ((document.getElementById('authNachname') || {}).value || '').trim();
+      const { data, error } = await sb.auth.signUp({
+        email, password,
+        options: { data: { vorname: vn, nachname: nn } }
+      });
       if (error) throw error;
+      // Fuer den Fall, dass die Bestaetigung erst spaeter erfolgt
+      try { if (vn || nn) localStorage.setItem('cc_name', JSON.stringify({ v: vn, n: nn })); } catch(e) {}
       showAuthMsg('Fast geschafft! Bitte bestätige deine E-Mail über den Link den wir dir geschickt haben, dann kannst du dich anmelden.', 'success');
       btn.disabled = false;
     } else {
@@ -3566,6 +3607,53 @@ async function doLogout() {
 
 // Global: E-Mail des eingeloggten Nutzers (für Wasserzeichen auf Ausdrucken)
 let CURRENT_USER_EMAIL = '';
+let CURRENT_USER_NAME = '';        // Klarname, falls hinterlegt
+
+// Liefert den Anzeigenamen: Klarname wenn vorhanden, sonst E-Mail
+function anzeigeName(vorname, nachname, email) {
+  const v = (vorname || '').trim(), n = (nachname || '').trim();
+  const voll = (v + ' ' + n).trim();
+  return voll || (email || '');
+}
+
+// Traegt den bei der Registrierung angegebenen Namen ins Profil nach
+async function namenNachtragen() {
+  if (!sb) return;
+  try {
+    await ladeMeinenNamen();
+    if (CURRENT_USER_NAME) return;                       // schon vorhanden
+
+    // 1. Aus den Anmeldedaten
+    let v = '', n = '';
+    try {
+      const { data } = await sb.auth.getUser();
+      const m = (data && data.user && data.user.user_metadata) || {};
+      v = (m.vorname || '').trim(); n = (m.nachname || '').trim();
+    } catch(e) {}
+
+    // 2. Sonst aus dem Zwischenspeicher der Registrierung
+    if (!v && !n) {
+      try {
+        const g = JSON.parse(localStorage.getItem('cc_name') || '{}');
+        v = (g.v || '').trim(); n = (g.n || '').trim();
+      } catch(e) {}
+    }
+    if (!v && !n) return;
+
+    await sb.rpc('name_setzen', { p_vorname: v, p_nachname: n });
+    CURRENT_USER_NAME = anzeigeName(v, n, '');
+    try { localStorage.removeItem('cc_name'); } catch(e) {}
+  } catch (e) {}
+}
+
+async function ladeMeinenNamen() {
+  if (!sb) return;
+  try {
+    const { data } = await sb.rpc('mein_name');
+    const r = (data && data[0]) || null;
+    CURRENT_USER_NAME = r ? anzeigeName(r.vorname, r.nachname, '') : '';
+  } catch (e) { CURRENT_USER_NAME = ''; }
+}
 let CURRENT_USER_ID = '';   // auth-ID des Nutzers (für Ordner-Ersteller)
 let CURRENT_FIRMA = null; // { firma_id, firma_name, typ, monatslimit, verbraucht, aktiv }
 // ===== ORDNER (v9.1) =====
@@ -3934,6 +4022,7 @@ function enterApp() {
   const kb = document.getElementById('kontoBtn'); if (kb) kb.style.display = '';
   ladeOrdner();
   ladeMeineRolle().then(function(){ try { ladeMeinenRang(); } catch(e) {} });
+  namenNachtragen();
   fadeInView(document.getElementById('mainView'));
   if (aktiv) {
     aktiv.classList.add('screen-out');               // Gate sanft rausfaden -> App erscheint
@@ -4022,7 +4111,8 @@ async function _openTeam() {
     }
     TEAM_MEMBERS = (data || []).map(function(m){
       return { user_id: m.user_id, email: m.email, rang: m.rang || (m.rolle === 'admin' ? 'president' : 'member'),
-               rolle: m.rolle, beigetreten: m.seit || m.beigetreten };
+               rolle: m.rolle, beigetreten: m.seit || m.beigetreten,
+               anzeige: anzeigeName(m.vorname, m.nachname, m.email) };
     });
     renderTeam();
   } catch (e) {
@@ -4068,7 +4158,7 @@ function renderAudit() {
   const ausPruefungen = (HISTORY_ROWS || []).slice(0, 60).map(function(r){
     return {
       aktion: 'geprueft',
-      akteur_email: (r.report_json && r.report_json._email) ? r.report_json._email : '',
+      akteur_email: (r.report_json && (r.report_json._name || r.report_json._email)) ? (r.report_json._name || r.report_json._email) : '',
       ziel_text: r.firmenname || '',
       created_at: r.created_at,
       _score: (typeof r.score === 'number') ? r.score : null
@@ -4156,8 +4246,8 @@ function renderTeam() {
 
     return '<div class="team-row">'
       + '<div class="tm-main">'
-      + '<div class="tm-email">' + escapeHtml(m.email || '(unbekannt)') + (istSelf ? '<span class="tm-you">Du</span>' : '') + '</div>'
-      + '<div class="tm-meta">Beigetreten ' + datum + '</div>'
+      + '<div class="tm-email">' + escapeHtml(m.anzeige || m.email || '(unbekannt)') + (istSelf ? '<span class="tm-you">Du</span>' : '') + '</div>'
+      + '<div class="tm-meta">' + ((m.anzeige && m.anzeige !== m.email) ? escapeHtml(m.email) + ' \u00b7 ' : '') + 'Beigetreten ' + datum + '</div>'
       + '</div>'
       + '<div class="tm-right">' + badge + '<div class="tm-actions">' + actions + '</div></div>'
       + '</div>';
@@ -4357,6 +4447,7 @@ async function teamAktion(aktion, userId) {
     if (error) throw error;
     await ladeMeineRolle();
   try { await ladeMeinenRang(); } catch(e) {}                       // evtl. eigene Rolle geändert (Selbst-Zurückstufung)
+  try { await ladeMeinenNamen(); } catch(e) {}
     if (CURRENT_USER_ROLLE === 'admin') await _openTeam();
     else backToMain();                            // kein Host mehr -> zurück zur Analyse
   } catch (e) {
@@ -4652,7 +4743,9 @@ function uploadRender() {
     + '<div class="up-e-ico"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">'
     + '<rect x="2" y="5" width="20" height="14" rx="2"/><circle cx="8.5" cy="12" r="2.5"/><path d="M14 10h4M14 14h4M4.5 16.5c.9-1.6 2.3-2.4 4-2.4s3.1.8 4 2.4"/></svg></div>'
     + '<div><div class="up-e-t">Identit\u00e4tspr\u00fcfung</div>'
-    + '<div class="up-e-d"><b>' + firma + '</b> ben\u00f6tigt eine einmalige Best\u00e4tigung deiner Identit\u00e4t. '
+    + '<div class="up-e-d">'
+    + ((UPLOAD_INFO && UPLOAD_INFO.absender) ? '<b>' + escapeHtml(UPLOAD_INFO.absender) + '</b> von <b>' + firma + '</b>' : '<b>' + firma + '</b>')
+    + ' ben\u00f6tigt eine einmalige Best\u00e4tigung deiner Identit\u00e4t. '
     + 'Unternehmen sind gesetzlich verpflichtet, ihre Gesch\u00e4ftspartner zu identifizieren \u2013 das schreibt das Geldw\u00e4schegesetz vor (\u00a7\u00a7 10\u201317 GwG). '
     + 'Diese Seite ist der sichere Weg daf\u00fcr: Du l\u00e4dst deine Unterlagen direkt hoch, ohne sie per E-Mail oder Messenger zu verschicken.</div></div>'
     + '</div>'
@@ -5927,6 +6020,15 @@ function openKonto() {
   const src = document.querySelector('.auth-card .auth-logo');
   if (lg && src && src.src) lg.src = src.src;
   const em = document.getElementById('kontoEmail'); if (em) em.textContent = CURRENT_USER_EMAIL || '';
+  (async function(){
+    try {
+      const { data } = await sb.rpc('mein_name');
+      const r = (data && data[0]) || {};
+      const v = document.getElementById('kontoVorname'); if (v) v.value = r.vorname || '';
+      const n = document.getElementById('kontoNachname'); if (n) n.value = r.nachname || '';
+      const m = document.getElementById('kontoNameMsg'); if (m) m.style.display = 'none';
+    } catch(e) {}
+  })();
   const up = document.getElementById('kontoUpgradeCard');
   if (up) {
     up.style.display = (CURRENT_FIRMA && CURRENT_FIRMA.typ === 'einzel') ? '' : 'none';
@@ -5945,6 +6047,31 @@ function closeKonto() {
   g.classList.add('screen-out');
   setTimeout(function () { g.classList.remove('screen-out'); g.style.display = 'none'; appAn(); }, 200);
 }
+async function kontoNameSpeichern() {
+  const v = ((document.getElementById('kontoVorname') || {}).value || '').trim();
+  const n = ((document.getElementById('kontoNachname') || {}).value || '').trim();
+  const btn = document.getElementById('kontoNameBtn');
+  const msg = document.getElementById('kontoNameMsg');
+  function zeige(text, art) {
+    if (!msg) return;
+    msg.textContent = text;
+    msg.className = 'auth-msg ' + (art === 'ok' ? 'ok' : 'error');
+    msg.style.display = '';
+    msg.style.animation = 'none'; void msg.offsetWidth;
+    msg.style.animation = 'authMsgIn .4s cubic-bezier(.2,.7,.2,1) both';
+  }
+  if (btn) { btn.disabled = true; btn.textContent = 'Wird gespeichert\u2026'; }
+  try {
+    const { data, error } = await sb.rpc('name_setzen', { p_vorname: v, p_nachname: n });
+    if (error) throw error;
+    CURRENT_USER_NAME = anzeigeName(v, n, '');
+    zeige(CURRENT_USER_NAME ? 'Gespeichert \u2013 du erscheinst jetzt als ' + CURRENT_USER_NAME + '.' : 'Name entfernt.', 'ok');
+  } catch (e) {
+    zeige('Konnte nicht gespeichert werden.', 'error');
+  }
+  if (btn) { btn.disabled = false; btn.textContent = 'Name speichern'; }
+}
+
 async function zuUnternehmenWechseln() {
   const feld = document.getElementById('kontoFirmaName');
   const btn  = document.getElementById('kontoUpgradeBtn');
@@ -6736,6 +6863,7 @@ function showReport(d, rawName, fromHistory) {
   if (!d.pruefId) d.pruefId = generatePruefId();
   if (!d._createdAt) d._createdAt = new Date().toISOString();
   if (!d._email) d._email = CURRENT_USER_EMAIL || '';
+  if (!d._name) d._name = CURRENT_USER_NAME || '';
   d.firmenname = d.firmenname || rawName || 'Unbekanntes Unternehmen';
   DRUCK_NAME = d.firmenname;                       // fuer den Dateinamen beim PDF-Export
   DRUCK_ID = d.pruefId || '';
@@ -7265,7 +7393,7 @@ function renderHistoryList() {
       const vt = r.verdict_text || (score === null ? 'Geprüft' : '');
       const land = r.land ? ' · ' + r.land : '';
       // Autor (E-Mail des Prüfers) aus dem gespeicherten Bericht
-      const autor = (r.report_json && r.report_json._email) ? r.report_json._email : '';
+      const autor = (r.report_json && (r.report_json._name || r.report_json._email)) ? (r.report_json._name || r.report_json._email) : '';
       const einzelPruef = false;
       const autorZeile = autor ? '<div class="hr-author">Geprüft von ' + escapeHtml(autor) + '</div>' : '';
       // Ordner-Tag
