@@ -3194,7 +3194,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.05</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.06</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -6280,11 +6280,15 @@ async function workerCall(action, payload, versuch) {
     let res;
     try {
       const kopf = { 'Content-Type': 'application/json' };
-      // Anmelde-Nachweis mitschicken, damit der Server interne Aufrufe erkennt
-      try {
-        const s = (await sb.auth.getSession()).data.session;
-        if (s && s.access_token) kopf['Authorization'] = 'Bearer ' + s.access_token;
-      } catch (e) {}
+      // Anmelde-Nachweis NUR bei internen Aktionen mitschicken.
+      // Ein zusaetzlicher Header loest eine Vorab-Anfrage aus - waere er
+      // serverseitig nicht erlaubt, wuerden sonst ALLE Aufrufe scheitern.
+      if (action === 'sanktionen_laden' || action === 'monitoring_lauf') {
+        try {
+          const s = (await sb.auth.getSession()).data.session;
+          if (s && s.access_token) kopf['Authorization'] = 'Bearer ' + s.access_token;
+        } catch (e) {}
+      }
       res = await fetch(WORKER, {
         method: 'POST',
         headers: kopf,
