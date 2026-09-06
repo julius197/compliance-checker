@@ -2818,6 +2818,48 @@
       .ob-frei { padding:12px 13px !important; margin:13px 0 15px !important; }
       .ob-frei-z { font-size:11.5px !important; gap:8px !important; }
     }
+
+    /* ============================================================
+       FIRMEN-AUSWAHL bei mehrdeutigen Namen
+       ============================================================ */
+    .fw-card { max-width:520px; text-align:left; transition:transform .3s cubic-bezier(.2,.9,.3,1.25), opacity .28s ease; }
+    .fw-card.karte-weg { transform:translateY(16px) scale(.95) !important; opacity:0 !important; }
+    .fw-ico { width:52px; height:52px; margin:0 auto 14px; border-radius:50%; background:var(--green-pale,#EAF9F0); color:var(--green-d,#16A34A);
+      display:flex; align-items:center; justify-content:center; animation:fwIco .55s cubic-bezier(.2,.9,.3,1.5) both; }
+    @keyframes fwIco { 0% { opacity:0; transform:scale(.4) rotate(-20deg); } 60% { opacity:1; transform:scale(1.12); } 100% { transform:scale(1); } }
+    .fw-card .up-warn-t, .fw-card .up-warn-d { text-align:center; }
+
+    .fw-liste { display:flex; flex-direction:column; gap:9px; max-height:46vh; overflow-y:auto; margin-bottom:16px; padding:3px; -webkit-overflow-scrolling:touch; }
+    .fw-zeile { display:flex; align-items:center; gap:11px; width:100%; text-align:left; background:#fff; border:1.5px solid var(--border,#E2E6E9);
+      border-radius:14px; padding:13px 15px; cursor:pointer; font-family:inherit; opacity:0;
+      animation:fwZeile .45s cubic-bezier(.2,.7,.2,1) var(--fwd,0s) both;
+      transition:border-color .18s, transform .18s, box-shadow .18s, background .18s; }
+    @keyframes fwZeile { from { opacity:0; transform:translateX(-12px); } to { opacity:1; transform:none; } }
+    .fw-zeile:hover { border-color:var(--green,#22C55E); background:#F7FDF9; transform:translateX(3px); box-shadow:0 10px 22px -14px rgba(10,15,13,.35); }
+    .fw-zeile:active { transform:scale(.985); }
+    .fw-haupt { flex:1; min-width:0; }
+    .fw-name { font-size:14px; font-weight:800; color:var(--ink,#111827); word-break:break-word; line-height:1.3; }
+    .fw-meta { font-size:11.5px; color:var(--gray,#5A6670); margin-top:3px; word-break:break-word; }
+    .fw-hinweis { font-size:11.5px; font-style:italic; color:var(--green-d,#16A34A); margin-top:4px; }
+    .fw-pfeil { flex-shrink:0; color:var(--gray-ll,#CBD2D8); transition:color .18s, transform .18s; }
+    .fw-zeile:hover .fw-pfeil { color:var(--green,#22C55E); transform:translateX(3px); }
+
+    .fw-fuss { display:flex; flex-direction:column; gap:9px; }
+    .fw-eigene { width:100%; background:var(--neutral,#F6F8F9); border:1.5px dashed var(--border,#E2E6E9); border-radius:13px; padding:12px;
+      font-family:inherit; font-size:12.5px; font-weight:600; color:var(--gray,#5A6670); cursor:pointer; transition:all .18s;
+      animation:fwZeile .45s cubic-bezier(.2,.7,.2,1) .45s both; }
+    .fw-eigene:hover { border-color:var(--green,#22C55E); color:var(--green-d,#16A34A); background:#F7FDF9; }
+    .fw-fuss .kyc-btn { width:100%; padding:12px; }
+
+    @media (max-width:760px) {
+      .fw-card { max-width:100% !important; }
+      .fw-ico { width:44px !important; height:44px !important; margin-bottom:11px !important; }
+      .fw-ico svg { width:21px !important; height:21px !important; }
+      .fw-liste { max-height:42vh !important; gap:8px !important; }
+      .fw-zeile { padding:11px 13px !important; gap:9px !important; }
+      .fw-name { font-size:13px !important; }
+      .fw-meta, .fw-hinweis { font-size:11px !important; }
+    }
 </style>
 <div id="legalGate" class="legal-gate" style="display:none;">
   <div class="legal-box">
@@ -2948,7 +2990,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.96</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v10.97</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -5422,6 +5464,108 @@ const STEPS = [
 let stepIdx = 0, stepTimer = null;
 
 // ===== Hinweis: Firma wurde bereits geprueft =====
+let FIRMA_BESTAETIGT = false;
+
+// Prueft vor der Analyse, ob der Name eindeutig ist
+async function firmaKlaeren(name, land) {
+  const btn = document.getElementById('searchBtn');
+  const alterText = btn ? btn.textContent : '';
+  if (btn) { btn.disabled = true; btn.textContent = 'Suche Unternehmen\u2026'; }
+  let daten = null;
+  try {
+    daten = await workerCall('firmen_vorsuche', { name: name, land: land });
+  } catch (e) { daten = null; }
+  if (btn) { btn.disabled = false; btn.textContent = alterText; }
+
+  // Bei Problemen oder eindeutigem Ergebnis einfach weitermachen
+  if (!daten || !daten.ok || daten.eindeutig || !daten.treffer || daten.treffer.length < 2) return 'weiter';
+
+  return await firmaAuswahlDialog(name, daten.treffer);
+}
+
+function firmaAuswahlDialog(suchbegriff, treffer) {
+  return new Promise(function(res){
+    const zeilen = treffer.map(function(t, i){
+      const teile = [];
+      if (t.ort) teile.push(escapeHtml(t.ort));
+      if (t.register) teile.push(escapeHtml(t.register));
+      if (t.gegruendet) teile.push('gegr. ' + escapeHtml(t.gegruendet));
+      if (t.branche) teile.push(escapeHtml(t.branche));
+      return '<button class="fw-zeile" style="--fwd:' + (0.06 + i * 0.07) + 's" onclick="firmaGewaehlt(' + i + ')">'
+        + '<div class="fw-haupt">'
+        + '<div class="fw-name">' + escapeHtml(t.name || suchbegriff) + '</div>'
+        + (teile.length ? '<div class="fw-meta">' + teile.join(' \u00b7 ') + '</div>' : '')
+        + (t.hinweis ? '<div class="fw-hinweis">' + escapeHtml(t.hinweis) + '</div>' : '')
+        + '</div>'
+        + '<svg class="fw-pfeil" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>'
+        + '</button>';
+    }).join('');
+
+    const box = document.createElement('div');
+    box.id = 'fwGate';
+    box.className = 'up-warn-back';
+    box.innerHTML = '<div class="up-warn-card fw-card">'
+      + '<div class="fw-ico"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'
+      + '<circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg></div>'
+      + '<div class="up-warn-t">Mehrere Unternehmen gefunden</div>'
+      + '<div class="up-warn-d">Zu \u201e<b>' + escapeHtml(suchbegriff) + '</b>\u201c gibt es mehrere Eintr\u00e4ge. W\u00e4hle das richtige aus, damit die Pr\u00fcfung dem tats\u00e4chlichen Gesch\u00e4ftspartner gilt.</div>'
+      + '<div class="fw-liste">' + zeilen + '</div>'
+      + '<div class="fw-fuss">'
+      + '<button class="fw-eigene" onclick="firmaEigene()">Keines davon \u2013 mit meiner Eingabe suchen</button>'
+      + '<button class="kyc-btn" onclick="firmaAbbruch()">Abbrechen</button>'
+      + '</div></div>';
+    document.body.appendChild(box);
+    requestAnimationFrame(function(){ box.classList.add('an'); });
+
+    window._fwTreffer = treffer;
+    window._fwAntwort = res;
+  });
+}
+
+function fwSchliessen() {
+  const b = document.getElementById('fwGate');
+  if (!b) return;
+  const k = b.querySelector('.fw-card');
+  if (k) k.classList.add('karte-weg');
+  b.classList.remove('an');
+  setTimeout(function(){ if (b.parentNode) b.remove(); }, 280);
+}
+
+function firmaGewaehlt(i) {
+  const t = (window._fwTreffer || [])[i];
+  const antwort = window._fwAntwort;
+  fwSchliessen();
+  if (t) {
+    const feld = document.getElementById('nameInput');
+    if (feld && t.name) feld.value = t.name;
+    // Registernummer als eindeutiger Anker, falls vorhanden
+    if (t.register) {
+      const ust = document.getElementById('ustInput');
+      if (ust && !ust.value.trim()) ust.value = t.register;
+    }
+  }
+  FIRMA_BESTAETIGT = true;
+  window._fwTreffer = null; window._fwAntwort = null;
+  if (antwort) antwort('weiter');
+  setTimeout(function(){ startSearch(true); }, 320);
+}
+
+function firmaEigene() {
+  const antwort = window._fwAntwort;
+  fwSchliessen();
+  FIRMA_BESTAETIGT = true;
+  window._fwTreffer = null; window._fwAntwort = null;
+  if (antwort) antwort('weiter');
+  setTimeout(function(){ startSearch(true); }, 320);
+}
+
+function firmaAbbruch() {
+  const antwort = window._fwAntwort;
+  fwSchliessen();
+  window._fwTreffer = null; window._fwAntwort = null;
+  if (antwort) antwort('abbruch');
+}
+
 function firmenKern(n) {
   return String(n || '').toLowerCase()
     .replace(/\b(gmbh|ag|kg|ohg|ug|mbh|se|e\.?k\.?|gbr|ltd|limited|inc|corp|s\.?a\.?|b\.?v\.?|n\.?v\.?|co|kgaa|haftungsbeschr(ä|ae)nkt)\b/g, ' ')
@@ -5906,6 +6050,13 @@ async function startSearch(ignoriereDuplikat) {
     const alt = await findeFruehereAnalyse(name);
     if (alt) { zeigeDuplikatHinweis(alt); return; }
   }
+
+  // Gibt es mehrere Firmen mit diesem Namen? Dann vorher fragen.
+  if (ignoriereDuplikat !== true && !FIRMA_BESTAETIGT) {
+    const wahl = await firmaKlaeren(name, land);
+    if (wahl === 'abbruch') return;
+  }
+  FIRMA_BESTAETIGT = false;
   const ordnerSel = document.getElementById('ordnerSelect');
   SELECTED_ORDNER_ID = (ordnerSel && ordnerSel.value) ? ordnerSel.value : null; // gewählter Ordner für diese Analyse
   const ust = document.getElementById('ustInput').value.trim();
