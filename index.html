@@ -1700,6 +1700,22 @@
     /* Sanftes Reduzieren für Leute die keine Animationen mögen (Barrierefreiheit) */
     @media (prefers-reduced-motion: reduce) {
       * { animation: none !important; transition: none !important; }
+      /* WICHTIG: Viele Elemente starten mit opacity:0 und werden erst durch
+         ihre Animation sichtbar. Ohne Animation muessen sie sichtbar bleiben,
+         sonst ist die halbe Oberflaeche leer. */
+      .hr-anim, .tm-anim, .rang-anim, .tb-anim, .sec-in, .fav-zeile, .fg-zeile,
+      .audit-row, .of-gruppe, .up-schritt, .sank-zeile, .lp-an, .pk-an,
+      .lp-preis-karte, .lp-sank-karte, .konto-card, .om-row, .ordner-row,
+      .team-row, .einl-zeile, .mail-weg, .druck-weg, .ob-frei-z, .auth-card > *,
+      .paket-hinweis, .up-erklaerung, .fav-panel, .hu-leiste, .ordner-manage {
+        opacity: 1 !important;
+        transform: none !important;
+        visibility: visible !important;
+      }
+      .lp-reveal .lp-preis-karte, .lp-reveal .lp-sank-karte, .lp-reveal .pk-an,
+      .lp-reveal .lp-an, .lp-reveal .lp-step, .lp-reveal .lp-card {
+        opacity: 1 !important; transform: none !important;
+      }
     }
 
     /* Score-Karte: sanfter Glow wenn sie erscheint */
@@ -3262,7 +3278,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.08</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.09</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -4426,6 +4442,7 @@ function renderAudit() {
     }).join('') + '</div>';
   }
   tv.insertAdjacentHTML('beforeend', '<div id="auditBody" class="audit-sec"><div class="audit-head"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2"><path d="M12 8v4l3 2M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>Aktivitäts-Protokoll</div>' + listHtml + '</div>');
+  sichtbarSicherstellen(tv);
 }
 
 function teamError(msg) {
@@ -4527,6 +4544,7 @@ function renderTeam() {
     + '</div>'
     + rangErklaerung
     + '</div>');
+  sichtbarSicherstellen(tv);
 
   if (darfVerwalten()) ladeEinladungen();
 }
@@ -7895,6 +7913,20 @@ function setHistoryFilter(val) {
 
 function histSuche() { renderHistoryList(); }
 
+// Stellt sicher, dass animierte Elemente auch dann sichtbar werden,
+// wenn der Browser Animationen unterdrueckt (z.B. "Bewegung reduzieren").
+function sichtbarSicherstellen(wurzel) {
+  try {
+    const reduziert = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!reduziert) return;
+    const el = (wurzel || document).querySelectorAll(
+      '.hr-anim, .tm-anim, .rang-anim, .tb-anim, .sec-in, .fav-zeile, .fg-zeile, .audit-row, ' +
+      '.of-gruppe, .up-schritt, .sank-zeile, .pk-an, .lp-an, .mail-weg, .druck-weg, .ob-frei-z'
+    );
+    el.forEach(function(e){ e.style.opacity = '1'; e.style.transform = 'none'; });
+  } catch (e) {}
+}
+
 function renderHistoryList() {
   const view = document.getElementById('historyView');
   const loading = view.querySelector('.history-loading');
@@ -8084,6 +8116,7 @@ function renderHistoryList() {
   const favPanel = (HISTORY_FILTER === '__fav') ? favUebersichtHtml() : '';
 
   view.insertAdjacentHTML('beforeend', '<div id="histBody">' + uebersicht + filterBar + favPanel + sortLeiste + exportBar + listHtml + '</div>');
+  sichtbarSicherstellen(view);
 }
 
 // ===== ORDNER VERWALTEN (umbenennen, Farbe, löschen) + Analysen verschieben =====
@@ -8173,6 +8206,7 @@ function renderOrdnerManage() {
             ? '<div class="of-gruppe"><div class="of-liste">' + ORDNER_LIST.map(karte).join('') + '</div></div>'
             : gruppe('Mit dem Team geteilt', 'Diese Ordner sehen alle Mitglieder deines Unternehmens.', geteilte, 'gr-geteilt')
               + gruppe('Nur f\u00fcr mich', 'Diese Ordner sieht au\u00dfer dir niemand.', private_, 'gr-privat')));
+  sichtbarSicherstellen(box);
 }
 
 let ORDNER_FREIGABEN = {};   // ordner_id -> [ {user_id, email, rang} ]
