@@ -3187,6 +3187,33 @@
       .up-btns { flex-direction:column; }
       .up-btns > * { flex:1 1 auto; width:100%; box-sizing:border-box; }
     }
+
+    /* ===== Info-Seiten: neue Bausteine ===== */
+    .info-liste { margin:12px 0 0; padding-left:20px; }
+    .info-liste li { font-size:13.5px; line-height:1.7; color:var(--gray,#5A6670); margin-bottom:9px;
+      animation:infoLi .45s cubic-bezier(.2,.7,.2,1) both; }
+    .info-liste li:nth-child(1) { animation-delay:.05s; }
+    .info-liste li:nth-child(2) { animation-delay:.12s; }
+    .info-liste li:nth-child(3) { animation-delay:.19s; }
+    @keyframes infoLi { from { opacity:0; transform:translateX(-8px); } to { opacity:1; transform:none; } }
+    .info-liste b { color:var(--ink,#111827); }
+
+    .info-warn { background:#FFFBEB; border:1.5px solid rgba(245,158,11,.35); border-radius:14px;
+      padding:15px 17px; margin-top:14px; font-size:13px; line-height:1.7; color:#5A6670;
+      animation:teamIn .5s cubic-bezier(.2,.7,.2,1) .1s both; }
+    .info-warn b { color:#B45309; }
+
+    .info-haft { background:var(--neutral,#F6F8F9); border-left:3px solid var(--gray-l,#8A949D);
+      border-radius:0 12px 12px 0; padding:13px 16px; margin-top:12px;
+      font-size:12px; line-height:1.7; color:var(--gray,#5A6670); font-style:italic;
+      animation:teamIn .5s cubic-bezier(.2,.7,.2,1) .18s both; }
+
+    @media (max-width:760px) {
+      .info-liste { padding-left:17px !important; }
+      .info-liste li { font-size:12.5px !important; }
+      .info-warn { padding:13px 14px !important; font-size:12px !important; }
+      .info-haft { padding:11px 13px !important; font-size:11px !important; }
+    }
 </style>
 <div id="legalGate" class="legal-gate" style="display:none;">
   <div class="legal-box">
@@ -3317,7 +3344,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.11</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.12</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -5097,6 +5124,19 @@ function infoBewertungHtml() {
     + '<div class="info-stufe info-rot"><b>Verst\u00e4rkte Sorgfaltspflicht</b><span>Es liegen gewichtige Befunde vor. Eine vertiefte Pr\u00fcfung und Dokumentation ist geboten.</span></div>'
     + '</div></div>'
 
+    + '<div class="info-sec"><h3 class="info-h2">5. Abgleich mit Sanktionslisten</h3>'
+    + '<p class="info-p">Unabh\u00e4ngig von der Recherche wird jeder Name unmittelbar gegen die <b>konsolidierte Sanktionsliste der Europ\u00e4ischen Union</b> abgeglichen \u2013 t\u00e4glich aktualisiert, mit Erkennung abweichender Schreibweisen. Ein Treffer wird im Bericht deutlich ausgewiesen und wirkt sich unmittelbar auf die Einstufung aus.</p>'
+    + '<div class="info-warn"><b>Was ein Treffer bedeutet:</b> Ein Treffer in der Sanktionsliste ist nicht gleichbedeutend mit einer Personenidentit\u00e4t der gesuchten Person mit der in der Sanktionsliste gefundenen Person. Ein Treffer bedeutet lediglich, dass eine Namensgleichheit oder eine Namens\u00e4hnlichkeit besteht. Die Ermittlung, ob es sich um dieselbe Person handelt, muss im Wege der Amtsermittlung erfolgen.</div>'
+    + '</div>'
+
+    + '<div class="info-sec"><h3 class="info-h2">6. Gleiche Firmennamen</h3>'
+    + '<p class="info-p">Kommen f\u00fcr eine Eingabe mehrere Unternehmen in Betracht, wird vor der Analyse eine Auswahl angezeigt \u2013 mit Sitz, Registernummer, Gr\u00fcndungsjahr und Branche zur Unterscheidung. Erst nach Best\u00e4tigung l\u00e4uft die vollst\u00e4ndige Pr\u00fcfung. So ist ausgeschlossen, dass versehentlich ein gleichnamiges, aber anderes Unternehmen gepr\u00fcft wird.</p>'
+    + '</div>'
+
+    + '<div class="info-sec"><h3 class="info-h2">7. Wiederholte Pr\u00fcfung im Zeitverlauf</h3>'
+    + '<p class="info-p">Bei Unternehmen unter laufender \u00dcberwachung wird die neue Bewertung mit der vorherigen verglichen. Ausgewiesen werden neue Sanktionstreffer, neu aufgetretene Insolvenzhinweise, Wechsel bei Gesch\u00e4ftsf\u00fchrung oder wirtschaftlich Berechtigten sowie deutliche Ver\u00e4nderungen des Scores. Ein Absinken um mehr als 15 Punkte oder ein Wert unter 45 gilt als kritische Ver\u00e4nderung.</p>'
+    + '</div>'
+
     + '<div class="info-warnbox"><b>Wichtig zur Einordnung</b><br/>Der Score ist eine Entscheidungshilfe, keine Entscheidung. Er ersetzt weder Ihr eigenes Risikomanagement noch die gesetzlich vorgeschriebene Identifizierung von Vertragspartnern, und er trifft keine Aussage \u00fcber die Rechtm\u00e4\u00dfigkeit einer Gesch\u00e4ftsbeziehung. Die abschlie\u00dfende Bewertung und jede Meldepflicht verbleiben bei Ihnen als verpflichtetem Unternehmen.</div>';
 }
 
@@ -5109,10 +5149,30 @@ function infoQuellenHtml() {
     + '<div class="info-grid">'
     + infoKarte('\uD83C\uDFDB\uFE0F', 'Amtliche Unternehmensregister', 'Öffentliche Registerdaten zu Existenz, Rechtsform, Vertretungsberechtigten und Sitz \u2013 die formale Grundlage jeder Pr\u00fcfung.')
     + infoKarte('\u2696\uFE0F', 'Steuerliche Identifikationsdaten', 'Amtliche Best\u00e4tigungsverfahren zur Pr\u00fcfung, ob eine angegebene Steuer-Identifikation tats\u00e4chlich existiert und dem Unternehmen zugeordnet ist.')
-    + infoKarte('\uD83D\uDEE1\uFE0F', 'Sanktions- und Embargolisten', 'Einschl\u00e4gige internationale und europ\u00e4ische Listen sowie \u00f6ffentlich dokumentierte Informationen zu politisch exponierten Personen.')
+    + infoKarte('\uD83D\uDEE1\uFE0F', 'Sanktions- und Embargolisten', 'Direkter Abgleich gegen die konsolidierte Sanktionsliste der Europ\u00e4ischen Union. Die Liste wird t\u00e4glich aktualisiert in unsere Datenbank gespiegelt \u2013 gepr\u00fcft wird also gegen die amtliche Liste selbst, nicht \u00fcber eine Internetsuche. Erg\u00e4nzend flie\u00dfen \u00f6ffentlich dokumentierte Informationen zu politisch exponierten Personen ein.')
     + infoKarte('\uD83D\uDCF0', 'Presse und \u00f6ffentliche Berichterstattung', 'Redaktionelle Ver\u00f6ffentlichungen und \u00f6ffentlich verf\u00fcgbare Bekanntmachungen mit Bezug zum Unternehmen oder zu handelnden Personen.')
     + infoKarte('\uD83C\uDF10', 'Öffentliche Online-Pr\u00e4senz', 'Unternehmenseigene Auftritte, \u00f6ffentlich einsehbare Profile in sozialen Netzwerken, Standort- und Kontaktangaben sowie \u00f6ffentliche Bewertungen.')
     + '</div></div>'
+
+    + '<div class="info-sec"><h3 class="info-h2">Der Sanktionslisten-Abgleich im Detail</h3>'
+    + '<p class="info-p">Namen werden unmittelbar gegen die <b>konsolidierte Sanktionsliste der Europ\u00e4ischen Union</b> abgeglichen. Diese Liste stellt die Europ\u00e4ische Kommission \u00f6ffentlich bereit; sie ist dieselbe Grundlage, die auch Kreditinstitute und Beh\u00f6rden verwenden.</p>'
+    + '<ul class="info-liste">'
+    + '<li><b>T\u00e4glich aktualisiert.</b> Der Abgleich l\u00e4uft gegen den jeweils aktuellen Stand. In jedem Bericht ist festgehalten, gegen welchen Listenstand gepr\u00fcft wurde.</li>'
+    + '<li><b>Auch abweichende Schreibweisen.</b> Umlaute, Bindestriche und unterschiedliche Transkriptionen werden erkannt \u2013 gepr\u00fcft wird auf Namens\u00e4hnlichkeit, nicht nur auf exakte \u00dcbereinstimmung.</li>'
+    + '<li><b>Alle Namensvarianten.</b> Sanktionierte Personen sind h\u00e4ufig unter mehreren Schreibweisen gelistet. S\u00e4mtliche hinterlegten Varianten flie\u00dfen in den Abgleich ein.</li>'
+    + '</ul>'
+    + '<div class="info-warn"><b>Was ein Treffer bedeutet:</b> Ein Treffer in der Sanktionsliste ist nicht gleichbedeutend mit einer Personenidentit\u00e4t der gesuchten Person mit der in der Sanktionsliste gefundenen Person. Ein Treffer bedeutet lediglich, dass eine Namensgleichheit oder eine Namens\u00e4hnlichkeit besteht. Die Ermittlung, ob es sich um dieselbe Person handelt, muss im Wege der Amtsermittlung erfolgen.</div>'
+    + '<div class="info-haft">Wir weisen ausdr\u00fccklich darauf hin, dass wir uns zum Bezug unserer Daten der von der EU \u00f6ffentlich zur Einsicht bereitgestellten Sanktionsliste als Quelle bedienen. Wir haften nicht f\u00fcr deren Inhalt, Vollst\u00e4ndigkeit und/oder Stand.</div>'
+    + '</div>'
+
+    + '<div class="info-sec"><h3 class="info-h2">Laufende \u00dcberwachung</h3>'
+    + '<p class="info-p">Unternehmen, die mit dem Stern markiert wurden, werden <b>alle drei Monate automatisch erneut gepr\u00fcft</b> \u2013 mit denselben Quellen und derselben Pr\u00fcftiefe wie bei einer manuellen Analyse. Das Ergebnis wird mit der vorherigen Pr\u00fcfung verglichen; Ver\u00e4nderungen bei Sanktionslisten, Insolvenzhinweisen, Gesch\u00e4ftsf\u00fchrung oder Bewertung werden ausdr\u00fccklich ausgewiesen. Jede automatische Pr\u00fcfung z\u00e4hlt wie eine normale Analyse gegen das gebuchte Kontingent.</p>'
+    + '</div>'
+
+    + '<div class="info-sec"><h3 class="info-h2">Hochgeladene Ausweisdokumente</h3>'
+    + '<p class="info-p">\u00dcber einen Einladungslink k\u00f6nnen Gesch\u00e4ftspartner Ausweisdokumente und ein Best\u00e4tigungsfoto selbst hochladen \u2013 auf Servern innerhalb der EU, verschl\u00fcsselt \u00fcbertragen. Je Dokumentart sind mehrere Dateien m\u00f6glich, etwa Vorder- und R\u00fcckseite eines Personalausweises. Alle Dateien werden der Akte zugeordnet und beim Ausdruck als nummerierte Anlagen angeh\u00e4ngt.</p>'
+    + '<div class="info-warn">Wir \u00fcbernehmen keinerlei Haftung f\u00fcr die Authentizit\u00e4t, die Richtigkeit und/oder Vollst\u00e4ndigkeit der hochgeladenen und/oder erstellten Aufnahmen. Es obliegt einzig und allein in der Verantwortung des Nutzers zu ermitteln, ob die verifizierte Person identisch mit den \u00fcbermittelten Ausweisdokumenten ist. Jedwede Art von Verantwortlichkeit wird unsererseits ausdr\u00fccklich ausgeschlossen.</div>'
+    + '</div>'
 
     + '<div class="info-sec"><h3 class="info-h2">Wie mit den Daten umgegangen wird</h3>'
     + '<div class="info-liste">'
