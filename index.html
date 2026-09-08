@@ -2361,7 +2361,7 @@
 <div id="planGate" class="plan-gate" style="display:none;">
   <div class="plan-wrap">
     <div class="plan-head">
-      <img class="plan-logo" id="planLogo" alt="Automati Labs" />
+      <img class="plan-logo logo-klick" id="planLogo" alt="Automati Labs" onclick="zumTool()" title="Zurück zum Tool" />
       <div class="plan-eyebrow">Compliance-Checker · Premium-Zugang</div>
       <h1 class="plan-title" id="planTitle">Wähle deinen Plan</h1>
       <p class="plan-subtitle" id="planSubtitle">Rechtssichere GwG-Prüfungen, auditfeste Nachweise, geteiltes Team-Kontingent.</p>
@@ -2388,7 +2388,7 @@
 <div id="zahlungGate" class="plan-gate" style="display:none;">
   <div class="plan-wrap" style="max-width:480px; text-align:center;">
     <div class="plan-head">
-      <img class="plan-logo" id="zahlungLogo" alt="Automati Labs" />
+      <img class="plan-logo logo-klick" id="zahlungLogo" alt="Automati Labs" onclick="zumTool()" title="Zurück zum Tool" />
       <div class="spinner" id="zahlungSpinner" style="margin:6px auto 20px;"></div>
       <h1 class="plan-title">Zahlung wird bestätigt…</h1>
       <p class="plan-subtitle" id="zahlungSub">Einen Moment – wir schalten dein Konto frei. Das dauert nur ein paar Sekunden.</p>
@@ -2406,7 +2406,7 @@
 <div id="kontoGate" class="plan-gate" style="display:none;">
   <div class="plan-wrap" style="max-width:480px;">
     <div class="plan-head" style="text-align:center;">
-      <img class="plan-logo" id="kontoLogo" alt="Automati Labs" />
+      <img class="plan-logo logo-klick" id="kontoLogo" alt="Automati Labs" onclick="zumTool()" title="Zurück zum Tool" />
       <h1 class="plan-title">Konto &amp; Daten</h1>
       <p class="plan-subtitle" id="kontoEmail">—</p>
     </div>
@@ -3337,6 +3337,11 @@
     #infoBewertungBtn:active, #infoQuellenBtn:active, #historyBtn:active, #teamBtn:active, #kontoBtn:active {
       transform:translateY(0) scale(.97);
     }
+
+    /* Logo in Overlays: klickbar, fuehrt zurueck zum Tool */
+    .logo-klick { cursor:pointer; transition:transform .22s cubic-bezier(.2,.9,.3,1.4), filter .2s; }
+    .logo-klick:hover { transform:scale(1.04); filter:brightness(1.05); }
+    .logo-klick:active { transform:scale(.98); }
 </style>
 <div id="legalGate" class="legal-gate" style="display:none;">
   <div class="legal-box">
@@ -3467,7 +3472,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.18</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.19</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
