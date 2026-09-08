@@ -3389,45 +3389,61 @@
       .oz-verwalten { margin-left:auto; }
     }
 
+
     /* ============================================================
-       ORDNER-AUSWAHL als farbige Chips
+       ORDNER-AUFKLAPPMENU - passt zu den anderen Feldern
        ============================================================ */
-    .ordner-chips-wrap { margin:-2px 0 18px; }
-    .oc-kopf { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:9px; }
-    .oc-label { font-size:11.5px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:var(--gray-l,#8A949D); }
-    .oc-verwalten { font-size:11.5px; font-weight:600; color:var(--gray-l,#8A949D); cursor:pointer;
-      border-bottom:1px solid transparent; transition:color .16s, border-color .16s; }
-    .oc-verwalten:hover { color:var(--green-d,#16A34A); border-bottom-color:rgba(22,163,74,.45); }
+    .od-wrap { position:relative; }
+    .od-feld { display:flex; align-items:center; gap:10px; width:100%; text-align:left;
+      padding:14px 16px; background:#FCFEFD; border:1.5px solid var(--border,#E2E6E9); border-radius:12px;
+      font-family:inherit; font-size:14px; color:var(--ink,#111827); cursor:pointer;
+      transition:border-color .18s, box-shadow .18s, background .18s; }
+    .od-feld:hover { border-color:#B8C4BF; }
+    .od-feld.offen, .od-feld:focus { border-color:var(--green,#22C55E); box-shadow:0 0 0 3px var(--green-pale,#EAF9F0); outline:none; }
+    .od-feld.od-puls { animation:odPuls .4s cubic-bezier(.2,.9,.3,1.4); }
+    @keyframes odPuls { 0% { transform:scale(1); } 40% { transform:scale(1.012); } 100% { transform:scale(1); } }
+    .od-text { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-weight:500; }
+    .od-pfeil { flex-shrink:0; color:var(--gray-l,#8A949D); transition:transform .22s cubic-bezier(.2,.9,.3,1.4), color .18s; }
+    .od-feld.offen .od-pfeil { transform:rotate(180deg); color:var(--green-d,#16A34A); }
 
-    .oc-chips { display:flex; flex-wrap:wrap; gap:8px; }
-    .oc-chip { --ocf:#9CA3AF; display:inline-flex; align-items:center; gap:7px;
-      padding:8px 14px 8px 11px; border-radius:999px; font-family:inherit; font-size:12.5px; font-weight:600;
-      color:var(--gray,#5A6670); background:#fff; border:1.5px solid var(--border,#E2E6E9); cursor:pointer;
-      opacity:0; animation:ocIn .4s cubic-bezier(.2,.7,.2,1) var(--ocd,0s) both;
-      transition:border-color .18s, background .18s, color .18s, transform .18s, box-shadow .18s; }
-    @keyframes ocIn { from { opacity:0; transform:translateY(6px) scale(.96); } to { opacity:1; transform:none; } }
-    .oc-chip:hover { border-color:var(--ocf); color:var(--ink,#111827); transform:translateY(-1px);
-      box-shadow:0 8px 16px -10px color-mix(in srgb, var(--ocf) 60%, transparent); }
-    .oc-chip:active { transform:translateY(0) scale(.97); }
-    .oc-punkt { width:10px; height:10px; border-radius:50%; background:var(--ocf); flex-shrink:0;
-      box-shadow:0 0 0 2px #fff, 0 0 0 3px color-mix(in srgb, var(--ocf) 35%, transparent);
-      transition:transform .22s cubic-bezier(.2,.9,.3,1.5); }
-    .oc-punkt-leer { background:transparent; border:2px dashed var(--gray-l,#CBD2D8); box-shadow:none; width:9px; height:9px; }
-    .oc-chip:hover .oc-punkt { transform:scale(1.2); }
+    .od-punkt { width:11px; height:11px; border-radius:50%; flex-shrink:0;
+      box-shadow:0 0 0 2px #fff, 0 0 0 3px rgba(10,15,13,.08); }
+    .od-punkt-leer { background:transparent !important; border:2px dashed var(--gray-l,#CBD2D8); box-shadow:none; width:9px; height:9px; }
 
-    /* Ausgewaehlt: gefuellt in Ordnerfarbe */
-    .oc-chip.aktiv { background:color-mix(in srgb, var(--ocf) 12%, #fff); border-color:var(--ocf); color:var(--ink,#111827);
-      font-weight:700; box-shadow:0 6px 16px -10px color-mix(in srgb, var(--ocf) 70%, transparent); }
-    .oc-chip.aktiv .oc-punkt { transform:scale(1.15); }
-    .oc-chip.aktiv .oc-punkt-leer { border-style:solid; border-color:var(--gray,#5A6670); }
-    .oc-chip.oc-puls { animation:ocPuls .45s cubic-bezier(.2,.9,.3,1.5); }
-    @keyframes ocPuls { 0% { transform:scale(1); } 40% { transform:scale(1.06); } 100% { transform:scale(1); } }
-    .oc-geteilt { color:var(--ocf); opacity:.7; margin-left:1px; }
+    .od-menu { position:absolute; top:calc(100% + 6px); left:0; right:0; z-index:60;
+      background:#fff; border:1.5px solid var(--border,#E2E6E9); border-radius:14px;
+      box-shadow:0 18px 40px -12px rgba(15,23,20,.25); overflow:hidden;
+      opacity:0; transform:translateY(-6px) scale(.985); transform-origin:top center;
+      transition:opacity .2s ease, transform .22s cubic-bezier(.2,.9,.3,1.3); }
+    .od-menu.an { opacity:1; transform:none; }
+
+    .od-suche-wrap { display:flex; align-items:center; gap:8px; padding:10px 12px; border-bottom:1px solid var(--border2,#EDF0F2);
+      color:var(--gray-l,#8A949D); background:var(--neutral,#F6F8F9); }
+    .od-suche { flex:1; border:none; background:transparent; font-family:inherit; font-size:13.5px; color:var(--ink,#111827); outline:none; }
+    .od-suche::placeholder { color:var(--gray-l,#8A949D); }
+
+    .od-liste { max-height:260px; overflow-y:auto; -webkit-overflow-scrolling:touch; padding:6px; }
+    .od-opt { display:flex; align-items:center; gap:10px; padding:10px 11px; border-radius:9px; cursor:pointer;
+      font-size:13.5px; color:var(--ink2,#1F2937); opacity:0;
+      animation:odOpt .3s cubic-bezier(.2,.7,.2,1) var(--odd,0s) both; transition:background .12s; }
+    @keyframes odOpt { from { opacity:0; transform:translateX(-5px); } to { opacity:1; transform:none; } }
+    .od-opt:hover { background:var(--neutral,#F6F8F9); }
+    .od-opt.aktiv { background:var(--green-pale,#EAF9F0); font-weight:700; }
+    .od-opt-t { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .od-tag { font-size:9.5px; font-weight:800; letter-spacing:.05em; text-transform:uppercase;
+      background:var(--neutral2,#EFF2F4); color:var(--gray,#5A6670); border-radius:999px; padding:2px 7px; flex-shrink:0; }
+    .od-haken { color:var(--green-d,#16A34A); font-weight:800; flex-shrink:0; }
+    .od-leer { padding:14px 12px; font-size:12.5px; color:var(--gray-l,#8A949D); font-style:italic; text-align:center; }
+
+    .od-fuss { display:flex; align-items:center; gap:7px; padding:11px 14px; border-top:1px solid var(--border2,#EDF0F2);
+      font-size:12.5px; font-weight:700; color:var(--green-d,#16A34A); cursor:pointer; background:var(--neutral,#F6F8F9);
+      transition:background .15s; }
+    .od-fuss:hover { background:var(--green-pale,#EAF9F0); }
 
     @media (max-width:760px) {
-      .oc-chips { flex-wrap:nowrap; overflow-x:auto; padding-bottom:4px; -webkit-overflow-scrolling:touch; scrollbar-width:none; margin:0 -4px; padding-left:4px; }
-      .oc-chips::-webkit-scrollbar { display:none; }
-      .oc-chip { flex-shrink:0; opacity:1; animation:none; }
+      .od-feld { padding:13px 14px; font-size:15px; }
+      .od-liste { max-height:220px; }
+      .od-opt { padding:11px 10px; font-size:14px; }
     }
 </style>
 <div id="legalGate" class="legal-gate" style="display:none;">
@@ -3559,7 +3575,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.23</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.24</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -3613,13 +3629,27 @@
       <div class="field-label">Umsatzsteuer-ID <span class="opt">(optional, empfohlen)</span></div>
       <input type="text" id="ustInput" placeholder="z.B. DE 298 123 456" />
     </div>
-    <div class="ordner-chips-wrap" id="ordnerChipsWrap">
-      <div class="oc-kopf">
-        <span class="oc-label">In Ordner ablegen</span>
-        <a class="oc-verwalten" onclick="openHistory(); setTimeout(function(){ try { toggleOrdnerVerwalten(); } catch(e) {} }, 500);">Ordner verwalten</a>
+    <div style="margin-bottom:18px">
+      <div class="field-label">Ordner <span class="opt">(optional)</span></div>
+      <div class="od-wrap" id="odWrap">
+        <button type="button" class="od-feld" id="odFeld" onclick="odToggle()" aria-haspopup="listbox">
+          <span class="od-punkt od-punkt-leer" id="odPunkt"></span>
+          <span class="od-text" id="odText">Kein Ordner</span>
+          <svg class="od-pfeil" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <div class="od-menu" id="odMenu" style="display:none;">
+          <div class="od-suche-wrap" id="odSucheWrap" style="display:none;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+            <input type="text" id="odSuche" class="od-suche" placeholder="Ordner suchen…" oninput="odFiltern()" onkeydown="odTaste(event)" autocomplete="off" />
+          </div>
+          <div class="od-liste" id="odListe"></div>
+          <a class="od-fuss" onclick="odZu(); openHistory(); setTimeout(function(){ try { toggleOrdnerVerwalten(); } catch(e) {} }, 500);">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/></svg>
+            Ordner verwalten
+          </a>
+        </div>
+        <select id="ordnerSelect" style="display:none;"><option value="">Kein Ordner</option></select>
       </div>
-      <div class="oc-chips" id="ordnerChips"></div>
-      <select id="ordnerSelect" style="display:none;"><option value="">Kein Ordner</option></select>
     </div>
     <button class="btn-search" id="searchBtn" onclick="startSearch()">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
@@ -5191,42 +5221,112 @@ function fuelleOrdnerSelect() {
   ordnerChipsZeichnen();
 }
 
-// Farbige Chips als Ordner-Auswahl
-function ordnerChipsZeichnen() {
-  const box = document.getElementById('ordnerChips');
+// ===== Eigenes Ordner-Aufklappmenu (sieht aus wie die anderen Felder) =====
+let OD_OFFEN = false;
+
+function ordnerChipsZeichnen() { odFeldAktualisieren(); }
+
+function odFeldAktualisieren() {
   const sel = document.getElementById('ordnerSelect');
-  const wrap = document.getElementById('ordnerChipsWrap');
-  if (!box || !sel) return;
-  const aktiv = sel.value || '';
+  const txt = document.getElementById('odText');
+  const pkt = document.getElementById('odPunkt');
+  if (!sel || !txt || !pkt) return;
+  const o = ORDNER_LIST.find(function(x){ return x.id === sel.value; });
+  if (o) {
+    txt.textContent = o.name;
+    pkt.className = 'od-punkt';
+    pkt.style.background = o.farbe || '#22C55E';
+  } else {
+    txt.textContent = 'Kein Ordner';
+    pkt.className = 'od-punkt od-punkt-leer';
+    pkt.style.background = '';
+  }
+}
 
-  // Ohne Ordner: Bereich komplett ausblenden - nichts zum Auswaehlen
-  if (!ORDNER_LIST.length) { if (wrap) wrap.style.display = 'none'; return; }
-  if (wrap) wrap.style.display = '';
+function odToggle() { OD_OFFEN ? odZu() : odAuf(); }
 
+function odAuf() {
+  const menu = document.getElementById('odMenu');
+  const feld = document.getElementById('odFeld');
+  if (!menu) return;
+  OD_OFFEN = true;
+  odListeZeichnen('');
+  const sw = document.getElementById('odSucheWrap');
+  if (sw) sw.style.display = (ORDNER_LIST.length > 6) ? '' : 'none';
+  menu.style.display = '';
+  if (feld) feld.classList.add('offen');
+  requestAnimationFrame(function(){ menu.classList.add('an'); });
+  const su = document.getElementById('odSuche');
+  if (su) { su.value = ''; if (ORDNER_LIST.length > 6) setTimeout(function(){ su.focus(); }, 60); }
+  setTimeout(function(){ document.addEventListener('click', odAussenKlick); }, 0);
+}
+
+function odZu() {
+  const menu = document.getElementById('odMenu');
+  const feld = document.getElementById('odFeld');
+  if (!menu || !OD_OFFEN) return;
+  OD_OFFEN = false;
+  menu.classList.remove('an');
+  if (feld) feld.classList.remove('offen');
+  setTimeout(function(){ if (!OD_OFFEN) menu.style.display = 'none'; }, 200);
+  document.removeEventListener('click', odAussenKlick);
+}
+
+function odAussenKlick(ev) {
+  const w = document.getElementById('odWrap');
+  if (w && !w.contains(ev.target)) odZu();
+}
+
+function odListeZeichnen(filter) {
+  const box = document.getElementById('odListe');
+  const sel = document.getElementById('ordnerSelect');
+  if (!box) return;
+  const f = (filter || '').toLowerCase().trim();
   const einzel = !!(CURRENT_FIRMA && CURRENT_FIRMA.typ === 'einzel');
-  let out = '<button type="button" class="oc-chip' + (!aktiv ? ' aktiv' : '') + '" onclick="ordnerChipWaehlen(\'\')">'
-    + '<span class="oc-punkt oc-punkt-leer"></span>Kein Ordner</button>';
-  ORDNER_LIST.forEach(function(o, n){
+  const aktiv = (sel && sel.value) || '';
+
+  let out = '';
+  if (!f) {
+    out += '<div class="od-opt' + (!aktiv ? ' aktiv' : '') + '" onclick="odWaehlen(\'\')">'
+      + '<span class="od-punkt od-punkt-leer"></span><span class="od-opt-t">Kein Ordner</span>'
+      + (!aktiv ? '<span class="od-haken">\u2713</span>' : '') + '</div>';
+  }
+  const liste = ORDNER_LIST.filter(function(o){ return !f || o.name.toLowerCase().indexOf(f) >= 0; });
+  liste.forEach(function(o, n){
     const ist = aktiv === o.id;
     const geteilt = !einzel && o.sichtbarkeit === 'oeffentlich';
-    out += '<button type="button" class="oc-chip' + (ist ? ' aktiv' : '') + '" style="--ocf:' + (o.farbe || '#22C55E') + '; --ocd:' + (0.03 + n * 0.04) + 's" onclick="ordnerChipWaehlen(\'' + o.id + '\')" title="' + escapeHtml(o.name) + (geteilt ? ' (mit Team geteilt)' : '') + '">'
-      + '<span class="oc-punkt"></span>' + escapeHtml(o.name)
-      + (geteilt ? '<svg class="oc-geteilt" viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>' : '')
-      + '</button>';
+    out += '<div class="od-opt' + (ist ? ' aktiv' : '') + '" style="--odd:' + (n * 0.025) + 's" onclick="odWaehlen(\'' + o.id + '\')">'
+      + '<span class="od-punkt" style="background:' + (o.farbe || '#22C55E') + '"></span>'
+      + '<span class="od-opt-t">' + escapeHtml(o.name) + '</span>'
+      + (geteilt ? '<span class="od-tag">Team</span>' : '')
+      + (ist ? '<span class="od-haken">\u2713</span>' : '')
+      + '</div>';
   });
+  if (!liste.length && f) out += '<div class="od-leer">Kein Ordner mit \u201e' + escapeHtml(f) + '\u201c</div>';
+  if (!ORDNER_LIST.length) out += '<div class="od-leer">Noch keine Ordner angelegt.</div>';
   box.innerHTML = out;
 }
 
-function ordnerChipWaehlen(id) {
+function odFiltern() {
+  const su = document.getElementById('odSuche');
+  odListeZeichnen(su ? su.value : '');
+}
+
+function odTaste(ev) {
+  if (ev.key === 'Escape') { odZu(); return; }
+  if (ev.key === 'Enter') {
+    const erste = document.querySelector('#odListe .od-opt');
+    if (erste) erste.click();
+  }
+}
+
+function odWaehlen(id) {
   const sel = document.getElementById('ordnerSelect');
   if (sel) sel.value = id || '';
-  document.querySelectorAll('#ordnerChips .oc-chip').forEach(function(c){ c.classList.remove('aktiv'); });
-  const alle = document.querySelectorAll('#ordnerChips .oc-chip');
-  const idx = id ? ORDNER_LIST.findIndex(function(o){ return o.id === id; }) + 1 : 0;
-  if (alle[idx]) {
-    alle[idx].classList.add('aktiv');
-    alle[idx].classList.remove('oc-puls'); void alle[idx].offsetWidth; alle[idx].classList.add('oc-puls');
-  }
+  odFeldAktualisieren();
+  const feld = document.getElementById('odFeld');
+  if (feld) { feld.classList.remove('od-puls'); void feld.offsetWidth; feld.classList.add('od-puls'); }
+  odZu();
 }
 
 
