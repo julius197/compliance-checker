@@ -3423,7 +3423,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.16</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.17</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -5274,7 +5274,7 @@ function infoWarn(titel, text, farbe) {
 
 // ===== ÖFFENTLICHE UPLOAD-SEITE (per Link) =====
 const UPLOAD_TOKEN = (function(){ try { return new URLSearchParams(location.search).get('upload') || ''; } catch(e) { return ''; } })();
-const EINLADUNG_TOKEN = (function(){
+let EINLADUNG_TOKEN = (function(){
   let t = '';
   try { t = new URLSearchParams(location.search).get('einladung') || ''; } catch(e) {}
   try {
@@ -5310,7 +5310,7 @@ async function showUploadGate() {
   }
 }
 
-let UPLOAD_GEWAEHLT = {};      // typ -> { file, vorschau }
+let UPLOAD_GEWAEHLT = {};      // typ -> [ { file, vorschau }, ... ]
 let UPLOAD_ABGESCHLOSSEN = false;
 let UPLOAD_GEZEICHNET = false;   // Eingangs-Animation nur beim ersten Zeichnen
 
@@ -5563,8 +5563,14 @@ function uploadBestaetigen() {
     return;
   }
   const namen = Object.keys(UPLOAD_GEWAEHLT).map(function(t){
-    return (t === 'ausweis' ? 'Personalausweis' : 'Best\u00e4tigungsfoto') + ': ' + UPLOAD_GEWAEHLT[t].file.name;
-  }).join('<br/>');
+    const liste = Array.isArray(UPLOAD_GEWAEHLT[t]) ? UPLOAD_GEWAEHLT[t] : [UPLOAD_GEWAEHLT[t]];
+    const bez = (t === 'ausweis' ? 'Personalausweis' : 'Best\u00e4tigungsfoto');
+    return liste.filter(function(g){ return g && g.file; }).map(function(g, n){
+      const zusatz = (t === 'ausweis' && liste.length > 1)
+        ? ' (' + (n === 0 ? 'Vorderseite' : (n === 1 ? 'R\u00fcckseite' : 'Seite ' + (n + 1))) + ')' : '';
+      return bez + zusatz + ': ' + escapeHtml(g.file.name);
+    }).join('<br/>');
+  }).filter(function(s){ return s; }).join('<br/>');
   const w = document.createElement('div');
   w.id = 'upWarnung';
   w.className = 'up-warn-back';
