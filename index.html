@@ -3235,6 +3235,64 @@
     #obStepEinladung .auth-btn { background:linear-gradient(135deg,#16A34A,#22C55E);
       box-shadow:0 12px 26px -10px rgba(34,197,94,.75); }
     #obStepEinladung .auth-btn:hover:not(:disabled) { transform:translateY(-2px); }
+
+    /* ============================================================
+       SANKTIONSLISTEN-ABGLEICH im Bericht
+       ============================================================ */
+    .sank-bereich { margin-bottom:14px; }
+    .sank-laedt { background:var(--card,#fff); border:1px solid var(--border,#E2E6E9); border-radius:16px;
+      padding:16px 20px; font-size:13px; color:var(--gray-l,#8A949D); font-style:italic;
+      animation:sankPulsText 1.6s ease-in-out infinite; }
+    @keyframes sankPulsText { 0%,100% { opacity:.6; } 50% { opacity:1; } }
+
+    .sank-karte { border-radius:16px; padding:20px 22px; border:1.5px solid;
+      animation:sankKarte .5s cubic-bezier(.2,.7,.2,1) both; }
+    @keyframes sankKarte { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:none; } }
+    .sank-k-gruen { background:var(--ok-bg,#ECFDF3); border-color:rgba(22,163,74,.3); }
+    .sank-k-rot { background:var(--bad-bg,#FEF1F1); border-color:rgba(220,38,38,.35); }
+    .sank-k-grau { background:var(--neutral,#F6F8F9); border-color:var(--border,#E2E6E9); }
+    .sank-k-kopf { display:flex; align-items:center; gap:10px; margin-bottom:8px; }
+    .sank-k-ico { width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+      font-size:14px; font-weight:800; flex-shrink:0;
+      animation:sankIcoIn .5s cubic-bezier(.2,.9,.3,1.6) .1s both; }
+    @keyframes sankIcoIn { from { opacity:0; transform:scale(.4); } to { opacity:1; transform:scale(1); } }
+    .sank-k-gruen .sank-k-ico { background:var(--ok-text,#15803D); color:#fff; }
+    .sank-k-rot .sank-k-ico { background:var(--bad-text,#B42318); color:#fff; }
+    .sank-k-grau .sank-k-ico { background:var(--gray-l,#8A949D); color:#fff; }
+    .sank-k-t { font-size:14.5px; font-weight:800; color:var(--ink,#111827); }
+    .sank-k-d { font-size:12.5px; line-height:1.7; color:var(--gray,#5A6670); }
+
+    .sank-treffer-liste { display:flex; flex-direction:column; gap:10px; margin-top:14px; }
+    .sank-treffer { background:#fff; border:1px solid rgba(220,38,38,.28); border-radius:13px; padding:13px 15px;
+      opacity:0; animation:sankTreffer .45s cubic-bezier(.2,.7,.2,1) var(--st,0s) both; }
+    @keyframes sankTreffer { from { opacity:0; transform:translateX(-10px); } to { opacity:1; transform:none; } }
+    .sank-tr-kopf { display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; margin-bottom:4px; }
+    .sank-tr-name { font-size:13.5px; font-weight:800; color:var(--bad-text,#B42318); word-break:break-word; }
+    .sank-tr-quote { font-size:11px; font-weight:800; background:var(--bad-bg,#FEF1F1); color:var(--bad-text,#B42318);
+      border-radius:999px; padding:3px 10px; white-space:nowrap; }
+    .sank-tr-meta { font-size:11.5px; color:var(--gray,#5A6670); margin-bottom:4px; }
+    .sank-tr-gesucht { font-size:11.5px; color:var(--ink2,#1F2937); }
+    .sank-tr-bem { font-size:11.5px; line-height:1.6; color:var(--gray,#5A6670); margin-top:6px;
+      padding-top:6px; border-top:1px solid var(--border2,#EDF0F2); }
+
+    .sank-recht { margin-top:14px; padding-top:13px; border-top:1px solid rgba(10,15,13,.1); }
+    .sank-recht-b { font-size:11.5px; line-height:1.7; color:var(--gray,#5A6670); margin-bottom:9px; }
+    .sank-recht-b b { color:var(--ink,#111827); }
+    .sank-recht-h { font-size:10.5px; line-height:1.65; color:var(--gray-l,#8A949D); font-style:italic; }
+
+    @media (max-width:760px) {
+      .sank-karte { padding:16px 15px !important; }
+      .sank-k-t { font-size:13.5px !important; }
+      .sank-k-d { font-size:11.5px !important; }
+      .sank-treffer { padding:11px 12px !important; }
+      .sank-tr-name { font-size:12.5px !important; }
+      .sank-recht-b { font-size:11px !important; }
+      .sank-recht-h { font-size:10px !important; }
+    }
+    @media print {
+      .sank-karte { page-break-inside:avoid; }
+      .sank-laedt { display:none !important; }
+    }
 </style>
 <div id="legalGate" class="legal-gate" style="display:none;">
   <div class="legal-box">
@@ -3365,7 +3423,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.13</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.14</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -7793,6 +7851,8 @@ function showReport(d, rawName, fromHistory) {
   if (!d._createdAt) d._createdAt = new Date().toISOString();
   if (!d._email) d._email = CURRENT_USER_EMAIL || '';
   if (!d._name) d._name = CURRENT_USER_NAME || '';
+  // Sanktionslisten-Abgleich anstossen (laeuft im Hintergrund weiter)
+  try { sanktionenAbgleichen(d); } catch(e) {}
   d.firmenname = d.firmenname || rawName || 'Unbekanntes Unternehmen';
   DRUCK_NAME = d.firmenname;                       // fuer den Dateinamen beim PDF-Export
   DRUCK_ID = d.pruefId || '';
@@ -8718,6 +8778,144 @@ function _backToMain() {
 
 // ===== SAMMEL-PDF / AKTE (v9.3) =====
 // Risiko-Hinweise als statischer Block (für die Akte)
+// ============================================================
+// SANKTIONSLISTEN-ABGLEICH im Bericht
+// ============================================================
+let SANK_STAND = null;
+
+// Sammelt alle Namen, die geprueft werden sollen: Firma + handelnde Personen
+function sanktionenNamen(d) {
+  const namen = [];
+  if (d.firmenname) namen.push({ name: d.firmenname, rolle: 'Unternehmen' });
+
+  function ausText(t, rolle) {
+    if (!t || typeof t !== 'string') return;
+    // Mehrfachnennungen trennen, Klammerzusaetze entfernen
+    t.split(/[,;]|\ und\ /).forEach(function(teil){
+      const n = teil.replace(/\([^)]*\)/g, '').replace(/\b(Herr|Frau|Dr\.|Prof\.|Dipl\.-\w+)\b/gi, '').trim();
+      if (n.length >= 5 && n.length <= 80 && /[a-zA-Z\u00c0-\u024f]/.test(n)
+          && !/nicht|keine|k\.a\.|unbekannt|n\/a|verf\u00fcgbar/i.test(n)) {
+        namen.push({ name: n, rolle: rolle });
+      }
+    });
+  }
+
+  // Personen aus den Kategorien herausziehen
+  (d.kategorien || []).forEach(function(k){
+    const kn = (k.kategorie || k.name || '').toLowerCase();
+    if (!/person|leitung|gesch|berechtigt/.test(kn)) return;
+    (k.felder || k.eintraege || []).forEach(function(f){
+      const label = (f.label || f.feld || f.name || '').toLowerCase();
+      const wert = f.wert || f.value || f.text || '';
+      if (/gesch\u00e4ftsf|vertretung|vorstand|inhaber/.test(label)) ausText(wert, 'Gesch\u00e4ftsf\u00fchrung');
+      else if (/berechtigt|ubo|eigent/.test(label)) ausText(wert, 'Wirtschaftlich Berechtigte');
+    });
+  });
+
+  // Doppelte entfernen
+  const gesehen = {};
+  return namen.filter(function(n){
+    const s = n.name.toLowerCase();
+    if (gesehen[s]) return false;
+    gesehen[s] = true;
+    return true;
+  }).slice(0, 12);
+}
+
+async function sanktionenAbgleichen(d) {
+  if (!sb || d._sankGeprueft) return;
+  d._sankGeprueft = true;
+  const namen = sanktionenNamen(d);
+  if (!namen.length) return;
+
+  // Listenstand einmalig laden
+  if (!SANK_STAND) {
+    try {
+      const { data } = await sb.rpc('sanktionen_stand_info');
+      SANK_STAND = (data && data[0]) || { quelle: 'EU', stand: null, eintraege: 0 };
+    } catch (e) { SANK_STAND = { quelle: 'EU', stand: null, eintraege: 0 }; }
+  }
+  if (!SANK_STAND.eintraege) { sanktionenAnzeigen(null, namen.length); return; }
+
+  const treffer = [];
+  for (const n of namen) {
+    try {
+      const { data } = await sb.rpc('sanktionen_pruefen', { p_name: n.name, p_schwelle: 0.62, p_max: 5 });
+      (data || []).forEach(function(t){
+        treffer.push({ gesucht: n.name, rolle: n.rolle, eintrag: t });
+      });
+    } catch (e) {}
+  }
+  d._sanktionen = { treffer: treffer, geprueft: namen.length, stand: SANK_STAND };
+  sanktionenAnzeigen(d._sanktionen, namen.length);
+}
+
+function sanktionenAnzeigen(erg, anzahlNamen) {
+  const ziel = document.getElementById('sankBereich');
+  if (!ziel) return;
+
+  const standTxt = (erg && erg.stand && erg.stand.stand)
+    ? new Date(erg.stand.stand).toLocaleDateString('de-DE') : null;
+
+  if (!erg || !erg.stand || !erg.stand.eintraege) {
+    ziel.innerHTML = '<div class="sank-karte sank-k-grau">'
+      + '<div class="sank-k-kopf"><span class="sank-k-ico">\u26A0</span>'
+      + '<span class="sank-k-t">Sanktionslisten-Abgleich nicht verf\u00fcgbar</span></div>'
+      + '<div class="sank-k-d">Die Sanktionsliste konnte nicht herangezogen werden. Bitte pr\u00fcfen Sie erg\u00e4nzend manuell.</div>'
+      + '</div>';
+    return;
+  }
+
+  const t = erg.treffer || [];
+  if (!t.length) {
+    ziel.innerHTML = '<div class="sank-karte sank-k-gruen">'
+      + '<div class="sank-k-kopf"><span class="sank-k-ico">\u2713</span>'
+      + '<span class="sank-k-t">Kein Treffer in der EU-Sanktionsliste</span></div>'
+      + '<div class="sank-k-d">' + anzahlNamen + ' Name' + (anzahlNamen === 1 ? '' : 'n') + ' abgeglichen \u2013 Unternehmen und, soweit ermittelbar, handelnde Personen. '
+      + 'Gepr\u00fcft gegen die konsolidierte Sanktionsliste der Europ\u00e4ischen Union'
+      + (standTxt ? ', Listenstand ' + standTxt : '') + ' (' + (erg.stand.eintraege || 0).toLocaleString('de-DE') + ' Eintr\u00e4ge).</div>'
+      + sankRechtstexte()
+      + '</div>';
+    return;
+  }
+
+  const zeilen = t.map(function(x, i){
+    const e = x.eintrag;
+    const proz = Math.round((e.aehnlichkeit || 0) * 100);
+    const teile = [];
+    if (e.typ) teile.push(e.typ === 'person' ? 'Person' : 'Organisation');
+    if (e.staat) teile.push(escapeHtml(e.staat));
+    if (e.geburtsdatum) teile.push('geb. ' + escapeHtml(e.geburtsdatum));
+    if (e.programm) teile.push(escapeHtml(e.programm));
+    return '<div class="sank-treffer" style="--st:' + (0.05 + i * 0.07) + 's">'
+      + '<div class="sank-tr-kopf">'
+      + '<span class="sank-tr-name">' + escapeHtml(e.name) + '</span>'
+      + '<span class="sank-tr-quote">' + proz + '% \u00c4hnlichkeit</span>'
+      + '</div>'
+      + '<div class="sank-tr-meta">' + teile.join(' \u00b7 ') + '</div>'
+      + '<div class="sank-tr-gesucht">Gesucht wurde: <b>' + escapeHtml(x.gesucht) + '</b> (' + escapeHtml(x.rolle) + ')</div>'
+      + (e.bemerkung ? '<div class="sank-tr-bem">' + escapeHtml(e.bemerkung) + '</div>' : '')
+      + '</div>';
+  }).join('');
+
+  ziel.innerHTML = '<div class="sank-karte sank-k-rot">'
+    + '<div class="sank-k-kopf"><span class="sank-k-ico">\u26A0</span>'
+    + '<span class="sank-k-t">' + t.length + ' m\u00f6gliche\u0072 Treffer in der EU-Sanktionsliste</span></div>'
+    + '<div class="sank-k-d">Beim Abgleich von ' + anzahlNamen + ' Namen wurden Namensgleichheiten oder \u00c4hnlichkeiten festgestellt. '
+    + 'Listenstand ' + (standTxt || 'unbekannt') + '.</div>'
+    + '<div class="sank-treffer-liste">' + zeilen + '</div>'
+    + sankRechtstexte()
+    + '</div>';
+}
+
+// Pflichttexte nach anwaltlicher Vorgabe
+function sankRechtstexte() {
+  return '<div class="sank-recht">'
+    + '<div class="sank-recht-b"><b>Bedeutung eines Treffers:</b> Ein Treffer in der Finanz-Sanktionsliste ist nicht gleichbedeutend mit einer Personenidentit\u00e4t der gesuchten Person mit der in der Sanktionsliste gefundenen Person. Ein Treffer bedeutet lediglich, dass eine Namensgleichheit oder eine Namens\u00e4hnlichkeit besteht. Die Ermittlung, ob es sich um dieselbe Person handelt, muss im Wege der Amtsermittlung erfolgen.</div>'
+    + '<div class="sank-recht-h">Wir weisen ausdr\u00fccklich darauf hin, dass wir uns zum Bezug unserer Daten der von der EU \u00f6ffentlich zur Einsicht bereitgestellten Sanktionsliste als Quelle bedienen. Wir haften nicht f\u00fcr deren Inhalt, Vollst\u00e4ndigkeit und/oder Stand.</div>'
+    + '</div>';
+}
+
 function buildFlagsHTML(d) {
   const arr = Array.isArray(d.risikoHinweise) ? d.risikoHinweise : [];
   const html = arr.map(function(f){
@@ -8776,6 +8974,7 @@ function buildAkteAnalyse(d) {
     + phantomHTML(d)
     + insolvenzHTML(d)
     + buildKontaktAkte(d)
+    + '<div id="sankBereich" class="sank-bereich"><div class="sank-laedt">Sanktionslisten werden abgeglichen\u2026</div></div>'
     + buildFlagsHTML(d)
     + '<div class="rec-card"><div class="rec-label">Compliance-Empfehlung</div><div class="rec-text">' + escapeHtml(d.empfehlung || '') + '</div></div>'
     + '</div>';
