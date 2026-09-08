@@ -3423,7 +3423,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.14</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.16</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -8020,6 +8020,7 @@ function showReport(d, rawName, fromHistory) {
       ${d.kontakt.source && !isNA(d.kontakt.source) ? `<div style="margin-top:10px;font-size:8px;letter-spacing:.08em;text-transform:uppercase;color:var(--gray-l)">Quelle: ${d.kontakt.source}</div>` : ''}
     </div>
     ${evidenceHTML(d)}
+    <div id="sankBereich" class="sank-bereich"><div class="sank-laedt">Sanktionslisten werden abgeglichen&hellip;</div></div>
     <div class="flags-card reveal">
       <div class="flags-heading"><span class="sec-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4m0 4h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg></span>Risiko-Hinweise</div>
       ${flagsHTML || '<div class="flag"><span class="flag-icon warn">⚠</span><span class="flag-text">Es konnten keine spezifischen Risiko-Hinweise automatisch ermittelt werden. Bitte prüfen Sie die Einzelangaben oben sorgfältig im Rahmen Ihrer Sorgfaltspflicht.</span></div>'}
@@ -8848,6 +8849,13 @@ async function sanktionenAbgleichen(d) {
   }
   d._sanktionen = { treffer: treffer, geprueft: namen.length, stand: SANK_STAND };
   sanktionenAnzeigen(d._sanktionen, namen.length);
+  // Befund dauerhaft im Bericht sichern
+  try {
+    if (d.pruef_id || d.pruefId) {
+      await sb.from('analysen').update({ report_json: d })
+        .eq('pruef_id', d.pruefId || d.pruef_id);
+    }
+  } catch (e) {}
 }
 
 function sanktionenAnzeigen(erg, anzahlNamen) {
@@ -8909,6 +8917,45 @@ function sanktionenAnzeigen(erg, anzahlNamen) {
 }
 
 // Pflichttexte nach anwaltlicher Vorgabe
+// Fuer den Akten-Export: gespeicherten Befund als festes HTML
+function sanktionenAkteHtml(d) {
+  const s = d && d._sanktionen;
+  if (!s || !s.stand || !s.stand.eintraege) return '';
+  const standTxt = s.stand.stand ? new Date(s.stand.stand).toLocaleDateString('de-DE') : 'unbekannt';
+  const t = s.treffer || [];
+
+  if (!t.length) {
+    return '<div class="sank-bereich"><div class="sank-karte sank-k-gruen">'
+      + '<div class="sank-k-kopf"><span class="sank-k-ico">\u2713</span>'
+      + '<span class="sank-k-t">Kein Treffer in der EU-Sanktionsliste</span></div>'
+      + '<div class="sank-k-d">' + (s.geprueft || 0) + ' Name' + ((s.geprueft === 1) ? '' : 'n')
+      + ' abgeglichen. Listenstand ' + standTxt + ' (' + (s.stand.eintraege || 0).toLocaleString('de-DE') + ' Eintr\u00e4ge).</div>'
+      + sankRechtstexte() + '</div></div>';
+  }
+
+  const zeilen = t.map(function(x){
+    const e = x.eintrag;
+    const teile = [];
+    if (e.typ) teile.push(e.typ === 'person' ? 'Person' : 'Organisation');
+    if (e.staat) teile.push(escapeHtml(e.staat));
+    if (e.geburtsdatum) teile.push('geb. ' + escapeHtml(e.geburtsdatum));
+    if (e.programm) teile.push(escapeHtml(e.programm));
+    return '<div class="sank-treffer">'
+      + '<div class="sank-tr-kopf"><span class="sank-tr-name">' + escapeHtml(e.name) + '</span>'
+      + '<span class="sank-tr-quote">' + Math.round((e.aehnlichkeit || 0) * 100) + '% \u00c4hnlichkeit</span></div>'
+      + '<div class="sank-tr-meta">' + teile.join(' \u00b7 ') + '</div>'
+      + '<div class="sank-tr-gesucht">Gesucht wurde: <b>' + escapeHtml(x.gesucht) + '</b> (' + escapeHtml(x.rolle) + ')</div>'
+      + '</div>';
+  }).join('');
+
+  return '<div class="sank-bereich"><div class="sank-karte sank-k-rot">'
+    + '<div class="sank-k-kopf"><span class="sank-k-ico">\u26A0</span>'
+    + '<span class="sank-k-t">' + t.length + ' m\u00f6gliche Treffer in der EU-Sanktionsliste</span></div>'
+    + '<div class="sank-k-d">Listenstand ' + standTxt + '.</div>'
+    + '<div class="sank-treffer-liste">' + zeilen + '</div>'
+    + sankRechtstexte() + '</div></div>';
+}
+
 function sankRechtstexte() {
   return '<div class="sank-recht">'
     + '<div class="sank-recht-b"><b>Bedeutung eines Treffers:</b> Ein Treffer in der Finanz-Sanktionsliste ist nicht gleichbedeutend mit einer Personenidentit\u00e4t der gesuchten Person mit der in der Sanktionsliste gefundenen Person. Ein Treffer bedeutet lediglich, dass eine Namensgleichheit oder eine Namens\u00e4hnlichkeit besteht. Die Ermittlung, ob es sich um dieselbe Person handelt, muss im Wege der Amtsermittlung erfolgen.</div>'
@@ -8974,7 +9021,7 @@ function buildAkteAnalyse(d) {
     + phantomHTML(d)
     + insolvenzHTML(d)
     + buildKontaktAkte(d)
-    + '<div id="sankBereich" class="sank-bereich"><div class="sank-laedt">Sanktionslisten werden abgeglichen\u2026</div></div>'
+    + sanktionenAkteHtml(d)
     + buildFlagsHTML(d)
     + '<div class="rec-card"><div class="rec-label">Compliance-Empfehlung</div><div class="rec-text">' + escapeHtml(d.empfehlung || '') + '</div></div>'
     + '</div>';
