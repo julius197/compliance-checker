@@ -3369,6 +3369,25 @@
     @media (max-width:760px) {
       .ordner-verwalten-hinweis { width:100%; justify-content:center; }
     }
+
+    /* ===== Dezente Ordner-Auswahl im Analyse-Tool ===== */
+    .ordner-zeile { display:flex; align-items:center; gap:9px; margin:-4px 0 16px; padding:9px 12px;
+      background:var(--neutral,#F6F8F9); border:1px solid var(--border2,#EDF0F2); border-radius:11px;
+      font-size:12.5px; color:var(--gray,#5A6670); transition:border-color .18s, background .18s; }
+    .ordner-zeile:hover { border-color:var(--border,#E2E6E9); background:#fff; }
+    .oz-ico { flex-shrink:0; color:var(--gray-l,#8A949D); }
+    .oz-label { flex-shrink:0; font-weight:600; white-space:nowrap; }
+    .oz-select { flex:1; min-width:0; border:none; background:transparent; font-family:inherit; font-size:13px; font-weight:600;
+      color:var(--ink,#111827); padding:3px 4px; cursor:pointer; outline:none; border-radius:6px; transition:background .15s; }
+    .oz-select:hover, .oz-select:focus { background:var(--neutral2,#EFF2F4); }
+    .oz-verwalten { flex-shrink:0; font-size:11.5px; font-weight:600; color:var(--gray-l,#8A949D); cursor:pointer;
+      border-bottom:1px solid transparent; transition:color .16s, border-color .16s; white-space:nowrap; }
+    .oz-verwalten:hover { color:var(--green-d,#16A34A); border-bottom-color:rgba(22,163,74,.45); }
+    @media (max-width:760px) {
+      .ordner-zeile { flex-wrap:wrap; gap:7px; padding:9px 11px; }
+      .oz-select { flex:1 1 100%; order:3; padding:6px 4px; font-size:14px; }
+      .oz-verwalten { margin-left:auto; }
+    }
 </style>
 <div id="legalGate" class="legal-gate" style="display:none;">
   <div class="legal-box">
@@ -3499,7 +3518,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.21</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.22</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -3553,17 +3572,11 @@
       <div class="field-label">Umsatzsteuer-ID <span class="opt">(optional, empfohlen)</span></div>
       <input type="text" id="ustInput" placeholder="z.B. DE 298 123 456" />
     </div>
-    <div style="margin-bottom:18px">
-      <div class="field-label">Ordner <span class="opt">(optional)</span></div>
-      <div class="ordner-row">
-        <select id="ordnerSelect"><option value="">Kein Ordner</option></select>
-        <button type="button" class="ordner-verwalten-hinweis" onclick="openHistory(); setTimeout(function(){ try { toggleOrdnerVerwalten(); } catch(e) {} }, 500);" title="Ordner werden unter Historie &amp; Ordner verwaltet">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/></svg>
-          Ordner verwalten
-        </button>
-
-      </div>
-      
+    <div class="ordner-zeile">
+      <svg class="oz-ico" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/></svg>
+      <span class="oz-label">Ablegen in</span>
+      <select id="ordnerSelect" class="oz-select"><option value="">Kein Ordner</option></select>
+      <a class="oz-verwalten" onclick="openHistory(); setTimeout(function(){ try { toggleOrdnerVerwalten(); } catch(e) {} }, 500);" title="Ordner unter Historie &amp; Ordner verwalten">verwalten</a>
     </div>
     <button class="btn-search" id="searchBtn" onclick="startSearch()">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
