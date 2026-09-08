@@ -3293,6 +3293,50 @@
       .sank-karte { page-break-inside:avoid; }
       .sank-laedt { display:none !important; }
     }
+
+    /* ============================================================
+       KOPFZEILEN-BUTTONS: jeder mit eigener Farbe
+       ============================================================ */
+    #infoBewertungBtn, #infoQuellenBtn, #historyBtn, #teamBtn, #kontoBtn {
+      transition:background .2s, border-color .2s, color .2s, transform .18s, box-shadow .2s !important;
+    }
+    #infoBewertungBtn, #infoQuellenBtn, #historyBtn, #teamBtn, #kontoBtn { border-width:1.5px !important; }
+
+    /* Bewertung - Bernstein */
+    #infoBewertungBtn { background:#FFF8EB !important; color:#A16207 !important; border-color:rgba(217,119,6,.35) !important; }
+    #infoBewertungBtn svg { stroke:#D97706 !important; }
+    #infoBewertungBtn:hover { background:#FEF0D0 !important; border-color:#D97706 !important; transform:translateY(-1px); box-shadow:0 8px 18px -10px rgba(217,119,6,.6); }
+
+    /* Datenquellen - Blau */
+    #infoQuellenBtn { background:#EEF4FF !important; color:#1E4E8C !important; border-color:rgba(46,111,191,.35) !important; }
+    #infoQuellenBtn svg { stroke:#2E6FBF !important; }
+    #infoQuellenBtn:hover { background:#DBEAFE !important; border-color:#2E6FBF !important; transform:translateY(-1px); box-shadow:0 8px 18px -10px rgba(46,111,191,.6); }
+
+    /* Historie & Ordner - Gruen (Markenfarbe) */
+    #historyBtn { background:var(--green-pale,#EAF9F0) !important; color:var(--green-d,#16A34A) !important; border-color:rgba(22,163,74,.38) !important; }
+    #historyBtn svg { stroke:#16A34A !important; }
+    #historyBtn:hover { background:#D4F5E0 !important; border-color:#16A34A !important; transform:translateY(-1px); box-shadow:0 8px 18px -10px rgba(22,163,74,.6); }
+
+    /* Team - Violett */
+    #teamBtn { background:#F3EEFF !important; color:#6D28D9 !important; border-color:rgba(124,58,237,.35) !important; }
+    #teamBtn svg { stroke:#7C3AED !important; }
+    #teamBtn:hover { background:#E9DFFF !important; border-color:#7C3AED !important; transform:translateY(-1px); box-shadow:0 8px 18px -10px rgba(124,58,237,.6); }
+
+    /* Konto - Anthrazit */
+    #kontoBtn { background:#F1F3F5 !important; color:#1F2937 !important; border-color:rgba(31,41,55,.25) !important; }
+    #kontoBtn svg { stroke:#374151 !important; }
+    #kontoBtn:hover { background:#E5E8EC !important; border-color:#374151 !important; transform:translateY(-1px); box-shadow:0 8px 18px -10px rgba(31,41,55,.5); }
+
+    /* Symbol reagiert mit */
+    #infoBewertungBtn svg, #infoQuellenBtn svg, #historyBtn svg, #teamBtn svg, #kontoBtn svg {
+      transition:transform .22s cubic-bezier(.2,.9,.3,1.5);
+    }
+    #infoBewertungBtn:hover svg, #infoQuellenBtn:hover svg, #historyBtn:hover svg, #teamBtn:hover svg, #kontoBtn:hover svg {
+      transform:scale(1.15) rotate(-6deg);
+    }
+    #infoBewertungBtn:active, #infoQuellenBtn:active, #historyBtn:active, #teamBtn:active, #kontoBtn:active {
+      transform:translateY(0) scale(.97);
+    }
 </style>
 <div id="legalGate" class="legal-gate" style="display:none;">
   <div class="legal-box">
@@ -3423,7 +3467,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.17</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.18</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
