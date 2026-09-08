@@ -2329,6 +2329,18 @@
       <button class="auth-btn" onclick="obFertig()">Verstanden, weiter</button>
     </div>
 
+    <div id="obStepEinladung" style="display:none;">
+      <div class="auth-title">Bereit, dem Team beizutreten?</div>
+      <div class="auth-sub" id="obEinlSub">Du wurdest eingeladen, im Compliance-Checker mitzuarbeiten.</div>
+      <div class="ob-frei ob-einl">
+        <div class="ob-frei-z"><span class="ob-frei-h">✓</span>Du arbeitest im gemeinsamen Konto deines Unternehmens</div>
+        <div class="ob-frei-z"><span class="ob-frei-h">✓</span>Alle Prüfungen und Ordner des Teams sind für dich sichtbar</div>
+        <div class="ob-frei-z"><span class="ob-frei-h">✓</span>Du brauchst kein eigenes Paket – das Kontingent teilt sich das Team</div>
+      </div>
+      <div class="auth-msg" id="obMsgEinladung"></div>
+      <button class="auth-btn" id="obBtnEinladung" onclick="obEinladungAnnehmen()">Jetzt beitreten</button>
+    </div>
+
     <div id="obStepEinzel" style="display:none;">
       <div class="auth-title">Bereit für die Testphase?</div>
       <div class="auth-sub">Wir richten dein persönliches Konto ein – mit <b>3 kostenlosen Analysen</b> zum Ausprobieren. Kein Abo, keine Zahlungsdaten nötig.</div>
@@ -3214,6 +3226,15 @@
       .info-warn { padding:13px 14px !important; font-size:12px !important; }
       .info-haft { padding:11px 13px !important; font-size:11px !important; }
     }
+
+    /* Beitritts-Schritt beim Onboarding */
+    #obStepEinladung { animation:teamIn .5s cubic-bezier(.2,.7,.2,1) both; }
+    .ob-einl { background:linear-gradient(180deg,#F7FBFF,#fff) !important; border-color:rgba(30,78,140,.25) !important; }
+    .ob-einl .ob-frei-h { background:linear-gradient(135deg,#1E4E8C,#2E6FBF) !important; }
+    #obStepEinladung .auth-sub b { color:var(--ink,#111827); }
+    #obStepEinladung .auth-btn { background:linear-gradient(135deg,#16A34A,#22C55E);
+      box-shadow:0 12px 26px -10px rgba(34,197,94,.75); }
+    #obStepEinladung .auth-btn:hover:not(:disabled) { transform:translateY(-2px); }
 </style>
 <div id="legalGate" class="legal-gate" style="display:none;">
   <div class="legal-box">
@@ -3344,7 +3365,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.12</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.13</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -6040,6 +6061,8 @@ function showOnboarding() {
   hideBoot();
   alleGatesAus();
   document.getElementById('onboardingGate').style.display = 'flex';
+  // Liegt eine Einladung vor? Dann die Auswahl Einzelperson/Unternehmen ueberspringen.
+  if (EINLADUNG_TOKEN) { obEinladungSchritt(); }
   const kp = document.getElementById('kontingentPill'); if (kp) kp.style.display = 'none'; const mb = document.getElementById('mehrAnalysenBtn'); if (mb) mb.style.display = 'none';
   const hb = document.getElementById('historyBtn'); if (hb) hb.style.display = 'none';
   ['infoBewertungBtn','infoQuellenBtn'].forEach(function(id){ const b = document.getElementById(id); if (b) b.style.display = 'none'; });
@@ -6049,6 +6072,11 @@ function hideOnboarding() {
   const g = document.getElementById('onboardingGate'); if (g) g.style.display = 'none';
 }
 function obZurueck() {
+  // Bei vorliegender Einladung bleibt der Beitritts-Schritt stehen
+  if (EINLADUNG_TOKEN && document.getElementById('obStepEinladung')
+      && document.getElementById('obStepEinladung').style.display !== 'none') return;
+  const einl = document.getElementById('obStepEinladung');
+  if (einl) einl.style.display = 'none';
   document.getElementById('obStep1').style.display = '';
   document.getElementById('obStepFirma').style.display = 'none';
   document.getElementById('obStepCode').style.display = 'none';
@@ -6097,6 +6125,75 @@ async function obFirmaBeitreten() {
     btn.disabled = false;
   }
 }
+// Zeigt den Beitritts-Schritt und blendet die uebrige Auswahl aus
+async function obEinladungSchritt() {
+  ['obStep1','obStepFirma','obStepEinzel','obStepCode'].forEach(function(id){
+    const e = document.getElementById(id); if (e) e.style.display = 'none';
+  });
+  const s = document.getElementById('obStepEinladung');
+  if (s) s.style.display = '';
+  const zurueck = document.querySelector('#onboardingGate .auth-toggle');
+  if (zurueck) zurueck.style.display = 'none';
+
+  // Namen des Unternehmens anzeigen, damit klar ist, worum es geht
+  try {
+    const { data } = await sb.rpc('einladung_vorschau', { p_token: EINLADUNG_TOKEN });
+    const v = (data && data[0]) || null;
+    const sub = document.getElementById('obEinlSub');
+    if (v && v.gueltig && sub) {
+      sub.innerHTML = 'Du wurdest eingeladen, im Compliance-Checker von <b>' + escapeHtml(v.firma_name || 'deinem Unternehmen') + '</b> mitzuarbeiten'
+        + (v.rang ? ' \u2013 als <b>' + rangName(v.rang) + '</b>' : '') + '.';
+    } else if (v && !v.gueltig) {
+      obEinlFehler('Diese Einladung ist nicht mehr g\u00fcltig. Bitte lass dir einen neuen Link schicken.');
+    }
+  } catch (e) {}
+}
+
+function obEinlFehler(text) {
+  const m = document.getElementById('obMsgEinladung');
+  if (m) { m.textContent = text; m.className = 'auth-msg error'; m.style.display = ''; }
+  const b = document.getElementById('obBtnEinladung');
+  if (b) { b.disabled = true; b.textContent = 'Nicht m\u00f6glich'; }
+  // Rueckweg zur normalen Einrichtung anbieten
+  const s = document.getElementById('obStepEinladung');
+  if (s && !document.getElementById('obEinlAus')) {
+    const a = document.createElement('div');
+    a.className = 'auth-toggle';
+    a.id = 'obEinlAus';
+    a.innerHTML = '<a onclick="obEinladungVerwerfen()">Ohne Einladung fortfahren</a>';
+    s.appendChild(a);
+  }
+}
+
+function obEinladungVerwerfen() {
+  EINLADUNG_TOKEN = '';
+  einladungVergessen();
+  const s = document.getElementById('obStepEinladung');
+  if (s) s.style.display = 'none';
+  const zurueck = document.querySelector('#onboardingGate .auth-toggle');
+  if (zurueck) zurueck.style.display = '';
+  obZurueck();
+}
+
+async function obEinladungAnnehmen() {
+  const btn = document.getElementById('obBtnEinladung');
+  const msg = document.getElementById('obMsgEinladung');
+  if (btn) { btn.disabled = true; btn.textContent = 'Wird beigetreten\u2026'; }
+  if (msg) msg.style.display = 'none';
+  try {
+    EINLADUNG_ERLEDIGT = false;
+    const ok = await einladungPruefen();
+    if (ok) {
+      try { await ladeMeinenRang(); } catch(e) {}
+      await ladeKontingent();
+      return;
+    }
+    obEinlFehler('Der Beitritt hat nicht geklappt. M\u00f6glicherweise ist die Einladung abgelaufen oder bereits verwendet.');
+  } catch (e) {
+    obEinlFehler('Beitritt fehlgeschlagen: ' + ((e && e.message) || 'unbekannter Fehler'));
+  }
+}
+
 async function obEinzelAnlegen() {
   const btn = document.getElementById('obBtnEinzel'); btn.disabled = true;
   try {
