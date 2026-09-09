@@ -3689,7 +3689,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.29</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.30</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -4777,6 +4777,7 @@ async function einladungPruefen() {
 }
 
 function showApp(session) {
+  if (PW_ANSICHT_OFFEN) return;   // Passwort wird gerade neu gesetzt
   SESSION_GEROUTET = true;
   showBoot(); // Splash zeigen, App erst freigeben wenn Firmen-Status geklärt ist (kein Aufblitzen)
   if (session && session.user) { CURRENT_USER_EMAIL = session.user.email || ''; CURRENT_USER_ID = session.user.id || ''; }
@@ -5748,6 +5749,8 @@ const PW_WIEDERHERSTELLUNG = (function(){
     if (p.get('type') === 'recovery') return true;
     const q = new URLSearchParams(location.search);
     if (q.get('type') === 'recovery') return true;
+    // Neuere Supabase-Links nutzen einen Code in der Adresse
+    if (q.get('code') && !q.get('upload') && !q.get('einladung')) return true;
     // Fehler aus der Mail (abgelaufener Link) ebenfalls erkennen
     if (p.get('error_code') || q.get('error_code')) return 'fehler';
   } catch(e) {}
@@ -6110,6 +6113,7 @@ async function uploadAbsenden() {
 
 // ===== LANDING PAGE =====
 function showLanding() {
+  if (PW_ANSICHT_OFFEN) return;   // Passwort wird gerade neu gesetzt
   hideBoot();
   const lg = document.getElementById('landingGate');
   if (lg) {
@@ -6131,13 +6135,6 @@ function showLanding() {
     const el = document.getElementById(id);
     if (el && asrc && asrc.src) el.src = asrc.src;
   });
-  // Kommt der Aufruf aus der Passwort-Mail?
-  if (PW_WIEDERHERSTELLUNG === true) {
-    setTimeout(function(){ zeigeNeuesPasswort(); }, 60);
-  } else if (PW_WIEDERHERSTELLUNG === 'fehler') {
-    setTimeout(function(){ zeigeNeuesPasswort('Der Link ist abgelaufen oder wurde bereits verwendet. Bitte fordere einen neuen an.'); }, 60);
-  }
-
   const fw = document.getElementById('lpFinalWater');
   const wsrc = document.getElementById('lpWater');
   if (fw && wsrc && wsrc.src) fw.src = wsrc.src;
@@ -6762,6 +6759,18 @@ if (sb) {
   let initialDone = false;
   // 1) Anmeldestatus EINMAL sauber bestimmen und genau einmal routen
   (async () => {
+    // Kommt der Aufruf aus der Passwort-Mail? Dann NICHTS anderes anzeigen.
+    if (PW_WIEDERHERSTELLUNG) {
+      initialDone = true;
+      // Kurz warten, bis Supabase die Sitzung aus der Adresse gelesen hat
+      await new Promise(function(r){ setTimeout(r, 350); });
+      if (PW_WIEDERHERSTELLUNG === 'fehler') {
+        zeigeNeuesPasswort('Der Link ist abgelaufen oder wurde bereits verwendet. Bitte fordere einen neuen an.');
+      } else {
+        zeigeNeuesPasswort();
+      }
+      return;
+    }
     try {
       const { data } = await sb.auth.getSession();
       if (UPLOAD_TOKEN) { showUploadGate(); } else if (data && data.session) showApp(data.session); else if (EINLADUNG_TOKEN) { showGate(); einladungHinweis(); } else showLanding();
