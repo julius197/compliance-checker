@@ -3548,6 +3548,17 @@
       .pw-neu-ico { width:48px; height:48px; margin-bottom:12px; }
       .pw-neu-t { font-size:17px; }
     }
+
+    /* ===== Analyse-Button: Korrekturen ===== */
+    /* Kein Schimmern beim Drueberfahren - Altlast aus dem frueheren Entwurf */
+    .btn-search::after, .btn-search::before { content:none !important; display:none !important; }
+
+    /* Markengruen statt zu dunkel */
+    .bs-rechts { background:#359651 !important; }
+    .btn-search:hover:not(:disabled) .bs-rechts { background:#2E8749 !important; }
+    .btn-search:hover:not(:disabled) { border-color:#359651 !important;
+      box-shadow:0 12px 28px -14px rgba(53,150,81,.4) !important; }
+    .btn-search:focus-visible { box-shadow:0 0 0 3px rgba(53,150,81,.28) !important; }
 </style>
 <div id="legalGate" class="legal-gate" style="display:none;">
   <div class="legal-box">
@@ -3678,7 +3689,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.28</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.29</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
