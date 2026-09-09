@@ -3559,6 +3559,17 @@
     .btn-search:hover:not(:disabled) { border-color:#359651 !important;
       box-shadow:0 12px 28px -14px rgba(53,150,81,.4) !important; }
     .btn-search:focus-visible { box-shadow:0 0 0 3px rgba(53,150,81,.28) !important; }
+
+    /* Wartezustand statt Button nach dem Mailversand */
+    .pw-ok-warte { display:flex; align-items:center; justify-content:center; gap:9px;
+      font-size:12.5px; font-weight:600; color:var(--gray-l,#8A949D); padding-top:4px; }
+    .pw-punkte { display:inline-flex; gap:4px; }
+    .pw-punkte i { width:6px; height:6px; border-radius:50%; background:var(--green,#22C55E);
+      animation:pwPunkt 1.4s ease-in-out infinite; }
+    .pw-punkte i:nth-child(2) { animation-delay:.2s; }
+    .pw-punkte i:nth-child(3) { animation-delay:.4s; }
+    @keyframes pwPunkt { 0%,100% { opacity:.25; transform:scale(.8); } 50% { opacity:1; transform:scale(1); } }
+    @media (prefers-reduced-motion: reduce) { .pw-punkte i { animation:none; opacity:.7; } }
 </style>
 <div id="legalGate" class="legal-gate" style="display:none;">
   <div class="legal-box">
@@ -3689,7 +3700,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.30</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.31</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -4158,7 +4169,10 @@ function zeigePasswortGesendet(mail) {
     + '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg>'
     + '<span>Nichts angekommen? Schau bitte im <b>Spam-Ordner</b> nach. Der Link ist 60 Minuten g\u00fcltig.</span>'
     + '</div>'
-    + '<button class="auth-btn" onclick="location.reload()">Zur Anmeldung</button>'
+    + '<div class="pw-ok-warte">'
+    + '<span class="pw-punkte"><i></i><i></i><i></i></span>'
+    + 'Wir warten auf deinen Klick in der E-Mail'
+    + '</div>'
     + '</div>';
   requestAnimationFrame(function(){
     const b = karte.querySelector('.pw-ok');
