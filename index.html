@@ -3532,6 +3532,22 @@
       .pw-ok-t { font-size:17px; }
       .pw-ok-d, .pw-ok-tipp { font-size:12.5px; }
     }
+
+    /* ===== Neues Passwort festlegen ===== */
+    .pw-neu { text-align:center; opacity:0; transform:translateY(10px);
+      transition:opacity .45s ease, transform .45s cubic-bezier(.2,.9,.3,1.2); }
+    .pw-neu.an { opacity:1; transform:none; }
+    .pw-neu-ico { width:56px; height:56px; margin:0 auto 15px; border-radius:50%;
+      background:var(--green-pale,#EAF9F0); color:var(--green-d,#16A34A);
+      display:flex; align-items:center; justify-content:center;
+      animation:pwIco .6s cubic-bezier(.2,.9,.3,1.5) .12s both; }
+    .pw-neu-t { font-size:19px; font-weight:800; color:var(--ink,#111827); margin-bottom:6px; letter-spacing:-.01em; }
+    .pw-neu-d { font-size:13px; line-height:1.6; color:var(--gray,#5A6670); margin-bottom:20px; }
+    .pw-neu .auth-field { text-align:left; }
+    @media (max-width:760px) {
+      .pw-neu-ico { width:48px; height:48px; margin-bottom:12px; }
+      .pw-neu-t { font-size:17px; }
+    }
 </style>
 <div id="legalGate" class="legal-gate" style="display:none;">
   <div class="legal-box">
@@ -3662,7 +3678,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.27</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.28</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -4137,6 +4153,100 @@ function zeigePasswortGesendet(mail) {
     const b = karte.querySelector('.pw-ok');
     if (b) b.classList.add('an');
   });
+}
+
+// ===== Neues Passwort setzen (nach Klick auf den Link in der E-Mail) =====
+let PW_ANSICHT_OFFEN = false;
+
+function zeigeNeuesPasswort(fehlertext) {
+  if (PW_ANSICHT_OFFEN) return;
+  PW_ANSICHT_OFFEN = true;
+  try { if (typeof hideBoot === 'function') hideBoot(); } catch(e) {}
+  try { if (typeof alleGatesAus === 'function') alleGatesAus(); } catch(e) {}
+  const lg = document.getElementById('landingGate'); if (lg) lg.style.display = 'none';
+  const gate = document.getElementById('authGate');
+  if (gate) { gate.classList.remove('hidden'); gate.style.display = 'flex'; }
+
+  const karte = document.querySelector('.auth-card');
+  if (!karte) return;
+  const logo = karte.querySelector('.auth-logo');
+  const logoSrc = logo ? logo.src : '';
+
+  karte.innerHTML = '<img class="auth-logo" src="' + logoSrc + '" alt="Automati Labs" />'
+    + '<div class="pw-neu">'
+    + '<div class="pw-neu-ico"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'
+    + '<rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></div>'
+    + '<div class="pw-neu-t">Neues Passwort festlegen</div>'
+    + '<div class="pw-neu-d">W\u00e4hle ein Passwort mit mindestens 8 Zeichen.</div>'
+    + (fehlertext ? '<div class="auth-msg error" style="display:block;">' + escapeHtml(fehlertext) + '</div>' : '')
+    + '<div class="auth-field"><label class="auth-label">Neues Passwort</label>'
+    + '<input type="password" class="auth-input" id="pwNeu1" placeholder="\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022" autocomplete="new-password" onkeydown="if(event.key===\'Enter\')pwSpeichern()" /></div>'
+    + '<div class="auth-field"><label class="auth-label">Passwort wiederholen</label>'
+    + '<input type="password" class="auth-input" id="pwNeu2" placeholder="\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022" autocomplete="new-password" onkeydown="if(event.key===\'Enter\')pwSpeichern()" /></div>'
+    + '<div class="auth-msg" id="pwNeuMsg" style="display:none;"></div>'
+    + '<button class="auth-btn" id="pwNeuBtn" onclick="pwSpeichern()">Passwort speichern</button>'
+    + '</div>';
+  requestAnimationFrame(function(){
+    const b = karte.querySelector('.pw-neu');
+    if (b) b.classList.add('an');
+    const f = document.getElementById('pwNeu1');
+    if (f) setTimeout(function(){ f.focus(); }, 120);
+  });
+}
+
+async function pwSpeichern() {
+  const a = document.getElementById('pwNeu1');
+  const b = document.getElementById('pwNeu2');
+  const msg = document.getElementById('pwNeuMsg');
+  const btn = document.getElementById('pwNeuBtn');
+  const p1 = (a && a.value) || '', p2 = (b && b.value) || '';
+
+  function zeig(text, art) {
+    if (!msg) return;
+    msg.textContent = text;
+    msg.className = 'auth-msg ' + (art === 'ok' ? 'ok' : 'error');
+    msg.style.display = '';
+    msg.style.animation = 'none'; void msg.offsetWidth;
+    msg.style.animation = 'authMsgIn .4s cubic-bezier(.2,.7,.2,1) both';
+  }
+  function wackel(feld) {
+    if (!feld) return;
+    feld.focus();
+    feld.classList.remove('feld-wackel'); void feld.offsetWidth; feld.classList.add('feld-wackel');
+    setTimeout(function(){ feld.classList.remove('feld-wackel'); }, 600);
+  }
+
+  if (p1.length < 8) { zeig('Das Passwort muss mindestens 8 Zeichen haben.', 'error'); wackel(a); return; }
+  if (p1 !== p2) { zeig('Die beiden Passw\u00f6rter stimmen nicht \u00fcberein.', 'error'); wackel(b); return; }
+
+  if (btn) { btn.disabled = true; btn.textContent = 'Wird gespeichert\u2026'; }
+  try {
+    const { error } = await sb.auth.updateUser({ password: p1 });
+    if (error) throw error;
+    const karte = document.querySelector('.auth-card');
+    const logo = karte ? karte.querySelector('.auth-logo') : null;
+    const src = logo ? logo.src : '';
+    if (karte) {
+      karte.innerHTML = '<img class="auth-logo" src="' + src + '" alt="Automati Labs" />'
+        + '<div class="pw-ok an">'
+        + '<div class="pw-ok-ico"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>'
+        + '<div class="pw-ok-t">Passwort ge\u00e4ndert</div>'
+        + '<div class="pw-ok-d">Du kannst dich jetzt mit deinem neuen Passwort anmelden.</div>'
+        + '<button class="auth-btn" onclick="pwFertig()">Weiter zum Tool</button>'
+        + '</div>';
+    }
+  } catch (e) {
+    let t = (e && e.message) || 'Speichern fehlgeschlagen.';
+    if (/expired|invalid/i.test(t)) t = 'Der Link ist abgelaufen. Bitte fordere einen neuen an.';
+    if (/same.*password|should be different/i.test(t)) t = 'Bitte w\u00e4hle ein anderes Passwort als bisher.';
+    zeig(t, 'error');
+    if (btn) { btn.disabled = false; btn.textContent = 'Passwort speichern'; }
+  }
+}
+
+function pwFertig() {
+  try { history.replaceState(null, '', location.pathname); } catch(e) {}
+  location.href = location.pathname;
 }
 
 async function passwortVergessen() {
@@ -5618,6 +5728,20 @@ function infoWarn(titel, text, farbe) {
 
 // ===== ÖFFENTLICHE UPLOAD-SEITE (per Link) =====
 const UPLOAD_TOKEN = (function(){ try { return new URLSearchParams(location.search).get('upload') || ''; } catch(e) { return ''; } })();
+
+// Kommt der Aufruf aus der Passwort-Mail? Supabase haengt das an die Adresse an.
+const PW_WIEDERHERSTELLUNG = (function(){
+  try {
+    const hash = (location.hash || '').replace(/^#/, '');
+    const p = new URLSearchParams(hash);
+    if (p.get('type') === 'recovery') return true;
+    const q = new URLSearchParams(location.search);
+    if (q.get('type') === 'recovery') return true;
+    // Fehler aus der Mail (abgelaufener Link) ebenfalls erkennen
+    if (p.get('error_code') || q.get('error_code')) return 'fehler';
+  } catch(e) {}
+  return false;
+})();
 let EINLADUNG_TOKEN = (function(){
   let t = '';
   try { t = new URLSearchParams(location.search).get('einladung') || ''; } catch(e) {}
@@ -5996,6 +6120,13 @@ function showLanding() {
     const el = document.getElementById(id);
     if (el && asrc && asrc.src) el.src = asrc.src;
   });
+  // Kommt der Aufruf aus der Passwort-Mail?
+  if (PW_WIEDERHERSTELLUNG === true) {
+    setTimeout(function(){ zeigeNeuesPasswort(); }, 60);
+  } else if (PW_WIEDERHERSTELLUNG === 'fehler') {
+    setTimeout(function(){ zeigeNeuesPasswort('Der Link ist abgelaufen oder wurde bereits verwendet. Bitte fordere einen neuen an.'); }, 60);
+  }
+
   const fw = document.getElementById('lpFinalWater');
   const wsrc = document.getElementById('lpWater');
   if (fw && wsrc && wsrc.src) fw.src = wsrc.src;
@@ -6631,6 +6762,8 @@ if (sb) {
   // 2) Danach nur noch ECHTE Änderungen (Login/Logout) beachten.
   //    Initiale Doppel-Events und Token-Refreshes ignorieren -> kein Flackern.
   sb.auth.onAuthStateChange((event, session) => {
+    // Passwort-Wiederherstellung immer behandeln, auch beim ersten Ereignis
+    if (event === 'PASSWORD_RECOVERY') { zeigeNeuesPasswort(); return; }
     if (!initialDone) return;                 // Start übernimmt getSession oben
     // Supabase feuert SIGNED_IN auch bei Tab-Rückkehr erneut -> NICHT neu routen, wenn schon drin
     if (event === 'SIGNED_IN' && session) { if (!SESSION_GEROUTET) showApp(session); }
