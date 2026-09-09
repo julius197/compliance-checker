@@ -111,7 +111,7 @@
     .land-opt:hover, .land-opt.active { background:var(--green-pale); color:var(--ink); }
     .land-empty { padding:13px; font-size:13px; color:var(--gray); text-align:center; }
     #landInput::placeholder { color:var(--gray-l); }
-    .btn-search { width:100%; padding:16px; background:linear-gradient(135deg, #4ADE80 0%, #22C55E 45%, #16A34A 100%); color:#fff; border:none; border-radius:12px; font-family:inherit; font-size:15px; font-weight:700; cursor:pointer; transition:transform .2s cubic-bezier(.16,1,.3,1), box-shadow .25s ease; display:flex; align-items:center; justify-content:center; gap:10px; box-shadow:0 8px 24px -6px rgba(34,197,94,.45), inset 0 1px 0 rgba(255,255,255,.25); }
+    .btn-search { width:100%; padding:16px; background:#fff; color:#fff; border:none; border-radius:12px; font-family:inherit; font-size:15px; font-weight:700; cursor:pointer; transition:transform .2s cubic-bezier(.16,1,.3,1), box-shadow .25s ease; display:flex; align-items:center; justify-content:center; gap:10px; box-shadow:0 8px 24px -6px rgba(34,197,94,.45), inset 0 1px 0 rgba(255,255,255,.25); }
     .btn-search:hover { transform:translateY(-2px); box-shadow:0 14px 32px -6px rgba(34,197,94,.6), inset 0 1px 0 rgba(255,255,255,.25); }
     .btn-search:active { transform:scale(.99); }
     .btn-search:disabled { opacity:.45; cursor:not-allowed; }
@@ -3455,77 +3455,82 @@
     .od-menu { z-index:120 !important; }
 
     /* ============================================================
-       ANALYSE STARTEN - der wichtigste Knopf des Tools
+       ANALYSE STARTEN - geteilte Leiste (Richtung 3)
        ============================================================ */
     .btn-search {
-      position:relative; overflow:hidden; isolation:isolate;
-      width:100%; padding:0 !important; border:none; border-radius:16px !important;
-      background:linear-gradient(135deg, #1B7A3A 0%, #22A34F 40%, #2BC466 100%) !important;
-      color:#fff; font-family:inherit; cursor:pointer;
-      box-shadow:0 1px 0 rgba(255,255,255,.25) inset, 0 -2px 0 rgba(0,0,0,.14) inset,
-                 0 10px 28px -10px rgba(27,122,58,.75), 0 4px 10px -4px rgba(27,122,58,.4);
-      transition:transform .22s cubic-bezier(.16,1,.3,1), box-shadow .3s ease, filter .2s;
-      animation:bsAtmen 4.5s ease-in-out infinite;
-    }
-    @keyframes bsAtmen {
-      0%,100% { box-shadow:0 1px 0 rgba(255,255,255,.25) inset, 0 -2px 0 rgba(0,0,0,.14) inset, 0 10px 28px -10px rgba(27,122,58,.75), 0 4px 10px -4px rgba(27,122,58,.4); }
-      50%     { box-shadow:0 1px 0 rgba(255,255,255,.25) inset, 0 -2px 0 rgba(0,0,0,.14) inset, 0 14px 34px -10px rgba(27,122,58,.95), 0 4px 12px -4px rgba(27,122,58,.55); }
+      display:flex !important; align-items:stretch; width:100%; padding:0 !important;
+      background:#fff !important; color:var(--ink,#0F1A14);
+      border:1.5px solid #CFD8D3 !important; border-radius:12px !important; overflow:hidden;
+      font-family:inherit; text-align:left; cursor:pointer;
+      box-shadow:none !important; animation:none !important;
+      transition:border-color .2s, box-shadow .2s, transform .18s;
     }
     .btn-search:hover:not(:disabled) {
-      transform:translateY(-3px);
-      filter:brightness(1.06) saturate(1.05);
-      box-shadow:0 1px 0 rgba(255,255,255,.3) inset, 0 -2px 0 rgba(0,0,0,.14) inset,
-                 0 22px 44px -12px rgba(27,122,58,.9), 0 8px 16px -6px rgba(27,122,58,.5);
-      animation:none;
+      border-color:#1F6B36 !important; transform:translateY(-1px);
+      box-shadow:0 12px 28px -14px rgba(31,107,54,.35) !important;
     }
-    .btn-search:active:not(:disabled) { transform:translateY(-1px) scale(.992); transition-duration:.08s; }
-    .btn-search:disabled { cursor:wait; filter:saturate(.7); animation:none; }
-    .btn-search:focus-visible { outline:none; box-shadow:0 0 0 4px rgba(34,197,94,.35), 0 10px 28px -10px rgba(27,122,58,.75); }
+    .btn-search:active:not(:disabled) { transform:translateY(0); }
+    .btn-search:focus-visible { outline:none; box-shadow:0 0 0 3px rgba(53,150,81,.3) !important; }
 
-    /* Wandernder Glanz */
-    .bs-glanz { position:absolute; top:0; bottom:0; left:-40%; width:40%; z-index:1; pointer-events:none;
-      background:linear-gradient(105deg, transparent 0%, rgba(255,255,255,0) 30%, rgba(255,255,255,.35) 50%, rgba(255,255,255,0) 70%, transparent 100%);
-      transform:skewX(-18deg); animation:bsGlanz 5.5s ease-in-out infinite; }
-    @keyframes bsGlanz { 0%,60% { left:-40%; } 100% { left:140%; } }
-    .btn-search:hover .bs-glanz { animation:bsGlanzSchnell .7s ease-out forwards; }
-    @keyframes bsGlanzSchnell { from { left:-40%; } to { left:140%; } }
+    .bs-links { flex:1; min-width:0; padding:17px 22px; display:flex; flex-direction:column; justify-content:center; gap:2px; }
+    .bs-haupt { font-size:16px; font-weight:700; letter-spacing:-.005em; color:var(--ink,#0F1A14); line-height:1.2; }
+    .bs-sub { font-size:12px; font-weight:500; color:var(--gray,#5A6670); line-height:1.3; }
 
-    /* Feines Muster fuer Tiefe */
-    .btn-search::before { content:''; position:absolute; inset:0; z-index:0; pointer-events:none;
-      background:radial-gradient(circle at 20% 0%, rgba(255,255,255,.22), transparent 55%),
-                 radial-gradient(circle at 90% 100%, rgba(0,0,0,.14), transparent 50%); }
+    .bs-rechts { flex-shrink:0; width:64px; background:#1F6B36; color:#fff; position:relative;
+      display:flex; align-items:center; justify-content:center;
+      transition:width .25s cubic-bezier(.2,.7,.2,1), background .2s; }
+    .btn-search:hover:not(:disabled) .bs-rechts { width:76px; background:#2A7D43; }
+    .bs-pfeil { transition:transform .25s cubic-bezier(.2,.9,.3,1.4), opacity .15s; }
+    .btn-search:hover:not(:disabled) .bs-pfeil { transform:translateX(3px); }
+    .bs-lade { position:absolute; opacity:0; transition:opacity .15s; }
 
-    .bs-inhalt { position:relative; z-index:2; display:flex; align-items:center; gap:14px; padding:15px 20px 15px 18px; }
-    .bs-ico { flex-shrink:0; width:42px; height:42px; border-radius:12px; display:flex; align-items:center; justify-content:center;
-      background:rgba(255,255,255,.16); border:1px solid rgba(255,255,255,.22); backdrop-filter:blur(4px);
-      transition:transform .25s cubic-bezier(.2,.9,.3,1.5), background .2s; }
-    .btn-search:hover .bs-ico { transform:scale(1.08) rotate(-8deg); background:rgba(255,255,255,.24); }
-    .bs-text { flex:1; min-width:0; display:flex; flex-direction:column; align-items:flex-start; gap:2px; text-align:left; }
-    .bs-haupt { font-size:16.5px; font-weight:800; letter-spacing:-.01em; line-height:1.15; text-shadow:0 1px 2px rgba(0,0,0,.18); }
-    .bs-sub { font-size:11.5px; font-weight:600; color:rgba(255,255,255,.82); letter-spacing:.01em; line-height:1.2; }
-    .bs-pfeil { flex-shrink:0; display:flex; align-items:center; justify-content:center; width:36px; height:36px; border-radius:50%;
-      background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.2);
-      transition:transform .25s cubic-bezier(.2,.9,.3,1.4), background .2s; }
-    .btn-search:hover .bs-pfeil { transform:translateX(4px); background:rgba(255,255,255,.26); }
-    .bs-pfeil svg { transition:transform .25s cubic-bezier(.2,.9,.3,1.4); }
-    .btn-search:hover .bs-pfeil svg { transform:translateX(2px); }
-
-    /* Ladezustand */
-    .btn-search:disabled .bs-ico { animation:bsDreh 1.2s linear infinite; }
+    /* Ladezustand: Pfeil wird zum Kreis, Kachel wird breiter */
+    .btn-search:disabled { cursor:wait; }
+    .btn-search:disabled .bs-rechts { width:76px; }
+    .btn-search:disabled .bs-pfeil { opacity:0; }
+    .btn-search:disabled .bs-lade { opacity:1; animation:bsDreh 1s linear infinite; }
     @keyframes bsDreh { to { transform:rotate(360deg); } }
-    .btn-search:disabled .bs-pfeil { opacity:.4; }
-    .btn-search:disabled .bs-glanz { animation:bsGlanzLade 1.4s linear infinite; }
-    @keyframes bsGlanzLade { from { left:-40%; } to { left:140%; } }
+    .btn-search:disabled .bs-haupt { color:var(--gray,#5A6670); }
 
     @media (max-width:760px) {
-      .bs-inhalt { gap:11px; padding:13px 15px 13px 14px; }
-      .bs-ico { width:38px; height:38px; }
+      .bs-links { padding:15px 17px; }
       .bs-haupt { font-size:15.5px; }
-      .bs-sub { font-size:10.5px; }
-      .bs-pfeil { width:32px; height:32px; }
+      .bs-sub { font-size:11.5px; }
+      .bs-rechts { width:58px; }
+      .btn-search:hover:not(:disabled) .bs-rechts, .btn-search:disabled .bs-rechts { width:66px; }
     }
-    @media (prefers-reduced-motion: reduce) {
-      .btn-search, .bs-glanz { animation:none !important; }
+    @media (prefers-reduced-motion: reduce) { .bs-lade { animation:none !important; } }
+
+    /* ===== Passwort zuruecksetzen: Hinweis und Bestaetigung ===== */
+    .pv-hinweis { display:flex; align-items:flex-start; gap:8px; margin-top:10px; padding:10px 12px;
+      background:#FFF8EB; border:1.5px solid rgba(245,158,11,.4); border-radius:11px;
+      font-size:12px; line-height:1.5; color:#A16207; text-align:left;
+      opacity:0; transform:translateY(-5px); transition:opacity .3s, transform .3s cubic-bezier(.2,.9,.3,1.3); }
+    .pv-hinweis.an { opacity:1; transform:none; }
+    .pv-hinweis svg { flex-shrink:0; margin-top:1px; color:#D97706; }
+    .feld-noetig .auth-input { border-color:#F59E0B !important; box-shadow:0 0 0 3px rgba(245,158,11,.18) !important; }
+    .feld-noetig .auth-label { color:#B45309 !important; }
+
+    .pw-ok { text-align:center; opacity:0; transform:translateY(10px);
+      transition:opacity .45s ease, transform .45s cubic-bezier(.2,.9,.3,1.2); }
+    .pw-ok.an { opacity:1; transform:none; }
+    .pw-ok-ico { width:60px; height:60px; margin:0 auto 16px; border-radius:50%;
+      background:var(--green-pale,#EAF9F0); color:var(--green-d,#16A34A);
+      display:flex; align-items:center; justify-content:center;
+      animation:pwIco .6s cubic-bezier(.2,.9,.3,1.5) .15s both; }
+    @keyframes pwIco { 0% { opacity:0; transform:scale(.4) translateY(8px); } 60% { opacity:1; transform:scale(1.12); } 100% { transform:scale(1); } }
+    .pw-ok-t { font-size:19px; font-weight:800; color:var(--ink,#111827); margin-bottom:8px; letter-spacing:-.01em; }
+    .pw-ok-d { font-size:13.5px; line-height:1.65; color:var(--gray,#5A6670); margin-bottom:18px; }
+    .pw-ok-d b { color:var(--ink,#111827); word-break:break-all; }
+    .pw-ok-tipp { display:flex; align-items:flex-start; gap:9px; text-align:left;
+      background:var(--neutral,#F6F8F9); border:1px solid var(--border,#E2E6E9); border-radius:12px;
+      padding:12px 14px; margin-bottom:20px; font-size:12.5px; line-height:1.6; color:var(--gray,#5A6670); }
+    .pw-ok-tipp svg { flex-shrink:0; margin-top:2px; color:var(--gray-l,#8A949D); }
+    .pw-ok-tipp b { color:var(--ink2,#1F2937); }
+    @media (max-width:760px) {
+      .pw-ok-ico { width:52px; height:52px; margin-bottom:13px; }
+      .pw-ok-t { font-size:17px; }
+      .pw-ok-d, .pw-ok-tipp { font-size:12.5px; }
     }
 </style>
 <div id="legalGate" class="legal-gate" style="display:none;">
@@ -3657,7 +3662,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.25</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.27</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -3734,18 +3739,13 @@
       </div>
     </div>
     <button class="btn-search" id="searchBtn" onclick="startSearch()">
-      <span class="bs-glanz"></span>
-      <span class="bs-inhalt">
-        <span class="bs-ico">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-        </span>
-        <span class="bs-text">
-          <span class="bs-haupt">Analyse starten</span>
-          <span class="bs-sub">Prüfung nach §§ 10–17 GwG · mit PDF-Nachweis</span>
-        </span>
-        <span class="bs-pfeil">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-        </span>
+      <span class="bs-links">
+        <span class="bs-haupt">Analyse starten</span>
+        <span class="bs-sub">Prüfung nach §§ 10–17 GwG</span>
+      </span>
+      <span class="bs-rechts">
+        <svg class="bs-pfeil" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        <svg class="bs-lade" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 3a9 9 0 1 0 9 9"/></svg>
       </span>
     </button>
     <div class="tags">
@@ -4112,6 +4112,33 @@ if (LANG === 'en') {
 }
 
 // Passwort zuruecksetzen: Supabase schickt eine E-Mail mit Link
+// Deutliche Bestaetigung statt kleiner Meldung
+function zeigePasswortGesendet(mail) {
+  const karte = document.querySelector('.auth-card');
+  if (!karte) return;
+  const alt = karte.innerHTML;
+
+  const logo = karte.querySelector('.auth-logo');
+  const logoSrc = logo ? logo.src : '';
+
+  karte.innerHTML = '<img class="auth-logo" src="' + logoSrc + '" alt="Automati Labs" />'
+    + '<div class="pw-ok">'
+    + '<div class="pw-ok-ico"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'
+    + '<rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6 10-6"/></svg></div>'
+    + '<div class="pw-ok-t">Wir haben dir eine E-Mail geschickt</div>'
+    + '<div class="pw-ok-d">An <b>' + escapeHtml(mail) + '</b>. Klicke auf den Link in der E-Mail, um ein neues Passwort zu setzen.</div>'
+    + '<div class="pw-ok-tipp">'
+    + '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg>'
+    + '<span>Nichts angekommen? Schau bitte im <b>Spam-Ordner</b> nach. Der Link ist 60 Minuten g\u00fcltig.</span>'
+    + '</div>'
+    + '<button class="auth-btn" onclick="location.reload()">Zur Anmeldung</button>'
+    + '</div>';
+  requestAnimationFrame(function(){
+    const b = karte.querySelector('.pw-ok');
+    if (b) b.classList.add('an');
+  });
+}
+
 async function passwortVergessen() {
   const feld = document.getElementById('authEmail');
   const mail = ((feld && feld.value) || '').trim();
@@ -4126,11 +4153,34 @@ async function passwortVergessen() {
     msg.style.animation = 'authMsgIn .4s cubic-bezier(.2,.7,.2,1) both';
   }
 
+  // Ohne E-Mail geht nichts - deutlich darauf hinweisen
   if (!mail || mail.indexOf('@') < 0) {
-    zeige('Bitte gib zuerst deine E-Mail-Adresse oben ein.', 'error');
-    if (feld) { feld.focus(); feld.classList.add('feld-wackel'); setTimeout(function(){ feld.classList.remove('feld-wackel'); }, 500); }
+    const bereich = document.getElementById('authVergessen');
+    if (bereich) {
+      bereich.classList.add('pv-hinweis-an');
+      let h = document.getElementById('pvHinweis');
+      if (!h) {
+        h = document.createElement('div');
+        h.id = 'pvHinweis';
+        h.className = 'pv-hinweis';
+        h.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 9v4M12 17h.01"/><circle cx="12" cy="12" r="9"/></svg>'
+          + '<span>Trage oben deine E-Mail-Adresse ein \u2013 dorthin schicken wir den Link.</span>';
+        bereich.appendChild(h);
+      }
+      h.classList.remove('an'); void h.offsetWidth; h.classList.add('an');
+    }
+    if (feld) {
+      feld.focus();
+      feld.classList.remove('feld-wackel'); void feld.offsetWidth; feld.classList.add('feld-wackel');
+      setTimeout(function(){ feld.classList.remove('feld-wackel'); }, 600);
+      const lab = feld.closest('.auth-field');
+      if (lab) { lab.classList.add('feld-noetig'); setTimeout(function(){ lab.classList.remove('feld-noetig'); }, 2600); }
+    }
     return;
   }
+
+  const h = document.getElementById('pvHinweis');
+  if (h) h.classList.remove('an');
 
   const link = document.querySelector('#authVergessen a');
   if (link) { link.textContent = 'Wird gesendet\u2026'; link.style.pointerEvents = 'none'; }
@@ -4139,7 +4189,7 @@ async function passwortVergessen() {
       redirectTo: location.origin + location.pathname
     });
     if (error) throw error;
-    zeige('E-Mail ist unterwegs. Schau in dein Postfach \u2013 auch im Spam-Ordner.', 'ok');
+    zeigePasswortGesendet(mail);
   } catch (e) {
     zeige('Konnte nicht gesendet werden: ' + ((e && e.message) || 'Bitte erneut versuchen.'), 'error');
   }
