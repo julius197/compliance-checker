@@ -2241,11 +2241,11 @@
     <div class="auth-msg" id="authMsg"></div>
     <div class="auth-namen" id="authNamen" style="display:none;">
       <div class="auth-field">
-        <label class="auth-label">Vorname</label>
+        <label class="auth-label">Vorname <span class="req">*</span></label>
         <input type="text" class="auth-input" id="authVorname" placeholder="Max" autocomplete="given-name" />
       </div>
       <div class="auth-field">
-        <label class="auth-label">Nachname</label>
+        <label class="auth-label">Nachname <span class="req">*</span></label>
         <input type="text" class="auth-input" id="authNachname" placeholder="Mustermann" autocomplete="family-name" />
       </div>
     </div>
@@ -2255,7 +2255,7 @@
     </div>
     <div class="auth-field">
       <label class="auth-label">Passwort</label>
-      <input type="password" class="auth-input" id="authPassword" placeholder="••••••••" autocomplete="current-password" />
+      <div class="pw-wrap"><input type="password" class="auth-input" id="authPassword" placeholder="••••••••" autocomplete="current-password" /><button type="button" class="pw-auge" onclick="pwAuge('authPassword', this)" title="Passwort anzeigen" aria-label="Passwort anzeigen"><svg class="auge-zu" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg><svg class="auge-auf" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><path d="m1 1 22 22"/></svg></button></div>
     </div>
     <div class="auth-legal" id="authLegal" style="display:none;">
       <label class="auth-check">
@@ -2443,6 +2443,20 @@
         <input class="om-name-input" id="kontoFirmaName" placeholder="Name des Unternehmens – z.B. Muster GmbH" style="width:100%; box-sizing:border-box; margin-bottom:10px;" />
         <button class="plan-btn" id="kontoUpgradeBtn" onclick="zuUnternehmenWechseln()">Unternehmens-Konto einrichten</button>
         <div id="kontoUpgradeMsg" class="auth-msg" style="display:none; margin-top:12px;"></div>
+      </div>
+      <div class="konto-card">
+        <div class="konto-card-h">Passwort ändern</div>
+        <p class="konto-card-p">Wähle ein neues Passwort mit mindestens 8 Zeichen.</p>
+        <div class="pw-wrap" style="margin-bottom:9px;">
+          <input type="password" class="om-name-input" id="kontoPw1" placeholder="Neues Passwort" autocomplete="new-password" style="width:100%; box-sizing:border-box;" />
+          <button type="button" class="pw-auge pw-auge-konto" onclick="pwAuge('kontoPw1', this)" title="Passwort anzeigen">
+            <svg class="auge-zu" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>
+            <svg class="auge-auf" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><path d="m1 1 22 22"/></svg>
+          </button>
+        </div>
+        <input type="password" class="om-name-input" id="kontoPw2" placeholder="Passwort wiederholen" autocomplete="new-password" style="width:100%; box-sizing:border-box; margin-bottom:11px;" />
+        <button class="plan-btn" id="kontoPwBtn" onclick="kontoPwSpeichern()">Passwort speichern</button>
+        <div id="kontoPwMsg" class="auth-msg" style="display:none; margin-top:12px;"></div>
       </div>
       <div class="konto-card">
         <div class="konto-card-h">Meine Daten exportieren</div>
@@ -3630,6 +3644,74 @@
       .sank-k-t { font-size:12.5px !important; }
       .fav-marke, .of-vis { font-size:10px !important; }
     }
+
+    /* ============================================================
+       RANG-SYMBOLE · SUPPORT · VERLASSEN · CODE · PASSWORT-AUGE
+       ============================================================ */
+    .tm-badge-ico { display:inline-flex; width:13px; height:13px; margin-right:2px; vertical-align:-2px; }
+    .tm-badge-ico svg { width:100%; height:100%; }
+    .rang-svg { display:inline-flex; width:13px; height:13px; margin-right:4px; vertical-align:-2px; }
+    .rang-svg svg { width:100%; height:100%; }
+    .tm-support { background:linear-gradient(135deg,#0F1720,#1F2937); color:#A7F3D0; border:1px solid rgba(167,243,208,.35); }
+    .tm-support .tm-badge-ico { color:#6EE7B7; }
+    .tm-pres .tm-badge-ico { color:#B8860B; }
+    .tm-vice .tm-badge-ico { color:#7C3AED; }
+
+    /* Konto-Karten: Verzoegerung fuer alle, auch spaetere */
+    .konto-card:nth-of-type(6) { animation-delay:.39s; }
+    .konto-card:nth-of-type(7) { animation-delay:.46s; }
+    .konto-card:nth-of-type(8) { animation-delay:.53s; }
+    .konto-card:nth-of-type(9) { animation-delay:.60s; }
+    .konto-card:nth-of-type(n+10) { animation-delay:.66s; }
+    .konto-card.danger { animation:histIn .4s cubic-bezier(.2,.7,.2,1) .66s both !important; }
+
+    /* Unternehmens-Code */
+    .code-zeile { display:flex; align-items:center; gap:10px; margin-top:12px; flex-wrap:wrap; }
+    .code-wert { font-family:ui-monospace, Menlo, Consolas, monospace; font-size:22px; font-weight:800; letter-spacing:.16em;
+      color:var(--ink,#111827); background:var(--neutral,#F6F8F9); border:1.5px solid var(--border,#E2E6E9); border-radius:12px;
+      padding:10px 18px; opacity:.4; transition:opacity .3s; }
+    .code-wert.an { opacity:1; animation:codeIn .5s cubic-bezier(.2,.9,.3,1.4) both; }
+    @keyframes codeIn { from { opacity:0; transform:scale(.94); letter-spacing:.05em; } to { opacity:1; transform:none; letter-spacing:.16em; } }
+    .kyc-btn.kopiert { background:var(--green-pale,#EAF9F0) !important; color:var(--green-d,#16A34A) !important; border-color:rgba(34,197,94,.4) !important; }
+
+    /* Team verlassen */
+    .verlassen-block { border-color:rgba(220,38,38,.25) !important; }
+    .verlassen-btn { display:inline-flex; align-items:center; gap:8px; margin-top:12px; padding:11px 18px; border-radius:12px;
+      background:#fff; border:1.5px solid rgba(220,38,38,.4); color:var(--bad-text,#B42318); font-family:inherit; font-size:13px; font-weight:700;
+      cursor:pointer; transition:all .18s; }
+    .verlassen-btn:hover:not(:disabled) { background:var(--bad-bg,#FEF1F1); border-color:#DC2626; transform:translateY(-1px); box-shadow:0 8px 18px -10px rgba(220,38,38,.5); }
+    .verlassen-btn:disabled { opacity:.45; cursor:not-allowed; }
+    .verlassen-btn svg { transition:transform .22s cubic-bezier(.2,.9,.3,1.4); }
+    .verlassen-btn:hover:not(:disabled) svg { transform:translateX(3px); }
+    .verl-card, .entf-card { transition:transform .3s cubic-bezier(.2,.9,.3,1.25), opacity .28s ease; }
+    .verl-card.karte-weg, .entf-card.karte-weg { transform:translateY(16px) scale(.95) !important; opacity:0 !important; }
+    .verl-ok { background:linear-gradient(135deg,#B42318,#DC2626) !important; }
+
+    /* Entfernt-Hinweis */
+    .entf-ico { width:60px; height:60px; margin:0 auto 16px; border-radius:50%; background:var(--bad-bg,#FEF1F1); color:var(--bad-text,#B42318);
+      display:flex; align-items:center; justify-content:center; animation:entfIco .6s cubic-bezier(.2,.9,.3,1.5) .1s both; }
+    @keyframes entfIco { 0% { opacity:0; transform:scale(.4) rotate(-15deg); } 60% { opacity:1; transform:scale(1.1); } 100% { transform:scale(1) rotate(0); } }
+
+    /* Passwort-Auge */
+    .pw-wrap { position:relative; }
+    .pw-wrap .auth-input, .pw-wrap .om-name-input { padding-right:46px !important; }
+    .pw-auge { position:absolute; right:8px; top:50%; transform:translateY(-50%); width:34px; height:34px; border:none; background:transparent;
+      border-radius:9px; color:var(--gray-l,#8A949D); cursor:pointer; display:flex; align-items:center; justify-content:center;
+      transition:color .18s, background .18s, transform .18s; }
+    .pw-auge:hover { color:var(--ink,#111827); background:var(--neutral2,#EFF2F4); }
+    .pw-auge:active { transform:translateY(-50%) scale(.92); }
+    .pw-auge .auge-auf { display:none; }
+    .pw-auge.offen .auge-zu { display:none; }
+    .pw-auge.offen .auge-auf { display:block; }
+    .pw-auge.offen { color:var(--green-d,#16A34A); }
+    .pw-auge svg { transition:transform .2s cubic-bezier(.2,.9,.3,1.5); }
+    .pw-auge:hover svg { transform:scale(1.1); }
+
+    @media (max-width:760px) {
+      .code-wert { font-size:19px; padding:9px 14px; letter-spacing:.12em; }
+      .code-zeile .kyc-btn { flex:1 1 auto; }
+      .verlassen-btn { width:100%; justify-content:center; }
+    }
 </style>
 <div id="legalGate" class="legal-gate" style="display:none;">
   <div class="legal-box">
@@ -3760,7 +3842,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.34</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.35</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -4401,6 +4483,16 @@ async function passwortVergessen() {
   if (link) { link.textContent = 'Passwort vergessen?'; link.style.pointerEvents = ''; }
 }
 
+// Passwort ein-/ausblenden
+function pwAuge(feldId, btn) {
+  const f = document.getElementById(feldId);
+  if (!f) return;
+  const zeigen = f.type === 'password';
+  f.type = zeigen ? 'text' : 'password';
+  if (btn) { btn.classList.toggle('offen', zeigen); btn.title = zeigen ? 'Passwort verbergen' : 'Passwort anzeigen'; }
+  try { f.focus(); } catch(e) {}
+}
+
 function toggleAuthMode() {
   authMode = authMode === 'login' ? 'register' : 'login';
   // Formular neu einblenden, damit der Wechsel sichtbar wird
@@ -4458,6 +4550,13 @@ async function doAuth() {
     if (authMode === 'register') {
       const vn = ((document.getElementById('authVorname') || {}).value || '').trim();
       const nn = ((document.getElementById('authNachname') || {}).value || '').trim();
+      if (!vn || !nn) {
+        showAuthMsg('Bitte gib deinen Vor- und Nachnamen ein.', 'error');
+        const leer = document.getElementById(!vn ? 'authVorname' : 'authNachname');
+        if (leer) { leer.focus(); leer.classList.remove('feld-wackel'); void leer.offsetWidth; leer.classList.add('feld-wackel'); setTimeout(function(){ leer.classList.remove('feld-wackel'); }, 600); }
+        btn.disabled = false;
+        return;
+      }
       const { data, error } = await sb.auth.signUp({
         email, password,
         options: { data: { vorname: vn, nachname: nn } }
@@ -4527,6 +4626,33 @@ async function namenNachtragen() {
     CURRENT_USER_NAME = anzeigeName(v, n, '');
     try { localStorage.removeItem('cc_name'); } catch(e) {}
   } catch (e) {}
+}
+
+// Wurde man aus einem Team entfernt? Einmalige Anzeige.
+async function entferntHinweisPruefen() {
+  if (!sb) return;
+  const { data } = await sb.rpc('entfernt_hinweis');
+  if (!data || !data.firma) return;
+  const box = document.createElement('div');
+  box.id = 'entfGate';
+  box.className = 'up-warn-back';
+  box.innerHTML = '<div class="up-warn-card entf-card">'
+    + '<div class="entf-ico"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'
+    + '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="m17 8 5 5M22 8l-5 5"/></svg></div>'
+    + '<div class="up-warn-t">Du wurdest aus einem Team entfernt</div>'
+    + '<div class="up-warn-d">Ein Administrator hat dich aus <b>' + escapeHtml(data.firma) + '</b> entfernt. '
+    + 'Du arbeitest jetzt wieder in deinem eigenen Konto \u2013 deine fr\u00fcheren Pr\u00fcfungen dort sind unver\u00e4ndert.</div>'
+    + '<div class="up-warn-btns"><button class="up-senden up-warn-ok" onclick="entfGateZu()">Verstanden</button></div>'
+    + '</div>';
+  document.body.appendChild(box);
+  requestAnimationFrame(function(){ box.classList.add('an'); });
+}
+function entfGateZu() {
+  const b = document.getElementById('entfGate');
+  if (!b) return;
+  const k = b.querySelector('.entf-card'); if (k) k.classList.add('karte-weg');
+  b.classList.remove('an');
+  setTimeout(function(){ if (b.parentNode) b.remove(); }, 280);
 }
 
 async function ladeMeinenNamen() {
@@ -4720,12 +4846,22 @@ const ORDNER_FARBEN = ['#22C55E','#3B82F6','#F59E0B','#EF4444','#8B5CF6','#EC489
 let CURRENT_USER_ROLLE = '';     // 'admin' (Host) | 'mitglied' (Mitarbeiter)
 let TEAM_MEMBERS = [];
 let CURRENT_USER_RANG = 'member';
-const RANG_INFO = {
-  president: { name:'President',      wert:4, farbe:'pres',   ico:'\u2605' },
-  vice:      { name:'Vice President', wert:3, farbe:'vice',   ico:'\u2726' },
-  senior:    { name:'Senior',         wert:2, farbe:'senior', ico:'\u25C6' },
-  member:    { name:'Member',         wert:1, farbe:'member', ico:'\u25CF' }
+// Symbole als saubere Grafiken: Schraubenschluessel, Krone, Stern, Raute, Punkt
+const RANG_SVG = {
+  support:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>',
+  president: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 18h18v2H3v-2zm0-2 2-9 4.5 4L12 5l2.5 6L19 7l2 9H3z"/></svg>',
+  vice:      '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.6l2.9 5.9 6.5.95-4.7 4.6 1.1 6.5L12 17.5 6.2 20.5l1.1-6.5-4.7-4.6 6.5-.95z"/></svg>',
+  senior:    '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l10 10-10 10L2 12z"/></svg>',
+  member:    '<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="7"/></svg>'
 };
+const RANG_INFO = {
+  support:   { name:'Support',        wert:5, farbe:'support', ico:'\uD83D\uDD27' },
+  president: { name:'President',      wert:4, farbe:'pres',    ico:'\u2605' },
+  vice:      { name:'Vice President', wert:3, farbe:'vice',    ico:'\u2726' },
+  senior:    { name:'Senior',         wert:2, farbe:'senior',  ico:'\u25C6' },
+  member:    { name:'Member',         wert:1, farbe:'member',  ico:'\u25CF' }
+};
+function rangSymbol(r) { return '<span class="rang-svg">' + (RANG_SVG[r] || RANG_SVG.member) + '</span>'; }
 function rangWert(r) { return (RANG_INFO[r] || RANG_INFO.member).wert; }
 function rangName(r) { return (RANG_INFO[r] || RANG_INFO.member).name; }
 function darfVerwalten() { return rangWert(CURRENT_USER_RANG) >= 3; }   // President + Vice
@@ -5104,7 +5240,7 @@ function renderTeam() {
     const istSelf = m.user_id === CURRENT_USER_ID;
     const dt = m.beigetreten ? new Date(m.beigetreten) : null;
     const datum = dt ? dt.toLocaleDateString('de-DE', { day:'2-digit', month:'2-digit', year:'numeric' }) : '\u2013';
-    const badge = '<span class="tm-badge tm-' + info.farbe + '"><span class="tm-badge-ico">' + info.ico + '</span>' + info.name + '</span>';
+    const badge = '<span class="tm-badge tm-' + info.farbe + '"><span class="tm-badge-ico">' + (RANG_SVG[m.rang] || RANG_SVG.member) + '</span>' + info.name + '</span>';
 
     // Wen darf ich veraendern?
     let darf = meinWert >= 3;
@@ -5160,6 +5296,7 @@ function renderTeam() {
   const rangErklaerung = '<div class="team-block sec-in sec-in-3">'
     + '<div class="team-block-h">Die vier R\u00e4nge</div>'
     + '<div class="rang-tabelle">'
+    + ((TEAM_MEMBERS || []).some(function(x){ return x.rang === 'support'; }) ? rangZeile('support', 'Automati Labs Support \u2013 hilft bei Fragen und Problemen, verbraucht kein Kontingent.', 0) : '')
     + rangZeile('president','Verwaltet das gesamte Team, vergibt alle R\u00e4nge, kauft Pakete. Kann als Einziger jemanden zum President machen.', 0)
     + rangZeile('vice','Wie der President \u2013 kann jedoch den President nicht absetzen und niemanden zum President bef\u00f6rdern.', 1)
     + rangZeile('senior','Erstellt und verwaltet Ordner und teilt sie mit dem Team. Keine Team-Verwaltung.', 2)
@@ -5174,16 +5311,114 @@ function renderTeam() {
     + '<div class="history-list team-liste">' + rows + '</div>'
     + '</div>'
     + rangErklaerung
+    + teamFussHtml()
     + '</div>');
   sichtbarSicherstellen(tv);
+  ladeFirmencode();
 
   if (darfVerwalten()) ladeEinladungen();
+}
+
+// Unternehmens-Code (President/Vize) + Team verlassen
+function teamFussHtml() {
+  const darf = darfVerwalten();
+  const istSupport = CURRENT_USER_RANG === 'support';
+  let out = '';
+  if (darf && !istSupport) {
+    out += '<div class="team-block sec-in sec-in-4" id="codeBlock">'
+      + '<div class="team-block-h">Unternehmens-Code</div>'
+      + '<div class="team-block-d">Mit diesem Code kann jemand mit einem Einzelkonto eurem Unternehmen beitreten \u2013 unter Konto \u2192 \u201eEinem Unternehmen beitreten\u201c.</div>'
+      + '<div class="code-zeile"><span class="code-wert" id="codeWert">\u2022\u2022\u2022\u2022\u2022\u2022</span>'
+      + '<button class="kyc-btn" onclick="codeKopieren(this)">Kopieren</button></div>'
+      + '</div>';
+  }
+  const rest = (TEAM_MEMBERS || []).filter(function(m){ return m.rang === 'president'; }).length;
+  const letzter = CURRENT_USER_RANG === 'president' && rest <= 1;
+  out += '<div class="team-block sec-in sec-in-4 verlassen-block">'
+    + '<div class="team-block-h">' + (istSupport ? 'Support-Einsatz beenden' : 'Team verlassen') + '</div>'
+    + '<div class="team-block-d">' + (istSupport
+        ? 'Du kehrst in dein Support-Konto zur\u00fcck. Das Unternehmen bleibt unver\u00e4ndert.'
+        : (letzter
+            ? 'Du bist der einzige President. Ernenne zuerst jemanden zum President, bevor du gehst.'
+            : 'Du verl\u00e4sst dieses Unternehmen und kehrst in dein eigenes Konto zur\u00fcck. Deine fr\u00fcheren Pr\u00fcfungen dort bleiben erhalten.')) + '</div>'
+    + '<button class="verlassen-btn" onclick="teamVerlassenFrage()"' + (letzter ? ' disabled' : '') + '>'
+    + '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>'
+    + (istSupport ? 'Einsatz beenden' : 'Team verlassen') + '</button>'
+    + '</div>';
+  return out;
+}
+
+async function ladeFirmencode() {
+  const el = document.getElementById('codeWert');
+  if (!el || !sb) return;
+  try {
+    const { data } = await sb.rpc('mein_firmencode');
+    if (data) { el.textContent = data; el.classList.add('an'); }
+    else el.textContent = '\u2013';
+  } catch (e) { el.textContent = '\u2013'; }
+}
+
+function codeKopieren(btn) {
+  const el = document.getElementById('codeWert');
+  const code = el ? el.textContent.trim() : '';
+  if (!code || code === '\u2013') return;
+  function ok() {
+    const alt = btn.textContent; btn.textContent = 'Kopiert \u2713'; btn.classList.add('kopiert');
+    setTimeout(function(){ btn.textContent = alt; btn.classList.remove('kopiert'); }, 1400);
+  }
+  try { navigator.clipboard.writeText(code).then(ok).catch(function(){ kopierNotloesung(code, ok); }); }
+  catch (e) { kopierNotloesung(code, ok); }
+}
+
+function teamVerlassenFrage() {
+  const istSupport = CURRENT_USER_RANG === 'support';
+  const box = document.createElement('div');
+  box.id = 'verlGate';
+  box.className = 'up-warn-back';
+  box.innerHTML = '<div class="up-warn-card verl-card">'
+    + '<div class="up-warn-ico">\u2192</div>'
+    + '<div class="up-warn-t">' + (istSupport ? 'Einsatz beenden?' : 'Team wirklich verlassen?') + '</div>'
+    + '<div class="up-warn-d">' + (istSupport
+        ? 'Du kehrst in dein Support-Konto zur\u00fcck.'
+        : 'Du verlierst den Zugriff auf die Pr\u00fcfungen, Ordner und Akten dieses Unternehmens. Um zur\u00fcckzukommen, brauchst du eine neue Einladung.<br/><br/>Dein eigenes Konto mit deinen bisherigen Pr\u00fcfungen bleibt erhalten.') + '</div>'
+    + '<div class="up-warn-btns">'
+    + '<button class="kyc-btn" onclick="verlGateZu()">Abbrechen</button>'
+    + '<button class="up-senden verl-ok" onclick="teamVerlassen()">' + (istSupport ? 'Beenden' : 'Ja, verlassen') + '</button>'
+    + '</div></div>';
+  document.body.appendChild(box);
+  requestAnimationFrame(function(){ box.classList.add('an'); });
+}
+
+function verlGateZu() {
+  const b = document.getElementById('verlGate');
+  if (!b) return;
+  const k = b.querySelector('.verl-card'); if (k) k.classList.add('karte-weg');
+  b.classList.remove('an');
+  setTimeout(function(){ if (b.parentNode) b.remove(); }, 280);
+}
+
+async function teamVerlassen() {
+  const btn = document.querySelector('#verlGate .verl-ok');
+  if (btn) { btn.disabled = true; btn.textContent = 'Wird verlassen\u2026'; }
+  try {
+    const { data, error } = await sb.rpc('team_verlassen');
+    if (error) throw error;
+    if (data && data.ok) {
+      verlGateZu();
+      zeigeToast('Team verlassen', 'Du bist zur\u00fcck in deinem eigenen Konto.');
+      setTimeout(function(){ location.reload(); }, 1200);
+      return;
+    }
+    const g = (data && data.grund) || '';
+    alert(g === 'letzter_president' ? 'Du bist der letzte President. Ernenne zuerst jemanden.' : 'Verlassen fehlgeschlagen: ' + g);
+  } catch (e) { alert('Verlassen fehlgeschlagen: ' + ((e && e.message) || '')); }
+  if (btn) { btn.disabled = false; btn.textContent = 'Ja, verlassen'; }
 }
 
 function rangZeile(r, text, idx) {
   const info = RANG_INFO[r];
   return '<div class="rang-zeile">'
-    + '<span class="tm-badge tm-' + info.farbe + '"><span class="tm-badge-ico">' + info.ico + '</span>' + info.name + '</span>'
+    + '<span class="tm-badge tm-' + info.farbe + '"><span class="tm-badge-ico">' + (RANG_SVG[r] || RANG_SVG.member) + '</span>' + info.name + '</span>'
     + '<span class="rang-text">' + text + '</span></div>';
 }
 
@@ -5534,6 +5769,7 @@ async function teamAktion(aktion, userId) {
     await ladeMeineRolle();
   try { await ladeMeinenRang(); } catch(e) {}                       // evtl. eigene Rolle geändert (Selbst-Zurückstufung)
   try { await ladeMeinenNamen(); } catch(e) {}
+  try { await entferntHinweisPruefen(); } catch(e) {}
     if (CURRENT_USER_ROLLE === 'admin') await _openTeam();
     else backToMain();                            // kein Host mehr -> zurück zur Analyse
   } catch (e) {
@@ -7391,6 +7627,7 @@ function openKonto() {
     sank.style.display = eigen ? '' : 'none';
     if (eigen) sanktionenStandLaden();
   }
+  try { const kg = document.getElementById('kontoGate'); if (kg) kg.scrollTop = 0; window.scrollTo({ top: 0 }); } catch(e) {}
   const bei = document.getElementById('kontoBeitretenCard');
   if (bei) {
     bei.style.display = (CURRENT_FIRMA && CURRENT_FIRMA.typ === 'einzel') ? '' : 'none';
@@ -7587,6 +7824,32 @@ function btAntwort(ja) {
   }
   window._btRes = null;
   if (r) r(!!ja);
+}
+
+async function kontoPwSpeichern() {
+  const a = document.getElementById('kontoPw1'), b = document.getElementById('kontoPw2');
+  const btn = document.getElementById('kontoPwBtn'), msg = document.getElementById('kontoPwMsg');
+  const p1 = (a && a.value) || '', p2 = (b && b.value) || '';
+  function zeige(text, art) {
+    if (!msg) return;
+    msg.textContent = text; msg.className = 'auth-msg ' + (art === 'ok' ? 'ok' : 'error'); msg.style.display = '';
+    msg.style.animation = 'none'; void msg.offsetWidth; msg.style.animation = 'authMsgIn .4s cubic-bezier(.2,.7,.2,1) both';
+  }
+  function wackel(f) { if (!f) return; f.focus(); f.classList.remove('feld-wackel'); void f.offsetWidth; f.classList.add('feld-wackel'); setTimeout(function(){ f.classList.remove('feld-wackel'); }, 600); }
+  if (p1.length < 8) { zeige('Mindestens 8 Zeichen.', 'error'); wackel(a); return; }
+  if (p1 !== p2) { zeige('Die Passw\u00f6rter stimmen nicht \u00fcberein.', 'error'); wackel(b); return; }
+  if (btn) { btn.disabled = true; btn.textContent = 'Wird gespeichert\u2026'; }
+  try {
+    const { error } = await sb.auth.updateUser({ password: p1 });
+    if (error) throw error;
+    zeige('Passwort ge\u00e4ndert.', 'ok');
+    if (a) a.value = ''; if (b) b.value = '';
+  } catch (e) {
+    let t = (e && e.message) || 'Fehler.';
+    if (/same|different/i.test(t)) t = 'Bitte ein anderes Passwort als bisher w\u00e4hlen.';
+    zeige(t, 'error');
+  }
+  if (btn) { btn.disabled = false; btn.textContent = 'Passwort speichern'; }
 }
 
 async function kontoNameSpeichern() {
@@ -8746,6 +9009,7 @@ async function saveAnalysisToHistory(d, rawName) {
         firmenname: d.firmenname || rawName || 'Unbekanntes Unternehmen',
         land: d._land || null,
         ust_id: (d.ustId && d.ustId !== 'null') ? d.ustId : null,
+        von_support: (CURRENT_USER_RANG === 'support'),
         score: (typeof d.gesamtScore === 'number' && !isNaN(d.gesamtScore)) ? Math.round(d.gesamtScore) : null,
         verdict: d.verdict || null,
         verdict_text: d.verdictText || null,
