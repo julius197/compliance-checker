@@ -3577,6 +3577,59 @@
       padding:10px 13px; margin-bottom:18px; font-size:12px; line-height:1.55; color:var(--green-d,#16A34A);
       animation:teamIn .5s cubic-bezier(.2,.7,.2,1) .2s both; }
     .pw-einl svg { flex-shrink:0; margin-top:1px; }
+
+    /* ============================================================
+       MOBILE NACHZUEGLER - gepruefte Luecken
+       ============================================================ */
+    @media (max-width:430px) {
+      /* Sprachauswahl: zwei Spalten werden auf kleinen Geraeten eng */
+      .mail-sprachen { grid-template-columns:1fr !important; gap:7px !important; }
+    }
+    @media (max-width:760px) {
+      /* Sichtbarkeits-Schalter darf umbrechen statt zu ueberlaufen */
+      .of-vis { white-space:normal !important; text-align:center; line-height:1.35; }
+      .of-fuss { align-items:stretch !important; }
+
+      /* Lange Namen ueberall sicher umbrechen */
+      .fav-name, .fw-name, .sank-tr-name, .od-opt-t, .of-name,
+      .kyc-datei-n, .up-datei-n, .fg-mail, .tm-email {
+        word-break:break-word !important; overflow-wrap:anywhere !important;
+      }
+      /* Dropdown-Menue nie breiter als der Schirm */
+      .od-menu { max-width:calc(100vw - 32px); }
+      .od-opt { gap:9px !important; }
+      .od-tag { font-size:9px !important; padding:2px 6px !important; }
+
+      /* Kennzahlen-Balken: sichtbar auch bei winzigen Anteilen */
+      .hu-balken { min-height:10px; }
+
+      /* Sanktions-Karten und Passwort-Ansichten atmen lassen */
+      .sank-bereich { margin-bottom:12px; }
+      .sank-recht-b, .sank-recht-h { word-break:break-word; }
+      .pw-neu-d, .pw-ok-d, .pw-einl, .pv-hinweis { word-break:break-word; }
+      .pw-ok-warte { font-size:12px; }
+
+      /* Dateilisten */
+      .kyc-dateien, .up-dateien { gap:7px !important; }
+      .kyc-mehr, .up-mehr-btn { font-size:11.5px !important; padding:10px !important; }
+
+      /* Team- und Einladungslisten */
+      .team-liste, .einl-liste { width:100%; }
+      .einl-zeile { flex-wrap:wrap !important; }
+
+      /* Analyse-Button: Ladesymbol mittig halten */
+      .bs-pfeil, .bs-lade { flex-shrink:0; }
+    }
+    /* Sehr schmale Geraete (bis 360px) */
+    @media (max-width:360px) {
+      .bs-links { padding:13px 13px !important; }
+      .bs-haupt { font-size:14.5px !important; }
+      .bs-sub { font-size:10.5px !important; }
+      .bs-rechts { width:52px !important; }
+      .od-feld { padding:12px 12px !important; }
+      .sank-k-t { font-size:12.5px !important; }
+      .fav-marke, .of-vis { font-size:10px !important; }
+    }
 </style>
 <div id="legalGate" class="legal-gate" style="display:none;">
   <div class="legal-box">
@@ -3707,7 +3760,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.32</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.34</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -4890,7 +4943,8 @@ async function ladeMeineRolle() {
   CURRENT_USER_ROLLE = (CURRENT_USER_ROLLE || '').toString().trim().toLowerCase();
   const tb = document.getElementById('teamBtn');
   const einzel = !!(CURRENT_FIRMA && CURRENT_FIRMA.typ === 'einzel');
-  if (tb) tb.style.display = (CURRENT_USER_ROLLE === 'admin' && !einzel) ? '' : 'none';
+  // Jedes Mitglied darf sein Team sehen - verwalten duerfen weiterhin nur President und Vize
+  if (tb) tb.style.display = einzel ? 'none' : '';
 }
 async function ladeMeinenRang() {
   try {
@@ -4916,9 +4970,11 @@ async function _openTeam() {
   tv.innerHTML = `
     <div class="history-head">
       <div>
-        <div class="history-eyebrow">Unternehmens-Verwaltung</div>
-        <div class="history-title">Team verwalten</div>
-        <div class="history-sub">Mitglieder deines Unternehmens: zum Host befördern, zurückstufen oder entfernen. Es muss immer mindestens ein Host aktiv bleiben.</div>
+        <div class="history-eyebrow">${(typeof rangWert === 'function' && rangWert(CURRENT_USER_RANG) >= 3) ? 'Unternehmens-Verwaltung' : 'Dein Unternehmen'}</div>
+        <div class="history-title">${(typeof rangWert === 'function' && rangWert(CURRENT_USER_RANG) >= 3) ? 'Team verwalten' : 'Dein Team'}</div>
+        <div class="history-sub">${(typeof rangWert === 'function' && rangWert(CURRENT_USER_RANG) >= 3)
+          ? 'Mitglieder deines Unternehmens: Ränge ändern, einladen oder entfernen. Es muss immer mindestens ein President aktiv bleiben.'
+          : 'Diese Kolleginnen und Kollegen arbeiten mit dir im selben Konto. Ränge vergeben können President und Vice President.'}</div>
       </div>
       <button class="btn-action" onclick="backToMain()">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
