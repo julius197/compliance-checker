@@ -3712,6 +3712,24 @@
       .code-zeile .kyc-btn { flex:1 1 auto; }
       .verlassen-btn { width:100%; justify-content:center; }
     }
+
+    /* Leerer Ordner-Punkt: sauber rund, nicht abgeschnitten */
+    .od-punkt { flex-shrink:0 !important; box-sizing:border-box !important; }
+    .od-punkt-leer {
+      width:11px !important; height:11px !important;
+      border:1.5px solid var(--gray-l,#B5BEC6) !important;
+      border-radius:50% !important;
+      background:transparent !important;
+      box-shadow:none !important;
+      position:relative;
+    }
+    /* Kleiner Punkt in der Mitte statt Strichelung - rendert auf jedem Geraet gleich */
+    .od-punkt-leer::after {
+      content:''; position:absolute; inset:3px; border-radius:50%;
+      background:var(--gray-l,#CBD2D8);
+    }
+    .od-opt.aktiv .od-punkt-leer { border-color:var(--gray,#5A6670) !important; }
+    .od-opt.aktiv .od-punkt-leer::after { background:var(--gray,#5A6670); }
 </style>
 <div id="legalGate" class="legal-gate" style="display:none;">
   <div class="legal-box">
@@ -3842,7 +3860,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.35</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.37</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -7627,7 +7645,30 @@ function openKonto() {
     sank.style.display = eigen ? '' : 'none';
     if (eigen) sanktionenStandLaden();
   }
-  try { const kg = document.getElementById('kontoGate'); if (kg) kg.scrollTop = 0; window.scrollTo({ top: 0 }); } catch(e) {}
+  // Sichtbare Karten gleichmaessig staffeln (ausgeblendete ueberspringen)
+  try {
+    const karten = Array.from(document.querySelectorAll('#kontoGate .konto-card'));
+    let n = 0;
+    karten.forEach(function(k){
+      k.style.animation = 'none';
+      if (k.style.display === 'none' || k.offsetParent === null && k.style.display === 'none') return;
+    });
+    requestAnimationFrame(function(){
+      karten.forEach(function(k){
+        if (k.style.display === 'none') return;
+        k.style.animation = 'histIn .42s cubic-bezier(.2,.7,.2,1) ' + (0.04 + n * 0.07) + 's both';
+        n++;
+      });
+    });
+  } catch(e) {}
+  // Immer oben starten - nach dem Anzeigen, sonst greift es nicht
+  requestAnimationFrame(function(){
+    try {
+      const kg = document.getElementById('kontoGate');
+      if (kg) { kg.scrollTop = 0; const inner = kg.querySelector('.plan-wrap, .konto-wrap'); if (inner) inner.scrollTop = 0; }
+      window.scrollTo({ top: 0 });
+    } catch(e) {}
+  });
   const bei = document.getElementById('kontoBeitretenCard');
   if (bei) {
     bei.style.display = (CURRENT_FIRMA && CURRENT_FIRMA.typ === 'einzel') ? '' : 'none';
@@ -7926,12 +7967,40 @@ async function exportiereDaten() {
         .order('created_at', { ascending: false });
       if (!error && data) analysen = data;
     }
+    // Alles, was zu dieser Person gespeichert ist (Art. 15 DSGVO)
+    let profil = {}, favoriten = [], ordner = [], dokumente = [], freigaben = [];
+    try { const r = await sb.rpc('mein_name'); profil = (r.data && r.data[0]) || {}; } catch(e) {}
+    try { const r = await sb.rpc('meine_favoriten'); favoriten = r.data || []; } catch(e) {}
+    try { const r = await sb.from('ordner').select('id,name,farbe,sichtbarkeit,created_at'); ordner = r.data || []; } catch(e) {}
+    try {
+      const r = await sb.from('kyc_dokumente').select('analyse_id,typ,datei_name,mime_type,position,bezeichnung,created_at,einwilligung_am,einwilligung_version');
+      dokumente = r.data || [];
+    } catch(e) {}
+    try { const r = await sb.from('ordner_freigaben').select('ordner_id,user_id,created_at'); freigaben = r.data || []; } catch(e) {}
+
     const exp = {
+      hinweis: 'Datenauskunft gem\u00e4\u00df Art. 15 DSGVO \u2013 Automati Labs GmbH, Compliance-Checker',
       export_datum: new Date().toISOString(),
-      konto: { email: CURRENT_USER_EMAIL || '', user_id: CURRENT_USER_ID || '' },
-      firma: CURRENT_FIRMA ? { name: CURRENT_FIRMA.firma_name, typ: CURRENT_FIRMA.typ } : null,
-      anzahl_pruefungen: analysen.length,
-      pruefungen: analysen
+      konto: {
+        email: CURRENT_USER_EMAIL || '',
+        user_id: CURRENT_USER_ID || '',
+        vorname: profil.vorname || null,
+        nachname: profil.nachname || null,
+        rang: CURRENT_USER_RANG || null
+      },
+      firma: CURRENT_FIRMA ? {
+        name: CURRENT_FIRMA.firma_name, typ: CURRENT_FIRMA.typ,
+        paket_limit: CURRENT_FIRMA.monatslimit, testphase: !!CURRENT_FIRMA.trial
+      } : null,
+      pruefungen: { anzahl: analysen.length, eintraege: analysen },
+      ueberwachung: { anzahl: favoriten.length, eintraege: favoriten },
+      ordner: { anzahl: ordner.length, eintraege: ordner },
+      ordner_freigaben: { anzahl: freigaben.length, eintraege: freigaben },
+      hochgeladene_dokumente: {
+        anzahl: dokumente.length,
+        hinweis: 'Metadaten der Ausweis- und Fotodateien. Die Dateien selbst k\u00f6nnen \u00fcber das Tool heruntergeladen werden.',
+        eintraege: dokumente
+      }
     };
     const blob = new Blob([JSON.stringify(exp, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
