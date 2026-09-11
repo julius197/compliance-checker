@@ -3811,6 +3811,11 @@
       .sup-code { margin-left:0; width:100%; }
       .sup-aktionen > button { flex:1 1 auto; }
     }
+
+    /* Sprachwechsel auf der Startseite: kurzes Ueberblenden */
+    #landingGate { transition:opacity .18s ease; }
+    #landingGate.lp-lang-wechsel { animation:lpLangBlend .38s ease; }
+    @keyframes lpLangBlend { 0% { opacity:1; } 30% { opacity:.55; } 100% { opacity:1; } }
 </style>
 <div id="legalGate" class="legal-gate" style="display:none;">
   <div class="legal-box">
@@ -3941,7 +3946,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.40</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.41</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -4190,6 +4195,12 @@ const _TR_WARTEND = new Set();
 
 async function uebersetzeBaum(root, sofortFertig) {
   if (!root || !root.nodeType) return;
+  // Feste Startseiten-Uebersetzungen in den Zwischenspeicher - dann wird
+  // dafuer nie der Server befragt und der Wechsel ist sofort.
+  if (typeof LP_EN !== 'undefined' && !uebersetzeBaum._lpGeladen) {
+    Object.keys(LP_EN).forEach(function(de){ if (_TR_CACHE[de] === undefined) _TR_CACHE[de] = LP_EN[de]; });
+    uebersetzeBaum._lpGeladen = true;
+  }
   const knoten = _trKnoten(root);
   knoten.forEach(_trAnwenden);
   if (LANG !== 'en') return;
@@ -4342,7 +4353,202 @@ function refreshAuthTexts() {
   if (nam) nam.style.display = reg ? '' : 'none';
 }
 
+// ============================================================
+// STARTSEITE: festes Woerterbuch - sofort, ohne Server
+// ============================================================
+const LP_EN = {
+"Anmelden": "Sign in",
+"Kostenlos testen": "Try for free",
+"KYC & Compliance · Prüfung gemäß §§ 10–17 GwG": "KYC & Compliance · Checks under Sections 10–17 GwG",
+"Know Your Customer in Minuten.": "Know Your Customer in minutes.",
+"Sauber dokumentiert.": "Properly documented.",
+"Geschäftspartner prüfen und identifizieren – in einem Werkzeug. Register, wirtschaftlich Berechtigte, Sanktions- & PEP-Listen, dazu Ausweis und Bestätigungsfoto in derselben Akte. Am Ende steht ein PDF-Nachweis mit Quellen.": "Screen and identify business partners – in one tool. Registers, beneficial owners, sanctions & PEP lists, plus ID document and confirmation photo in the same file. The result is a PDF report with sources.",
+"Kostenlos testen – 3 Analysen gratis": "Try for free – 3 analyses included",
+"✓ Keine Kreditkarte nötig": "✓ No credit card required",
+"✓ Server in der EU": "✓ Servers in the EU",
+"✓ Deutsch & Englisch": "✓ German & English",
+"⚖️ Wie die Bewertung funktioniert": "⚖️ How the scoring works",
+"🔍 Woher die Daten stammen": "🔍 Where the data comes from",
+"Länder im Detail": "Countries in detail",
+"Sanktionslisten": "Sanctions lists",
+"PDF": "PDF",
+"Nachweis je Prüfung": "Evidence per check",
+"Deine Vorteile": "Your benefits",
+"Alles, was du für die geldwäscherechtliche Prüfung deiner Geschäftspartner brauchst – an einem Ort.": "Everything you need for anti-money-laundering checks of your business partners – in one place.",
+"Prüfung in Minuten": "Checks in minutes",
+"Name + Land eingeben – mehr nicht": "Enter name + country – that's it",
+"KI durchsucht Register, Presse & Web": "AI searches registers, press & web",
+"Klarer Vertrauens-Score von 0–100": "Clear trust score from 0–100",
+"Sanktions- & PEP-Screening": "Sanctions & PEP screening",
+"EU-, OFAC-, UN- & UK-Listen bei jeder Analyse": "EU, OFAC, UN & UK lists with every analysis",
+"PEP-Prüfung der verantwortlichen Personen": "PEP check of responsible persons",
+"K.O.-Kriterien klar gekennzeichnet": "Knock-out criteria clearly flagged",
+"Nachweise für die Akte": "Evidence for your files",
+"PDF-Bericht mit Quellenangaben": "PDF report with source references",
+"Manipulationssichere Prüf-ID": "Tamper-proof check ID",
+"Abgleich mit EU-Sanktionslisten": "Matched against EU sanctions lists",
+"International einsetzbar": "Works internationally",
+"56 Länder im Detail, weltweit nutzbar": "56 countries in detail, usable worldwide",
+"Suche in Landessprache (KRS, EGRUL & Co.)": "Searches in local language (KRS, EGRUL & more)",
+"Berichte auf Deutsch oder Englisch": "Reports in German or English",
+"Für dein ganzes Team": "For your whole team",
+"Geteiltes Kontingent für alle Mitarbeiter": "Shared quota for all staff",
+"Ordner für Kunden & Vorgänge": "Folders for clients & cases",
+"Rollen: Host & Mitglieder": "Roles: admins & members",
+"Fair & planbar": "Fair & predictable",
+"Fester Monatspreis, klare Pakete": "Fixed monthly price, clear packages",
+"3 Gratis-Analysen zum Start": "3 free analyses to start",
+"Von 100 bis 1.000 Analysen im Monat": "From 100 to 1,000 analyses per month",
+"So funktioniert's": "How it works",
+"Vier Schritte – von der Registrierung bis zum fertigen Nachweis.": "Four steps – from sign-up to the finished report.",
+"Kostenlos registrieren": "Register for free",
+"Konto erstellen und sofort loslegen – deine ersten 3 Analysen sind gratis. Keine Kreditkarte nötig.": "Create an account and start right away – your first 3 analyses are free. No credit card required.",
+"Unternehmen eingeben": "Enter a company",
+"Name des Unternehmens + Land, optional die USt-ID für eine präzise Zuordnung.": "Company name + country, optionally the VAT ID for a precise match.",
+"KI prüft & bewertet": "AI checks & scores",
+"Handelsregister, wirtschaftlich Berechtigte, Sanktions- & PEP-Listen, Presse – alles mit Quellen und Vertrauens-Score.": "Commercial register, beneficial owners, sanctions & PEP lists, press – all with sources and a trust score.",
+"PDF ablegen": "File the PDF",
+"Bericht herunterladen und in deiner Akte ablegen – bereit für jede Prüfung.": "Download the report and file it – ready for any audit.",
+"Die vollständige Akte – nicht nur die Analyse": "The complete file – not just the analysis",
+"Eine Prüfung allein reicht der Aufsicht nicht. Der Compliance-Checker sammelt alles, was zu einem Geschäftspartner gehört, an einem Ort – und gibt es auf Knopfdruck als geschlossenes Dokument aus.": "A check alone is not enough for regulators. The Compliance Checker collects everything that belongs to a business partner in one place – and exports it as a single document at the push of a button.",
+"Ausweis & Bestätigungsfoto": "ID document & confirmation photo",
+"Personalausweis zu jeder Prüfung hinterlegen": "Attach an ID document to every check",
+"Bestätigungsfoto der handelnden Person": "Confirmation photo of the acting person",
+"Verschlüsselt gespeichert, Server in der EU": "Stored encrypted, servers in the EU",
+"Sicherer Upload-Link": "Secure upload link",
+"Link erzeugen und dem Geschäftspartner schicken": "Generate a link and send it to your business partner",
+"Er lädt selbst hoch – ganz ohne Konto": "They upload themselves – no account needed",
+"Einmalig nutzbar, danach automatisch ungültig": "Single use, automatically expires afterwards",
+"Akte als ein PDF": "File as one PDF",
+"Bericht, Ausweis und Foto in einem Dokument": "Report, ID and photo in one document",
+"Ganze Ordner auf einmal exportieren": "Export entire folders at once",
+"Jede Anlage sauber beschriftet und zugeordnet": "Every attachment clearly labelled and assigned",
+"Nachvollziehbar bis ins Detail": "Traceable down to the detail",
+"Compliance lebt davon, dass jemand später versteht, wie ein Ergebnis zustande kam. Deshalb legen wir offen, wie bewertet wird – und woher die Informationen stammen.": "Compliance depends on someone later understanding how a result came about. That's why we disclose how we score – and where the information comes from.",
+"Offengelegte Bewertung": "Transparent scoring",
+"Fünf Prüfbereiche, vier eigenständige Warnsignale, drei klare Einstufungen – vollständig dokumentiert und jederzeit einsehbar.": "Five assessment areas, four independent warning signals, three clear ratings – fully documented and viewable at any time.",
+"Belegte Herkunft": "Documented sources",
+"Jede Kernaussage ist ihrer Quellenkategorie zugeordnet. Was nicht belegbar ist, wird als Lücke ausgewiesen statt geschätzt.": "Every key statement is assigned to its source category. What cannot be verified is reported as a gap rather than guessed.",
+"Deutsch & Englisch": "German & English",
+"Oberfläche und Berichte auf Knopfdruck in beiden Sprachen – für internationale Geschäftspartner und Konzernprüfungen.": "Interface and reports in both languages at the push of a button – for international partners and group audits.",
+"Bewertung im Detail": "Scoring in detail",
+"Datenquellen ansehen": "View data sources",
+"Nicht nur einmal prüfen – dauerhaft im Blick behalten": "Don't just check once – keep watching",
+"Eine Prüfung ist eine Momentaufnahme. Bei Geschäftspartnern, mit denen Sie über Jahre arbeiten, kann sich viel ändern – ohne dass Sie davon erfahren. Markieren Sie ein Unternehmen mit dem Stern, und der Compliance-Checker prüft es": "A check is a snapshot. With partners you work with for years, a lot can change – without you hearing about it. Mark a company with the star, and the Compliance Checker re-checks it",
+"alle drei Monate automatisch neu": "automatically every three months",
+"Mit einem Klick markieren": "Mark with one click",
+"Ein Stern in der Historie genügt. Jederzeit wieder abschaltbar – kein Abo, keine Bindung.": "A star in the history is all it takes. Switch it off any time – no subscription, no commitment.",
+"Automatisch alle 3 Monate": "Automatically every 3 months",
+"Die erneute Prüfung läuft im Hintergrund. Der Bericht landet automatisch in der Akte des Unternehmens.": "The re-check runs in the background. The report is filed automatically with the company.",
+"Sofort informiert bei Änderungen": "Informed immediately of changes",
+"Neuer Sanktions-Treffer, Insolvenzhinweis, Wechsel in der Geschäftsführung oder gefallener Score – Sie sehen sofort, was sich verändert hat.": "New sanctions hit, insolvency notice, change of management or a dropped score – you see immediately what has changed.",
+"Transparent abgerechnet:": "Transparent billing:",
+"Jede automatische Prüfung zählt wie eine normale Analyse gegen Ihr Monatskontingent – also vier pro Jahr und Unternehmen. Ist das Kontingent aufgebraucht, wird nicht geprüft. Keine versteckten Kosten, keine Zusatzgebühr.": "Every automatic check counts like a normal analysis against your monthly quota – four per year and company. If the quota is used up, no check is run. No hidden costs, no extra fees.",
+"Sanktionslisten – direkt abgeglichen, nicht recherchiert": "Sanctions lists – matched directly, not researched",
+"Jede Prüfung gleicht Namen unmittelbar gegen die": "Every check matches names directly against the",
+"konsolidierte Sanktionsliste der Europäischen Union": "consolidated sanctions list of the European Union",
+"ab. Nicht über eine Internetsuche, sondern gegen die amtliche Liste selbst – täglich aktualisiert und mit dokumentiertem Stand.": ". Not via a web search, but against the official list itself – updated daily with a documented version date.",
+"Amtliche Quelle": "Official source",
+"Die Liste stammt unverändert von der Europäischen Kommission – dieselbe Grundlage, die auch Banken und Behörden verwenden.": "The list comes unchanged from the European Commission – the same basis used by banks and authorities.",
+"Täglich aktualisiert": "Updated daily",
+"Der Abgleich läuft gegen den jeweils aktuellen Stand. In jedem Bericht ist festgehalten, gegen welchen Listenstand geprüft wurde.": "Matching runs against the current version. Every report records which list version was used.",
+"Auch ähnliche Schreibweisen": "Similar spellings too",
+"Umlaute, Bindestriche, abweichende Transkriptionen – der Abgleich erkennt Namensvarianten, nicht nur exakte Übereinstimmungen.": "Umlauts, hyphens, different transliterations – matching recognises name variants, not just exact matches.",
+"Was ein Treffer bedeutet:": "What a hit means:",
+"Ein Treffer weist auf eine Namensgleichheit oder Ähnlichkeit hin – nicht darauf, dass es sich um dieselbe Person handelt. Ob tatsächlich Identität vorliegt, muss gesondert ermittelt werden. Der Bericht macht diesen Unterschied ausdrücklich deutlich.": "A hit indicates a name match or similarity – not that it is the same person. Whether identity actually exists must be determined separately. The report makes this distinction explicit.",
+"Preise": "Pricing",
+"Alle Pakete enthalten": "All packages include",
+"denselben vollen Funktionsumfang": "the same full feature set",
+"– sie unterscheiden sich nur in der Anzahl der Analysen pro Monat. Monatlich kündbar, kein Mindestvertrag.": "– they differ only in the number of analyses per month. Cancel monthly, no minimum term.",
+"✓ Die ersten 3 Analysen sind kostenlos": "✓ The first 3 analyses are free",
+"Ohne Kreditkarte, ohne Verpflichtung – einfach ausprobieren.": "No credit card, no commitment – just try it.",
+"In jedem Paket enthalten": "Included in every package",
+"Prüfung nach §§ 10–17 GwG": "Checks under Sections 10–17 GwG",
+"PDF-Nachweis mit Quellen": "PDF report with sources",
+"Ausweis- und Foto-Ablage": "ID and photo storage",
+"Ordner & Akten-Export": "Folders & file export",
+"Team mit Rängen": "Team with ranks",
+"Server in der EU": "Servers in the EU",
+"Für wen?": "Who is it for?",
+"Für alle, die nach dem Geldwäschegesetz prüfen müssen – oder einfach wissen wollen, mit wem sie Geschäfte machen.": "For everyone who has to check under anti-money-laundering law – or simply wants to know who they're doing business with.",
+"Autohändler": "Car dealers",
+"Kanzleien & Steuerberater": "Law firms & tax advisors",
+"Immobilienmakler": "Real estate agents",
+"Finanzdienstleister": "Financial service providers",
+"Güterhändler": "Goods traders",
+"Kostenlos starten": "Start for free",
+"Bereit? Deine ersten 3 Analysen sind gratis.": "Ready? Your first 3 analyses are free.",
+"Jetzt kostenlos testen": "Try it free now",
+"✓ In 2 Minuten startklar": "✓ Ready in 2 minutes",
+"Intelligente KI-Systeme für Ihr Unternehmen.": "Intelligent AI systems for your business.",
+"Der Compliance-Checker ist ein Produkt der Automati Labs GmbH – entwickelt für Unternehmen, die ihre gesetzlichen Sorgfaltspflichten ernst nehmen.": "The Compliance Checker is a product of Automati Labs GmbH – built for companies that take their legal due diligence seriously.",
+"Compliance-Checker": "Compliance Checker",
+"Vorteile": "Benefits",
+"Die digitale Akte": "The digital file",
+"Laufende Überwachung": "Ongoing monitoring",
+"Transparenz": "Transparency",
+"Wie bewertet wird": "How we score",
+"Woher die Daten stammen": "Where the data comes from",
+"Impressum": "Legal notice",
+"Datenschutz": "Privacy",
+"AGB": "Terms",
+"Kontakt": "Contact",
+"© 2026 Automati Labs GmbH · Alle Rechte vorbehalten.": "© 2026 Automati Labs GmbH · All rights reserved.",
+"DSGVO-konform gehostet": "GDPR-compliant hosting",
+"Einen Moment…": "One moment…",
+"Auswählen": "Select",
+"Bronze wählen": "Choose Bronze",
+"Silber wählen": "Choose Silver",
+"Gold wählen": "Choose Gold",
+"Platinum wählen": "Choose Platinum",
+"Beliebteste Wahl": "Most popular",
+"Analysen / Monat": "analyses / month",
+"/ Monat": "/ month",
+"Bronze": "Bronze",
+"Silber": "Silver",
+"Gold": "Gold",
+"Platinum": "Platinum",
+"Neu": "New"
+};
+const LP_DE = {};
+Object.keys(LP_EN).forEach(function(k){ LP_DE[LP_EN[k]] = k; });
+
+function lpUebersetzen(nachEn) {
+  const wurzel = document.getElementById('landingGate');
+  if (!wurzel) return 0;
+  const wb = nachEn ? LP_EN : LP_DE;
+  let n = 0;
+  const walker = document.createTreeWalker(wurzel, NodeFilter.SHOW_TEXT, null);
+  const knoten = [];
+  while (walker.nextNode()) knoten.push(walker.currentNode);
+  knoten.forEach(function(t){
+    const roh = t.nodeValue;
+    const s = roh.replace(/\s+/g, ' ').trim();
+    if (!s) return;
+    const ziel = wb[s];
+    if (ziel === undefined) return;
+    // Umgebende Leerraeume beibehalten
+    const vor = roh.match(/^\s*/)[0], nach = roh.match(/\s*$/)[0];
+    t.nodeValue = vor + ziel + nach;
+    n++;
+  });
+  // Attribute (Titel, Platzhalter)
+  wurzel.querySelectorAll('[title],[placeholder],[aria-label]').forEach(function(el){
+    ['title','placeholder','aria-label'].forEach(function(a){
+      const v = el.getAttribute(a); if (!v) return;
+      const z = wb[v.trim()]; if (z !== undefined) el.setAttribute(a, z);
+    });
+  });
+  wurzel.setAttribute('data-lang', nachEn ? 'en' : 'de');
+  return n;
+}
+
 function applyLang() {
+  // Startseite sofort aus dem Woerterbuch - kein Warten auf den Server
+  try {
+    const lg = document.getElementById('landingGate');
+    if (lg) { lg.classList.add('lp-lang-wechsel'); setTimeout(function(){ lg.classList.remove('lp-lang-wechsel'); }, 380); }
+  } catch(e) {}
   const lb = document.getElementById('langBtn');
   if (lb) lb.textContent = LANG === 'de' ? '🌐 EN' : '🌐 DE';
   if (LANG === 'en') {
