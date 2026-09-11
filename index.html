@@ -3746,6 +3746,71 @@
     /* Vor-/Nachname: mehr Abstand zur E-Mail */
     .auth-namen { margin-bottom:20px !important; }
     @media (max-width:760px) { .auth-namen { margin-bottom:17px !important; } }
+
+    /* ============================================================
+       SUPPORT-CENTER
+       ============================================================ */
+    #supportBtn { background:#0F1720 !important; color:#A7F3D0 !important; border-color:rgba(167,243,208,.35) !important; }
+    #supportBtn svg { stroke:#6EE7B7 !important; }
+    #supportBtn:hover { background:#1F2937 !important; transform:translateY(-1px); }
+    .sup-tabs { display:flex; gap:8px; margin-bottom:18px; flex-wrap:wrap; }
+    .sup-tab { padding:9px 16px; border-radius:999px; border:1.5px solid var(--border,#E2E6E9); background:#fff; font-family:inherit;
+      font-size:13px; font-weight:700; color:var(--gray,#5A6670); cursor:pointer; transition:all .18s; }
+    .sup-tab:hover { border-color:#0F1720; color:var(--ink,#111827); }
+    .sup-tab.aktiv { background:#0F1720; color:#A7F3D0; border-color:#0F1720; }
+    .sup-lade { padding:24px; text-align:center; color:var(--gray-l,#8A949D); font-style:italic; font-size:13px; }
+    .sup-kz-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:11px; margin-bottom:18px; }
+    .sup-kz { background:var(--card,#fff); border:1px solid var(--border,#E2E6E9); border-radius:14px; padding:14px 16px;
+      animation:teamIn .45s cubic-bezier(.2,.7,.2,1) both; }
+    .sup-kz-w { font-family:'Sora', inherit; font-size:24px; font-weight:800; color:var(--ink,#111827); line-height:1.1; }
+    .sup-kz.gruen .sup-kz-w { color:#16A34A; } .sup-kz.gelb .sup-kz-w { color:#A16207; }
+    .sup-kz-l { font-size:11px; font-weight:700; color:var(--gray,#5A6670); margin-top:3px; }
+    .sup-block { background:var(--card,#fff); border:1px solid var(--border,#E2E6E9); border-radius:16px; padding:18px 20px; margin-bottom:14px;
+      animation:teamIn .45s cubic-bezier(.2,.7,.2,1) both; }
+    .sup-block-h { font-size:14.5px; font-weight:800; color:var(--ink,#111827); margin-bottom:12px; }
+    .sup-zeile { display:flex; align-items:center; gap:10px; font-size:13px; color:var(--gray,#5A6670); }
+    .sup-warn { color:#B42318; font-weight:600; }
+    .sup-liste { display:flex; flex-direction:column; gap:8px; }
+    .sup-firma { display:flex; align-items:center; gap:12px; background:var(--card,#fff); border:1px solid var(--border,#E2E6E9); border-radius:13px;
+      padding:13px 15px; cursor:pointer; opacity:0; animation:fgIn .4s cubic-bezier(.2,.7,.2,1) var(--sd,0s) both; transition:border-color .18s, transform .18s, box-shadow .18s; }
+    .sup-firma:hover { border-color:#0F1720; transform:translateX(3px); box-shadow:0 10px 22px -14px rgba(10,15,13,.3); }
+    .sup-f-haupt { flex:1; min-width:0; }
+    .sup-f-name { font-size:14px; font-weight:800; color:var(--ink,#111827); }
+    .sup-f-meta { font-size:11.5px; color:var(--gray,#5A6670); margin-top:2px; }
+    .sup-tag { font-size:9.5px; font-weight:800; letter-spacing:.05em; text-transform:uppercase; background:var(--neutral2,#EFF2F4); color:var(--gray,#5A6670); border-radius:999px; padding:2px 7px; margin-left:5px; }
+    .sup-tag-rot { background:var(--bad-bg,#FEF1F1); color:var(--bad-text,#B42318); }
+    .sup-zurueck { background:none; border:none; font-family:inherit; font-size:13px; font-weight:700; color:var(--gray,#5A6670); cursor:pointer; padding:6px 0; margin-bottom:10px; }
+    .sup-zurueck:hover { color:var(--ink,#111827); }
+    .sup-detail-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:11px; margin-bottom:14px; }
+    .sup-detail-grid label { display:flex; flex-direction:column; gap:5px; font-size:11.5px; font-weight:700; color:var(--gray,#5A6670); }
+    .sup-detail-grid .om-name-input, .sup-detail-grid .tm-select { width:100%; box-sizing:border-box; }
+    .sup-chk { flex-direction:row !important; align-items:center; gap:8px !important; font-size:13px !important; color:var(--ink,#111827) !important; padding-top:20px; }
+    .sup-aktionen { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+    .sup-code { font-size:12.5px; color:var(--gray,#5A6670); margin-left:auto; }
+    .sup-code b { font-family:ui-monospace, Menlo, monospace; letter-spacing:.1em; color:var(--ink,#111827); }
+    .sup-nutzer { display:flex; align-items:center; gap:12px; padding:11px 0; border-top:1px solid var(--border2,#EDF0F2); flex-wrap:wrap; }
+    .sup-nutzer:first-of-type { border-top:none; }
+    .sup-n-haupt { flex:1; min-width:180px; }
+    .sup-n-name { font-size:13.5px; font-weight:700; color:var(--ink,#111827); }
+    .sup-n-mail { font-size:11.5px; font-weight:500; color:var(--gray-l,#8A949D); }
+    .sup-n-meta { font-size:11px; color:var(--gray,#5A6670); margin-top:2px; }
+    .sup-n-btns { display:flex; gap:7px; align-items:center; flex-wrap:wrap; }
+    .sup-rang { padding:6px 8px !important; font-size:12px !important; }
+    .sup-suche { margin-bottom:14px; }
+    .sup-suche .om-name-input { width:100%; box-sizing:border-box; padding:13px 15px; font-size:14px; }
+    .sup-akt { display:flex; gap:12px; align-items:flex-start; padding:10px 13px; background:var(--card,#fff); border:1px solid var(--border,#E2E6E9); border-radius:11px;
+      opacity:0; animation:fgIn .35s cubic-bezier(.2,.7,.2,1) var(--sd,0s) both; }
+    .sup-akt-z { flex-shrink:0; font-size:11px; font-weight:700; color:var(--gray-l,#8A949D); font-family:ui-monospace, Menlo, monospace; padding-top:2px; }
+    .sup-akt-t { font-size:12.5px; color:var(--gray,#5A6670); line-height:1.5; }
+    @media (max-width:760px) {
+      .sup-kz-grid { grid-template-columns:1fr 1fr; }
+      .sup-detail-grid { grid-template-columns:1fr; }
+      .sup-chk { padding-top:4px; }
+      .sup-nutzer { flex-direction:column; align-items:stretch; }
+      .sup-n-btns { justify-content:space-between; }
+      .sup-code { margin-left:0; width:100%; }
+      .sup-aktionen > button { flex:1 1 auto; }
+    }
 </style>
 <div id="legalGate" class="legal-gate" style="display:none;">
   <div class="legal-box">
@@ -3876,7 +3941,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.39</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.40</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -3899,6 +3964,7 @@
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
           Team
         </button>
+        <button class="hist-nav-btn" id="supportBtn" onclick="supportCenterOeffnen()" style="display:none;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg> Support-Center</button>
         <button class="hist-nav-btn" id="kontoBtn" onclick="openKonto()" style="display:none;">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
           Konto
@@ -4007,7 +4073,8 @@
 
   <div id="historyView" class="history-view" style="display:none"></div>
 
-  <div id="teamView" class="team-view" style="display:none"></div>
+  <div id="supportView" class="view-anim" style="display:none;"></div>
+    <div id="teamView" class="team-view" style="display:none"></div>
 
   <div id="akteView" class="akte-view" style="display:none"></div>
 
@@ -5069,6 +5136,7 @@ function enterApp() {
   appUnterseitenReset();
   document.getElementById('logoutBtn').style.display = '';
   const hb = document.getElementById('historyBtn'); if (hb) hb.style.display = '';
+  if (CURRENT_USER_RANG === 'support') { setTimeout(function(){ try { supportCenterOeffnen(); } catch(e) {} }, 200); }
   // Kam der Nutzer ueber einen Paket-Button auf der Startseite? Dann direkt dorthin.
   if (WUNSCH_PAKET) {
     const wunsch = WUNSCH_PAKET;
@@ -5127,6 +5195,8 @@ async function ladeMeineRolle() {
   }
   // Schreibweise/Leerzeichen egal: 'Admin', ' admin ' usw. zählen auch
   CURRENT_USER_ROLLE = (CURRENT_USER_ROLLE || '').toString().trim().toLowerCase();
+  const sbtn = document.getElementById('supportBtn');
+  if (sbtn) sbtn.style.display = (CURRENT_USER_RANG === 'support') ? '' : 'none';
   const tb = document.getElementById('teamBtn');
   const einzel = !!(CURRENT_FIRMA && CURRENT_FIRMA.typ === 'einzel');
   // Jedes Mitglied darf sein Team sehen - verwalten duerfen weiterhin nur President und Vize
@@ -5370,6 +5440,216 @@ function renderTeam() {
 }
 
 // Unternehmens-Code (President/Vize) + Team verlassen
+// ============================================================
+// SUPPORT-CENTER
+// ============================================================
+let SUP_FIRMEN = [];
+let SUP_TAB = 'uebersicht';
+
+function supportCenterOeffnen() {
+  if (CURRENT_USER_RANG !== 'support') return;
+  mitAusBlende(function(){
+    appUnterseitenReset();
+    ['mainView','historyView','teamView','akteView'].forEach(function(id){ const e = document.getElementById(id); if (e) e.style.display = 'none'; });
+    const v = document.getElementById('supportView');
+    if (!v) return;
+    v.style.display = '';
+    fadeInView(v);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    v.innerHTML = '<div class="history-head"><div>'
+      + '<div class="history-eyebrow">Automati Labs \u00b7 intern</div>'
+      + '<div class="history-title">Support-Center</div>'
+      + '<div class="history-sub">Alle Firmen, Nutzer und Systemwerte auf einen Blick. \u00c4nderungen wirken sofort.</div></div>'
+      + '<button class="btn-action" onclick="backToMain()">Zum Tool</button></div>'
+      + '<div class="sup-tabs">'
+      + supTab('uebersicht', '\u00dcbersicht') + supTab('firmen', 'Firmen') + supTab('nutzer', 'Nutzer') + supTab('aktivitaet', 'Aktivit\u00e4t')
+      + '</div>'
+      + '<div id="supBody"><div class="sup-lade">Wird geladen\u2026</div></div>';
+    supLade();
+  });
+}
+
+function supTab(id, label) {
+  return '<button class="sup-tab' + (SUP_TAB === id ? ' aktiv' : '') + '" data-tab="' + id + '" onclick="supTabWechsel(\'' + id + '\')">' + label + '</button>';
+}
+function supTabWechsel(id) {
+  SUP_TAB = id;
+  document.querySelectorAll('.sup-tab').forEach(function(b){ b.classList.toggle('aktiv', b.getAttribute('data-tab') === id); });
+  supLade();
+}
+
+async function supLade() {
+  const b = document.getElementById('supBody');
+  if (!b) return;
+  b.innerHTML = '<div class="sup-lade">Wird geladen\u2026</div>';
+  try {
+    if (SUP_TAB === 'uebersicht') await supUebersicht(b);
+    else if (SUP_TAB === 'firmen') await supFirmen(b);
+    else if (SUP_TAB === 'nutzer') supNutzer(b);
+    else await supAktivitaet(b);
+    sichtbarSicherstellen(b);
+  } catch (e) { b.innerHTML = '<div class="sup-lade">Fehler: ' + escapeHtml((e && e.message) || '') + '</div>'; }
+}
+
+async function supUebersicht(b) {
+  const { data } = await sb.rpc('sup_status');
+  const s = data || {};
+  const sank = (s.sanktionen || [])[0] || {};
+  const sankAlt = sank.stand ? Math.floor((Date.now() - new Date(sank.stand).getTime()) / 86400000) : null;
+  function k(wert, label, farbe) { return '<div class="sup-kz ' + (farbe || '') + '"><div class="sup-kz-w">' + wert + '</div><div class="sup-kz-l">' + label + '</div></div>'; }
+  b.innerHTML = '<div class="sup-kz-grid">'
+    + k(s.firmen || 0, 'Firmen') + k(s.zahlende_firmen || 0, 'davon zahlend', 'gruen') + k(s.nutzer || 0, 'Nutzer')
+    + k(s.analysen_heute || 0, 'Analysen heute') + k(s.analysen_monat || 0, 'Analysen Monat') + k(s.analysen_gesamt || 0, 'Analysen gesamt')
+    + k(s.favoriten || 0, '\u00dcberwacht') + k(s.faellige_favoriten || 0, 'F\u00e4llig', (s.faellige_favoriten > 0) ? 'gelb' : '')
+    + k(s.kyc_dokumente || 0, 'Ausweise abgelegt') + k(s.offene_einladungen || 0, 'Offene Einladungen')
+    + '</div>'
+    + '<div class="sup-block"><div class="sup-block-h">Sanktionsliste</div>'
+    + '<div class="sup-zeile"><span class="sank-punkt sank-' + (sankAlt === null ? 'grau' : sankAlt <= 8 ? 'gruen' : 'rot') + '"></span>'
+    + '<b>' + (sank.eintraege || 0).toLocaleString('de-DE') + '</b>&nbsp;Eintr\u00e4ge \u00b7 Stand ' + (sank.stand ? new Date(sank.stand).toLocaleDateString('de-DE') : '\u2013')
+    + (sank.meldung ? ' \u00b7 <span class="sup-warn">' + escapeHtml(sank.meldung) + '</span>' : '') + '</div></div>';
+}
+
+async function supFirmen(b) {
+  const { data } = await sb.rpc('sup_firmen');
+  SUP_FIRMEN = data || [];
+  if (!SUP_FIRMEN.length) { b.innerHTML = '<div class="sup-lade">Keine Firmen.</div>'; return; }
+  b.innerHTML = '<div class="sup-liste">' + SUP_FIRMEN.map(function(f, i){
+    const q = f.monatslimit ? Math.round(f.analysen_monat / f.monatslimit * 100) : 0;
+    const amp = f.trial ? 'grau' : (!f.aktiv ? 'rot' : (q >= 90 ? 'rot' : q >= 70 ? 'gelb' : 'gruen'));
+    const paket = f.monatslimit >= 999999 ? 'Unbegrenzt' : f.trial ? 'Testphase' : f.monatslimit + '/Monat';
+    return '<div class="sup-firma" style="--sd:' + (i * 0.03) + 's" onclick="supFirmaOeffnen(\'' + f.firma_id + '\')">'
+      + '<span class="sank-punkt sank-' + amp + '"></span>'
+      + '<div class="sup-f-haupt"><div class="sup-f-name">' + escapeHtml(f.name) + (f.typ === 'einzel' ? ' <span class="sup-tag">Einzel</span>' : '') + '</div>'
+      + '<div class="sup-f-meta">' + f.mitglieder + ' Mitgl. \u00b7 ' + paket + ' \u00b7 ' + f.analysen_monat + ' diesen Monat \u00b7 ' + f.analysen_gesamt + ' gesamt'
+      + (f.letzte_analyse ? ' \u00b7 zuletzt ' + new Date(f.letzte_analyse).toLocaleDateString('de-DE') : '') + '</div></div>'
+      + '<svg class="fw-pfeil" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 18l6-6-6-6"/></svg>'
+      + '</div>';
+  }).join('') + '</div>';
+}
+
+async function supFirmaOeffnen(id) {
+  const f = SUP_FIRMEN.find(function(x){ return x.firma_id === id; });
+  if (!f) return;
+  const b = document.getElementById('supBody');
+  b.innerHTML = '<div class="sup-lade">Wird geladen\u2026</div>';
+  const { data } = await sb.rpc('sup_mitglieder', { p_firma: id });
+  const m = data || [];
+  b.innerHTML = '<button class="sup-zurueck" onclick="supLade()">\u2190 Alle Firmen</button>'
+    + '<div class="sup-block">'
+    + '<div class="sup-block-h">' + escapeHtml(f.name) + '</div>'
+    + '<div class="sup-detail-grid">'
+    + '<label>Name<input class="om-name-input" id="supFName" value="' + escapeHtml(f.name) + '" /></label>'
+    + '<label>Typ<select class="tm-select" id="supFTyp"><option value="firma"' + (f.typ === 'firma' ? ' selected' : '') + '>Unternehmen</option><option value="einzel"' + (f.typ === 'einzel' ? ' selected' : '') + '>Einzelperson</option></select></label>'
+    + '<label>Analysen/Monat<input class="om-name-input" id="supFLimit" type="number" value="' + f.monatslimit + '" /></label>'
+    + '<label class="sup-chk"><input type="checkbox" id="supFTrial"' + (f.trial ? ' checked' : '') + ' /> Testphase</label>'
+    + '<label class="sup-chk"><input type="checkbox" id="supFAktiv"' + (f.aktiv ? ' checked' : '') + ' /> Aktiv</label>'
+    + '</div>'
+    + '<div class="sup-aktionen">'
+    + '<button class="plan-btn" onclick="supFirmaSpeichern(\'' + id + '\')">Speichern</button>'
+    + '<button class="kyc-btn" onclick="supBeitreten(\'' + id + '\')">Firma beitreten</button>'
+    + '<span class="sup-code">Code: <b>' + escapeHtml(f.code || '\u2013') + '</b></span>'
+    + '</div><div id="supFMsg" class="auth-msg" style="display:none;margin-top:10px;"></div></div>'
+    + '<div class="sup-block"><div class="sup-block-h">Mitglieder (' + m.length + ')</div>'
+    + (m.length ? m.map(function(u){ return supNutzerZeile(u); }).join('') : '<div class="sup-lade">Keine Mitglieder.</div>')
+    + '</div>';
+  sichtbarSicherstellen(b);
+}
+
+function supNutzerZeile(u) {
+  const name = ((u.vorname || '') + ' ' + (u.nachname || '')).trim();
+  const info = RANG_INFO[u.rang] || RANG_INFO.member;
+  const mail = u.email || '';
+  return '<div class="sup-nutzer">'
+    + '<div class="sup-n-haupt"><div class="sup-n-name">' + (name ? escapeHtml(name) + ' <span class="sup-n-mail">' + escapeHtml(mail) + '</span>' : escapeHtml(mail))
+    + (u.bestaetigt === false ? ' <span class="sup-tag sup-tag-rot">unbest\u00e4tigt</span>' : '') + '</div>'
+    + '<div class="sup-n-meta">' + (u.firma_name ? escapeHtml(u.firma_name) + ' \u00b7 ' : '') + 'Login ' + (u.letzter_login ? new Date(u.letzter_login).toLocaleDateString('de-DE') : 'nie') + '</div></div>'
+    + '<span class="tm-badge tm-' + info.farbe + '"><span class="tm-badge-ico">' + (RANG_SVG[u.rang] || RANG_SVG.member) + '</span>' + info.name + '</span>'
+    + '<div class="sup-n-btns">'
+    + (u.rang !== 'support' ? '<select class="tm-select sup-rang" onchange="supRang(\'' + u.user_id + '\', this.value)"><option value="">Rang\u2026</option><option value="president">President</option><option value="vice">Vice</option><option value="senior">Senior</option><option value="member">Member</option></select>' : '')
+    + '<button class="kyc-btn" onclick="supPasswort(\'' + u.user_id + '\', this)" data-mail="' + escapeHtml(mail) + '">Passwort</button>'
+    + (u.bestaetigt === false ? '<button class="kyc-btn" onclick="supBestaetigen(\'' + u.user_id + '\')">Best\u00e4tigen</button>' : '')
+    + '</div></div>';
+}
+
+function supNutzer(b) {
+  b.innerHTML = '<div class="sup-suche"><input class="om-name-input" id="supSuche" placeholder="E-Mail, Name oder Firma suchen\u2026" oninput="supSucheLauf()" autocomplete="off" /></div><div id="supSucheErg"><div class="sup-lade">Tippe, um zu suchen.</div></div>';
+  setTimeout(function(){ const s = document.getElementById('supSuche'); if (s) s.focus(); }, 80);
+}
+let _supSucheTimer = null;
+function supSucheLauf() {
+  clearTimeout(_supSucheTimer);
+  _supSucheTimer = setTimeout(async function(){
+    const q = ((document.getElementById('supSuche') || {}).value || '').trim();
+    const erg = document.getElementById('supSucheErg');
+    if (!erg) return;
+    if (q.length < 2) { erg.innerHTML = '<div class="sup-lade">Mindestens 2 Zeichen.</div>'; return; }
+    const { data } = await sb.rpc('sup_nutzer_suchen', { p_suche: q });
+    const l = data || [];
+    erg.innerHTML = l.length ? l.map(function(u){ return supNutzerZeile(u); }).join('') : '<div class="sup-lade">Nichts gefunden.</div>';
+    sichtbarSicherstellen(erg);
+  }, 250);
+}
+
+async function supAktivitaet(b) {
+  const { data } = await sb.rpc('sup_aktivitaet', { p_max: 60 });
+  const l = data || [];
+  b.innerHTML = l.length ? '<div class="sup-liste">' + l.map(function(a, i){
+    const sc = (typeof a.score === 'number') ? '<span class="audit-score audit-s-' + (a.score >= 70 ? 'gruen' : a.score >= 45 ? 'gelb' : 'rot') + '">' + a.score + '</span>' : '';
+    return '<div class="sup-akt" style="--sd:' + (i * 0.02) + 's"><div class="sup-akt-z">' + new Date(a.zeit).toLocaleString('de-DE', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' }) + '</div>'
+      + '<div class="sup-akt-t"><b>' + escapeHtml(a.firma || '?') + '</b> \u00b7 ' + escapeHtml(a.akteur || '') + ' hat gepr\u00fcft: ' + escapeHtml(a.ziel || '') + ' ' + sc + '</div></div>';
+  }).join('') + '</div>' : '<div class="sup-lade">Noch keine Aktivit\u00e4t.</div>';
+}
+
+function supMsg(text, art) {
+  const m = document.getElementById('supFMsg');
+  if (!m) { zeigeToast(art === 'ok' ? 'Erledigt' : 'Fehler', text); return; }
+  m.textContent = text; m.className = 'auth-msg ' + (art === 'ok' ? 'ok' : 'error'); m.style.display = '';
+}
+async function supFirmaSpeichern(id) {
+  const name = (document.getElementById('supFName') || {}).value;
+  const typ = (document.getElementById('supFTyp') || {}).value;
+  const limit = parseInt((document.getElementById('supFLimit') || {}).value, 10);
+  const trial = !!(document.getElementById('supFTrial') || {}).checked;
+  const aktiv = !!(document.getElementById('supFAktiv') || {}).checked;
+  try {
+    await sb.rpc('sup_firma_aendern', { p_firma: id, p_name: name, p_typ: typ });
+    const { data } = await sb.rpc('sup_kontingent', { p_firma: id, p_limit: isNaN(limit) ? 3 : limit, p_trial: trial, p_aktiv: aktiv });
+    supMsg(data && data.ok ? 'Gespeichert.' : 'Fehler: ' + ((data && data.grund) || ''), data && data.ok ? 'ok' : 'error');
+    const r = await sb.rpc('sup_firmen'); SUP_FIRMEN = r.data || SUP_FIRMEN;
+  } catch (e) { supMsg('Fehler: ' + ((e && e.message) || ''), 'error'); }
+}
+async function supBeitreten(id) {
+  if (!confirm('Dieser Firma als Support beitreten? Zur\u00fcck \u00fcber \u201eEinsatz beenden\u201c in der Team-Ansicht.')) return;
+  const { data } = await sb.rpc('sup_beitreten', { p_firma: id });
+  if (data && data.ok) { zeigeToast('Beigetreten', 'Seite wird neu geladen.'); setTimeout(function(){ location.reload(); }, 1000); }
+  else alert('Fehler: ' + ((data && data.grund) || ''));
+}
+async function supRang(userId, rang) {
+  if (!rang) return;
+  const { data } = await sb.rpc('sup_rang_setzen', { p_user: userId, p_rang: rang });
+  zeigeToast(data && data.ok ? 'Rang gesetzt' : 'Fehler', data && data.ok ? 'Der Nutzer ist jetzt ' + rangName(rang) + '.' : ((data && data.grund) || ''));
+  if (data && data.ok) supLade();
+}
+async function supPasswort(userId, btn) {
+  const email = (btn && btn.getAttribute('data-mail')) || '';
+  const pw = prompt('Neues Passwort f\u00fcr ' + email + ' (mind. 8 Zeichen).\nLeer lassen, um eine Reset-Mail zu senden:');
+  if (pw === null) return;
+  if (btn) { btn.disabled = true; btn.textContent = '\u2026'; }
+  try {
+    const r = pw.trim()
+      ? await workerCall('support_aktion', { was: 'passwort', user_id: userId, passwort: pw.trim() })
+      : await workerCall('support_aktion', { was: 'reset_mail', email: email });
+    if (r && r.ok) zeigeToast(pw.trim() ? 'Passwort gesetzt' : 'Reset-Mail gesendet', pw.trim() ? 'Bitte m\u00fcndlich mitteilen.' : 'An ' + email + '.');
+    else alert('Fehler: ' + ((r && r.error) || ''));
+  } catch (e) { alert('Fehler: ' + ((e && e.message) || '')); }
+  if (btn) { btn.disabled = false; btn.textContent = 'Passwort'; }
+}
+async function supBestaetigen(userId) {
+  const r = await workerCall('support_aktion', { was: 'bestaetigen', user_id: userId });
+  if (r && r.ok) { zeigeToast('Best\u00e4tigt', 'Der Nutzer kann sich jetzt anmelden.'); supLade(); }
+  else alert('Fehler: ' + ((r && r.error) || ''));
+}
+
 function teamFussHtml() {
   const darf = darfVerwalten();
   const istSupport = CURRENT_USER_RANG === 'support';
@@ -7554,7 +7834,7 @@ async function workerCall(action, payload, versuch) {
       // Anmelde-Nachweis NUR bei internen Aktionen mitschicken.
       // Ein zusaetzlicher Header loest eine Vorab-Anfrage aus - waere er
       // serverseitig nicht erlaubt, wuerden sonst ALLE Aufrufe scheitern.
-      if (action === 'sanktionen_laden' || action === 'monitoring_lauf') {
+      if (action === 'sanktionen_laden' || action === 'monitoring_lauf' || action === 'support_aktion') {
         try {
           const s = (await sb.auth.getSession()).data.session;
           if (s && s.access_token) kopf['Authorization'] = 'Bearer ' + s.access_token;
