@@ -4026,7 +4026,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.46</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.47</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -5508,6 +5508,15 @@ async function ladeMeineRolle() {
   }
   // Schreibweise/Leerzeichen egal: 'Admin', ' admin ' usw. zählen auch
   CURRENT_USER_ROLLE = (CURRENT_USER_ROLLE || '').toString().trim().toLowerCase();
+  kopfzeileAktualisieren();
+  const tb = document.getElementById('teamBtn');
+  const einzel = !!(CURRENT_FIRMA && CURRENT_FIRMA.typ === 'einzel');
+  // Jedes Mitglied darf sein Team sehen - verwalten duerfen weiterhin nur President und Vize
+  if (tb) tb.style.display = einzel ? 'none' : '';
+}
+// Kopfzeile an Rang und Konto anpassen - laeuft mehrfach, weil der
+// Rang erst nach der Rolle geladen wird.
+function kopfzeileAktualisieren() {
   const wer = document.getElementById('werBinIch');
   if (wer) {
     const name = (CURRENT_USER_NAME && CURRENT_USER_NAME.indexOf('@') < 0) ? CURRENT_USER_NAME : (CURRENT_USER_EMAIL || '');
@@ -5521,17 +5530,15 @@ async function ladeMeineRolle() {
   }
   const sbtn = document.getElementById('supportBtn');
   if (sbtn) sbtn.style.display = (CURRENT_USER_RANG === 'support') ? '' : 'none';
-  const tb = document.getElementById('teamBtn');
-  const einzel = !!(CURRENT_FIRMA && CURRENT_FIRMA.typ === 'einzel');
-  // Jedes Mitglied darf sein Team sehen - verwalten duerfen weiterhin nur President und Vize
-  if (tb) tb.style.display = einzel ? 'none' : '';
 }
+
 async function ladeMeinenRang() {
   try {
     const { data, error } = await sb.rpc('mein_rang');
-    if (!error && data) CURRENT_USER_RANG = data;
-    else CURRENT_USER_RANG = (CURRENT_USER_ROLLE === 'admin') ? 'president' : 'member';
-  } catch (e) { CURRENT_USER_RANG = (CURRENT_USER_ROLLE === 'admin') ? 'president' : 'member'; }
+    if (!error && data) { CURRENT_USER_RANG = data; }
+    else { CURRENT_USER_RANG = (CURRENT_USER_ROLLE === 'admin') ? 'president' : 'member'; }
+    try { kopfzeileAktualisieren(); } catch(e) {}
+  } catch (e) { CURRENT_USER_RANG = (CURRENT_USER_ROLLE === 'admin') ? 'president' : 'member'; try { kopfzeileAktualisieren(); } catch(e) {} }
 }
 
 
