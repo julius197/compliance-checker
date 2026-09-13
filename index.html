@@ -3892,6 +3892,10 @@
       .uw-tab { flex:1; }
       .hist-pruefer { margin-left:0; width:100%; max-width:none; margin-top:8px; }
     }
+
+    .sup-fehler { background:#FFFBEB; border:1.5px solid rgba(245,158,11,.4); border-radius:14px; padding:18px 20px;
+      font-size:13px; line-height:1.7; color:#5A6670; animation:teamIn .45s cubic-bezier(.2,.7,.2,1) both; }
+    .sup-fehler b { color:#B45309; }
 </style>
 <div id="legalGate" class="legal-gate" style="display:none;">
   <div class="legal-box">
@@ -4022,7 +4026,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.45</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.46</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -5767,8 +5771,15 @@ let SUP_FIRMEN = [];
 let SUP_TAB = 'uebersicht';
 
 function supportCenterOeffnen() {
-  if (CURRENT_USER_RANG !== 'support') return;
-  mitAusBlende(function(){
+  if (CURRENT_USER_RANG !== 'support') {
+    alert('Dieses Konto hat nicht den Rang \u201eSupport\u201c (aktuell: ' + (CURRENT_USER_RANG || 'unbekannt') + ').');
+    return;
+  }
+  try { supCenterAufbauen(); } catch (e) { alert('Support-Center: ' + ((e && e.message) || 'Fehler')); }
+}
+
+function supCenterAufbauen() {
+  const fertig = function(){
     appUnterseitenReset();
     ['mainView','historyView','teamView','akteView'].forEach(function(id){ const e = document.getElementById(id); if (e) e.style.display = 'none'; });
     const v = document.getElementById('supportView');
@@ -5786,7 +5797,11 @@ function supportCenterOeffnen() {
       + '</div>'
       + '<div id="supBody"><div class="sup-lade">Wird geladen\u2026</div></div>';
     supLade();
-  });
+  };
+  // Mit Ausblende-Effekt, falls vorhanden - sonst direkt
+  if (typeof mitAusBlende === 'function') {
+    try { mitAusBlende(fertig); } catch (e) { fertig(); }
+  } else { fertig(); }
 }
 
 function supTab(id, label) {
@@ -5808,7 +5823,16 @@ async function supLade() {
     else if (SUP_TAB === 'nutzer') supNutzer(b);
     else await supAktivitaet(b);
     sichtbarSicherstellen(b);
-  } catch (e) { b.innerHTML = '<div class="sup-lade">Fehler: ' + escapeHtml((e && e.message) || '') + '</div>'; }
+  } catch (e) {
+    const m = (e && e.message) || '';
+    const fehltSql = /does not exist|schema cache|function public\.sup_/i.test(m);
+    b.innerHTML = '<div class="sup-fehler">'
+      + '<b>' + (fehltSql ? 'Die Datenbank-Funktionen fehlen noch' : 'Fehler beim Laden') + '</b><br/>'
+      + (fehltSql
+          ? 'Bitte das SQL-Skript \u201esql support center\u201c einmal in Supabase ausf\u00fchren. Danach hier neu laden.'
+          : escapeHtml(m))
+      + '</div>';
+  }
 }
 
 async function supUebersicht(b) {
