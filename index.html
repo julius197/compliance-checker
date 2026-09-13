@@ -4003,6 +4003,75 @@
       .mon-karte { opacity:1 !important; transform:none !important; }
       .mon-ico, .mon-ico-leer, .stern-hinweis svg { animation:none !important; }
     }
+
+    /* ============================================================
+       MANUELLE BEARBEITUNG + NEUBEWERTUNG
+       ============================================================ */
+    .bearb-leiste { margin-bottom:14px; }
+    .bearb-leiste:empty { display:none; }
+    .bearb-fassung { font-size:11.5px; font-weight:700; color:#1E4E8C; background:#EEF4FF; border:1px solid rgba(46,111,191,.3);
+      border-radius:999px; padding:5px 12px; display:inline-block; margin-bottom:10px; }
+    .bearb-karte { display:flex; align-items:center; gap:14px; padding:16px 18px; border-radius:16px;
+      background:var(--card,#fff); border:1.5px solid var(--border,#E2E6E9);
+      opacity:0; transform:translateY(8px); transition:opacity .4s ease, transform .4s cubic-bezier(.2,.9,.3,1.2), border-color .3s, background .3s; }
+    .bearb-karte.an { opacity:1; transform:none; }
+    .bearb-karte.bearb-aktiv { border-color:#2E6FBF; background:linear-gradient(135deg,#F5F9FF,#fff); }
+    .bearb-ico { flex-shrink:0; width:42px; height:42px; border-radius:12px; background:var(--neutral,#F6F8F9); color:var(--gray,#5A6670);
+      display:flex; align-items:center; justify-content:center; transition:all .3s; }
+    .bearb-ico-an { background:#2E6FBF; color:#fff; animation:bearbIcoAn .5s cubic-bezier(.2,.9,.3,1.5) both; }
+    @keyframes bearbIcoAn { 0% { transform:scale(.6) rotate(-20deg); } 60% { transform:scale(1.1) rotate(5deg); } 100% { transform:scale(1) rotate(0); } }
+    .bearb-text { flex:1; min-width:0; }
+    .bearb-t { font-size:14px; font-weight:800; color:var(--ink,#111827); margin-bottom:3px; }
+    .bearb-d { font-size:12.5px; line-height:1.55; color:var(--gray,#5A6670); }
+    .bearb-d b { color:#1E4E8C; }
+    .bearb-btns { display:flex; gap:8px; flex-shrink:0; }
+    .bearb-btn { display:inline-flex; align-items:center; gap:7px; padding:11px 16px; border-radius:11px; border:none;
+      background:linear-gradient(135deg,#1E4E8C,#2E6FBF); color:#fff; font-family:inherit; font-size:13px; font-weight:800;
+      cursor:pointer; white-space:nowrap; box-shadow:0 8px 20px -10px rgba(30,78,140,.7);
+      transition:transform .2s cubic-bezier(.2,.9,.3,1.3), box-shadow .2s, opacity .2s; }
+    .bearb-btn:hover:not(:disabled) { transform:translateY(-2px); box-shadow:0 14px 28px -10px rgba(30,78,140,.85); }
+    .bearb-btn:disabled { opacity:.45; cursor:not-allowed; box-shadow:none; }
+    .bearb-btn svg { transition:transform .5s cubic-bezier(.2,.9,.3,1.3); }
+    .bearb-btn:hover:not(:disabled) svg { transform:rotate(180deg); }
+    .bearb-spin { display:inline-block; width:13px; height:13px; border:2px solid rgba(255,255,255,.35); border-top-color:#fff;
+      border-radius:50%; animation:bsDreh .8s linear infinite; }
+
+    /* Stift am Feld */
+    .kv { position:relative; }
+    .kv-stift { position:absolute; right:6px; top:50%; transform:translateY(-50%); width:28px; height:28px; border-radius:8px; border:none;
+      background:transparent; color:var(--gray-l,#B5BEC6); cursor:pointer; display:flex; align-items:center; justify-content:center;
+      opacity:0; transition:all .18s; }
+    .kv:hover .kv-stift, .kv-stift:focus { opacity:1; }
+    .kv-stift:hover { background:#EEF4FF; color:#2E6FBF; transform:translateY(-50%) scale(1.1); }
+    .kv-ergaenzt { background:linear-gradient(90deg, rgba(46,111,191,.06), transparent); border-radius:8px; }
+    .kv-ergaenzt .kv-v { color:#1E4E8C !important; font-weight:600; }
+    .kv-erg-tag { font-size:9.5px; font-weight:800; letter-spacing:.05em; text-transform:uppercase; margin-left:8px;
+      background:#2E6FBF; color:#fff; border-radius:999px; padding:2px 7px; vertical-align:middle;
+      animation:teamIn .35s cubic-bezier(.2,.9,.3,1.4) both; }
+
+    /* Inline-Eingabe */
+    .kv-edit { display:flex; align-items:center; gap:6px; animation:kvEditIn .28s cubic-bezier(.2,.9,.3,1.2) both; }
+    @keyframes kvEditIn { from { opacity:0; transform:translateX(-6px); } to { opacity:1; transform:none; } }
+    .kv-edit-in { flex:1; min-width:0; padding:7px 10px; border:1.5px solid #2E6FBF; border-radius:8px; font-family:inherit;
+      font-size:13px; color:var(--ink,#111827); background:#fff; outline:none; box-shadow:0 0 0 3px rgba(46,111,191,.15); }
+    .kv-edit-ok, .kv-edit-x { width:30px; height:30px; border-radius:8px; border:none; font-size:15px; font-weight:800; cursor:pointer;
+      display:flex; align-items:center; justify-content:center; transition:all .15s; flex-shrink:0; }
+    .kv-edit-ok { background:#2E6FBF; color:#fff; }
+    .kv-edit-ok:hover { background:#1E4E8C; transform:scale(1.08); }
+    .kv-edit-x { background:var(--neutral2,#EFF2F4); color:var(--gray,#5A6670); }
+    .kv-edit-x:hover { background:var(--bad-bg,#FEF1F1); color:var(--bad-text,#B42318); }
+
+    @media print { .bearb-leiste, .kv-stift { display:none !important; } .kv-erg-tag { background:none; color:#1E4E8C; border:1px solid #1E4E8C; } }
+    @media (max-width:760px) {
+      .bearb-karte { flex-direction:column; align-items:stretch; text-align:center; gap:11px; padding:14px 15px; }
+      .bearb-ico { margin:0 auto; }
+      .bearb-btns { flex-direction:column; }
+      .bearb-btn { width:100%; justify-content:center; }
+      .kv-stift { opacity:.55; }                 /* am Handy immer sichtbar - es gibt kein Hover */
+      .kv-edit { flex-wrap:wrap; }
+      .kv-edit-in { flex:1 1 100%; font-size:15px; }
+    }
+    @media (prefers-reduced-motion: reduce) { .bearb-karte { opacity:1 !important; transform:none !important; } .kv-stift { opacity:.55; } }
 </style>
 <div id="legalGate" class="legal-gate" style="display:none;">
   <div class="legal-box">
@@ -4133,7 +4202,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.54</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.55</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -5345,6 +5414,145 @@ function favDlgSchliessen(ja) {
 // ============================================================
 // UEBERWACHUNG direkt im Bericht - dort, wo die Leute an die Firma denken
 // ============================================================
+// ============================================================
+// MANUELLE BEARBEITUNG + NEUBEWERTUNG
+// ============================================================
+let BEARBEITEN_AN = false;
+let ERGAENZUNGEN = {};        // "Kategorie|Feld" -> neuer Wert
+
+function bearbLeisteZeichnen() {
+  const l = document.getElementById('bearbLeiste');
+  if (!l || !CURRENT_REPORT) return;
+  const n = Object.keys(ERGAENZUNGEN).length;
+  const d = CURRENT_REPORT;
+  const fassung = d._fassung || 1;
+  const hinweisAlt = d._fassung_hinweis ? '<div class="bearb-fassung">Fassung ' + fassung + ' \u00b7 ' + escapeHtml(d._fassung_hinweis) + '</div>' : '';
+
+  if (!BEARBEITEN_AN) {
+    l.innerHTML = hinweisAlt
+      + '<div class="bearb-karte">'
+      + '<div class="bearb-ico"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></div>'
+      + '<div class="bearb-text"><div class="bearb-t">Etwas fehlt oder stimmt nicht?</div>'
+      + '<div class="bearb-d">Website, USt-IdNr., Registernummer oder Gesch\u00e4ftsf\u00fchrung nachtragen \u2013 danach wird der Bericht mit deinen Angaben neu bewertet.</div></div>'
+      + '<button class="bearb-btn" onclick="bearbeitenStart()">Angaben erg\u00e4nzen</button>'
+      + '</div>';
+  } else {
+    l.innerHTML = hinweisAlt
+      + '<div class="bearb-karte bearb-aktiv">'
+      + '<div class="bearb-ico bearb-ico-an"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></div>'
+      + '<div class="bearb-text"><div class="bearb-t">Bearbeitungsmodus</div>'
+      + '<div class="bearb-d">Klicke auf den Stift neben einem Feld. ' + (n ? '<b>' + n + ' Angabe' + (n === 1 ? '' : 'n') + ' erg\u00e4nzt.</b>' : 'Noch nichts erg\u00e4nzt.') + '</div></div>'
+      + '<div class="bearb-btns">'
+      + '<button class="kyc-btn" onclick="bearbeitenAbbruch()">Abbrechen</button>'
+      + '<button class="bearb-btn" id="neuBewertenBtn" onclick="neuBewerten()"' + (n ? '' : ' disabled') + '>'
+      + '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.2-8.6"/><path d="M21 3v6h-6"/></svg>'
+      + ' Neu bewerten' + (n ? ' (' + n + ')' : '') + '</button>'
+      + '</div></div>';
+  }
+  requestAnimationFrame(function(){ const k = l.querySelector('.bearb-karte'); if (k) k.classList.add('an'); });
+}
+
+function bearbeitenStart() {
+  BEARBEITEN_AN = true;
+  ERGAENZUNGEN = {};
+  berichtNeuZeichnen();
+  zeigeToast('Bearbeitungsmodus', 'Klicke auf den Stift neben einem Feld, um es zu erg\u00e4nzen.');
+}
+function bearbeitenAbbruch() {
+  BEARBEITEN_AN = false;
+  ERGAENZUNGEN = {};
+  berichtNeuZeichnen();
+}
+
+function berichtNeuZeichnen() {
+  if (!CURRENT_REPORT) return;
+  const y = window.scrollY;
+  showReport(CURRENT_REPORT, CURRENT_REPORT.firmenname, AUS_HISTORIE);
+  setTimeout(function(){ window.scrollTo({ top: y }); bearbLeisteZeichnen(); }, 60);
+}
+
+function feldBearbeiten(feldId, ev) {
+  if (ev) { ev.stopPropagation(); ev.preventDefault(); }
+  const zeile = document.getElementById(feldId);
+  if (!zeile || zeile.querySelector('.kv-edit')) return;
+  const kat = zeile.getAttribute('data-kat'), feld = zeile.getAttribute('data-feld');
+  const schluessel = kat + '|' + feld;
+  const alt = ERGAENZUNGEN[schluessel] || '';
+  const v = zeile.querySelector('.kv-v');
+  const stift = zeile.querySelector('.kv-stift');
+  if (stift) stift.style.display = 'none';
+  v.innerHTML = '<div class="kv-edit">'
+    + '<input class="kv-edit-in" type="text" value="' + escapeHtml(alt) + '" placeholder="Neuen Wert eingeben\u2026" onkeydown="feldTaste(event, \'' + feldId + '\')" />'
+    + '<button class="kv-edit-ok" onclick="feldUebernehmen(\'' + feldId + '\')" title="\u00dcbernehmen">\u2713</button>'
+    + '<button class="kv-edit-x" onclick="feldAbbruch(\'' + feldId + '\')" title="Abbrechen">\u00d7</button>'
+    + '</div>';
+  const inp = v.querySelector('input');
+  requestAnimationFrame(function(){ inp.focus(); inp.select(); });
+}
+function feldTaste(ev, feldId) {
+  if (ev.key === 'Enter') feldUebernehmen(feldId);
+  if (ev.key === 'Escape') feldAbbruch(feldId);
+}
+function feldUebernehmen(feldId) {
+  const zeile = document.getElementById(feldId);
+  if (!zeile) return;
+  const inp = zeile.querySelector('.kv-edit-in');
+  const wert = (inp && inp.value || '').trim();
+  const schluessel = zeile.getAttribute('data-kat') + '|' + zeile.getAttribute('data-feld');
+  if (wert) ERGAENZUNGEN[schluessel] = wert; else delete ERGAENZUNGEN[schluessel];
+  berichtNeuZeichnen();
+}
+function feldAbbruch(feldId) { berichtNeuZeichnen(); }
+
+async function neuBewerten() {
+  const n = Object.keys(ERGAENZUNGEN).length;
+  if (!n || !CURRENT_REPORT) return;
+  const btn = document.getElementById('neuBewertenBtn');
+  if (btn) { btn.disabled = true; btn.innerHTML = '<span class="bearb-spin"></span> Wird neu bewertet\u2026'; }
+
+  // Ergaenzungen fuer den Worker aufbereiten: "Kategorie > Feld": Wert
+  const erg = {};
+  Object.keys(ERGAENZUNGEN).forEach(function(k){ erg[k.replace('|', ' > ')] = ERGAENZUNGEN[k]; });
+
+  try {
+    const r = await workerCall('neu_bewerten', { bericht: CURRENT_REPORT, ergaenzungen: erg });
+    if (!r || !r.ok || !r.bericht) throw new Error((r && r.error) || 'Neubewertung fehlgeschlagen');
+    const neu = r.bericht;
+    // Kennzeichen uebernehmen
+    neu._fassung = (CURRENT_REPORT._fassung || 1) + 1;
+    neu._email = CURRENT_REPORT._email; neu._name = CURRENT_REPORT._name;
+    neu.pruefId = CURRENT_REPORT.pruefId || CURRENT_REPORT.pruef_id;
+    neu._analyseId = CURRENT_REPORT._analyseId;
+    neu._sanktionen = CURRENT_REPORT._sanktionen;
+
+    // In der Datenbank als neue Fassung sichern
+    const analyseId = CURRENT_REPORT._analyseId || (HISTORY_ROWS.find(function(x){ return x.pruef_id === neu.pruefId; }) || {}).id;
+    if (analyseId && sb) {
+      try {
+        await sb.rpc('fassung_speichern', {
+          p_analyse: analyseId, p_report: neu, p_score: neu.gesamtScore,
+          p_grund: 'neubewertung', p_ergaenzungen: erg
+        });
+      } catch (e) { console.warn('Fassung speichern:', e && e.message); }
+    }
+
+    BEARBEITEN_AN = false;
+    ERGAENZUNGEN = {};
+    const alt = CURRENT_REPORT.gesamtScore;
+    CURRENT_REPORT = neu;
+    showReport(neu, neu.firmenname, AUS_HISTORIE);
+    setTimeout(function(){
+      bearbLeisteZeichnen();
+      const diff = (neu.gesamtScore || 0) - (alt || 0);
+      zeigeToast('Neu bewertet', 'Score: ' + alt + ' \u2192 ' + neu.gesamtScore + (diff ? ' (' + (diff > 0 ? '+' : '') + diff + ')' : '') + '. Fassung ' + neu._fassung + ' gespeichert.');
+      try { ladeHistorie(); } catch(e) {}
+    }, 80);
+  } catch (e) {
+    alert('Neubewertung fehlgeschlagen: ' + ((e && e.message) || ''));
+    if (btn) { btn.disabled = false; btn.innerHTML = 'Neu bewerten (' + n + ')'; }
+  }
+}
+
 function sternHinweisZu() {
   try { localStorage.setItem('cc_stern_gesehen', '1'); } catch(e) {}
   const h = document.getElementById('sternHinweis');
@@ -9120,9 +9328,16 @@ function secCard(title, data, weight) {
         }
       }
     }
-    return `<div class="kv">
+    const feldId = 'kv_' + title.replace(/[^a-z0-9]/gi, '_') + '_' + String(f.key || '').replace(/[^a-z0-9]/gi, '_');
+    const editierbar = BEARBEITEN_AN && !/gesamt|score|vertrauen/i.test(f.key || '');
+    const stift = editierbar
+      ? `<button class="kv-stift" onclick="feldBearbeiten('${feldId}', event)" title="Wert ergänzen oder korrigieren"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></button>`
+      : '';
+    const ergaenzt = (ERGAENZUNGEN[title + '|' + f.key] !== undefined);
+    return `<div class="kv${ergaenzt ? ' kv-ergaenzt' : ''}" id="${feldId}" data-kat="${escapeHtml(title)}" data-feld="${escapeHtml(f.key || '')}">
       <span class="kv-k">${dot}${f.key}</span>
-      <span class="kv-v ${cls}">${val}${src}</span>
+      <span class="kv-v ${cls}">${ergaenzt ? escapeHtml(ERGAENZUNGEN[title + '|' + f.key]) + '<span class="kv-erg-tag">ergänzt</span>' : val + src}</span>
+      ${stift}
     </div>`;
   }).join('');
   const w = weight ? `<span class="sec-weight">${weight}</span>` : '';
@@ -9665,6 +9880,7 @@ function showReport(d, rawName, fromHistory) {
   try { sanktionenAbgleichen(d); } catch(e) {}
   // Ueberwachungs-Kasten im Bericht
   try { setTimeout(function(){ monBereichZeichnen(d); }, 120); } catch(e) {}
+  try { setTimeout(function(){ bearbLeisteZeichnen(); }, 140); } catch(e) {}
   d.firmenname = d.firmenname || rawName || 'Unbekanntes Unternehmen';
   DRUCK_NAME = d.firmenname;                       // fuer den Dateinamen beim PDF-Export
   DRUCK_ID = d.pruefId || '';
@@ -9832,6 +10048,7 @@ function showReport(d, rawName, fromHistory) {
       ${d.kontakt.source && !isNA(d.kontakt.source) ? `<div style="margin-top:10px;font-size:8px;letter-spacing:.08em;text-transform:uppercase;color:var(--gray-l)">Quelle: ${d.kontakt.source}</div>` : ''}
     </div>
     <div id="monBereich" class="mon-bereich"></div>
+    <div id="bearbLeiste" class="bearb-leiste"></div>
     ${AUS_HISTORIE ? '<button class="zurueck-hist" onclick="openHistory()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Zur\u00fcck zu Historie &amp; Ordner</button>' : ''}
     ${evidenceHTML(d)}
     <div id="sankBereich" class="sank-bereich"><div class="sank-laedt">Sanktionslisten werden abgeglichen&hellip;</div></div>
@@ -9968,7 +10185,9 @@ async function saveAnalysisToHistory(d, rawName) {
         verdict_text: d.verdictText || null,
         report_json: d
       };
-      const { error } = await sb.from('analysen').insert(row);
+      const _ins = await sb.from('analysen').insert(row).select('id');
+      const error = _ins ? _ins.error : null;
+      try { if (_ins && _ins.data && _ins.data[0]) d._analyseId = _ins.data[0].id; } catch(e) {}
       if (!error) {
         if (CURRENT_FIRMA) { CURRENT_FIRMA.verbraucht = (CURRENT_FIRMA.verbraucht || 0) + 1; updateKontingentAnzeige(); }
         return; // gespeichert
