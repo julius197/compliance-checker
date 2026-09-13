@@ -3915,21 +3915,22 @@
     }
     .verl-card .up-warn-ico { background:var(--bad-bg,#FEF1F1) !important; color:var(--bad-text,#B42318) !important; }
 
-    /* ===== Kopfzeilen-Knoepfe: gestaffeltes Erscheinen ===== */
-    #infoBewertungBtn, #infoQuellenBtn, #historyBtn, #teamBtn, #supportBtn, #kontoBtn, #logoutBtn {
-      animation:navIn .5s cubic-bezier(.2,.8,.25,1.05) both;
+    /* ===== Kopfzeilen-Knoepfe: alle gleichzeitig starten ===== */
+    .nav-bereit #infoBewertungBtn, .nav-bereit #infoQuellenBtn, .nav-bereit #historyBtn,
+    .nav-bereit #teamBtn, .nav-bereit #supportBtn, .nav-bereit #kontoBtn, .nav-bereit #logoutBtn {
+      animation:navIn .45s cubic-bezier(.2,.8,.25,1.05) both;
     }
     @keyframes navIn {
       from { opacity:0; transform:translateY(-7px) scale(.94); }
       to   { opacity:1; transform:none; }
     }
-    #infoBewertungBtn { animation-delay:.04s; }
-    #infoQuellenBtn   { animation-delay:.10s; }
-    #historyBtn       { animation-delay:.16s; }
-    #teamBtn          { animation-delay:.22s; }
-    #supportBtn       { animation:navIn .5s cubic-bezier(.2,.8,.25,1.05) .28s both !important; }
-    #kontoBtn         { animation-delay:.34s; }
-    #logoutBtn        { animation-delay:.40s; }
+    .nav-bereit #infoBewertungBtn { animation-delay:.00s; }
+    .nav-bereit #infoQuellenBtn   { animation-delay:.055s; }
+    .nav-bereit #historyBtn       { animation-delay:.11s; }
+    .nav-bereit #teamBtn          { animation-delay:.165s; }
+    .nav-bereit #supportBtn       { animation:navIn .45s cubic-bezier(.2,.8,.25,1.05) .22s both !important; }
+    .nav-bereit #kontoBtn         { animation-delay:.275s; }
+    .nav-bereit #logoutBtn        { animation-delay:.33s; }
 
     /* Symbole reagieren beim Drueberfahren */
     #logoutBtn { transition:all .2s !important; }
@@ -4068,7 +4069,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.52</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.53</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -5560,6 +5561,16 @@ async function ladeMeineRolle() {
 // Kopfzeile an Rang und Konto anpassen - laeuft mehrfach, weil der
 // Rang erst nach der Rolle geladen wird.
 function kopfzeileAktualisieren() {
+  // Einblenden erst starten, wenn alle Knoepfe ihren endgueltigen Zustand haben -
+  // sonst laufen die frueh sichtbaren voraus.
+  try {
+    if (RANG_GELADEN) {
+      const leiste = document.querySelector('.header-actions');
+      if (leiste && !leiste.classList.contains('nav-bereit')) {
+        requestAnimationFrame(function(){ leiste.classList.add('nav-bereit'); });
+      }
+    }
+  } catch(e) {}
   // Werbeblock beim internen Support-Konto ausblenden
   try {
     const istSupport = (RANG_GELADEN && CURRENT_USER_RANG === 'support');
