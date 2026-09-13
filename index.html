@@ -3855,7 +3855,7 @@
     /* Angemeldetes Konto oben rechts */
     .wer-bin-ich { display:inline-flex; align-items:center; gap:8px; padding:6px 12px; border-radius:999px;
       background:var(--neutral,#F6F8F9); border:1px solid var(--border,#E2E6E9); font-size:12px; color:var(--gray,#5A6670);
-      max-width:230px; animation:teamIn .45s cubic-bezier(.2,.7,.2,1) both; }
+      max-width:230px; }
     .wbi-ico { display:inline-flex; width:13px; height:13px; flex-shrink:0; color:var(--gray-l,#8A949D); }
     .wbi-ico svg { width:100%; height:100%; }
     .wbi-text { display:flex; flex-direction:column; line-height:1.25; min-width:0; }
@@ -3917,7 +3917,8 @@
 
     /* ===== Kopfzeilen-Knoepfe: alle gleichzeitig starten ===== */
     .nav-bereit #infoBewertungBtn, .nav-bereit #infoQuellenBtn, .nav-bereit #historyBtn,
-    .nav-bereit #teamBtn, .nav-bereit #supportBtn, .nav-bereit #kontoBtn, .nav-bereit #logoutBtn {
+    .nav-bereit #teamBtn, .nav-bereit #werBinIch, .nav-bereit #supportBtn,
+    .nav-bereit #kontoBtn, .nav-bereit #logoutBtn {
       animation:navIn .45s cubic-bezier(.2,.8,.25,1.05) both;
     }
     @keyframes navIn {
@@ -3928,6 +3929,7 @@
     .nav-bereit #infoQuellenBtn   { animation-delay:.055s; }
     .nav-bereit #historyBtn       { animation-delay:.11s; }
     .nav-bereit #teamBtn          { animation-delay:.165s; }
+    .nav-bereit #werBinIch        { animation-delay:.22s; }
     .nav-bereit #supportBtn       { animation:navIn .45s cubic-bezier(.2,.8,.25,1.05) .22s both !important; }
     .nav-bereit #kontoBtn         { animation-delay:.275s; }
     .nav-bereit #logoutBtn        { animation-delay:.33s; }
@@ -3935,7 +3937,7 @@
     /* Symbole reagieren beim Drueberfahren */
     #logoutBtn { transition:all .2s !important; }
     @media (prefers-reduced-motion: reduce) {
-      #infoBewertungBtn, #infoQuellenBtn, #historyBtn, #teamBtn, #supportBtn, #kontoBtn, #logoutBtn {
+      #infoBewertungBtn, #infoQuellenBtn, #historyBtn, #teamBtn, #werBinIch, #supportBtn, #kontoBtn, #logoutBtn {
         animation:none !important; opacity:1 !important; transform:none !important;
       }
     }
@@ -4036,13 +4038,24 @@
     .bearb-spin { display:inline-block; width:13px; height:13px; border:2px solid rgba(255,255,255,.35); border-top-color:#fff;
       border-radius:50%; animation:bsDreh .8s linear infinite; }
 
-    /* Stift am Feld */
+    /* Stift: eigener Platz rechts, ueberdeckt nie den Wert */
     .kv { position:relative; }
-    .kv-stift { position:absolute; right:6px; top:50%; transform:translateY(-50%); width:28px; height:28px; border-radius:8px; border:none;
-      background:transparent; color:var(--gray-l,#B5BEC6); cursor:pointer; display:flex; align-items:center; justify-content:center;
-      opacity:0; transition:all .18s; }
-    .kv:hover .kv-stift, .kv-stift:focus { opacity:1; }
-    .kv-stift:hover { background:#EEF4FF; color:#2E6FBF; transform:translateY(-50%) scale(1.1); }
+    .kv-stift { display:none; flex-shrink:0; width:28px; height:28px; margin-left:8px; border-radius:8px; border:none;
+      background:transparent; color:#9AA7B2; cursor:pointer; align-items:center; justify-content:center;
+      transition:background .15s, color .15s, transform .15s; }
+    /* Nur im Bearbeitungsmodus sichtbar */
+    .bearb-modus .kv-stift { display:inline-flex; }
+    .bearb-modus .kv { padding-right:2px; }
+    .kv-stift:hover { background:#EEF4FF; color:#2E6FBF; transform:scale(1.12); }
+    .kv-stift:active { transform:scale(.95); }
+    .kv-offen .kv-stift { display:none !important; }
+
+    /* Kontaktbereich: Stift oben rechts in der Kachel */
+    .cc { position:relative; }
+    .cc-stift { display:none; position:absolute; top:6px; right:6px; margin:0; }
+    .bearb-modus .cc-stift { display:inline-flex; }
+    .bearb-modus .cc { padding-right:36px; }
+    .cc-wert { display:block; }
     .kv-ergaenzt { background:linear-gradient(90deg, rgba(46,111,191,.06), transparent); border-radius:8px; }
     .kv-ergaenzt .kv-v { color:#1E4E8C !important; font-weight:600; }
     .kv-erg-tag { font-size:9.5px; font-weight:800; letter-spacing:.05em; text-transform:uppercase; margin-left:8px;
@@ -4072,6 +4085,22 @@
       .kv-edit-in { flex:1 1 100%; font-size:15px; }
     }
     @media (prefers-reduced-motion: reduce) { .bearb-karte { opacity:1 !important; transform:none !important; } .kv-stift { opacity:.55; } }
+
+    /* Bearbeitungsmodus: Felder als anklickbar erkennbar */
+    .bearb-modus .kv, .bearb-modus .cc { transition:background .15s, box-shadow .15s; border-radius:8px; }
+    .bearb-modus .kv:hover, .bearb-modus .cc:hover { background:rgba(46,111,191,.05); }
+    .bearb-modus .sec-card, .bearb-modus .contact-card { box-shadow:0 0 0 1.5px rgba(46,111,191,.18), var(--shadow, 0 2px 8px rgba(0,0,0,.04)); }
+    .kv-offen { background:rgba(46,111,191,.07) !important; }
+    /* Kein Neu-Animieren beim Umschalten */
+    .bearb-modus .sec-card, .bearb-modus .kv, .bearb-modus .cc { animation:none !important; }
+
+    /* Nachvollziehbare Score-Rechnung */
+    .score-rechnung { display:flex; align-items:flex-start; gap:7px; margin-top:10px; padding:8px 11px;
+      background:var(--neutral,#F6F8F9); border:1px solid var(--border2,#EDF0F2); border-radius:9px;
+      font-size:11px; line-height:1.55; color:var(--gray,#5A6670); font-family:ui-monospace, Menlo, monospace;
+      animation:teamIn .45s cubic-bezier(.2,.7,.2,1) .3s both; }
+    .score-rechnung svg { flex-shrink:0; margin-top:2px; color:var(--gray-l,#8A949D); }
+    @media (max-width:760px) { .score-rechnung { font-size:10px; padding:7px 9px; } }
 </style>
 <div id="legalGate" class="legal-gate" style="display:none;">
   <div class="legal-box">
@@ -4202,7 +4231,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.55</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.57</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -5455,54 +5484,114 @@ function bearbLeisteZeichnen() {
 function bearbeitenStart() {
   BEARBEITEN_AN = true;
   ERGAENZUNGEN = {};
-  berichtNeuZeichnen();
-  zeigeToast('Bearbeitungsmodus', 'Klicke auf den Stift neben einem Feld, um es zu erg\u00e4nzen.');
+  // Nur eine Klasse setzen - der Bericht wird NICHT neu aufgebaut
+  const rep = document.getElementById('report') || document.body;
+  rep.classList.add('bearb-modus');
+  bearbLeisteZeichnen();
+  zeigeToast('Bearbeitungsmodus', 'Klicke auf den Stift rechts neben einem Feld.');
 }
+
 function bearbeitenAbbruch() {
   BEARBEITEN_AN = false;
   ERGAENZUNGEN = {};
-  berichtNeuZeichnen();
+  const rep = document.getElementById('report') || document.body;
+  rep.classList.remove('bearb-modus');
+  // Alle offenen Eingaben und Markierungen zuruecknehmen
+  document.querySelectorAll('.kv-ergaenzt').forEach(function(z){
+    z.classList.remove('kv-ergaenzt');
+    const orig = z.getAttribute('data-orig');
+    if (orig !== null) { const v = z.querySelector('.kv-v'); if (v) v.innerHTML = orig; }
+  });
+  document.querySelectorAll('.kv-edit').forEach(function(e){
+    const z = e.closest('.kv');
+    const orig = z && z.getAttribute('data-orig');
+    if (z && orig !== null) { const v = z.querySelector('.kv-v'); if (v) v.innerHTML = orig; }
+  });
+  bearbLeisteZeichnen();
 }
 
-function berichtNeuZeichnen() {
-  if (!CURRENT_REPORT) return;
-  const y = window.scrollY;
-  showReport(CURRENT_REPORT, CURRENT_REPORT.firmenname, AUS_HISTORIE);
-  setTimeout(function(){ window.scrollTo({ top: y }); bearbLeisteZeichnen(); }, 60);
+function ccStift(id) {
+  return '<button class="kv-stift cc-stift" onclick="feldBearbeiten(\'' + id + '\', event)" title="Wert erg\u00e4nzen" tabindex="-1">'
+    + '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></button>';
 }
 
 function feldBearbeiten(feldId, ev) {
   if (ev) { ev.stopPropagation(); ev.preventDefault(); }
   const zeile = document.getElementById(feldId);
-  if (!zeile || zeile.querySelector('.kv-edit')) return;
+  if (!zeile) return;
+  if (zeile.querySelector('.kv-edit')) {          // schon offen -> Eingabe fokussieren
+    const i = zeile.querySelector('.kv-edit-in'); if (i) i.focus();
+    return;
+  }
+  // Andere offene Eingaben schliessen
+  document.querySelectorAll('.kv-edit').forEach(function(e){
+    const z = e.closest('.kv'); if (z && z.id !== feldId) feldAbbruch(z.id);
+  });
+
   const kat = zeile.getAttribute('data-kat'), feld = zeile.getAttribute('data-feld');
   const schluessel = kat + '|' + feld;
-  const alt = ERGAENZUNGEN[schluessel] || '';
-  const v = zeile.querySelector('.kv-v');
-  const stift = zeile.querySelector('.kv-stift');
-  if (stift) stift.style.display = 'none';
+  const v = zeile.querySelector('.kv-v') || zeile.querySelector('.cc-wert');
+  if (!v) return;
+  // Ursprungs-Inhalt einmalig sichern
+  if (zeile.getAttribute('data-orig') === null) zeile.setAttribute('data-orig', v.innerHTML);
+
+  // Vorhandenen Wert als Startwert anbieten (auch den urspruenglichen)
+  let start = ERGAENZUNGEN[schluessel];
+  if (start === undefined) {
+    const roh = (v.textContent || '').replace(/\u2197/g, '').trim();
+    start = (/^n\/?a$/i.test(roh) || !roh) ? '' : roh.split('\n')[0].slice(0, 200);
+  }
+
   v.innerHTML = '<div class="kv-edit">'
-    + '<input class="kv-edit-in" type="text" value="' + escapeHtml(alt) + '" placeholder="Neuen Wert eingeben\u2026" onkeydown="feldTaste(event, \'' + feldId + '\')" />'
+    + '<input class="kv-edit-in" type="text" value="' + escapeHtml(start) + '" placeholder="Wert eingeben\u2026" onkeydown="feldTaste(event, \'' + feldId + '\')" />'
     + '<button class="kv-edit-ok" onclick="feldUebernehmen(\'' + feldId + '\')" title="\u00dcbernehmen">\u2713</button>'
     + '<button class="kv-edit-x" onclick="feldAbbruch(\'' + feldId + '\')" title="Abbrechen">\u00d7</button>'
     + '</div>';
+  zeile.classList.add('kv-offen');
   const inp = v.querySelector('input');
-  requestAnimationFrame(function(){ inp.focus(); inp.select(); });
+  requestAnimationFrame(function(){ if (inp) { inp.focus(); inp.select(); } });
 }
+
 function feldTaste(ev, feldId) {
-  if (ev.key === 'Enter') feldUebernehmen(feldId);
-  if (ev.key === 'Escape') feldAbbruch(feldId);
+  if (ev.key === 'Enter') { ev.preventDefault(); feldUebernehmen(feldId); }
+  if (ev.key === 'Escape') { ev.preventDefault(); feldAbbruch(feldId); }
 }
+
 function feldUebernehmen(feldId) {
   const zeile = document.getElementById(feldId);
   if (!zeile) return;
   const inp = zeile.querySelector('.kv-edit-in');
-  const wert = (inp && inp.value || '').trim();
+  const wert = ((inp && inp.value) || '').trim();
   const schluessel = zeile.getAttribute('data-kat') + '|' + zeile.getAttribute('data-feld');
-  if (wert) ERGAENZUNGEN[schluessel] = wert; else delete ERGAENZUNGEN[schluessel];
-  berichtNeuZeichnen();
+  const v = zeile.querySelector('.kv-v') || zeile.querySelector('.cc-wert');
+  zeile.classList.remove('kv-offen');
+
+  if (wert) {
+    ERGAENZUNGEN[schluessel] = wert;
+    zeile.classList.add('kv-ergaenzt');
+    if (v) v.innerHTML = escapeHtml(wert) + '<span class="kv-erg-tag">erg\u00e4nzt</span>';
+  } else {
+    delete ERGAENZUNGEN[schluessel];
+    zeile.classList.remove('kv-ergaenzt');
+    const orig = zeile.getAttribute('data-orig');
+    if (v && orig !== null) v.innerHTML = orig;
+  }
+  bearbLeisteZeichnen();
 }
-function feldAbbruch(feldId) { berichtNeuZeichnen(); }
+
+function feldAbbruch(feldId) {
+  const zeile = document.getElementById(feldId);
+  if (!zeile) return;
+  const v = zeile.querySelector('.kv-v') || zeile.querySelector('.cc-wert');
+  const schluessel = zeile.getAttribute('data-kat') + '|' + zeile.getAttribute('data-feld');
+  zeile.classList.remove('kv-offen');
+  if (ERGAENZUNGEN[schluessel] !== undefined) {
+    if (v) v.innerHTML = escapeHtml(ERGAENZUNGEN[schluessel]) + '<span class="kv-erg-tag">erg\u00e4nzt</span>';
+  } else {
+    const orig = zeile.getAttribute('data-orig');
+    if (v && orig !== null) v.innerHTML = orig;
+  }
+}
 
 async function neuBewerten() {
   const n = Object.keys(ERGAENZUNGEN).length;
@@ -5538,6 +5627,7 @@ async function neuBewerten() {
 
     BEARBEITEN_AN = false;
     ERGAENZUNGEN = {};
+    try { (document.getElementById('report') || document.body).classList.remove('bearb-modus'); } catch(e) {}
     const alt = CURRENT_REPORT.gesamtScore;
     CURRENT_REPORT = neu;
     showReport(neu, neu.firmenname, AUS_HISTORIE);
@@ -9330,13 +9420,11 @@ function secCard(title, data, weight) {
     }
     const feldId = 'kv_' + title.replace(/[^a-z0-9]/gi, '_') + '_' + String(f.key || '').replace(/[^a-z0-9]/gi, '_');
     const editierbar = BEARBEITEN_AN && !/gesamt|score|vertrauen/i.test(f.key || '');
-    const stift = editierbar
-      ? `<button class="kv-stift" onclick="feldBearbeiten('${feldId}', event)" title="Wert ergänzen oder korrigieren"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></button>`
-      : '';
-    const ergaenzt = (ERGAENZUNGEN[title + '|' + f.key] !== undefined);
-    return `<div class="kv${ergaenzt ? ' kv-ergaenzt' : ''}" id="${feldId}" data-kat="${escapeHtml(title)}" data-feld="${escapeHtml(f.key || '')}">
+    // Stift immer erzeugen - sichtbar wird er nur im Bearbeitungsmodus (per CSS)
+    const stift = `<button class="kv-stift" onclick="feldBearbeiten('${feldId}', event)" title="Wert ergänzen oder korrigieren" tabindex="-1"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></button>`;
+    return `<div class="kv" id="${feldId}" data-kat="${escapeHtml(title)}" data-feld="${escapeHtml(f.key || '')}">
       <span class="kv-k">${dot}${f.key}</span>
-      <span class="kv-v ${cls}">${ergaenzt ? escapeHtml(ERGAENZUNGEN[title + '|' + f.key]) + '<span class="kv-erg-tag">ergänzt</span>' : val + src}</span>
+      <span class="kv-v ${cls}">${val}${src}</span>
       ${stift}
     </div>`;
   }).join('');
@@ -10019,6 +10107,8 @@ function showReport(d, rawName, fromHistory) {
         <div class="score-title">Gesamt-Vertrauens-Score</div>
         <div class="bar-track"><div class="bar-fill ${barC(d.gesamtScore)}" style="width:${d.gesamtScore||0}%"></div></div>
         <div class="score-desc">${(d.empfehlung && d.empfehlung.length > 20) ? d.empfehlung.split('.')[0] + '.' : (d.verdictText || 'Prüfung abgeschlossen') + '.'}</div>
+        ${d._score_begruendung ? `<div class="score-rechnung" title="So setzt sich der Wert zusammen"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h3"/></svg>${escapeHtml(d._score_begruendung)}</div>` : ''}
+        \${d._score_begruendung ? '<div class="score-rechnung" title="So setzt sich der Wert zusammen"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 7h6M9 12h6M9 17h3"/><rect x="4" y="3" width="16" height="18" rx="2"/></svg>' + escapeHtml(d._score_begruendung) + '</div>' : ''}
       </div>
     </div>
     <div class="grid4 reveal">
@@ -10035,9 +10125,9 @@ function showReport(d, rawName, fromHistory) {
         ${miniScore(d.kontakt.score)}
       </div>
       <div class="contact-grid">
-        <div class="cc"><div class="cc-label">Website</div>${isNA(d.kontakt.website)?'<span class="cc-value na">N/A</span>':`<a class="maps-link" href="${d.kontakt.website.startsWith('http')?d.kontakt.website:'https://'+d.kontakt.website}" target="_blank">${d.kontakt.website} ↗</a>`}${!isNA(d.kontakt.website)?`<span class="cc-badge ${d.kontakt.httpsOk?'ok':'warn'}" style="margin-left:6px">${d.kontakt.httpsOk?'HTTPS ✓':'Kein HTTPS'}</span>`:''}</div>
-        <div class="cc"><div class="cc-label">E-Mail</div>${na(d.kontakt.email)}</div>
-        <div class="cc"><div class="cc-label">Telefon</div>${na(d.kontakt.telefon)}</div>
+        <div class="cc" id="cc_website" data-kat="Kontakt" data-feld="Website">${ccStift('cc_website')}<div class="cc-label">Website</div><span class="cc-wert">${isNA(d.kontakt.website)?'<span class="cc-value na">N/A</span>':`<a class="maps-link" href="${d.kontakt.website.startsWith('http')?d.kontakt.website:'https://'+d.kontakt.website}" target="_blank">${d.kontakt.website} ↗</a>`}${!isNA(d.kontakt.website)?`<span class="cc-badge ${d.kontakt.httpsOk?'ok':'warn'}" style="margin-left:6px">${d.kontakt.httpsOk?'HTTPS ✓':'Kein HTTPS'}</span>`:''}</span></div>
+        <div class="cc" id="cc_email" data-kat="Kontakt" data-feld="E-Mail">${ccStift('cc_email')}<div class="cc-label">E-Mail</div><span class="cc-wert">${na(d.kontakt.email)}</span></div>
+        <div class="cc" id="cc_telefon" data-kat="Kontakt" data-feld="Telefon">${ccStift('cc_telefon')}<div class="cc-label">Telefon</div><span class="cc-wert">${na(d.kontakt.telefon)}</span></div>
         <div class="cc"><div class="cc-label">LinkedIn</div>${d.kontakt.linkedinAktiv && d.kontakt.linkedinUrl && !isNA(d.kontakt.linkedinUrl)?`<a class="maps-link" href="${d.kontakt.linkedinUrl}" target="_blank">Profil öffnen ↗</a>`:`<div class="cc-value ${d.kontakt.linkedinAktiv?'':'na'}">${d.kontakt.linkedinAktiv?'Vorhanden':'N/A'}</div>`}</div>
         <div class="cc"><div class="cc-label">Social Media</div>${(() => {
           const links = (d.kontakt.socialLinks||[]).filter(s=>s && s.url && !isNA(s.url));
