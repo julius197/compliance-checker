@@ -4026,7 +4026,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.47</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.48</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -5525,7 +5525,8 @@ function kopfzeileAktualisieren() {
     wer.innerHTML = name ? ('<span class="wbi-ico">' + (RANG_SVG[CURRENT_USER_RANG] || RANG_SVG.member) + '</span>'
       + '<span class="wbi-text"><b>' + escapeHtml(name) + '</b>'
       + (firma ? '<span class="wbi-firma">' + escapeHtml(firma) + '</span>' : '') + '</span>') : '';
-    wer.style.display = name ? '' : 'none';
+    // Beim Support-Konto ausblenden - der Support-Knopf sagt bereits alles
+    wer.style.display = (name && CURRENT_USER_RANG !== 'support') ? '' : 'none';
     wer.title = (CURRENT_USER_EMAIL || '') + ' \u00b7 ' + info.name;
   }
   const sbtn = document.getElementById('supportBtn');
