@@ -3750,9 +3750,16 @@
     /* ============================================================
        SUPPORT-CENTER
        ============================================================ */
-    #supportBtn { background:#0F1720 !important; color:#A7F3D0 !important; border-color:rgba(167,243,208,.35) !important; }
+    /* Support-Knopf: Farbe ohne Uebergang, damit beim Einblenden nichts grau aufblitzt */
+    #supportBtn {
+      background:#0F1720 !important; color:#A7F3D0 !important;
+      border:1.5px solid rgba(167,243,208,.35) !important;
+      transition:transform .18s, box-shadow .2s !important;
+      animation:none !important;
+    }
     #supportBtn svg { stroke:#6EE7B7 !important; }
-    #supportBtn:hover { background:#1F2937 !important; transform:translateY(-1px); }
+    #supportBtn:hover { background:#1F2937 !important; transform:translateY(-1px); box-shadow:0 8px 18px -10px rgba(15,23,32,.7); }
+    #supportBtn:active { transform:translateY(0) scale(.97); }
     .sup-tabs { display:flex; gap:8px; margin-bottom:18px; flex-wrap:wrap; }
     .sup-tab { padding:9px 16px; border-radius:999px; border:1.5px solid var(--border,#E2E6E9); background:#fff; font-family:inherit;
       font-size:13px; font-weight:700; color:var(--gray,#5A6670); cursor:pointer; transition:all .18s; }
@@ -4026,7 +4033,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.48</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.50</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -4050,7 +4057,7 @@
           Team
         </button>
         <span class="wer-bin-ich" id="werBinIch" style="display:none;"></span>
-        <button class="hist-nav-btn" id="supportBtn" onclick="supportCenterOeffnen()" style="display:none;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg> Support-Center</button>
+        <button class="hist-nav-btn" id="supportBtn" onclick="supportCenterOeffnen()" style="display:none; background:#0F1720; color:#A7F3D0; border:1.5px solid rgba(167,243,208,.35);"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg> Support-Center</button>
         <button class="hist-nav-btn" id="kontoBtn" onclick="openKonto()" style="display:none;">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
           Konto
@@ -5010,6 +5017,7 @@ async function doAuth() {
 }
 
 async function doLogout() {
+  RANG_GELADEN = false;
   showBoot();                      // deckt alles ab -> kein Aufblitzen der Anmeldeseite
   try { await sb.auth.signOut(); } catch(e) {}
   location.reload();
@@ -5276,6 +5284,7 @@ const ORDNER_FARBEN = ['#22C55E','#3B82F6','#F59E0B','#EF4444','#8B5CF6','#EC489
 let CURRENT_USER_ROLLE = '';     // 'admin' (Host) | 'mitglied' (Mitarbeiter)
 let TEAM_MEMBERS = [];
 let CURRENT_USER_RANG = 'member';
+let RANG_GELADEN = false;   // erst danach darf die Kopfzeile Rang-Abhaengiges zeigen
 // Symbole als saubere Grafiken: Schraubenschluessel, Krone, Stern, Raute, Punkt
 const RANG_SVG = {
   support:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>',
@@ -5525,12 +5534,12 @@ function kopfzeileAktualisieren() {
     wer.innerHTML = name ? ('<span class="wbi-ico">' + (RANG_SVG[CURRENT_USER_RANG] || RANG_SVG.member) + '</span>'
       + '<span class="wbi-text"><b>' + escapeHtml(name) + '</b>'
       + (firma ? '<span class="wbi-firma">' + escapeHtml(firma) + '</span>' : '') + '</span>') : '';
-    // Beim Support-Konto ausblenden - der Support-Knopf sagt bereits alles
-    wer.style.display = (name && CURRENT_USER_RANG !== 'support') ? '' : 'none';
+    // Erst zeigen, wenn der Rang feststeht - sonst blitzt sie beim Support kurz auf
+    wer.style.display = (RANG_GELADEN && name && CURRENT_USER_RANG !== 'support') ? '' : 'none';
     wer.title = (CURRENT_USER_EMAIL || '') + ' \u00b7 ' + info.name;
   }
   const sbtn = document.getElementById('supportBtn');
-  if (sbtn) sbtn.style.display = (CURRENT_USER_RANG === 'support') ? '' : 'none';
+  if (sbtn) sbtn.style.display = (RANG_GELADEN && CURRENT_USER_RANG === 'support') ? '' : 'none';
 }
 
 async function ladeMeinenRang() {
@@ -5538,8 +5547,9 @@ async function ladeMeinenRang() {
     const { data, error } = await sb.rpc('mein_rang');
     if (!error && data) { CURRENT_USER_RANG = data; }
     else { CURRENT_USER_RANG = (CURRENT_USER_ROLLE === 'admin') ? 'president' : 'member'; }
+    RANG_GELADEN = true;
     try { kopfzeileAktualisieren(); } catch(e) {}
-  } catch (e) { CURRENT_USER_RANG = (CURRENT_USER_ROLLE === 'admin') ? 'president' : 'member'; try { kopfzeileAktualisieren(); } catch(e) {} }
+  } catch (e) { CURRENT_USER_RANG = (CURRENT_USER_ROLLE === 'admin') ? 'president' : 'member'; RANG_GELADEN = true; try { kopfzeileAktualisieren(); } catch(e) {} }
 }
 
 
