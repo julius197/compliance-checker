@@ -4068,7 +4068,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.51</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.52</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -5361,7 +5361,7 @@ function appAn()  { const a = document.querySelector('.app'); if (a) a.style.dis
 function appAus() { const a = document.querySelector('.app'); if (a) a.style.display = 'none'; }
 // Setzt die App-Unterseiten (Historie/Team/Akte) zurück auf die Hauptansicht
 function appUnterseitenReset() {
-  ['historyView','teamView','akteView'].forEach(function(id){ const e = document.getElementById(id); if (e) e.style.display = 'none'; });
+  ['historyView','teamView','akteView','supportView'].forEach(function(id){ const e = document.getElementById(id); if (e) e.style.display = 'none'; });
   const mv = document.getElementById('mainView'); if (mv) mv.style.display = 'block';
   const sc = document.querySelector('.search-card'); if (sc) sc.style.display = '';
 }
@@ -5493,7 +5493,6 @@ function enterApp() {
   appUnterseitenReset();
   document.getElementById('logoutBtn').style.display = '';
   const hb = document.getElementById('historyBtn'); if (hb) hb.style.display = '';
-  if (CURRENT_USER_RANG === 'support') { setTimeout(function(){ try { supportCenterOeffnen(); } catch(e) {} }, 200); }
   // Kam der Nutzer ueber einen Paket-Button auf der Startseite? Dann direkt dorthin.
   if (WUNSCH_PAKET) {
     const wunsch = WUNSCH_PAKET;
@@ -5561,6 +5560,13 @@ async function ladeMeineRolle() {
 // Kopfzeile an Rang und Konto anpassen - laeuft mehrfach, weil der
 // Rang erst nach der Rolle geladen wird.
 function kopfzeileAktualisieren() {
+  // Werbeblock beim internen Support-Konto ausblenden
+  try {
+    const istSupport = (RANG_GELADEN && CURRENT_USER_RANG === 'support');
+    document.querySelectorAll('.al-footer').forEach(function(e){
+      e.style.display = istSupport ? 'none' : '';
+    });
+  } catch(e) {}
   const wer = document.getElementById('werBinIch');
   if (wer) {
     const name = (CURRENT_USER_NAME && CURRENT_USER_NAME.indexOf('@') < 0) ? CURRENT_USER_NAME : (CURRENT_USER_EMAIL || '');
