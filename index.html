@@ -3869,6 +3869,29 @@
       .wbi-firma { display:none; }
       .zurueck-hist { width:100%; justify-content:center; }
     }
+
+    /* Umschaltung USt-IdNr. / Steuernummer */
+    .ust-wahl { display:inline-flex; gap:4px; margin-bottom:8px; padding:3px; background:var(--neutral,#F6F8F9);
+      border:1px solid var(--border2,#EDF0F2); border-radius:10px; }
+    .uw-tab { padding:6px 13px; border:none; border-radius:8px; background:transparent; font-family:inherit;
+      font-size:12px; font-weight:700; color:var(--gray,#5A6670); cursor:pointer; transition:all .18s; }
+    .uw-tab:hover { color:var(--ink,#111827); }
+    .uw-tab.aktiv { background:#fff; color:var(--green-d,#16A34A); box-shadow:0 2px 6px -3px rgba(10,15,13,.28); }
+    .ust-hinweis { font-size:11.5px; line-height:1.5; color:var(--gray-l,#8A949D); margin-top:7px; }
+    .feld-wechsel { animation:feldWechsel .32s cubic-bezier(.2,.7,.2,1); }
+    @keyframes feldWechsel { 0% { opacity:.35; transform:translateY(-3px); } 100% { opacity:1; transform:none; } }
+
+    /* Mitarbeiter-Filter in der Historie */
+    .hist-pruefer { margin-left:auto; padding:8px 12px; border:1.5px solid var(--border,#E2E6E9); border-radius:999px;
+      background:#fff; font-family:inherit; font-size:12.5px; font-weight:600; color:var(--gray,#5A6670); cursor:pointer;
+      max-width:220px; transition:border-color .18s, color .18s; }
+    .hist-pruefer:hover { border-color:var(--green,#22C55E); color:var(--ink,#111827); }
+    .hist-pruefer:focus { outline:none; border-color:var(--green,#22C55E); box-shadow:0 0 0 3px var(--green-pale,#EAF9F0); }
+    @media (max-width:760px) {
+      .ust-wahl { width:100%; }
+      .uw-tab { flex:1; }
+      .hist-pruefer { margin-left:0; width:100%; max-width:none; margin-top:8px; }
+    }
 </style>
 <div id="legalGate" class="legal-gate" style="display:none;">
   <div class="legal-box">
@@ -3999,7 +4022,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.44</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.45</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -5071,6 +5094,8 @@ let ORDNER_LIST = [];            // sichtbare Ordner des Nutzers
 let NEUER_ORDNER_SICHT = 'privat';
 let SELECTED_ORDNER_ID = null;   // beim Analysieren gewählter Ordner
 let HISTORY_FILTER = 'alle';
+let HISTORY_PRUEFER = '';
+function setPruefer(v) { HISTORY_PRUEFER = v || ''; renderHistoryList(); }
 let HISTORY_SORT = 'neu';
 let FAVORITEN = [];              // Liste der ueberwachten Firmen
 let FAV_KERNE = {};              // normalisierter Name -> Favoriten-Datensatz
@@ -8656,6 +8681,27 @@ async function kontoLoeschenFinal() {
   }
 }
 
+let UST_ART = 'ust';
+function ustArtWaehlen(art) {
+  UST_ART = art;
+  const f = document.getElementById('ustInput');
+  const h = document.getElementById('ustHinweis');
+  const a = document.getElementById('uwUst'), b = document.getElementById('uwStnr');
+  if (a) a.classList.toggle('aktiv', art === 'ust');
+  if (b) b.classList.toggle('aktiv', art === 'stnr');
+  if (f) {
+    f.placeholder = (art === 'ust') ? 'z.B. DE 298 123 456' : 'z.B. 143/824/51002';
+    f.classList.remove('feld-wechsel'); void f.offsetWidth; f.classList.add('feld-wechsel');
+    try { f.focus(); } catch(e) {}
+  }
+  if (h) {
+    h.textContent = (art === 'ust')
+      ? 'Wird \u00fcber das EU-System VIES gepr\u00fcft \u2013 macht die Zuordnung eindeutig.'
+      : 'F\u00fcr Unternehmen ohne USt-IdNr. Wird nicht amtlich gepr\u00fcft, hilft aber bei der Zuordnung.';
+    h.classList.remove('feld-wechsel'); void h.offsetWidth; h.classList.add('feld-wechsel');
+  }
+}
+
 async function startSearch(ignoriereDuplikat) {
   const name = document.getElementById('nameInput').value.trim();
   if (!name) { document.getElementById('nameInput').focus(); return; }
@@ -8675,7 +8721,8 @@ async function startSearch(ignoriereDuplikat) {
   FIRMA_BESTAETIGT = false;
   const ordnerSel = document.getElementById('ordnerSelect');
   SELECTED_ORDNER_ID = (ordnerSel && ordnerSel.value) ? ordnerSel.value : null; // gewählter Ordner für diese Analyse
-  const ust = document.getElementById('ustInput').value.trim();
+  let ust = document.getElementById('ustInput').value.trim();
+  if (ust && UST_ART === 'stnr') ust = 'StNr: ' + ust;
   document.getElementById('emptyState').style.display = 'none';
   document.getElementById('report').classList.remove('active');
   document.getElementById('loading').classList.add('active');
@@ -9894,11 +9941,35 @@ function renderHistoryList() {
     chips += '<button class="hist-chip ' + (HISTORY_FILTER === o.id ? 'active' : '') + '" onclick="setHistoryFilter(\'' + o.id + '\')">'
       + '<span class="chip-dot" style="background:' + (o.farbe || '#22C55E') + '"></span>' + escapeHtml(o.name) + ' (' + (cByFolder[o.id]||0) + ')</button>';
   });
-  const filterBar = '<div class="hist-filter">' + chips + '</div>';
+  // Wer hat gepr\u00fcft? Auswahl aufbauen (nur bei mehreren Personen sinnvoll)
+  const pruefer = {};
+  (HISTORY_ROWS || []).forEach(function(r){
+    const rj = r.report_json || {};
+    const wer = (rj._name && rj._name.indexOf('@') < 0) ? rj._name : (rj._email || '');
+    if (wer) pruefer[wer] = (pruefer[wer] || 0) + 1;
+  });
+  const pruefListe = Object.keys(pruefer).sort();
+  const prueferWahl = (pruefListe.length > 1)
+    ? '<select class="hist-pruefer" onchange="setPruefer(this.value)">'
+      + '<option value="">Alle Mitarbeiter</option>'
+      + pruefListe.map(function(p){
+          return '<option value="' + escapeHtml(p) + '"' + (HISTORY_PRUEFER === p ? ' selected' : '') + '>'
+            + escapeHtml(p) + ' (' + pruefer[p] + ')</option>';
+        }).join('')
+      + '</select>'
+    : '';
+  const filterBar = '<div class="hist-filter">' + chips + prueferWahl + '</div>';
 
   // Such- + Ordnerfilter anwenden
   const q = ((document.getElementById('histSearch') && document.getElementById('histSearch').value) || '').trim().toLowerCase();
   let rowsData = HISTORY_ROWS;
+  if (HISTORY_PRUEFER) {
+    rowsData = rowsData.filter(function(r){
+      const rj = r.report_json || {};
+      const wer = (rj._name && rj._name.indexOf('@') < 0) ? rj._name : (rj._email || '');
+      return wer === HISTORY_PRUEFER;
+    });
+  }
   if (HISTORY_FILTER === 'ohne') rowsData = rowsData.filter(function(r){ return !r.ordner_id; });
   else if (HISTORY_FILTER === '__geteilt') {
     const ids = ORDNER_LIST.filter(function(o){ return o.sichtbarkeit === 'oeffentlich'; }).map(function(o){ return o.id; });
