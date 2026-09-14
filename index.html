@@ -3941,7 +3941,20 @@
     }
     .verl-card .up-warn-ico { background:var(--bad-bg,#FEF1F1) !important; color:var(--bad-text,#B42318) !important; }
 
-    /* ===== Kopfzeilen-Knoepfe: alle gleichzeitig starten ===== */
+    /* ===== Kopfzeilen-Knoepfe: alle gleichzeitig starten =====
+       Wichtig: Solange die Leiste noch nicht bereit ist, bleiben die Knoepfe
+       unsichtbar. Sonst blitzen sie kurz auf und werden danach erneut
+       eingeblendet - das sah aus wie ein Flackern. */
+    .header-actions:not(.nav-bereit) #infoBewertungBtn,
+    .header-actions:not(.nav-bereit) #infoQuellenBtn,
+    .header-actions:not(.nav-bereit) #historyBtn,
+    .header-actions:not(.nav-bereit) #teamBtn,
+    .header-actions:not(.nav-bereit) #werBinIch,
+    .header-actions:not(.nav-bereit) #supportBtn,
+    .header-actions:not(.nav-bereit) #kontoBtn,
+    .header-actions:not(.nav-bereit) #logoutBtn {
+      opacity:0;
+    }
     .nav-bereit #infoBewertungBtn, .nav-bereit #infoQuellenBtn, .nav-bereit #historyBtn,
     .nav-bereit #teamBtn, .nav-bereit #werBinIch, .nav-bereit #supportBtn,
     .nav-bereit #kontoBtn, .nav-bereit #logoutBtn {
@@ -3963,7 +3976,15 @@
     /* Symbole reagieren beim Drueberfahren */
     #logoutBtn { transition:all .2s !important; }
     @media (prefers-reduced-motion: reduce) {
-      #infoBewertungBtn, #infoQuellenBtn, #historyBtn, #teamBtn, #werBinIch, #supportBtn, #kontoBtn, #logoutBtn {
+      #infoBewertungBtn, #infoQuellenBtn, #historyBtn, #teamBtn, #werBinIch, #supportBtn, #kontoBtn, #logoutBtn,
+      .header-actions:not(.nav-bereit) #infoBewertungBtn,
+      .header-actions:not(.nav-bereit) #infoQuellenBtn,
+      .header-actions:not(.nav-bereit) #historyBtn,
+      .header-actions:not(.nav-bereit) #teamBtn,
+      .header-actions:not(.nav-bereit) #werBinIch,
+      .header-actions:not(.nav-bereit) #supportBtn,
+      .header-actions:not(.nav-bereit) #kontoBtn,
+      .header-actions:not(.nav-bereit) #logoutBtn {
         animation:none !important; opacity:1 !important; transform:none !important;
       }
     }
@@ -4257,7 +4278,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.58</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.59</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -5948,6 +5969,12 @@ function enterApp() {
   appUnterseitenReset();
   document.getElementById('logoutBtn').style.display = '';
   const hb = document.getElementById('historyBtn'); if (hb) hb.style.display = '';
+  // Sicherheitsnetz: Sollte der Rang einmal nicht laden, werden die Knoepfe
+  // trotzdem sichtbar - sie duerfen nie dauerhaft ausgeblendet bleiben.
+  setTimeout(function(){
+    const leiste = document.querySelector('.header-actions');
+    if (leiste && !leiste.classList.contains('nav-bereit')) leiste.classList.add('nav-bereit');
+  }, 2500);
   // Kam der Nutzer ueber einen Paket-Button auf der Startseite? Dann direkt dorthin.
   if (WUNSCH_PAKET) {
     const wunsch = WUNSCH_PAKET;
