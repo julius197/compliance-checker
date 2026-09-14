@@ -1956,6 +1956,32 @@
     /* Sanfter Auftritt für Overlays statt hartem Aufploppen */
     .auth-card, .plan-wrap { animation: premiumIn .45s cubic-bezier(.16,1,.3,1); }
     #authGate, .ob-gate, .plan-gate { animation: fadeIn .3s ease; }
+
+    /* ===== Neu bewerten: klareres Symbol, ruhiger Ladezustand ===== */
+    .bearb-btn { gap:9px; }
+    .bearb-btn .bearb-refresh { flex-shrink:0; transition:transform .5s cubic-bezier(.2,.7,.2,1); }
+    .bearb-btn:hover:not(:disabled) .bearb-refresh { transform:rotate(-180deg); }
+    .bearb-btn:disabled {
+      opacity:1 !important; cursor:not-allowed;
+      background:#EDF1F6 !important; color:#94A3B2 !important; box-shadow:none !important;
+    }
+    .bearb-btn:disabled .bearb-refresh { opacity:.55; }
+    .bearb-btn.laedt {
+      opacity:1 !important; cursor:wait;
+      background:linear-gradient(135deg,#1E4E8C,#2E6FBF) !important; color:#fff !important;
+      box-shadow:0 8px 20px -10px rgba(30,78,140,.7) !important;
+    }
+    .bearb-spin {
+      display:inline-block; width:15px; height:15px; flex-shrink:0;
+      border:2.2px solid rgba(255,255,255,.32); border-top-color:#fff;
+      border-radius:50%; animation:bsDreh .75s linear infinite;
+    }
+    .bearb-label { white-space:nowrap; }
+    @media (prefers-reduced-motion: reduce) {
+      .bearb-btn .bearb-refresh { transition:none; }
+      .bearb-btn:hover:not(:disabled) .bearb-refresh { transform:none; }
+      .bearb-spin { animation:none; border-top-color:rgba(255,255,255,.75); }
+    }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -4231,7 +4257,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.57</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.58</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -5449,6 +5475,13 @@ function favDlgSchliessen(ja) {
 let BEARBEITEN_AN = false;
 let ERGAENZUNGEN = {};        // "Kategorie|Feld" -> neuer Wert
 
+function bearbIcoSvg() {
+  return '<svg class="bearb-refresh" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" '
+    + 'stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">'
+    + '<path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/>'
+    + '<path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M3 21v-5h5"/></svg>';
+}
+
 function bearbLeisteZeichnen() {
   const l = document.getElementById('bearbLeiste');
   if (!l || !CURRENT_REPORT) return;
@@ -5474,8 +5507,8 @@ function bearbLeisteZeichnen() {
       + '<div class="bearb-btns">'
       + '<button class="kyc-btn" onclick="bearbeitenAbbruch()">Abbrechen</button>'
       + '<button class="bearb-btn" id="neuBewertenBtn" onclick="neuBewerten()"' + (n ? '' : ' disabled') + '>'
-      + '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.2-8.6"/><path d="M21 3v6h-6"/></svg>'
-      + ' Neu bewerten' + (n ? ' (' + n + ')' : '') + '</button>'
+      + bearbIcoSvg()
+      + '<span class="bearb-label">Neu bewerten' + (n ? ' \u00b7 ' + n : '') + '</span></button>'
       + '</div></div>';
   }
   requestAnimationFrame(function(){ const k = l.querySelector('.bearb-karte'); if (k) k.classList.add('an'); });
@@ -5538,8 +5571,9 @@ function feldBearbeiten(feldId, ev) {
   // Vorhandenen Wert als Startwert anbieten (auch den urspruenglichen)
   let start = ERGAENZUNGEN[schluessel];
   if (start === undefined) {
-    const roh = (v.textContent || '').replace(/\u2197/g, '').trim();
-    start = (/^n\/?a$/i.test(roh) || !roh) ? '' : roh.split('\n')[0].slice(0, 200);
+    const link = v.querySelector ? v.querySelector('a[href]') : null;
+    const roh = link ? link.getAttribute('href') : (v.textContent || '').replace(/\u2197/g, '').trim();
+    start = (/^n\/?a$/i.test(roh) || !roh) ? '' : String(roh).split('\n')[0].trim().slice(0, 200);
   }
 
   v.innerHTML = '<div class="kv-edit">'
@@ -5597,7 +5631,7 @@ async function neuBewerten() {
   const n = Object.keys(ERGAENZUNGEN).length;
   if (!n || !CURRENT_REPORT) return;
   const btn = document.getElementById('neuBewertenBtn');
-  if (btn) { btn.disabled = true; btn.innerHTML = '<span class="bearb-spin"></span> Wird neu bewertet\u2026'; }
+  if (btn) { btn.disabled = true; btn.classList.add('laedt'); btn.innerHTML = '<span class="bearb-spin"></span><span class="bearb-label">Wird neu bewertet\u2026</span>'; }
 
   // Ergaenzungen fuer den Worker aufbereiten: "Kategorie > Feld": Wert
   const erg = {};
@@ -5639,7 +5673,7 @@ async function neuBewerten() {
     }, 80);
   } catch (e) {
     alert('Neubewertung fehlgeschlagen: ' + ((e && e.message) || ''));
-    if (btn) { btn.disabled = false; btn.innerHTML = 'Neu bewerten (' + n + ')'; }
+    if (btn) { btn.disabled = false; btn.classList.remove('laedt'); btn.innerHTML = bearbIcoSvg() + '<span class="bearb-label">Neu bewerten \u00b7 ' + n + '</span>'; }
   }
 }
 
@@ -9907,9 +9941,8 @@ async function kycUpload(typ, file) {
       position: bisher + 1,
       bezeichnung: (typ === 'ausweis') ? (bisher === 0 ? 'Vorderseite' : (bisher === 1 ? 'R\u00fcckseite' : 'Seite ' + (bisher + 1))) : null,
       hochgeladen_von: (typeof CURRENT_USER_ID !== 'undefined' ? CURRENT_USER_ID : null)
-    }, { onConflict: 'analyse_id,typ' });
+    });
     if (db && db.error) throw db.error;
-    if (alt && alt.storage_path) { try { await sb.storage.from('kyc').remove([alt.storage_path]); } catch(e) {} }
     await kycLaden();
   } catch (e) {
     console.warn('KYC Upload:', e && e.message);
@@ -10108,7 +10141,6 @@ function showReport(d, rawName, fromHistory) {
         <div class="bar-track"><div class="bar-fill ${barC(d.gesamtScore)}" style="width:${d.gesamtScore||0}%"></div></div>
         <div class="score-desc">${(d.empfehlung && d.empfehlung.length > 20) ? d.empfehlung.split('.')[0] + '.' : (d.verdictText || 'Prüfung abgeschlossen') + '.'}</div>
         ${d._score_begruendung ? `<div class="score-rechnung" title="So setzt sich der Wert zusammen"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h3"/></svg>${escapeHtml(d._score_begruendung)}</div>` : ''}
-        \${d._score_begruendung ? '<div class="score-rechnung" title="So setzt sich der Wert zusammen"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 7h6M9 12h6M9 17h3"/><rect x="4" y="3" width="16" height="18" rx="2"/></svg>' + escapeHtml(d._score_begruendung) + '</div>' : ''}
       </div>
     </div>
     <div class="grid4 reveal">
@@ -10128,12 +10160,12 @@ function showReport(d, rawName, fromHistory) {
         <div class="cc" id="cc_website" data-kat="Kontakt" data-feld="Website">${ccStift('cc_website')}<div class="cc-label">Website</div><span class="cc-wert">${isNA(d.kontakt.website)?'<span class="cc-value na">N/A</span>':`<a class="maps-link" href="${d.kontakt.website.startsWith('http')?d.kontakt.website:'https://'+d.kontakt.website}" target="_blank">${d.kontakt.website} ↗</a>`}${!isNA(d.kontakt.website)?`<span class="cc-badge ${d.kontakt.httpsOk?'ok':'warn'}" style="margin-left:6px">${d.kontakt.httpsOk?'HTTPS ✓':'Kein HTTPS'}</span>`:''}</span></div>
         <div class="cc" id="cc_email" data-kat="Kontakt" data-feld="E-Mail">${ccStift('cc_email')}<div class="cc-label">E-Mail</div><span class="cc-wert">${na(d.kontakt.email)}</span></div>
         <div class="cc" id="cc_telefon" data-kat="Kontakt" data-feld="Telefon">${ccStift('cc_telefon')}<div class="cc-label">Telefon</div><span class="cc-wert">${na(d.kontakt.telefon)}</span></div>
-        <div class="cc"><div class="cc-label">LinkedIn</div>${d.kontakt.linkedinAktiv && d.kontakt.linkedinUrl && !isNA(d.kontakt.linkedinUrl)?`<a class="maps-link" href="${d.kontakt.linkedinUrl}" target="_blank">Profil öffnen ↗</a>`:`<div class="cc-value ${d.kontakt.linkedinAktiv?'':'na'}">${d.kontakt.linkedinAktiv?'Vorhanden':'N/A'}</div>`}</div>
-        <div class="cc"><div class="cc-label">Social Media</div>${(() => {
+        <div class="cc" id="cc_linkedin" data-kat="Kontakt" data-feld="LinkedIn">${ccStift('cc_linkedin')}<div class="cc-label">LinkedIn</div><span class="cc-wert">${d.kontakt.linkedinAktiv && d.kontakt.linkedinUrl && !isNA(d.kontakt.linkedinUrl)?`<a class="maps-link" href="${d.kontakt.linkedinUrl}" target="_blank">Profil öffnen ↗</a>`:`<div class="cc-value ${d.kontakt.linkedinAktiv?'':'na'}">${d.kontakt.linkedinAktiv?'Vorhanden':'N/A'}</div>`}</span></div>
+        <div class="cc" id="cc_social" data-kat="Kontakt" data-feld="Social Media">${ccStift('cc_social')}<div class="cc-label">Social Media</div><span class="cc-wert">${(() => {
           const links = (d.kontakt.socialLinks||[]).filter(s=>s && s.url && !isNA(s.url));
           if (links.length>0) return links.map(s=>`<a class="maps-link" href="${s.url}" target="_blank" style="display:block;font-size:11px">${s.platform||'Profil'} ↗</a>`).join('');
           return `<div class="cc-value ${isNA(d.kontakt.socialMedia)?'na':''}" style="font-size:11px">${isNA(d.kontakt.socialMedia)?'N/A':d.kontakt.socialMedia}</div>`;
-        })()}</div>
+        })()}</span></div>
       </div>
       ${d.kontakt.source && !isNA(d.kontakt.source) ? `<div style="margin-top:10px;font-size:8px;letter-spacing:.08em;text-transform:uppercase;color:var(--gray-l)">Quelle: ${d.kontakt.source}</div>` : ''}
     </div>
