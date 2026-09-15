@@ -1982,6 +1982,55 @@
       .bearb-btn:hover:not(:disabled) .bearb-refresh { transform:none; }
       .bearb-spin { animation:none; border-top-color:rgba(255,255,255,.75); }
     }
+
+    /* ===== Beweismittel: eigene Aufnahmen ===== */
+    .evidence-eigen { margin-top:12px; }
+    .ev-eigen-kachel { position:relative; opacity:0;
+      animation:evEigenIn .4s cubic-bezier(.2,.7,.2,1) var(--ed,0s) both; }
+    @keyframes evEigenIn { from { opacity:0; transform:scale(.94); } to { opacity:1; transform:none; } }
+    .ev-eigen-kachel .evidence-thumb { width:100%; height:100%; }
+    .ev-eigen-pdf { display:flex; align-items:center; justify-content:center;
+      background:#0d1d16; color:#6EE7B7; font-weight:800; font-size:13px; letter-spacing:.06em; }
+    .ev-eigen-nr { position:absolute; left:7px; bottom:7px; z-index:2;
+      font-size:10px; font-weight:800; color:#fff; background:rgba(10,22,17,.72);
+      border-radius:999px; padding:2px 8px; pointer-events:none; }
+    .ev-eigen-x { position:absolute; top:6px; right:6px; z-index:3;
+      width:26px; height:26px; border-radius:50%; border:none; cursor:pointer;
+      background:rgba(10,22,17,.75); color:#fff;
+      display:flex; align-items:center; justify-content:center;
+      transition:background .16s, transform .16s; }
+    .ev-eigen-x:hover { background:#DC2626; transform:scale(1.1); }
+    .ev-eigen-tools { display:flex; gap:9px; flex-wrap:wrap; padding:13px 16px;
+      background:var(--card,#fff); border-top:1px solid var(--border2,#EDF0F2); }
+    .ev-eigen-add { display:inline-flex; align-items:center; gap:7px;
+      padding:10px 16px; border-radius:11px; cursor:pointer; font-family:inherit;
+      font-size:12.5px; font-weight:700; color:var(--green-d,#16A34A);
+      background:var(--green-pale,#EAF9F0); border:1.5px dashed rgba(34,197,94,.45);
+      transition:all .18s; }
+    .ev-eigen-add:hover { border-style:solid; transform:translateY(-1px);
+      box-shadow:0 8px 18px -10px rgba(34,197,94,.6); }
+    .ev-eigen-add:active { transform:translateY(0) scale(.97); }
+    .ev-eigen-cam { background:var(--neutral,#F6F8F9); color:var(--gray,#5A6670);
+      border-color:var(--border,#E2E6E9); }
+    .ev-eigen-cam:hover { color:var(--green-d,#16A34A); border-color:rgba(34,197,94,.45); }
+    .ev-eigen-hinweis { padding:13px 16px; font-size:12px; color:var(--gray,#5A6670);
+      background:var(--card,#fff); border-top:1px solid var(--border2,#EDF0F2);
+      display:flex; align-items:center; gap:9px; }
+    .ev-eigen-spin { display:inline-block; width:13px; height:13px; flex-shrink:0;
+      border:2px solid rgba(34,197,94,.28); border-top-color:#16A34A;
+      border-radius:50%; animation:bsDreh .75s linear infinite; }
+    @media (max-width:760px) {
+      .ev-eigen-tools { flex-direction:column; }
+      .ev-eigen-add { width:100%; justify-content:center; box-sizing:border-box; }
+    }
+    @media print {
+      .ev-eigen-tools, .ev-eigen-hinweis, .ev-eigen-x { display:none !important; }
+      .ev-eigen-kachel { opacity:1 !important; animation:none !important; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .ev-eigen-kachel { opacity:1 !important; transform:none !important; animation:none !important; }
+      .ev-eigen-spin { animation:none; }
+    }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -4278,7 +4327,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.59</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.60</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -5541,6 +5590,7 @@ function bearbeitenStart() {
   // Nur eine Klasse setzen - der Bericht wird NICHT neu aufgebaut
   const rep = document.getElementById('report') || document.body;
   rep.classList.add('bearb-modus');
+  try { evidenceEigenZeichnen(); } catch(e) {}
   bearbLeisteZeichnen();
   zeigeToast('Bearbeitungsmodus', 'Klicke auf den Stift rechts neben einem Feld.');
 }
@@ -5550,6 +5600,7 @@ function bearbeitenAbbruch() {
   ERGAENZUNGEN = {};
   const rep = document.getElementById('report') || document.body;
   rep.classList.remove('bearb-modus');
+  try { evidenceEigenZeichnen(); } catch(e) {}
   // Alle offenen Eingaben und Markierungen zuruecknehmen
   document.querySelectorAll('.kv-ergaenzt').forEach(function(z){
     z.classList.remove('kv-ergaenzt');
@@ -9575,7 +9626,91 @@ function evidenceHTML(d) {
       </div>
       <div class="evidence-note">Automatisch über Google zugeordnete Bilder zur angegebenen Adresse. Die Zuordnung erfolgt anhand des Namens des Unternehmens und sollte bei Bedarf manuell verifiziert werden.</div>
     </div>
+    <div class="evidence-item evidence-eigen" id="evidenceEigenBox" style="display:none;">
+      <div class="evidence-item-label">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+        Eigene Aufnahmen <span id="evidenceEigenCount" style="margin-left:auto;font-weight:600;color:var(--gray-l);text-transform:none;letter-spacing:0"></span>
+      </div>
+      <div class="evidence-gallery" id="evidenceEigenGallery"></div>
+      <div id="evidenceEigenTools"></div>
+      <div class="evidence-note">Selbst aufgenommene Bilder zum Unternehmen – etwa Firmenschild, Gebäude oder Geschäftsräume. Sie werden beim Drucken als eigene Anlagen angehängt.</div>
+    </div>
   </div>`;
+}
+
+// ===== Eigene Aufnahmen: Galerie zeichnen =====
+// Sichtbar, sobald mindestens ein Bild vorliegt – oder wenn der
+// Bearbeitungsmodus läuft, damit man welche hinzufügen kann.
+function evidenceEigenZeichnen() {
+  const box = document.getElementById('evidenceEigenBox');
+  const gal = document.getElementById('evidenceEigenGallery');
+  const tools = document.getElementById('evidenceEigenTools');
+  const zaehler = document.getElementById('evidenceEigenCount');
+  if (!box || !gal || !tools) return;
+
+  const liste = (typeof KYC !== 'undefined' && KYC.doks && KYC.doks.standort) ? KYC.doks.standort : [];
+  const urls = (typeof KYC !== 'undefined' && KYC.urls && KYC.urls.standort) ? KYC.urls.standort : [];
+  let bearbeiten = false;
+  try { bearbeiten = (document.getElementById('report') || document.body).classList.contains('bearb-modus'); } catch(e) {}
+
+  if (!liste.length && !bearbeiten) { box.style.display = 'none'; return; }
+  box.style.display = '';
+
+  if (liste.length) {
+    gal.innerHTML = liste.map(function(d, n){
+      const url = urls[n];
+      const istPdf = (d.mime_type || '').indexOf('pdf') >= 0;
+      const inhalt = (url && !istPdf)
+        ? '<a class="evidence-thumb" href="' + url + '" target="_blank" title="In voller Gr\u00f6\u00dfe \u00f6ffnen"><img src="' + url + '" alt="Eigene Aufnahme ' + (n + 1) + '" loading="lazy" /></a>'
+        : '<a class="evidence-thumb ev-eigen-pdf" ' + (url ? 'href="' + url + '" target="_blank"' : '') + '><span>PDF</span></a>';
+      return '<div class="ev-eigen-kachel" style="--ed:' + (0.04 + n * 0.06) + 's">'
+        + inhalt
+        + (bearbeiten ? '<button class="ev-eigen-x" onclick="evidenceEigenLoeschen(' + n + ')" title="Bild entfernen">'
+            + '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>' : '')
+        + '<span class="ev-eigen-nr">' + (n + 1) + '</span>'
+        + '</div>';
+    }).join('');
+  } else {
+    gal.innerHTML = '<div class="evidence-img-none"><div>Noch keine eigenen Aufnahmen hinterlegt</div></div>';
+  }
+
+  if (zaehler) zaehler.textContent = liste.length ? (liste.length === 1 ? '1 Bild' : liste.length + ' Bilder') : '';
+
+  if (!bearbeiten) { tools.innerHTML = ''; return; }
+  if (!KYC.analyseId) {
+    tools.innerHTML = '<div class="ev-eigen-hinweis">Die Analyse wird gerade gespeichert – in einem Moment k\u00f6nnen Bilder hinzugef\u00fcgt werden.</div>';
+    return;
+  }
+  tools.innerHTML = '<div class="ev-eigen-tools">'
+    + '<label class="ev-eigen-add" for="evEigenFile">'
+    + '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>'
+    + ' Bild ausw\u00e4hlen</label>'
+    + '<label class="ev-eigen-add ev-eigen-cam" for="evEigenCam">'
+    + '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>'
+    + ' Foto aufnehmen</label>'
+    + '<input type="file" id="evEigenFile" accept="image/jpeg,image/png,image/webp,application/pdf" multiple style="display:none" onchange="evidenceEigenWaehlen(this.files)" />'
+    + '<input type="file" id="evEigenCam" accept="image/*" capture="environment" style="display:none" onchange="evidenceEigenWaehlen(this.files)" />'
+    + '</div>';
+}
+
+async function evidenceEigenWaehlen(files) {
+  if (!files || !files.length) return;
+  const tools = document.getElementById('evidenceEigenTools');
+  if (tools) tools.innerHTML = '<div class="ev-eigen-hinweis ev-eigen-laedt"><span class="ev-eigen-spin"></span> Wird hochgeladen\u2026</div>';
+  for (let i = 0; i < files.length; i++) {
+    await kycUpload('standort', files[i]);
+  }
+}
+
+async function evidenceEigenLoeschen(n) {
+  const d = (KYC.doks && KYC.doks.standort) ? KYC.doks.standort[n] : null;
+  if (!d) return;
+  if (!confirm('Diese Aufnahme wirklich entfernen?')) return;
+  try {
+    try { await sb.storage.from('kyc').remove([d.storage_path]); } catch(e) {}
+    await sb.from('kyc_dokumente').delete().eq('id', d.id);
+    await kycLaden();
+  } catch (e) { alert('Entfernen fehlgeschlagen: ' + ((e && e.message) || '')); }
 }
 
 // Lädt ALLE Google-Fotos der Firma als Galerie (Fallback: Street View)
@@ -9703,7 +9838,7 @@ async function kycLaden() {
         return new Date(a.created_at) - new Date(b.created_at);
       });
     });
-    const typen = ['ausweis','selfie'];
+    const typen = ['ausweis','selfie','standort'];
     for (const t of typen) {
       const liste = KYC.doks[t] || [];
       KYC.urls[t] = [];
@@ -9721,6 +9856,7 @@ async function kycLaden() {
       KYC.link = (l && l.data && l.data[0]) || null;
     } catch(e) { KYC.link = null; }
     kycRender();
+    try { evidenceEigenZeichnen(); } catch(e) {}
   } catch (e) { console.warn('KYC laden:', e && e.message); }
 }
 
@@ -9780,7 +9916,7 @@ function kycRender() {
 function kycPrintHtml() {
   let out = '';
   let nr = 0;
-  [['ausweis','Personalausweis'],['selfie','Best\u00e4tigungsfoto']].forEach(function(p){
+  [['ausweis','Personalausweis'],['selfie','Best\u00e4tigungsfoto'],['standort','Eigene Aufnahme']].forEach(function(p){
     const typ = p[0], basis = p[1];
     (KYC.doks[typ] || []).forEach(function(d, n){
       const url = (KYC.urls[typ] || [])[n];
@@ -9966,7 +10102,8 @@ async function kycUpload(typ, file) {
       analyse_id: KYC.analyseId, firma_id: CURRENT_FIRMA.firma_id, typ: typ,
       storage_path: pfad, datei_name: file.name, mime_type: file.type,
       position: bisher + 1,
-      bezeichnung: (typ === 'ausweis') ? (bisher === 0 ? 'Vorderseite' : (bisher === 1 ? 'R\u00fcckseite' : 'Seite ' + (bisher + 1))) : null,
+      bezeichnung: (typ === 'ausweis') ? (bisher === 0 ? 'Vorderseite' : (bisher === 1 ? 'R\u00fcckseite' : 'Seite ' + (bisher + 1)))
+                 : (typ === 'standort' ? ('Aufnahme ' + (bisher + 1)) : null),
       hochgeladen_von: (typeof CURRENT_USER_ID !== 'undefined' ? CURRENT_USER_ID : null)
     });
     if (db && db.error) throw db.error;
@@ -11312,7 +11449,9 @@ async function _akteDrucken(folderId) {
         const dj = (r && r.report_json) || {};
         const fname = dj.firmenname || (r && r.firmenname) || '';
         const pid = dj.pruefId || (r && r.pruef_id) || '';
-        const titel = (d.typ === 'ausweis' ? 'Anlage \u00b7 Personalausweis' : 'Anlage \u00b7 Best\u00e4tigungsfoto') + ' \u00b7 ' + fname + ' \u00b7 ' + pid;
+        const basis = (d.typ === 'ausweis') ? 'Personalausweis'
+                    : (d.typ === 'standort') ? 'Eigene Aufnahme' : 'Best\u00e4tigungsfoto';
+        const titel = 'Anlage \u00b7 ' + basis + (d.bezeichnung ? ' (' + d.bezeichnung + ')' : '') + ' \u00b7 ' + fname + ' \u00b7 ' + pid;
         let seite;
         const url = urlMap[d.storage_path];
         if (url) {
