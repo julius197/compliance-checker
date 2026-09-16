@@ -2120,6 +2120,7 @@
       transform-origin:bottom right;
       opacity:0; transform:translateY(16px) scale(.94);
     }
+    .help-pop[style*="display: block"], .help-pop[style*="display:block"] { display:flex !important; }
     .help-pop.pop-in  { animation:chatAuf .38s cubic-bezier(.2,.86,.3,1.06) forwards; }
     .help-pop.pop-out { animation:chatZu .24s cubic-bezier(.4,0,.7,.2) forwards; }
     @keyframes chatAuf {
@@ -4686,7 +4687,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.66</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.67</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -5340,7 +5341,7 @@ function toggleHelp() {
   const bd = document.getElementById('chatBackdrop');
   const btn = document.getElementById('helpBtn');
   if (!p) return;
-  const offen = p.style.display === 'block';
+  const offen = p.style.display === 'flex';
 
   if (offen) {
     p.classList.remove('pop-in');
@@ -5350,7 +5351,7 @@ function toggleHelp() {
     document.body.style.overflow = '';
     setTimeout(function(){ p.style.display = 'none'; p.classList.remove('pop-out'); }, 260);
   } else {
-    p.style.display = 'block';
+    p.style.display = 'flex';
     p.classList.remove('pop-out');
     void p.offsetWidth;
     p.classList.add('pop-in');
@@ -7851,7 +7852,7 @@ function infoOeffnen(welche) {
 document.addEventListener('keydown', function(e){
   if (e.key === 'Escape') {
     const g = document.getElementById('infoGate'); if (g && g.style.display === 'flex') { infoSchliessen(); return; }
-    const p = document.getElementById('helpPop'); if (p && p.style.display === 'block') toggleHelp();
+    const p = document.getElementById('helpPop'); if (p && p.style.display === 'flex') toggleHelp();
   }
 });
 
