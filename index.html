@@ -1052,7 +1052,7 @@
     .haft-box { margin-top:14px; padding:13px 15px; background:var(--neutral,#F6F8F9); border:1px solid var(--border,#E2E6E9); border-left:3px solid var(--gray-l,#8A949D); border-radius:0 12px 12px 0; }
     .haft-t { font-size:11.5px; font-weight:800; letter-spacing:.04em; text-transform:uppercase; color:var(--gray,#5A6670); margin-bottom:6px; }
     .haft-d { font-size:11.5px; line-height:1.7; color:var(--gray,#5A6670); }
-    .kyc-print-haft { font-size:9px; line-height:1.5; color:#555; margin-top:10px; padding-top:8px; border-top:1px solid #ddd; }
+    .kyc-print-haft { font-size:8pt; line-height:1.5; color:#555; margin-top:9px; padding-top:7px; border-top:1px solid #ddd; }
     @media (max-width:760px) { .ds-hinweis { padding:12px 13px; } .ds-text { font-size:11px; } }
     .up-senden-aus, .up-senden:disabled { background:#D5E3DB !important; box-shadow:none !important; cursor:not-allowed; animation:none; }
     .up-senden-aus:hover, .up-senden:disabled:hover { transform:none !important; box-shadow:none !important; }
@@ -1529,9 +1529,42 @@
     .kyc-print-page { display:none; }
     @media print {
       .kyc-card { display:none !important; }
-      .kyc-print-page { display:block; page-break-before:always; }
-      .kyc-print-t { font-size:13px; font-weight:700; margin-bottom:10px; }
-      .kyc-print-img { max-width:100%; max-height:88vh; }
+      /* Jede Anlage bekommt eine eigene Seite und nutzt sie ganz aus.
+         Wichtig: mit echten Seitenmassen rechnen - "vh" meint beim Drucken
+         nicht die Seitenhoehe, dadurch wurden Bilder abgeschnitten.
+         A4 hoch = 29,7 cm, abzueglich 2 x 1,4 cm Rand = 26,9 cm. */
+      .kyc-print-page {
+        display:flex !important; flex-direction:column;
+        height:26.4cm; max-height:26.4cm; box-sizing:border-box;
+        page-break-before:always; page-break-inside:avoid; break-inside:avoid;
+        overflow:hidden;
+      }
+      .kyc-print-t {
+        flex-shrink:0; font-size:11pt; font-weight:700; color:#0F1715;
+        padding-bottom:7px; margin-bottom:10px; border-bottom:2px solid #16A34A;
+      }
+      /* Rahmen fuellt den verbleibenden Platz, das Bild passt sich ein */
+      .kyc-print-rahmen {
+        flex:1 1 auto; min-height:0;
+        display:flex; align-items:center; justify-content:center;
+        border:1px solid #C7D2CC; border-radius:5px; padding:0.5cm; background:#fff;
+        overflow:hidden;
+      }
+      .kyc-print-img {
+        display:block; max-width:100%; max-height:100%;
+        width:auto; height:auto; object-fit:contain;
+      }
+      .kyc-print-fuss { flex-shrink:0; margin-top:9px; font-size:8pt; color:#6B7280; }
+      .kyc-print-haft { flex-shrink:0; }
+      .kyc-print-fehlt {
+        flex:1 1 auto; display:flex; align-items:center; justify-content:center;
+        border:1px dashed #C7D2CC; border-radius:5px; font-size:10pt; color:#6B7280;
+        text-align:center; padding:1cm;
+      }
+      /* Querformat: Seite ist niedriger */
+      @media (orientation: landscape) {
+        .kyc-print-page { height:17.5cm; max-height:17.5cm; }
+      }
     }
     .plan-gate { position:fixed; inset:0; z-index:9990; display:flex; align-items:flex-start; justify-content:center; overflow:auto; padding:48px 22px;
       background:
@@ -2031,6 +2064,92 @@
       .ev-eigen-kachel { opacity:1 !important; transform:none !important; animation:none !important; }
       .ev-eigen-spin { animation:none; }
     }
+
+    /* ===== Support-Chat (Vorentwurf) ===== */
+    .help-pop { width:min(370px, calc(100vw - 32px)); padding:0; overflow:hidden;
+      display:flex; flex-direction:column; max-height:min(560px, calc(100vh - 110px)); }
+    .chat-kopf { display:flex; align-items:center; justify-content:space-between; gap:10px;
+      padding:14px 16px; background:linear-gradient(135deg,#16A34A,#22C55E); color:#fff; flex-shrink:0; }
+    .chat-t { font-size:13.5px; font-weight:800; letter-spacing:-.01em; }
+    .chat-sub { display:flex; align-items:center; gap:6px; font-size:11px; font-weight:600; opacity:.9; margin-top:2px; }
+    .chat-punkt { width:6px; height:6px; border-radius:50%; background:#BBF7D0;
+      box-shadow:0 0 0 0 rgba(187,247,208,.7); animation:chatPuls 2.2s ease-in-out infinite; }
+    @keyframes chatPuls { 0%,100% { box-shadow:0 0 0 0 rgba(187,247,208,.7); } 50% { box-shadow:0 0 0 5px rgba(187,247,208,0); } }
+    .chat-zu { width:28px; height:28px; border-radius:8px; border:none; cursor:pointer; flex-shrink:0;
+      background:rgba(255,255,255,.16); color:#fff; display:flex; align-items:center; justify-content:center;
+      transition:background .16s, transform .16s; }
+    .chat-zu:hover { background:rgba(255,255,255,.3); transform:rotate(90deg); }
+
+    .chat-verlauf { flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch;
+      padding:14px; display:flex; flex-direction:column; gap:9px; background:#F8FBF9; min-height:180px; }
+    .chat-ds { display:flex; align-items:flex-start; gap:8px; position:relative;
+      background:#EEF4FF; border:1px solid #C7DDF5; border-radius:11px; padding:10px 28px 10px 11px;
+      font-size:11px; line-height:1.55; color:#41566E;
+      animation:chatIn .4s cubic-bezier(.2,.7,.2,1) both; }
+    .chat-ds svg { flex-shrink:0; margin-top:1px; color:#1E4E8C; }
+    .chat-ds b { color:#0A1F3C; }
+    .chat-ds-x { position:absolute; top:6px; right:6px; width:20px; height:20px; border:none;
+      background:none; color:#8FA6C0; font-size:11px; cursor:pointer; border-radius:6px; line-height:1;
+      transition:all .15s; }
+    .chat-ds-x:hover { background:#DBEAFE; color:#1E4E8C; }
+
+    .chat-blase { max-width:88%; padding:10px 13px; border-radius:14px; font-size:12.5px; line-height:1.6;
+      word-break:break-word; animation:chatIn .35s cubic-bezier(.2,.7,.2,1) both; }
+    @keyframes chatIn { from { opacity:0; transform:translateY(7px); } to { opacity:1; transform:none; } }
+    .chat-bot { align-self:flex-start; background:#fff; color:var(--ink2,#1F2937);
+      border:1px solid var(--border,#E2E6E9); border-bottom-left-radius:5px; }
+    .chat-ich { align-self:flex-end; background:linear-gradient(135deg,#16A34A,#22C55E); color:#fff;
+      border-bottom-right-radius:5px; }
+    .chat-start { max-width:100%; }
+
+    .chat-chips { display:flex; flex-wrap:wrap; gap:6px; }
+    .chat-chip { font-size:11.5px; font-weight:600; color:var(--green-d,#16A34A);
+      background:#fff; border:1.5px solid rgba(34,197,94,.35); border-radius:999px;
+      padding:7px 12px; cursor:pointer; font-family:inherit; text-align:left;
+      opacity:0; animation:chatIn .35s cubic-bezier(.2,.7,.2,1) var(--cd,0s) both;
+      transition:background .15s, transform .15s, border-color .15s; }
+    .chat-chip:hover { background:var(--green-pale,#EAF9F0); border-color:var(--green,#22C55E); transform:translateY(-1px); }
+    .chat-chip:active { transform:translateY(0) scale(.97); }
+
+    .chat-tippt { display:flex; gap:4px; align-items:center; padding:13px; }
+    .chat-tippt span { width:6px; height:6px; border-radius:50%; background:var(--gray-l,#8A949D);
+      animation:chatTippt 1.3s ease-in-out infinite; }
+    .chat-tippt span:nth-child(2) { animation-delay:.18s; }
+    .chat-tippt span:nth-child(3) { animation-delay:.36s; }
+    @keyframes chatTippt { 0%,100% { opacity:.3; transform:translateY(0); } 50% { opacity:1; transform:translateY(-3px); } }
+
+    .chat-eingabe { display:flex; gap:8px; align-items:flex-end; padding:11px 12px;
+      background:#fff; border-top:1px solid var(--border2,#EDF0F2); flex-shrink:0; }
+    .chat-feld { flex:1; min-width:0; resize:none; border:1.5px solid var(--border,#E2E6E9);
+      border-radius:11px; padding:10px 12px; font-family:inherit; font-size:13px; line-height:1.45;
+      color:var(--ink,#111827); outline:none; max-height:110px; overflow-y:auto;
+      transition:border-color .18s, box-shadow .18s; }
+    .chat-feld:focus { border-color:var(--green,#22C55E); box-shadow:0 0 0 3px var(--green-pale,#EAF9F0); }
+    .chat-senden { width:40px; height:40px; flex-shrink:0; border:none; border-radius:11px; cursor:pointer;
+      background:linear-gradient(135deg,#16A34A,#22C55E); color:#fff;
+      display:flex; align-items:center; justify-content:center;
+      box-shadow:0 8px 18px -10px rgba(34,197,94,.8); transition:transform .18s, filter .18s; }
+    .chat-senden:hover:not(:disabled) { transform:translateY(-1px); filter:brightness(1.06); }
+    .chat-senden:active:not(:disabled) { transform:translateY(0) scale(.94); }
+    .chat-senden:disabled { background:#D5E3DB; box-shadow:none; cursor:wait; }
+
+    .chat-fuss { display:flex; align-items:center; justify-content:space-between; gap:8px;
+      padding:9px 14px; background:var(--neutral,#F6F8F9); border-top:1px solid var(--border2,#EDF0F2);
+      font-size:10.5px; color:var(--gray,#5A6670); flex-shrink:0; }
+    .chat-fuss a { color:var(--green-d,#16A34A); font-weight:700; text-decoration:none; cursor:pointer; }
+    .chat-fuss a:hover { text-decoration:underline; }
+    .chat-fuss-ds { flex-shrink:0; }
+
+    @media (max-width:760px) {
+      .help-pop { width:calc(100vw - 24px); right:12px; left:12px;
+        max-height:min(72vh, calc(100vh - 120px)); }
+      .chat-blase { max-width:92%; font-size:13px; }
+      .chat-feld { font-size:16px; }   /* verhindert das Zoomen auf iPhones */
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .chat-blase, .chat-chip, .chat-ds { animation:none !important; opacity:1 !important; transform:none !important; }
+      .chat-punkt, .chat-tippt span { animation:none; }
+    }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -2043,9 +2162,27 @@
   <button id="langBtn" class="lang-btn" onclick="toggleLang()" title="Sprache / Language">🌐 EN</button>
   <button id="helpBtn" class="help-btn" onclick="toggleHelp()" title="Hilfe & Kontakt">?</button>
   <div id="helpPop" class="help-pop" style="display:none;">
-    <div class="help-pop-t">Hilfe & Kontakt</div>
-    <div class="help-pop-d">Fragen oder Probleme? Schreib uns – wir melden uns schnell.</div>
-    <a class="help-pop-mail" href="mailto:support@automatilabs.de">support@automatilabs.de</a>
+    <div class="chat-kopf">
+      <div class="chat-kopf-txt">
+        <div class="chat-t">Hilfe zum Compliance-Checker</div>
+        <div class="chat-sub"><span class="chat-punkt"></span>Antwortet sofort</div>
+      </div>
+      <button class="chat-zu" onclick="toggleHelp()" title="Schließen">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="chat-verlauf" id="chatVerlauf"></div>
+    <div class="chat-eingabe">
+      <textarea id="chatFeld" class="chat-feld" rows="1" maxlength="1000"
+        placeholder="Frage eingeben…" onkeydown="chatTaste(event)" oninput="chatFeldHoehe(this)"></textarea>
+      <button class="chat-senden" id="chatSendenBtn" onclick="chatSenden()" title="Senden">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4z"/></svg>
+      </button>
+    </div>
+    <div class="chat-fuss">
+      Kommst du nicht weiter? <a href="mailto:support@automatilabs.de">support@automatilabs.de</a>
+      <span class="chat-fuss-ds"><a onclick="openLegal('datenschutz')">Datenschutz</a></span>
+    </div>
   </div>
 
   <!-- ===== INFO-SEITEN: Bewertung & Datenquellen ===== -->
@@ -2619,8 +2756,8 @@
       #trOverlay, .header, .search-card, .actions, .hist-nav-btn, .mehr-analysen-btn,
       .fav-stern, .hr-arrow, .akte-export-bar, .kyc-link, .ref-box { display:none !important; }
       .report, #report, .akte-view { display:block !important; overflow:visible !important; }
-      .sec-card, .rec-card, .flags-card, .kyc-print-page, .akte-analyse { page-break-inside:avoid; }
-      .kyc-print-page { display:block !important; page-break-before:always; }
+      .sec-card, .rec-card, .flags-card, .akte-analyse { page-break-inside:avoid; }
+      .kyc-print-page { display:flex !important; }
       .grid4, .fields-row { grid-template-columns:1fr 1fr !important; }
       .evidence-gallery { grid-template-columns:1fr 1fr !important; }
       .kv { grid-template-columns:38% 1fr !important; }
@@ -4327,7 +4464,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.61</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.63</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -4989,7 +5126,126 @@ function toggleHelp() {
     p.classList.remove('pop-out');
     void p.offsetWidth;
     p.classList.add('pop-in');
+    chatZeichnen();
+    setTimeout(function(){ const f = document.getElementById('chatFeld'); if (f) f.focus(); }, 220);
   }
+}
+
+// ============================================================
+// SUPPORT-CHAT (Vorentwurf)
+// Der Verlauf lebt nur in diesem Browserfenster. Nichts wird gespeichert,
+// weder hier noch auf dem Server. Beim Schliessen der Seite ist er weg.
+// ============================================================
+let CHAT_VERLAUF = [];
+let CHAT_LAEUFT = false;
+let CHAT_HINWEIS_WEG = false;
+
+const CHAT_VORSCHLAEGE = [
+  'Wie funktioniert der Vertrauens-Score?',
+  'Welche Quellen werden gepr\u00fcft?',
+  'Wie lade ich einen Ausweis hoch?',
+  'Was kosten die Pakete?'
+];
+
+function chatZeichnen() {
+  const box = document.getElementById('chatVerlauf');
+  if (!box) return;
+  let html = '';
+
+  if (!CHAT_HINWEIS_WEG) {
+    html += '<div class="chat-ds">'
+      + '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>'
+      + '<span>Deine Fragen werden zur Beantwortung verarbeitet, aber <b>nicht gespeichert</b>. '
+      + 'Der Assistent kennt weder dein Konto noch deine Pr\u00fcfungen. Bitte keine Ausweis- oder Zugangsdaten eingeben.</span>'
+      + '<button class="chat-ds-x" onclick="chatHinweisWeg()" title="Verstanden">\u2715</button>'
+      + '</div>';
+  }
+
+  if (!CHAT_VERLAUF.length) {
+    html += '<div class="chat-blase chat-bot chat-start">'
+      + 'Hallo! Ich helfe bei Fragen zum Compliance-Checker \u2013 zur Bedienung, zu den Pr\u00fcfbereichen '
+      + 'oder zu den Paketen. Was m\u00f6chtest du wissen?'
+      + '</div>'
+      + '<div class="chat-chips">'
+      + CHAT_VORSCHLAEGE.map(function(v, i){
+          return '<button class="chat-chip" style="--cd:' + (0.1 + i * 0.06) + 's" onclick="chatVorschlag(' + i + ')">' + v + '</button>';
+        }).join('')
+      + '</div>';
+  } else {
+    html += CHAT_VERLAUF.map(function(m){
+      const cls = (m.role === 'user') ? 'chat-ich' : 'chat-bot';
+      return '<div class="chat-blase ' + cls + '">' + chatText(m.content) + '</div>';
+    }).join('');
+  }
+
+  if (CHAT_LAEUFT) {
+    html += '<div class="chat-blase chat-bot chat-tippt"><span></span><span></span><span></span></div>';
+  }
+
+  box.innerHTML = html;
+  box.scrollTop = box.scrollHeight;
+}
+
+// Nur Zeilenumbrueche erhalten, alles andere wird entschaerft
+function chatText(t) {
+  return escapeHtml(String(t || '')).replace(/\n/g, '<br/>');
+}
+
+function chatHinweisWeg() { CHAT_HINWEIS_WEG = true; chatZeichnen(); }
+
+function chatVorschlag(i) {
+  const f = document.getElementById('chatFeld');
+  if (f) f.value = CHAT_VORSCHLAEGE[i] || '';
+  chatSenden();
+}
+
+function chatFeldHoehe(el) {
+  if (!el) return;
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 110) + 'px';
+}
+
+function chatTaste(ev) {
+  if (ev.key === 'Enter' && !ev.shiftKey) { ev.preventDefault(); chatSenden(); }
+  if (ev.key === 'Escape') toggleHelp();
+}
+
+async function chatSenden() {
+  if (CHAT_LAEUFT) return;
+  const feld = document.getElementById('chatFeld');
+  const btn = document.getElementById('chatSendenBtn');
+  const frage = ((feld && feld.value) || '').trim();
+  if (!frage) { if (feld) feld.focus(); return; }
+
+  CHAT_VERLAUF.push({ role: 'user', content: frage });
+  if (feld) { feld.value = ''; feld.style.height = 'auto'; }
+  CHAT_LAEUFT = true;
+  if (btn) btn.disabled = true;
+  chatZeichnen();
+
+  try {
+    const r = await workerCall('support_chat', {
+      verlauf: CHAT_VERLAUF.slice(-10),
+      sprache: (typeof LANG !== 'undefined' ? LANG : 'de')
+    });
+    if (r && r.ok && r.antwort) {
+      CHAT_VERLAUF.push({ role: 'assistant', content: r.antwort });
+    } else {
+      CHAT_VERLAUF.push({ role: 'assistant', content:
+        'Das hat gerade nicht geklappt. Bitte versuch es gleich noch einmal \u2013 '
+        + 'oder schreib uns an support@automatilabs.de.' });
+    }
+  } catch (e) {
+    CHAT_VERLAUF.push({ role: 'assistant', content:
+      'Ich bin gerade nicht erreichbar. Bitte sp\u00e4ter erneut versuchen oder an '
+      + 'support@automatilabs.de schreiben.' });
+  }
+
+  CHAT_LAEUFT = false;
+  if (btn) btn.disabled = false;
+  chatZeichnen();
+  const f2 = document.getElementById('chatFeld');
+  if (f2) f2.focus();
 }
 
 function toggleLang() {
@@ -9931,8 +10187,11 @@ function kycPrintHtml() {
       const bez = d.bezeichnung ? ' (' + d.bezeichnung + ')' : ((KYC.doks[typ].length > 1) ? ' (' + (n + 1) + ' von ' + KYC.doks[typ].length + ')' : '');
       const titel = 'Anlage ' + (++nr) + ' \u00b7 ' + basis + bez;
       if (url && (d.mime_type || '').indexOf('pdf') < 0) {
-      out += '<div class="kyc-print-page"><div class="kyc-print-t">' + titel + ' \u00b7 ' + escapeHtml(KYC.firmenname) + ' \u00b7 ' + escapeHtml(KYC.pruefId || '') + '</div>'
-        + '<img class="kyc-print-img" src="' + url + '" alt="" /></div>';
+      out += '<div class="kyc-print-page">'
+        + '<div class="kyc-print-t">' + titel + ' \u00b7 ' + escapeHtml(KYC.firmenname) + ' \u00b7 ' + escapeHtml(KYC.pruefId || '') + '</div>'
+        + '<div class="kyc-print-rahmen"><img class="kyc-print-img" src="' + url + '" alt="" /></div>'
+        + '<div class="kyc-print-fuss">' + escapeHtml(d.datei_name || '') + '</div>'
+        + '</div>';
       }
     });
   });
@@ -11470,10 +11729,13 @@ async function _akteDrucken(folderId) {
         let seite;
         const url = urlMap[d.storage_path];
         if (url) {
-          seite = '<div class="kyc-print-page"><div class="kyc-print-t">' + escapeHtml(titel) + '</div><img class="kyc-print-img" src="' + url + '" alt="" />'
+          seite = '<div class="kyc-print-page"><div class="kyc-print-t">' + escapeHtml(titel) + '</div>'
+            + '<div class="kyc-print-rahmen"><img class="kyc-print-img" src="' + url + '" alt="" /></div>'
             + '<div class="kyc-print-haft">Haftungsausschluss: Die Automati Labs GmbH \u00fcbernimmt keinerlei Haftung f\u00fcr die Authentizit\u00e4t, die Richtigkeit und/oder Vollst\u00e4ndigkeit der hochgeladenen und/oder erstellten Aufnahmen. Es obliegt einzig und allein in der Verantwortung des Nutzers zu ermitteln, ob die verifizierte Person identisch mit den \u00fcbermittelten Ausweisdokumenten ist. Jedwede Art von Verantwortlichkeit wird ausdr\u00fccklich ausgeschlossen.</div></div>';
         } else {
-          seite = '<div class="kyc-print-page"><div class="kyc-print-t">' + escapeHtml(titel) + '</div><div style="font-size:12px;">Dokument liegt als PDF-Datei in der digitalen Akte vor (' + escapeHtml(d.datei_name || '') + ').</div></div>';
+          seite = '<div class="kyc-print-page"><div class="kyc-print-t">' + escapeHtml(titel) + '</div>'
+            + '<div class="kyc-print-fehlt">Dieses Dokument liegt als PDF-Datei in der digitalen Akte vor'
+            + (d.datei_name ? '<br/>(' + escapeHtml(d.datei_name) + ')' : '') + '</div></div>';
         }
         anhaenge[d.analyse_id] = (anhaenge[d.analyse_id] || '') + seite;
       });
