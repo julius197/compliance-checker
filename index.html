@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content" />
   <title>Compliance-Checker · KYC &amp; GwG-Prüfung</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -2176,8 +2176,8 @@
       background:#fff; border:1px solid var(--cc-rand); border-left:3px solid var(--cc-gruen);
       border-radius:10px; padding:11px 30px 11px 12px; margin-bottom:12px;
       font-size:11px; line-height:1.6; color:#5A6B62;
-      box-shadow:0 1px 3px rgba(10,22,17,.04);
-      animation:chatIn .42s cubic-bezier(.2,.8,.3,1) both; }
+      box-shadow:0 1px 3px rgba(10,22,17,.04); }
+    .chat-ds.chat-frisch { animation:chatIn .42s cubic-bezier(.2,.8,.3,1) both; }
     .chat-ds svg { flex-shrink:0; margin-top:1px; color:var(--cc-gruen); }
     .chat-ds b { color:#1B2C23; font-weight:700; }
     .chat-ds-x { position:absolute; top:7px; right:7px; width:20px; height:20px; border:none;
@@ -2188,13 +2188,21 @@
     /* ---------- Nachrichten ---------- */
     .chat-reihe { display:flex; gap:9px; align-items:flex-end; margin-top:9px; }
     .chat-reihe.ist-ich { flex-direction:row-reverse; }
+    .chat-stapel { display:flex; flex-direction:column; align-items:flex-start; max-width:84%; min-width:0; }
+    .chat-reihe.ist-ich .chat-stapel { align-items:flex-end; }
+    .chat-stapel .chat-blase { max-width:100%; }
+    .chat-meta { display:flex; align-items:center; gap:6px; height:18px; padding:0 3px;
+      opacity:0; transform:translateY(-2px); transition:opacity .2s, transform .2s; }
+    .chat-reihe:hover .chat-meta { opacity:1; transform:none; }
+    /* Nur die neueste Nachricht wird eingeblendet - alle anderen stehen still */
+    .chat-frisch .chat-blase { animation:chatIn .4s cubic-bezier(.2,.8,.3,1) both; }
+    .chat-frisch .chat-mini { animation:chatIn .4s cubic-bezier(.2,.8,.3,1) both; }
     .chat-mini { width:26px; height:26px; border-radius:9px; flex-shrink:0; margin-bottom:2px;
       display:flex; align-items:center; justify-content:center; color:#8FE0AB;
       background:linear-gradient(145deg,#14251B,#0E1A14); }
     .chat-mini.leer { background:none; }
     .chat-blase { max-width:84%; padding:11px 14px; font-size:12.8px; line-height:1.62;
-      word-break:break-word; position:relative;
-      animation:chatIn .4s cubic-bezier(.2,.8,.3,1) both; }
+      word-break:break-word; position:relative; }
     @keyframes chatIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:none; } }
     .chat-bot { background:#fff; color:#1B2C23; border:1px solid var(--cc-rand);
       border-radius:14px 14px 14px 4px; box-shadow:0 1px 3px rgba(10,22,17,.05); }
@@ -2202,18 +2210,13 @@
       box-shadow:0 4px 12px -6px rgba(46,135,73,.5); }
     .chat-start { max-width:100%; }
 
-    .chat-zeit { font-size:9.5px; color:#A3B1A9; padding:0 4px; margin-top:3px;
-      opacity:0; transition:opacity .2s; }
-    .chat-reihe:hover .chat-zeit { opacity:1; }
-    .chat-ich .chat-zeit { color:rgba(255,255,255,.7); }
-
-    .chat-kopier { position:absolute; top:5px; right:5px; width:24px; height:24px;
-      border:none; border-radius:7px; background:#F4F7F5; color:#8A9A91; cursor:pointer;
-      display:flex; align-items:center; justify-content:center;
-      opacity:0; transform:scale(.85); transition:all .18s; }
-    .chat-reihe:hover .chat-kopier { opacity:1; transform:scale(1); }
+    .chat-zeit { font-size:9.5px; color:#A3B1A9; }
+    .chat-kopier { display:inline-flex; align-items:center; gap:4px; height:18px;
+      padding:0 7px; border:none; border-radius:6px; background:transparent;
+      color:#8A9A91; font-family:inherit; font-size:9.5px; font-weight:700; cursor:pointer;
+      transition:background .16s, color .16s; }
     .chat-kopier:hover { background:var(--cc-gruen-t); color:var(--cc-gruen-d); }
-    .chat-kopier.fertig { background:var(--cc-gruen); color:#fff; opacity:1; transform:scale(1); }
+    .chat-kopier.fertig { color:var(--cc-gruen-d); }
 
     /* ---------- Vorschlaege ---------- */
     .chat-chips { display:flex; flex-direction:column; gap:7px; margin-top:12px; }
@@ -2222,8 +2225,8 @@
       background:#fff; border:1px solid var(--cc-rand); border-radius:11px;
       padding:11px 13px; cursor:pointer; font-family:inherit;
       box-shadow:0 1px 3px rgba(10,22,17,.04);
-      opacity:0; animation:chatIn .4s cubic-bezier(.2,.8,.3,1) var(--cd,0s) both;
       transition:border-color .18s, transform .18s, box-shadow .18s, color .18s; }
+    .chat-chips.chat-frisch .chat-chip { opacity:0; animation:chatIn .4s cubic-bezier(.2,.8,.3,1) var(--cd,0s) both; }
     .chat-chip svg { flex-shrink:0; color:#C2CEC7; transition:color .18s, transform .18s; }
     .chat-chip:hover { border-color:rgba(53,150,81,.45); color:var(--cc-gruen-d);
       transform:translateX(3px); box-shadow:0 6px 16px -10px rgba(10,22,17,.35); }
@@ -2316,8 +2319,7 @@
       .chat-blase { max-width:88%; font-size:13.5px; padding:12px 15px; }
       .chat-feld { font-size:16px; }          /* verhindert das Zoomen auf iPhones */
       .chat-senden { width:46px; height:46px; }
-      .chat-kopier { opacity:.5; transform:scale(1); }   /* am Handy gibt es kein Hover */
-      .chat-zeit { opacity:.75; }
+      .chat-meta { opacity:1; transform:none; }          /* am Handy gibt es kein Hover */
       .chat-runter { bottom:104px; }
       .chat-fuss { font-size:10.5px; padding:10px 15px; }
       .help-btn { bottom:18px; right:18px; width:52px; height:52px; }
@@ -2330,7 +2332,7 @@
     }
 
     @media (prefers-reduced-motion: reduce) {
-      .help-pop, .chat-blase, .chat-chip, .chat-ds { animation:none !important;
+      .help-pop, .chat-blase, .chat-chip, .chat-ds, .chat-mini, .chat-meta { animation:none !important;
         opacity:1 !important; transform:none !important; }
       .chat-punkt, .chat-tippt span, .chat-cursor, .chat-senden.laedt svg { animation:none; }
       .help-btn::before { transition:none; }
@@ -4684,7 +4686,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.65</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.66</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -5373,12 +5375,14 @@ let CHAT_VERLAUF = [];
 let CHAT_LAEUFT = false;
 let CHAT_HINWEIS_WEG = false;
 let CHAT_TEILTEXT = '';
+let CHAT_FRISCH = -1;          // Index der Nachricht, die eingeblendet werden darf
+let CHAT_ERSTER_AUFBAU = true; // Hinweis + Vorschlaege nur beim ersten Mal animieren
 
 const CHAT_VORSCHLAEGE = [
+  'Wie lade ich Kollegen ins Team ein?',
   'Wie kommt der Vertrauens-Score zustande?',
-  'Welche Quellen werden gepr\u00fcft?',
-  'Wie lade ich einen Ausweis hoch?',
-  'Was kosten die Pakete?'
+  'Wie schicke ich einem Kunden den Upload-Link?',
+  'Wie l\u00f6sche ich mein Konto?'
 ];
 
 const CHAT_PFEIL = '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>';
@@ -5394,8 +5398,9 @@ function chatZeichnen() {
   if (!box) return;
   let html = '';
 
+  const frischKl = CHAT_ERSTER_AUFBAU ? ' chat-frisch' : '';
   if (!CHAT_HINWEIS_WEG) {
-    html += '<div class="chat-ds">'
+    html += '<div class="chat-ds' + frischKl + '">'
       + '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>'
       + '<span>Deine Fragen werden zur Beantwortung verarbeitet, aber <b>nicht gespeichert</b>. '
       + 'Der Assistent kennt weder dein Konto noch deine Pr\u00fcfungen. Bitte keine Ausweis- oder Zugangsdaten eingeben.</span>'
@@ -5405,13 +5410,13 @@ function chatZeichnen() {
   }
 
   if (!CHAT_VERLAUF.length) {
-    html += '<div class="chat-reihe">'
+    html += '<div class="chat-reihe' + frischKl + '">'
       + '<span class="chat-mini">' + CHAT_MARKE + '</span>'
-      + '<div class="chat-blase chat-bot chat-start">'
-      + 'Hallo! Ich helfe bei Fragen zum Compliance-Checker \u2013 zur Bedienung, zu den Pr\u00fcfbereichen '
-      + 'oder zu den Paketen. Was m\u00f6chtest du wissen?'
-      + '</div></div>'
-      + '<div class="chat-chips">'
+      + '<div class="chat-stapel"><div class="chat-blase chat-bot chat-start">'
+      + 'Hallo! Ich bin der Hilfe-Assistent des Compliance-Checkers. Ich erkl\u00e4re dir Schritt f\u00fcr Schritt, '
+      + 'wo du was findest \u2013 vom Team einladen bis zum Ausweis-Upload. Was m\u00f6chtest du tun?'
+      + '</div></div></div>'
+      + '<div class="chat-chips' + frischKl + '">'
       + CHAT_VORSCHLAEGE.map(function(v, i){
           return '<button class="chat-chip" style="--cd:' + (0.12 + i * 0.07) + 's" onclick="chatVorschlag(' + i + ')">'
             + '<span>' + v + '</span>' + CHAT_PFEIL + '</button>';
@@ -5420,29 +5425,32 @@ function chatZeichnen() {
   } else {
     html += CHAT_VERLAUF.map(function(m, i){
       const ich = (m.role === 'user');
-      const blase = '<div class="chat-blase ' + (ich ? 'chat-ich' : 'chat-bot') + '">'
-        + chatText(m.content)
+      const frisch = (i === CHAT_FRISCH) ? ' chat-frisch' : '';
+      const meta = '<div class="chat-meta">'
+        + '<span class="chat-zeit">' + chatZeit(m.t) + '</span>'
         + (ich ? '' : '<button class="chat-kopier" onclick="chatKopieren(' + i + ', this)" title="Antwort kopieren">'
-            + '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>')
-        + '<div class="chat-zeit">' + chatZeit(m.t) + '</div>'
+            + '<svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Kopieren</button>')
         + '</div>';
-      return '<div class="chat-reihe' + (ich ? ' ist-ich' : '') + '">'
+      return '<div class="chat-reihe' + (ich ? ' ist-ich' : '') + frisch + '">'
         + '<span class="chat-mini' + (ich ? ' leer' : '') + '">' + (ich ? '' : CHAT_MARKE) + '</span>'
-        + blase + '</div>';
+        + '<div class="chat-stapel">'
+        + '<div class="chat-blase ' + (ich ? 'chat-ich' : 'chat-bot') + '">' + chatText(m.content) + '</div>'
+        + meta + '</div></div>';
     }).join('');
   }
 
   if (CHAT_LAEUFT && !CHAT_TEILTEXT) {
-    html += '<div class="chat-reihe"><span class="chat-mini">' + CHAT_MARKE + '</span>'
-      + '<div class="chat-blase chat-bot chat-tippt"><span></span><span></span><span></span></div></div>';
+    html += '<div class="chat-reihe chat-frisch"><span class="chat-mini">' + CHAT_MARKE + '</span>'
+      + '<div class="chat-stapel"><div class="chat-blase chat-bot chat-tippt"><span></span><span></span><span></span></div></div></div>';
   }
   if (CHAT_TEILTEXT) {
     html += '<div class="chat-reihe"><span class="chat-mini">' + CHAT_MARKE + '</span>'
-      + '<div class="chat-blase chat-bot chat-schreibt" id="chatLaufend">'
-      + chatText(CHAT_TEILTEXT) + '<span class="chat-cursor"></span></div></div>';
+      + '<div class="chat-stapel"><div class="chat-blase chat-bot chat-schreibt" id="chatLaufend">'
+      + chatText(CHAT_TEILTEXT) + '<span class="chat-cursor"></span></div></div></div>';
   }
 
   box.innerHTML = html;
+  CHAT_ERSTER_AUFBAU = false;
   const nb = document.getElementById('chatNeuBtn');
   if (nb) nb.style.display = CHAT_VERLAUF.length ? '' : 'none';
   chatNachUnten();
@@ -5455,6 +5463,9 @@ function chatNachUnten(erzwingen) {
   const nahAmEnde = (box.scrollHeight - box.scrollTop - box.clientHeight) < 90;
   if (erzwingen || nahAmEnde) {
     box.scrollTo({ top: box.scrollHeight, behavior: erzwingen ? 'smooth' : 'auto' });
+    const k = document.getElementById('chatRunter');
+    if (k) k.classList.remove('an');
+    return;
   }
   chatScrollGeprueft();
 }
@@ -5493,6 +5504,8 @@ function chatNeu() {
   if (CHAT_LAEUFT) return;
   CHAT_VERLAUF = [];
   CHAT_TEILTEXT = '';
+  CHAT_FRISCH = -1;
+  CHAT_ERSTER_AUFBAU = true;
   chatZeichnen();
   const f = document.getElementById('chatFeld');
   if (f && window.innerWidth > 760) f.focus();
@@ -5503,12 +5516,10 @@ function chatKopieren(i, btn) {
   if (!m) return;
   function fertig() {
     if (!btn) return;
+    const alt = btn.innerHTML;
     btn.classList.add('fertig');
-    btn.innerHTML = '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
-    setTimeout(function(){
-      btn.classList.remove('fertig');
-      btn.innerHTML = '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
-    }, 1500);
+    btn.innerHTML = '<svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Kopiert';
+    setTimeout(function(){ btn.classList.remove('fertig'); btn.innerHTML = alt; }, 1500);
   }
   try { navigator.clipboard.writeText(m.content).then(fertig).catch(function(){ kopierNotloesung(m.content, fertig); }); }
   catch (e) { kopierNotloesung(m.content, fertig); }
@@ -5540,6 +5551,7 @@ async function chatSenden() {
   if (!frage) { if (feld) feld.focus(); return; }
 
   CHAT_VERLAUF.push({ role: 'user', content: frage, t: Date.now() });
+  CHAT_FRISCH = CHAT_VERLAUF.length - 1;
   if (feld) { feld.value = ''; feld.style.height = 'auto'; chatFeldHoehe(feld); }
   CHAT_LAEUFT = true;
   CHAT_TEILTEXT = '';
@@ -5574,6 +5586,7 @@ async function chatSenden() {
         if (!txt && j && j.error) txt = friendlyError(j.error);
       } catch (e) {}
       CHAT_VERLAUF.push({ role: 'assistant', content: txt || stoerung, t: Date.now() });
+      CHAT_FRISCH = CHAT_VERLAUF.length - 1;
     } else {
       // Antwort Stueck fuer Stueck anzeigen - man sieht den Text entstehen
       const leser = res.body.getReader();
@@ -5588,11 +5601,13 @@ async function chatSenden() {
       }
       chatLaufendAuffrischen();
       CHAT_VERLAUF.push({ role: 'assistant', content: CHAT_TEILTEXT.trim() || stoerung, t: Date.now() });
+      CHAT_FRISCH = -1;   // stand schon da - nicht noch einmal einblenden
     }
   } catch (e) {
     CHAT_VERLAUF.push({ role: 'assistant', content:
       'Ich bin gerade nicht erreichbar. Bitte sp\u00e4ter erneut versuchen oder an '
       + 'support@automatilabs.de schreiben.', t: Date.now() });
+    CHAT_FRISCH = CHAT_VERLAUF.length - 1;
   }
 
   CHAT_TEILTEXT = '';
@@ -7834,7 +7849,10 @@ function infoOeffnen(welche) {
 }
 
 document.addEventListener('keydown', function(e){
-  if (e.key === 'Escape') { const g = document.getElementById('infoGate'); if (g && g.style.display === 'flex') infoSchliessen(); }
+  if (e.key === 'Escape') {
+    const g = document.getElementById('infoGate'); if (g && g.style.display === 'flex') { infoSchliessen(); return; }
+    const p = document.getElementById('helpPop'); if (p && p.style.display === 'block') toggleHelp();
+  }
 });
 
 function infoSchliessen() {
