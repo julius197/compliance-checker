@@ -4327,7 +4327,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.60</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.61</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -9697,9 +9697,17 @@ async function evidenceEigenWaehlen(files) {
   if (!files || !files.length) return;
   const tools = document.getElementById('evidenceEigenTools');
   if (tools) tools.innerHTML = '<div class="ev-eigen-hinweis ev-eigen-laedt"><span class="ev-eigen-spin"></span> Wird hochgeladen\u2026</div>';
-  for (let i = 0; i < files.length; i++) {
-    await kycUpload('standort', files[i]);
-  }
+  let ok = 0;
+  try {
+    for (let i = 0; i < files.length; i++) {
+      if (await kycUpload('standort', files[i])) ok++;
+    }
+  } catch (e) { console.warn('Eigene Aufnahme:', e && e.message); }
+  // Ladeanzeige in JEDEM Fall wieder aufloesen - sonst dreht sie ewig weiter
+  try { evidenceEigenZeichnen(); } catch(e) {}
+  if (ok) zeigeToast('Aufnahme hinzugef\u00fcgt',
+    ok === 1 ? 'Das Bild h\u00e4ngt beim Drucken als eigene Anlage an.'
+             : ok + ' Bilder h\u00e4ngen beim Drucken als eigene Anlagen an.');
 }
 
 async function evidenceEigenLoeschen(n) {
@@ -10108,9 +10116,16 @@ async function kycUpload(typ, file) {
     });
     if (db && db.error) throw db.error;
     await kycLaden();
+    return true;
   } catch (e) {
     console.warn('KYC Upload:', e && e.message);
-    alert('Upload fehlgeschlagen: ' + ((e && e.message) || 'Unbekannter Fehler'));
+    let t = (e && e.message) || 'Unbekannter Fehler';
+    if (/typ_check|check constraint/i.test(t)) {
+      t = 'Die Datenbank kennt diese Dokumentart noch nicht. Bitte einmal das SQL '
+        + '\u201esql_eigene_aufnahmen\u201c in Supabase ausf\u00fchren.';
+    }
+    alert('Upload fehlgeschlagen: ' + t);
+    return false;
   }
 }
 
