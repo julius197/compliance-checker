@@ -2067,7 +2067,8 @@
 
     /* ===== Support-Chat (Vorentwurf) ===== */
     .help-pop { width:min(370px, calc(100vw - 32px)); padding:0; overflow:hidden;
-      display:flex; flex-direction:column; max-height:min(560px, calc(100vh - 110px)); }
+      display:flex; flex-direction:column;
+      height:min(560px, calc(100vh - 110px)); max-height:calc(100vh - 110px); }
     .chat-kopf { display:flex; align-items:center; justify-content:space-between; gap:10px;
       padding:14px 16px; background:linear-gradient(135deg,#16A34A,#22C55E); color:#fff; flex-shrink:0; }
     .chat-t { font-size:13.5px; font-weight:800; letter-spacing:-.01em; }
@@ -2080,8 +2081,16 @@
       transition:background .16s, transform .16s; }
     .chat-zu:hover { background:rgba(255,255,255,.3); transform:rotate(90deg); }
 
-    .chat-verlauf { flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch;
-      padding:14px; display:flex; flex-direction:column; gap:9px; background:#F8FBF9; min-height:180px; }
+    /* min-height:0 ist entscheidend: ohne das schrumpft ein Flex-Element
+       nicht unter seinen Inhalt und laesst sich deshalb nicht scrollen. */
+    .chat-verlauf { flex:1 1 auto; min-height:0; height:100%;
+      overflow-y:auto; overflow-x:hidden; -webkit-overflow-scrolling:touch;
+      overscroll-behavior:contain; scrollbar-width:thin;
+      padding:14px; display:flex; flex-direction:column; gap:9px; background:#F8FBF9; }
+    .chat-verlauf::-webkit-scrollbar { width:8px; }
+    .chat-verlauf::-webkit-scrollbar-thumb { background:#CBD5D0; border-radius:99px;
+      border:2px solid #F8FBF9; }
+    .chat-verlauf::-webkit-scrollbar-thumb:hover { background:#A7B5AE; }
     .chat-ds { display:flex; align-items:flex-start; gap:8px; position:relative;
       background:#EEF4FF; border:1px solid #C7DDF5; border-radius:11px; padding:10px 28px 10px 11px;
       font-size:11px; line-height:1.55; color:#41566E;
@@ -2150,6 +2159,14 @@
       .chat-blase, .chat-chip, .chat-ds { animation:none !important; opacity:1 !important; transform:none !important; }
       .chat-punkt, .chat-tippt span { animation:none; }
     }
+
+    /* ===== Chat: sichtbares Schreiben ===== */
+    .chat-schreibt { animation:none; }
+    .chat-cursor { display:inline-block; width:2px; height:1em; margin-left:2px;
+      vertical-align:-2px; background:var(--green-d,#16A34A); border-radius:1px;
+      animation:chatCursor 1s steps(2, start) infinite; }
+    @keyframes chatCursor { 0%,100% { opacity:1; } 50% { opacity:0; } }
+    @media (prefers-reduced-motion: reduce) { .chat-cursor { animation:none; } }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -4454,7 +4471,27 @@
 <p>Google Ads<br>Der Websitebetreiber verwendet Google Ads. Google Ads ist ein Online-Werbeprogramm der Google Ireland Limited („Google&quot;), Gordon House, Barrow Street, Dublin 4, Irland.<br>Google Ads ermöglicht es uns Werbeanzeigen in der Google-Suchmaschine oder auf Drittwebseiten auszuspielen, wenn der Nutzer bestimmte Suchbegriffe bei Google eingibt (Keyword-Targeting). Ferner können zielgerichtete Werbeanzeigen anhand der bei Google vorhandenen Nutzerdaten (z. B. Standortdaten und Interessen) ausgespielt werden (Zielgruppen-Targeting). Wir als Websitebetreiber können diese Daten quantitativ auswerten, indem wir beispielsweise analysieren, welche Suchbegriffe zur Ausspielung unserer Werbeanzeigen geführt haben und wie viele Anzeigen zu entsprechenden Klicks geführt haben.<br>Die Nutzung dieses Dienstes erfolgt auf Grundlage Ihrer Einwilligung nach Art. 6 Abs. 1 lit. a DSGVO und § 25 Abs. 1 TDDDG. Die Einwilligung ist jederzeit widerrufbar.<br>Die Datenübertragung in die USA wird auf die Standardvertragsklauseln der EU-Kommission gestützt. Details finden Sie hier: https://policies.google.com/privacy/frameworks und https://business.safety.google/controllerterms/.<br>Das Unternehmen verfügt über eine Zertifizierung nach dem „EU-US Data Privacy Framework&quot; (DPF). Der DPF ist ein Übereinkommen zwischen der Europäischen Union und den USA, der die Einhaltung europäischer Datenschutzstandards bei Datenverarbeitungen in den USA gewährleisten soll. Jedes nach dem DPF zertifizierte Unternehmen verpflichtet sich, diese Datenschutzstandards einzuhalten. Weitere Informationen hierzu erhalten Sie vom Anbieter unter folgendem Link: https://www.dataprivacyframework.gov/participant/5780.</p>
 <p>Auftragsverarbeitung<br>Wir haben einen Vertrag über Auftragsverarbeitung (AVV) zur Nutzung des oben genannten Dienstes geschlossen. Hierbei handelt es sich um einen datenschutzrechtlich vorgeschriebenen Vertrag, der gewährleistet, dass dieser die personenbezogenen Daten unserer Websitebesucher nur nach unseren Weisungen und unter Einhaltung der DSGVO verarbeitet.</p>
 <h3>5. eCommerce und Zahlungsanbieter</h3>
-<p>Verarbeiten von Kunden- und Vertragsdaten<br>Wir erheben, verarbeiten und nutzen personenbezogene Kunden- und Vertragsdaten zur Begründung, inhaltlichen Ausgestaltung und Änderung unserer Vertragsbeziehungen. Personenbezogene Daten über die Inanspruchnahme dieser Website (Nutzungsdaten) erheben, verarbeiten und nutzen wir nur, soweit dies erforderlich ist, um dem Nutzer die Inanspruchnahme des Dienstes zu ermöglichen oder abzurechnen. Rechtsgrundlage hierfür ist Art. 6 Abs. 1 lit. b DSGVO.<br>Die erhobenen Kundendaten werden nach Abschluss des Auftrags oder Beendigung der Geschäftsbeziehung und Ablauf der ggf. bestehenden gesetzlichen Aufbewahrungsfristen gelöscht. Gesetzliche Aufbewahrungsfristen bleiben unberührt.</p></div>
+<p>Verarbeiten von Kunden- und Vertragsdaten<br>Wir erheben, verarbeiten und nutzen personenbezogene Kunden- und Vertragsdaten zur Begründung, inhaltlichen Ausgestaltung und Änderung unserer Vertragsbeziehungen. Personenbezogene Daten über die Inanspruchnahme dieser Website (Nutzungsdaten) erheben, verarbeiten und nutzen wir nur, soweit dies erforderlich ist, um dem Nutzer die Inanspruchnahme des Dienstes zu ermöglichen oder abzurechnen. Rechtsgrundlage hierfür ist Art. 6 Abs. 1 lit. b DSGVO.<br>Die erhobenen Kundendaten werden nach Abschluss des Auftrags oder Beendigung der Geschäftsbeziehung und Ablauf der ggf. bestehenden gesetzlichen Aufbewahrungsfristen gelöscht. Gesetzliche Aufbewahrungsfristen bleiben unberührt.</p>
+
+<h3>6. Compliance-Checker – Verarbeitung im Online-Portal</h3>
+<p>Prüfanfragen und Prüfberichte<br>Wenn Sie über das Online-Portal checker.automatilabs.de eine Prüfung starten, verarbeiten wir die von Ihnen eingegebenen Angaben zum zu prüfenden Unternehmen (Firmenname, Sitzland, gegebenenfalls Umsatzsteuer-Identifikationsnummer oder Steuernummer). Zur Beantwortung recherchiert das System in öffentlich zugänglichen Quellen – insbesondere in amtlichen Unternehmensregistern, im Mehrwertsteuer-Informationsaustauschsystem der Europäischen Union (VIES), in öffentlich bereitgestellten Sanktionslisten sowie in Presse- und Internetveröffentlichungen. Nicht-öffentliche Datenbestände Dritter werden nicht abgefragt.<br>Der erstellte Prüfbericht wird Ihrem Nutzerkonto zugeordnet und gespeichert, damit Sie ihn erneut aufrufen und als Nachweis verwenden können. Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO (Erfüllung des mit Ihnen geschlossenen Vertrags) sowie Art. 6 Abs. 1 lit. c DSGVO in Verbindung mit den Sorgfalts- und Aufzeichnungspflichten des Geldwäschegesetzes, soweit Sie als Verpflichteter im Sinne des § 2 GwG handeln.<br>Enthält ein Prüfbericht personenbezogene Daten Dritter – etwa Namen von Geschäftsführern oder wirtschaftlich Berechtigten –, stammen diese ausschließlich aus öffentlich zugänglichen Quellen. Für die weitere Verwendung dieser Daten in Ihrem Unternehmen sind Sie datenschutzrechtlich verantwortlich.</p>
+<p>Hochgeladene Ausweisdokumente und Lichtbilder<br>Sie können zu einer Prüfung Ausweisdokumente, Bestätigungsfotos und eigene Aufnahmen hinterlegen. Diese Dateien werden verschlüsselt übertragen und auf Servern innerhalb der Europäischen Union gespeichert. Der Zugriff ist auf Ihr Nutzerkonto beziehungsweise auf die Mitglieder Ihres Unternehmenskontos beschränkt.<br>Rechtsgrundlage ist Art. 6 Abs. 1 lit. c DSGVO in Verbindung mit den §§ 10 ff. GwG sowie, soweit die betroffene Person die Dateien selbst übermittelt, deren Einwilligung nach Art. 6 Abs. 1 lit. a DSGVO. Die Aufbewahrung richtet sich nach den gesetzlichen Fristen des Geldwäschegesetzes; danach werden die Daten gelöscht.</p>
+<p>Upload-Link für Geschäftspartner<br>Sie können einen zeitlich begrenzten Link erzeugen und Ihrem Geschäftspartner übermitteln, über den dieser seine Unterlagen selbst hochladen kann, ohne ein Nutzerkonto anzulegen. Der Link ist 72 Stunden gültig und nur einmal verwendbar. Vor dem Hochladen bestätigt die betroffene Person die Verarbeitung ihrer Daten; ohne diese Bestätigung ist kein Hochladen möglich. Verantwortlich für die Verarbeitung der so übermittelten Daten ist das Unternehmen, das den Link versendet hat; die Automati Labs GmbH stellt insoweit ausschließlich die technische Infrastruktur als Auftragsverarbeiter bereit.</p>
+<p>Laufende Überwachung<br>Auf Ihre ausdrückliche Veranlassung hin können einzelne Unternehmen in eine wiederkehrende Prüfung aufgenommen werden. In diesem Fall wird die Prüfung alle drei Monate automatisiert wiederholt und das Ergebnis Ihrem Konto zugeordnet. Sie können die Überwachung jederzeit beenden. Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO.</p>
+<p>Keine automatisierte Entscheidung im Einzelfall<br>Der im Prüfbericht ausgewiesene Vertrauenswert ist eine Entscheidungshilfe. Eine automatisierte Entscheidung im Sinne des Art. 22 DSGVO, die gegenüber einer betroffenen Person rechtliche Wirkung entfaltet, findet nicht statt. Ob und wie Sie eine Geschäftsbeziehung eingehen, entscheiden allein Sie.</p>
+
+<h3>7. KI-gestützter Hilfe-Assistent (Support-Chat)</h3>
+<p>Zweck und Ablauf<br>In unserem Online-Portal checker.automatilabs.de bieten wir einen Hilfe-Assistenten an, der Fragen zur Bedienung und zum Funktionsumfang des Compliance-Checkers beantwortet. Wenn Sie den Assistenten nutzen, werden der von Ihnen eingegebene Text sowie die vorangegangenen Nachrichten des laufenden Gesprächs an unseren Server übermittelt und von dort zur Beantwortung an die Anthropic PBC, 548 Market Street, PMB 90375, San Francisco, CA 94104, USA, weitergeleitet.</p>
+<p>Keine Speicherung<br>Der Gesprächsverlauf wird nicht gespeichert. Er besteht ausschließlich für die Dauer Ihrer Sitzung im Arbeitsspeicher Ihres Browsers und wird beim Schließen oder Neuladen der Seite gelöscht. Eine Speicherung bei uns, eine Zuordnung zu Ihrem Nutzerkonto sowie eine Verwendung zu Werbe- oder Profilbildungszwecken finden nicht statt. Es werden für diesen Zweck weder Cookies gesetzt noch Daten in Ihrem Endgerät gespeichert.</p>
+<p>Keine Übermittlung von Kontodaten<br>An den Assistenten werden keine Bestandsdaten Ihres Kontos übermittelt – insbesondere weder Ihr Name, Ihre E-Mail-Adresse, Ihre Unternehmenszugehörigkeit noch Ihre durchgeführten Prüfungen oder hochgeladenen Dokumente. Der Assistent kann Sie nicht identifizieren. Übermittelt werden ausschließlich der Text Ihrer Anfrage, die letzten Nachrichten des laufenden Gesprächs sowie die eingestellte Oberflächensprache.</p>
+<p>Rechtsgrundlage<br>Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO. Unser berechtigtes Interesse liegt in der unmittelbaren und ressourcenschonenden Beantwortung von Anwendungsfragen zu unserem Produkt. Die Nutzung des Assistenten ist freiwillig; Sie können uns Ihr Anliegen stattdessen jederzeit per E-Mail an support@automatilabs.de übermitteln. Sie können der Verarbeitung nach Art. 21 DSGVO widersprechen, indem Sie den Assistenten nicht verwenden.</p>
+<p>Drittlandsübermittlung<br>Die Übermittlung an die Anthropic PBC erfolgt in die Vereinigten Staaten von Amerika auf Grundlage eines Vertrags über Auftragsverarbeitung unter Einbeziehung der Standardvertragsklauseln der Europäischen Kommission nach Art. 46 Abs. 2 lit. c DSGVO. Der Anbieter verwendet die über die Programmierschnittstelle übermittelten Eingaben nach eigenen Angaben nicht zum Training seiner Modelle und hält sie lediglich befristet zur Erkennung missbräuchlicher Nutzung vor.</p>
+<p>Grenzen des Assistenten und Hinweis zur Eingabe<br>Der Assistent erteilt keine Rechtsberatung, gibt keine Einschätzung zu einzelnen, namentlich genannten Unternehmen ab und trifft keine Entscheidung über das Zustandekommen von Geschäftsbeziehungen. Seine Auskunft ist unverbindlich und ersetzt weder eine rechtliche Beratung noch die Ihnen obliegende Prüfung im Einzelfall. Bitte geben Sie in den Chat keine Ausweisdaten, Zugangsdaten, Gesundheitsdaten oder sonstigen besonders schützenswerten Informationen im Sinne des Art. 9 DSGVO ein. Vor der ersten Nachricht weisen wir Sie im Chatfenster nochmals hierauf hin.</p>
+
+<h3>8. Auftragsverarbeiter im Überblick</h3>
+<p>Zur Bereitstellung des Compliance-Checkers setzen wir folgende Dienstleister als Auftragsverarbeiter nach Art. 28 DSGVO ein. Mit allen genannten Anbietern bestehen entsprechende Verträge; bei Übermittlungen in Drittländer werden die Standardvertragsklauseln der Europäischen Kommission einbezogen.</p>
+<p>Cloudflare, Inc., 101 Townsend Street, San Francisco, CA 94107, USA – Auslieferung der Anwendung und Ausführung der serverseitigen Programmlogik.<br>Supabase, Inc., 970 Toa Payoh North #07-04, Singapur 318992 – Nutzerverwaltung, Datenbank und Dateiablage; die von uns genutzten Server stehen innerhalb der Europäischen Union.<br>Anthropic, PBC, 548 Market Street, PMB 90375, San Francisco, CA 94104, USA – Auswertung der Rechercheergebnisse sowie Betrieb des Hilfe-Assistenten.<br>Stripe, Inc., 354 Oyster Point Boulevard, South San Francisco, CA 94080, USA – Abwicklung der Zahlungen.<br>GitHub, Inc., 88 Colin P. Kelly Jr. Street, San Francisco, CA 94107, USA – Bereitstellung der Programmdateien.</p>
+<p>Darüber hinaus rufen wir öffentlich zugängliche Daten bei Dritten ab, ohne dass hierbei personenbezogene Daten unserer Nutzer übermittelt werden – etwa bei der Europäischen Kommission (Mehrwertsteuer-Informationsaustauschsystem VIES sowie konsolidierte Sanktionsliste) und bei Google Ireland Limited (Standort- und Kontaktangaben zu geprüften Unternehmen über die Dienste Places und Street View).</p></div>
 
 <div class="app" style="display:none;">
   <header class="header">
@@ -4464,7 +4501,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.63</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.64</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -5139,6 +5176,7 @@ function toggleHelp() {
 let CHAT_VERLAUF = [];
 let CHAT_LAEUFT = false;
 let CHAT_HINWEIS_WEG = false;
+let CHAT_TEILTEXT = '';
 
 const CHAT_VORSCHLAEGE = [
   'Wie funktioniert der Vertrauens-Score?',
@@ -5178,12 +5216,32 @@ function chatZeichnen() {
     }).join('');
   }
 
-  if (CHAT_LAEUFT) {
+  if (CHAT_LAEUFT && !CHAT_TEILTEXT) {
     html += '<div class="chat-blase chat-bot chat-tippt"><span></span><span></span><span></span></div>';
+  }
+  if (CHAT_TEILTEXT) {
+    html += '<div class="chat-blase chat-bot chat-schreibt" id="chatLaufend">'
+      + chatText(CHAT_TEILTEXT) + '<span class="chat-cursor"></span></div>';
   }
 
   box.innerHTML = html;
-  box.scrollTop = box.scrollHeight;
+  chatNachUnten();
+}
+
+// Nur ans Ende springen, wenn der Nutzer nicht gerade selbst hochgescrollt hat
+function chatNachUnten(erzwingen) {
+  const box = document.getElementById('chatVerlauf');
+  if (!box) return;
+  const nahAmEnde = (box.scrollHeight - box.scrollTop - box.clientHeight) < 90;
+  if (erzwingen || nahAmEnde) box.scrollTop = box.scrollHeight;
+}
+
+// Waehrend des Schreibens nur die letzte Blase auffrischen - das bleibt fluessig
+function chatLaufendAuffrischen() {
+  const el = document.getElementById('chatLaufend');
+  if (!el) { chatZeichnen(); return; }
+  el.innerHTML = chatText(CHAT_TEILTEXT) + '<span class="chat-cursor"></span>';
+  chatNachUnten();
 }
 
 // Nur Zeilenumbrueche erhalten, alles andere wird entschaerft
@@ -5220,20 +5278,51 @@ async function chatSenden() {
   CHAT_VERLAUF.push({ role: 'user', content: frage });
   if (feld) { feld.value = ''; feld.style.height = 'auto'; }
   CHAT_LAEUFT = true;
+  CHAT_TEILTEXT = '';
   if (btn) btn.disabled = true;
   chatZeichnen();
+  chatNachUnten(true);
+
+  const stoerung = 'Das hat gerade nicht geklappt. Bitte versuch es gleich noch einmal \u2013 '
+    + 'oder schreib uns an support@automatilabs.de.';
 
   try {
-    const r = await workerCall('support_chat', {
-      verlauf: CHAT_VERLAUF.slice(-10),
-      sprache: (typeof LANG !== 'undefined' ? LANG : 'de')
+    const res = await fetch(WORKER, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'support_chat',
+        payload: {
+          verlauf: CHAT_VERLAUF.slice(-10),
+          sprache: (typeof LANG !== 'undefined' ? LANG : 'de')
+        }
+      })
     });
-    if (r && r.ok && r.antwort) {
-      CHAT_VERLAUF.push({ role: 'assistant', content: r.antwort });
+
+    const art = res.headers.get('content-type') || '';
+    if (!res.ok || art.indexOf('application/json') >= 0 || !res.body) {
+      // Fehlermeldung oder Browser ohne Datenstrom: Antwort am Stueck lesen
+      let txt = '';
+      try {
+        const j = await res.json();
+        txt = (j && j.antwort) ? j.antwort : '';
+        if (!txt && j && j.error) txt = friendlyError(j.error);
+      } catch (e) {}
+      CHAT_VERLAUF.push({ role: 'assistant', content: txt || stoerung });
     } else {
-      CHAT_VERLAUF.push({ role: 'assistant', content:
-        'Das hat gerade nicht geklappt. Bitte versuch es gleich noch einmal \u2013 '
-        + 'oder schreib uns an support@automatilabs.de.' });
+      // Antwort Stueck fuer Stueck anzeigen - man sieht den Text entstehen
+      const leser = res.body.getReader();
+      const dec = new TextDecoder();
+      let letzte = 0;
+      while (true) {
+        const { done, value } = await leser.read();
+        if (done) break;
+        CHAT_TEILTEXT += dec.decode(value, { stream: true });
+        const jetzt = Date.now();
+        if (jetzt - letzte > 45) { letzte = jetzt; chatLaufendAuffrischen(); }
+      }
+      chatLaufendAuffrischen();
+      CHAT_VERLAUF.push({ role: 'assistant', content: CHAT_TEILTEXT.trim() || stoerung });
     }
   } catch (e) {
     CHAT_VERLAUF.push({ role: 'assistant', content:
@@ -5241,9 +5330,11 @@ async function chatSenden() {
       + 'support@automatilabs.de schreiben.' });
   }
 
+  CHAT_TEILTEXT = '';
   CHAT_LAEUFT = false;
   if (btn) btn.disabled = false;
   chatZeichnen();
+  chatNachUnten(true);
   const f2 = document.getElementById('chatFeld');
   if (f2) f2.focus();
 }
