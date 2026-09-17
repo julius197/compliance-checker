@@ -2160,6 +2160,59 @@
     .chat-kopf-btn:active { transform:scale(.9); }
     .chat-zu:hover { transform:rotate(90deg); }
 
+    /* ---------- Einwilligung vor dem ersten Chat ---------- */
+    .chat-tor { flex:1 1 auto; min-height:0; overflow-y:auto; overscroll-behavior:contain;
+      display:flex; flex-direction:column; align-items:flex-start;
+      padding:24px 22px; background:#fff;
+      animation:chatIn .4s cubic-bezier(.2,.8,.3,1) both; }
+    .chat-tor-ico { width:46px; height:46px; border-radius:14px; flex-shrink:0;
+      display:flex; align-items:center; justify-content:center; color:var(--cc-gruen-d);
+      background:var(--cc-gruen-t); border:1px solid rgba(53,150,81,.2); margin-bottom:15px; }
+    .chat-tor-t { font-size:15px; font-weight:800; color:#12211A; letter-spacing:-.01em; margin-bottom:7px; }
+    .chat-tor-txt { font-size:12.3px; line-height:1.68; color:#5A6B62; margin-bottom:13px; }
+    .chat-tor-txt b { color:#1B2C23; font-weight:700; }
+    .chat-tor-warn { display:flex; align-items:flex-start; gap:8px; width:100%; box-sizing:border-box;
+      background:#FFF8EC; border:1px solid #F5E0B9; border-radius:10px;
+      padding:10px 12px; font-size:11.3px; line-height:1.55; color:#8A6420; margin-bottom:18px; }
+    .chat-tor-warn svg { flex-shrink:0; margin-top:1px; color:#C98A16; }
+
+    .chat-tor-box { display:flex; align-items:flex-start; gap:10px; width:100%; box-sizing:border-box;
+      cursor:pointer; padding:12px; border:1.5px solid var(--cc-rand); border-radius:12px;
+      background:#FAFCFB; margin-bottom:14px;
+      transition:border-color .18s, background .18s; }
+    .chat-tor-box:hover { border-color:rgba(53,150,81,.4); background:#fff; }
+    .chat-tor-box input { position:absolute; opacity:0; width:0; height:0; }
+    .chat-haken { width:19px; height:19px; flex-shrink:0; margin-top:1px; border-radius:6px;
+      border:1.8px solid #C2CEC7; background:#fff; color:#fff;
+      display:flex; align-items:center; justify-content:center;
+      transition:background .18s, border-color .18s, transform .18s; }
+    .chat-haken svg { opacity:0; transform:scale(.5); transition:opacity .18s, transform .22s cubic-bezier(.2,.8,.3,1.4); }
+    .chat-tor-box input:checked ~ .chat-haken { background:var(--cc-gruen); border-color:var(--cc-gruen); }
+    .chat-tor-box input:checked ~ .chat-haken svg { opacity:1; transform:scale(1); }
+    .chat-tor-box input:focus-visible ~ .chat-haken { box-shadow:0 0 0 3px rgba(53,150,81,.22); }
+    .chat-tor-label { font-size:11.8px; line-height:1.6; color:#2A3B33; }
+    .chat-tor-label a { color:var(--cc-gruen-d); font-weight:700; text-decoration:underline; cursor:pointer; }
+
+    .chat-tor-btn { display:flex; align-items:center; justify-content:center; gap:8px;
+      width:100%; box-sizing:border-box; padding:13px; border:none; border-radius:12px;
+      font-family:inherit; font-size:13px; font-weight:700; color:#fff; cursor:pointer;
+      background:linear-gradient(145deg,#3FA45C,#2E8749);
+      box-shadow:0 10px 22px -12px rgba(46,135,73,.85);
+      transition:transform .2s cubic-bezier(.2,.8,.3,1.2), filter .2s, background .2s, box-shadow .2s; }
+    .chat-tor-btn svg { transition:transform .2s; }
+    .chat-tor-btn:hover:not(:disabled) { transform:translateY(-2px); filter:brightness(1.06); }
+    .chat-tor-btn:hover:not(:disabled) svg { transform:translateX(3px); }
+    .chat-tor-btn:active:not(:disabled) { transform:translateY(0) scale(.98); }
+    .chat-tor-btn:disabled { background:#E4EBE7; color:#A3B1A9; box-shadow:none; cursor:not-allowed; }
+    .chat-tor-fuss { width:100%; text-align:center; font-size:10.3px; color:#A3B1A9; margin-top:10px; }
+    /* Solange die Einwilligung fehlt, ist das Eingabefeld gesperrt */
+    .help-pop.tor-offen .chat-eingabe { opacity:.45; pointer-events:none; filter:grayscale(.4); }
+    @media (max-width:760px) {
+      .chat-tor { padding:22px 18px 28px; }
+      .chat-tor-label { font-size:12.5px; }
+      .chat-tor-btn { padding:15px; font-size:14px; }
+    }
+
     /* ---------- Verlauf ---------- */
     .chat-verlauf { flex:1 1 auto; min-height:0; overflow-y:auto; overflow-x:hidden;
       -webkit-overflow-scrolling:touch; overscroll-behavior:contain; scrollbar-width:thin;
@@ -2171,20 +2224,6 @@
     .chat-verlauf::-webkit-scrollbar-thumb { background:#D2DCD6; border-radius:99px;
       border:3px solid transparent; background-clip:padding-box; }
     .chat-verlauf::-webkit-scrollbar-thumb:hover { background:#B3C1B9; background-clip:padding-box; }
-
-    /* ---------- Datenschutz-Hinweis ---------- */
-    .chat-ds { display:flex; align-items:flex-start; gap:9px; position:relative;
-      background:#fff; border:1px solid var(--cc-rand); border-left:3px solid var(--cc-gruen);
-      border-radius:10px; padding:11px 30px 11px 12px; margin-bottom:12px;
-      font-size:11px; line-height:1.6; color:#5A6B62;
-      box-shadow:0 1px 3px rgba(10,22,17,.04); }
-    .chat-ds.chat-frisch { animation:chatIn .42s cubic-bezier(.2,.8,.3,1) both; }
-    .chat-ds svg { flex-shrink:0; margin-top:1px; color:var(--cc-gruen); }
-    .chat-ds b { color:#1B2C23; font-weight:700; }
-    .chat-ds-x { position:absolute; top:7px; right:7px; width:20px; height:20px; border:none;
-      background:none; color:#AFBDB5; cursor:pointer; border-radius:6px; line-height:1;
-      display:flex; align-items:center; justify-content:center; transition:all .15s; }
-    .chat-ds-x:hover { background:#F0F4F2; color:#1B2C23; }
 
     /* ---------- Nachrichten ---------- */
     .chat-reihe { display:flex; gap:9px; align-items:flex-end; margin-top:9px; }
@@ -2367,6 +2406,34 @@
       <button class="chat-kopf-btn chat-zu" onclick="toggleHelp()" title="Schlie\u00dfen">
         <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
       </button>
+    </div>
+    <div class="chat-tor" id="chatTor" style="display:none;">
+      <div class="chat-tor-ico">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+      </div>
+      <div class="chat-tor-t">Kurz vorab</div>
+      <div class="chat-tor-txt">
+        Deine Fragen werden zur Beantwortung verarbeitet und dabei an unseren Dienstleister
+        <b>Anthropic</b> \u00fcbermittelt. Der Gespr\u00e4chsverlauf wird <b>nicht gespeichert</b> und
+        ist beim Schlie\u00dfen der Seite gel\u00f6scht. Der Assistent kennt weder dein Konto noch
+        deine Pr\u00fcfungen.
+      </div>
+      <div class="chat-tor-warn">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 2 18a2 2 0 0 0 1.7 3h16.6a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
+        <span>Bitte keine Ausweis-, Zugangs- oder Gesundheitsdaten eingeben.</span>
+      </div>
+      <label class="chat-tor-box" for="chatTorBox">
+        <input type="checkbox" id="chatTorBox" onchange="chatTorPruefen()" />
+        <span class="chat-haken">
+          <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+        </span>
+        <span class="chat-tor-label">Ich habe die <a onclick="event.preventDefault(); event.stopPropagation(); openLegal('datenschutz');">Datenschutzerkl\u00e4rung</a> gelesen und bin mit der Verarbeitung meiner Eingaben einverstanden.</span>
+      </label>
+      <button class="chat-tor-btn" id="chatTorBtn" disabled onclick="chatTorOk()">
+        Chat starten
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </button>
+      <div class="chat-tor-fuss">Du wirst nur einmal gefragt.</div>
     </div>
     <div class="chat-verlauf" id="chatVerlauf" onscroll="chatScrollGeprueft()"></div>
     <button class="chat-runter" id="chatRunter" onclick="chatNachUnten(true)" title="Zum Ende springen">
@@ -4687,7 +4754,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.67</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.68</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -5360,10 +5427,13 @@ function toggleHelp() {
     // Am Handy den Hintergrund festhalten, damit nicht die Seite mitscrollt
     if (window.innerWidth <= 760) document.body.style.overflow = 'hidden';
     chatZeichnen();
-    chatNachUnten(true);
-    if (window.innerWidth > 760) {
-      setTimeout(function(){ const f = document.getElementById('chatFeld'); if (f) f.focus(); }, 260);
-    }
+    // Einwilligung pruefen - bis dahin bleibt die Frage verborgen
+    chatTorLaden().then(function(ok){
+      chatTorZeigen(!ok);
+      if (ok && window.innerWidth > 760) {
+        const f = document.getElementById('chatFeld'); if (f) f.focus();
+      }
+    });
   }
 }
 
@@ -5374,10 +5444,66 @@ function toggleHelp() {
 // ============================================================
 let CHAT_VERLAUF = [];
 let CHAT_LAEUFT = false;
-let CHAT_HINWEIS_WEG = false;
 let CHAT_TEILTEXT = '';
 let CHAT_FRISCH = -1;          // Index der Nachricht, die eingeblendet werden darf
-let CHAT_ERSTER_AUFBAU = true; // Hinweis + Vorschlaege nur beim ersten Mal animieren
+let CHAT_ERSTER_AUFBAU = true; // Vorschlaege nur beim ersten Mal animieren
+let CHAT_DS_OK = null;         // null = noch nicht geprueft
+let CHAT_UID = null;
+
+// ============================================================
+// Einwilligung: wird in den Kontodaten hinterlegt und gilt damit
+// auch auf anderen Geraeten. Zusaetzlich lokal gemerkt, damit die
+// Frage beim naechsten Oeffnen nicht kurz aufblitzt.
+// ============================================================
+function chatTorSchluessel(uid) { return 'cc_chat_ds_' + (uid || 'gast'); }
+
+async function chatTorLaden() {
+  if (CHAT_DS_OK !== null) return CHAT_DS_OK;
+  try {
+    const { data } = await sb.auth.getUser();
+    const u = data && data.user;
+    CHAT_UID = u ? u.id : null;
+    if (u && u.user_metadata && u.user_metadata.chat_ds_ok === true) {
+      CHAT_DS_OK = true;
+      try { localStorage.setItem(chatTorSchluessel(CHAT_UID), '1'); } catch(e) {}
+      return true;
+    }
+  } catch(e) { CHAT_UID = null; }
+  let lokal = false;
+  try { lokal = localStorage.getItem(chatTorSchluessel(CHAT_UID)) === '1'; } catch(e) {}
+  CHAT_DS_OK = lokal;
+  return CHAT_DS_OK;
+}
+
+function chatTorPruefen() {
+  const box = document.getElementById('chatTorBox');
+  const btn = document.getElementById('chatTorBtn');
+  if (btn) btn.disabled = !(box && box.checked);
+}
+
+async function chatTorOk() {
+  const box = document.getElementById('chatTorBox');
+  if (!box || !box.checked) return;
+  CHAT_DS_OK = true;
+  try { localStorage.setItem(chatTorSchluessel(CHAT_UID), '1'); } catch(e) {}
+  // Im Konto hinterlegen, damit die Frage auf anderen Geraeten ausbleibt
+  try { await sb.auth.updateUser({ data: { chat_ds_ok: true } }); } catch(e) {}
+  chatTorZeigen(false);
+  const f = document.getElementById('chatFeld');
+  if (f && window.innerWidth > 760) f.focus();
+}
+
+function chatTorZeigen(an) {
+  const tor = document.getElementById('chatTor');
+  const verlauf = document.getElementById('chatVerlauf');
+  const pop = document.getElementById('helpPop');
+  if (tor) tor.style.display = an ? 'flex' : 'none';
+  if (verlauf) verlauf.style.display = an ? 'none' : 'flex';
+  if (pop) pop.classList.toggle('tor-offen', !!an);
+  const runter = document.getElementById('chatRunter');
+  if (runter && an) runter.classList.remove('an');
+  if (!an) chatNachUnten(true);
+}
 
 const CHAT_VORSCHLAEGE = [
   'Wie lade ich Kollegen ins Team ein?',
@@ -5400,15 +5526,6 @@ function chatZeichnen() {
   let html = '';
 
   const frischKl = CHAT_ERSTER_AUFBAU ? ' chat-frisch' : '';
-  if (!CHAT_HINWEIS_WEG) {
-    html += '<div class="chat-ds' + frischKl + '">'
-      + '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>'
-      + '<span>Deine Fragen werden zur Beantwortung verarbeitet, aber <b>nicht gespeichert</b>. '
-      + 'Der Assistent kennt weder dein Konto noch deine Pr\u00fcfungen. Bitte keine Ausweis- oder Zugangsdaten eingeben.</span>'
-      + '<button class="chat-ds-x" onclick="chatHinweisWeg()" title="Verstanden">'
-      + '<svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>'
-      + '</div>';
-  }
 
   if (!CHAT_VERLAUF.length) {
     html += '<div class="chat-reihe' + frischKl + '">'
@@ -5492,8 +5609,6 @@ function chatLaufendAuffrischen() {
 function chatText(t) {
   return escapeHtml(String(t || '')).replace(/\n/g, '<br/>');
 }
-
-function chatHinweisWeg() { CHAT_HINWEIS_WEG = true; chatZeichnen(); }
 
 function chatVorschlag(i) {
   const f = document.getElementById('chatFeld');
@@ -9266,6 +9381,7 @@ function druckeJetzt() {
   const alterTitel = document.title;
   try {
     ['helpPop','trOverlay'].forEach(function(id){ const e = document.getElementById(id); if (e) e.style.display = 'none'; });
+    CHAT_DS_OK = null; CHAT_UID = null;   // beim naechsten Konto erneut pruefen
     document.querySelectorAll('.tr-toast').forEach(function(t){ t.remove(); });
     document.title = druckDateiname();            // legt den Namen der PDF-Datei fest
   } catch (e) {}
