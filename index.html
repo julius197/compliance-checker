@@ -4787,7 +4787,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.69</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.70</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -11203,17 +11203,15 @@ function showReport(d, rawName, fromHistory) {
     return `<div class="flag"><span class="flag-icon ${typ}">${icon}</span><span class="flag-text">${katLabel}${text}</span></div>`;
   }).filter(Boolean).join('');
 
+  // Herkunftszeile: benennt, welche Zusatzquellen angesprungen sind.
+  // Register-, Presse- und Sanktionsrecherche laeuft IMMER - deshalb gibt es
+  // hier keinen Warnhinweis mehr, sondern nur eine sachliche Aufzaehlung.
   let banner = '';
   const ds = d._dataSource || '';
-  if (ds.includes('vies') && ds.includes('google')) {
-    banner = `<div class="data-banner"><span class="data-banner-dot"></span>USt-ID offiziell via EU-VIES verifiziert · Bewertungen & Kontakt von Google</div>`;
-  } else if (ds.includes('vies')) {
-    banner = `<div class="data-banner"><span class="data-banner-dot"></span>USt-ID offiziell via EU-VIES verifiziert · Keine Google-Bewertungen gefunden</div>`;
-  } else if (ds.includes('google')) {
-    banner = `<div class="data-banner"><span class="data-banner-dot"></span>Echte Daten von Google · Bewertungen, Kontakt & Standort verifiziert</div>`;
-  } else {
-    banner = `<div class="partial-banner">⚠ Keine externen Daten gefunden – Analyse basiert auf KI-Wissen</div>`;
-  }
+  const teile = ['Register-, Presse- und Online-Recherche', 'Abgleich mit der EU-Sanktionsliste'];
+  if (ds.includes('vies')) teile.push('USt-IdNr. amtlich \u00fcber EU-VIES best\u00e4tigt');
+  if (ds.includes('google')) teile.push('Kontakt und Standort \u00fcber Google');
+  banner = `<div class="data-banner"><span class="data-banner-dot"></span>${teile.join(' \u00b7 ')}</div>`;
 
   const na = v => isNA(v)?'<span class="cc-value na">N/A</span>':`<div class="cc-value">${v}</div>`;
 
