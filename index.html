@@ -2378,6 +2378,39 @@
       .help-btn::before { transition:none; }
     }
     @media print { .chat-backdrop { display:none !important; } }
+
+    /* ===== Dokumente & Nachweise ===== */
+    .beleg-liste { display:flex; flex-direction:column; }
+    .beleg-zeile { display:flex; align-items:center; gap:11px; padding:11px 16px;
+      border-bottom:1px solid var(--border2,#EDF0F2); background:var(--card,#fff);
+      opacity:0; animation:belegIn .38s cubic-bezier(.2,.8,.3,1) var(--bd,0s) both; }
+    @keyframes belegIn { from { opacity:0; transform:translateY(5px); } to { opacity:1; transform:none; } }
+    .beleg-zeile:last-child { border-bottom:none; }
+    .beleg-ico { width:32px; height:32px; border-radius:9px; flex-shrink:0;
+      display:flex; align-items:center; justify-content:center;
+      background:var(--neutral,#F6F8F9); color:var(--gray,#5A6670);
+      border:1px solid var(--border,#E2E6E9); }
+    .beleg-ico.ist-pdf { background:#FDECEC; color:#C0392B; border-color:#F5C9C4; }
+    .beleg-txt { flex:1; min-width:0; display:flex; flex-direction:column; gap:1px; }
+    .beleg-name { font-size:12.5px; font-weight:600; color:var(--ink2,#1F2937);
+      overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .beleg-sub { font-size:10.5px; color:var(--gray-l,#8A949D); font-weight:600;
+      letter-spacing:.03em; }
+    .beleg-btn { width:28px; height:28px; flex-shrink:0; border:none; border-radius:8px; cursor:pointer;
+      background:var(--neutral,#F6F8F9); color:var(--gray,#5A6670);
+      display:flex; align-items:center; justify-content:center; text-decoration:none;
+      transition:background .16s, color .16s, transform .16s; }
+    .beleg-btn:hover { background:#E8EEEA; color:#2E8749; transform:translateY(-1px); }
+    .beleg-weg:hover { background:#FDECEC; color:#C0392B; }
+    .beleg-leer { padding:18px 16px; text-align:center; font-size:12px;
+      color:var(--gray-l,#8A949D); background:var(--card,#fff); }
+    @media print {
+      .beleg-btn { display:none !important; }
+      .beleg-zeile { opacity:1 !important; animation:none !important; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .beleg-zeile { opacity:1 !important; transform:none !important; animation:none !important; }
+    }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -4754,7 +4787,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.68</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.69</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -6296,9 +6329,12 @@ function bearbIcoSvg() {
 }
 
 function bearbLeisteZeichnen() {
+  // Wieviele Dokumente liegen bereit? Auch sie rechtfertigen eine Neubewertung.
+  const belegAnz = (typeof KYC !== 'undefined' && KYC.doks && KYC.doks.beleg) ? KYC.doks.beleg.length : 0;
   const l = document.getElementById('bearbLeiste');
   if (!l || !CURRENT_REPORT) return;
   const n = Object.keys(ERGAENZUNGEN).length;
+  const bereit = (n > 0 || belegAnz > 0);
   const d = CURRENT_REPORT;
   const fassung = d._fassung || 1;
   const hinweisAlt = d._fassung_hinweis ? '<div class="bearb-fassung">Fassung ' + fassung + ' \u00b7 ' + escapeHtml(d._fassung_hinweis) + '</div>' : '';
@@ -6316,10 +6352,11 @@ function bearbLeisteZeichnen() {
       + '<div class="bearb-karte bearb-aktiv">'
       + '<div class="bearb-ico bearb-ico-an"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></div>'
       + '<div class="bearb-text"><div class="bearb-t">Bearbeitungsmodus</div>'
-      + '<div class="bearb-d">Klicke auf den Stift neben einem Feld. ' + (n ? '<b>' + n + ' Angabe' + (n === 1 ? '' : 'n') + ' erg\u00e4nzt.</b>' : 'Noch nichts erg\u00e4nzt.') + '</div></div>'
+      + '<div class="bearb-d">Klicke auf den Stift neben einem Feld. ' + (n ? '<b>' + n + ' Angabe' + (n === 1 ? '' : 'n') + ' erg\u00e4nzt.</b>' : 'Noch nichts erg\u00e4nzt.')
+      + (belegAnz ? ' <b>' + belegAnz + ' Dokument' + (belegAnz === 1 ? '' : 'e') + '</b> wird beim Neubewerten ausgelesen.' : '') + '</div></div>'
       + '<div class="bearb-btns">'
       + '<button class="kyc-btn" onclick="bearbeitenAbbruch()">Abbrechen</button>'
-      + '<button class="bearb-btn" id="neuBewertenBtn" onclick="neuBewerten()"' + (n ? '' : ' disabled') + '>'
+      + '<button class="bearb-btn" id="neuBewertenBtn" onclick="neuBewerten()"' + (bereit ? '' : ' disabled') + '>'
       + bearbIcoSvg()
       + '<span class="bearb-label">Neu bewerten' + (n ? ' \u00b7 ' + n : '') + '</span></button>'
       + '</div></div>';
@@ -6334,6 +6371,7 @@ function bearbeitenStart() {
   const rep = document.getElementById('report') || document.body;
   rep.classList.add('bearb-modus');
   try { evidenceEigenZeichnen(); } catch(e) {}
+  try { evidenceBelegZeichnen(); } catch(e) {}
   bearbLeisteZeichnen();
   zeigeToast('Bearbeitungsmodus', 'Klicke auf den Stift rechts neben einem Feld.');
 }
@@ -6344,6 +6382,7 @@ function bearbeitenAbbruch() {
   const rep = document.getElementById('report') || document.body;
   rep.classList.remove('bearb-modus');
   try { evidenceEigenZeichnen(); } catch(e) {}
+  try { evidenceBelegZeichnen(); } catch(e) {}
   // Alle offenen Eingaben und Markierungen zuruecknehmen
   document.querySelectorAll('.kv-ergaenzt').forEach(function(z){
     z.classList.remove('kv-ergaenzt');
@@ -6444,7 +6483,8 @@ function feldAbbruch(feldId) {
 
 async function neuBewerten() {
   const n = Object.keys(ERGAENZUNGEN).length;
-  if (!n || !CURRENT_REPORT) return;
+  const belegeRoh = (typeof KYC !== 'undefined' && KYC.doks && KYC.doks.beleg) ? KYC.doks.beleg : [];
+  if ((!n && !belegeRoh.length) || !CURRENT_REPORT) return;
   const btn = document.getElementById('neuBewertenBtn');
   if (btn) { btn.disabled = true; btn.classList.add('laedt'); btn.innerHTML = '<span class="bearb-spin"></span><span class="bearb-label">Wird neu bewertet\u2026</span>'; }
 
@@ -6452,8 +6492,13 @@ async function neuBewerten() {
   const erg = {};
   Object.keys(ERGAENZUNGEN).forEach(function(k){ erg[k.replace('|', ' > ')] = ERGAENZUNGEN[k]; });
 
+  // Hinterlegte Dokumente mitgeben - der Worker holt und liest sie aus
+  const belege = belegeRoh.slice(0, 3).map(function(d){
+    return { path: d.storage_path, name: d.datei_name || '', mime: d.mime_type || '' };
+  });
+
   try {
-    const r = await workerCall('neu_bewerten', { bericht: CURRENT_REPORT, ergaenzungen: erg });
+    const r = await workerCall('neu_bewerten', { bericht: CURRENT_REPORT, ergaenzungen: erg, belege: belege });
     if (!r || !r.ok || !r.bericht) throw new Error((r && r.error) || 'Neubewertung fehlgeschlagen');
     const neu = r.bericht;
     // Kennzeichen uebernehmen
@@ -10382,7 +10427,158 @@ function evidenceHTML(d) {
       <div id="evidenceEigenTools"></div>
       <div class="evidence-note">Selbst aufgenommene Bilder zum Unternehmen – etwa Firmenschild, Gebäude oder Geschäftsräume. Sie werden beim Drucken als eigene Anlagen angehängt.</div>
     </div>
+    <div class="evidence-item evidence-eigen" id="evidenceBelegBox" style="display:none;">
+      <div class="evidence-item-label">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 13h6M9 17h4"/></svg>
+        Dokumente &amp; Nachweise <span id="evidenceBelegCount" style="margin-left:auto;font-weight:600;color:var(--gray-l);text-transform:none;letter-spacing:0"></span>
+      </div>
+      <div class="beleg-liste" id="evidenceBelegListe"></div>
+      <div id="evidenceBelegTools"></div>
+      <div class="evidence-note">Handelsregisterauszug, Gewerbeanmeldung oder ähnliche Nachweise als PDF oder Bild. <b>Diese Dateien werden bei „Neu bewerten“ ausgelesen</b> und fließen in den Bericht ein. Beim Drucken hängen alle Seiten als Anlagen an.</div>
+    </div>
   </div>`;
+}
+
+// ===== Dokumente & Nachweise: Liste zeichnen =====
+function evidenceBelegZeichnen() {
+  const box = document.getElementById('evidenceBelegBox');
+  const liste = document.getElementById('evidenceBelegListe');
+  const tools = document.getElementById('evidenceBelegTools');
+  const zaehler = document.getElementById('evidenceBelegCount');
+  if (!box || !liste || !tools) return;
+
+  const doks = (typeof KYC !== 'undefined' && KYC.doks && KYC.doks.beleg) ? KYC.doks.beleg : [];
+  const urls = (typeof KYC !== 'undefined' && KYC.urls && KYC.urls.beleg) ? KYC.urls.beleg : [];
+  let bearbeiten = false;
+  try { bearbeiten = (document.getElementById('report') || document.body).classList.contains('bearb-modus'); } catch(e) {}
+
+  if (!doks.length && !bearbeiten) { box.style.display = 'none'; return; }
+  box.style.display = '';
+
+  if (doks.length) {
+    liste.innerHTML = doks.map(function(d, n){
+      const url = urls[n];
+      const pdf = (d.mime_type || '').indexOf('pdf') >= 0;
+      const seiten = (KYC.pdfSeiten && KYC.pdfSeiten['beleg:' + n]) ? KYC.pdfSeiten['beleg:' + n].length : 0;
+      return '<div class="beleg-zeile" style="--bd:' + (0.04 + n * 0.05) + 's">'
+        + '<span class="beleg-ico ' + (pdf ? 'ist-pdf' : '') + '">'
+        + (pdf
+            ? '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>'
+            : '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>')
+        + '</span>'
+        + '<span class="beleg-txt">'
+        + '<span class="beleg-name">' + escapeHtml(d.datei_name || (pdf ? 'Dokument.pdf' : 'Bild')) + '</span>'
+        + '<span class="beleg-sub">' + (pdf ? ('PDF' + (seiten ? ' \u00b7 ' + seiten + ' Seite' + (seiten > 1 ? 'n' : '') : '')) : 'Bild') + '</span>'
+        + '</span>'
+        + (url ? '<a class="beleg-btn" href="' + url + '" target="_blank" title="\u00d6ffnen"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6M10 14 21 3"/></svg></a>' : '')
+        + (bearbeiten ? '<button class="beleg-btn beleg-weg" onclick="evidenceBelegLoeschen(' + n + ')" title="Entfernen"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>' : '')
+        + '</div>';
+    }).join('');
+  } else {
+    liste.innerHTML = '<div class="beleg-leer">Noch keine Dokumente hinterlegt</div>';
+  }
+
+  if (zaehler) zaehler.textContent = doks.length ? (doks.length === 1 ? '1 Datei' : doks.length + ' Dateien') : '';
+
+  if (!bearbeiten) { tools.innerHTML = ''; return; }
+  if (!KYC.analyseId) {
+    tools.innerHTML = '<div class="ev-eigen-hinweis">Die Analyse wird gerade gespeichert \u2013 in einem Moment k\u00f6nnen Dokumente hinzugef\u00fcgt werden.</div>';
+    return;
+  }
+  tools.innerHTML = '<div class="ev-eigen-tools">'
+    + '<label class="ev-eigen-add" for="evBelegFile">'
+    + '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>'
+    + ' PDF oder Bild hinzuf\u00fcgen</label>'
+    + '<input type="file" id="evBelegFile" accept="application/pdf,image/jpeg,image/png,image/webp" multiple style="display:none" onchange="evidenceBelegWaehlen(this.files)" />'
+    + '</div>';
+}
+
+async function evidenceBelegWaehlen(files) {
+  if (!files || !files.length) return;
+  const tools = document.getElementById('evidenceBelegTools');
+  if (tools) tools.innerHTML = '<div class="ev-eigen-hinweis ev-eigen-laedt"><span class="ev-eigen-spin"></span> Wird hochgeladen\u2026</div>';
+  let ok = 0;
+  try {
+    for (let i = 0; i < files.length; i++) {
+      if (await kycUpload('beleg', files[i])) ok++;
+    }
+  } catch (e) { console.warn('Beleg:', e && e.message); }
+  try { evidenceBelegZeichnen(); } catch(e) {}
+  if (ok) zeigeToast('Dokument hinzugef\u00fcgt',
+    'Beim n\u00e4chsten \u201eNeu bewerten\u201c wird es ausgelesen.');
+}
+
+async function evidenceBelegLoeschen(n) {
+  const d = (KYC.doks && KYC.doks.beleg) ? KYC.doks.beleg[n] : null;
+  if (!d) return;
+  if (!confirm('Dieses Dokument wirklich entfernen?')) return;
+  try {
+    try { await sb.storage.from('kyc').remove([d.storage_path]); } catch(e) {}
+    await sb.from('kyc_dokumente').delete().eq('id', d.id);
+    await kycLaden();
+  } catch (e) { alert('Entfernen fehlgeschlagen: ' + ((e && e.message) || '')); }
+}
+
+// ============================================================
+// PDF-Seiten fuer den Ausdruck in Bilder umwandeln.
+// Ohne das fehlen PDF-Anlagen im Ausdruck komplett - ein Browser
+// kann eine fremde PDF-Datei nicht in die eigene Druckseite legen.
+// ============================================================
+let PDFJS_GELADEN = null;
+function pdfJsLaden() {
+  if (PDFJS_GELADEN) return PDFJS_GELADEN;
+  PDFJS_GELADEN = new Promise(function(fertig, fehler){
+    if (window.pdfjsLib) return fertig(window.pdfjsLib);
+    const sk = document.createElement('script');
+    sk.src = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js';
+    sk.onload = function(){
+      try {
+        window.pdfjsLib.GlobalWorkerOptions.workerSrc =
+          'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
+      } catch(e) {}
+      fertig(window.pdfjsLib);
+    };
+    sk.onerror = function(){ fehler(new Error('PDF-Anzeige nicht verfuegbar')); };
+    document.head.appendChild(sk);
+  });
+  return PDFJS_GELADEN;
+}
+
+async function pdfSeitenAlsBilder(url, maxSeiten) {
+  const lib = await pdfJsLaden();
+  const doc = await lib.getDocument({ url: url }).promise;
+  const bilder = [];
+  const anzahl = Math.min(doc.numPages, maxSeiten || 15);
+  for (let i = 1; i <= anzahl; i++) {
+    const seite = await doc.getPage(i);
+    const sicht = seite.getViewport({ scale: 1.7 });
+    const c = document.createElement('canvas');
+    c.width = Math.round(sicht.width); c.height = Math.round(sicht.height);
+    await seite.render({ canvasContext: c.getContext('2d'), viewport: sicht }).promise;
+    bilder.push(c.toDataURL('image/jpeg', 0.82));
+  }
+  return bilder;
+}
+
+// Alle hinterlegten PDFs im Hintergrund vorbereiten
+async function kycPdfVorbereiten() {
+  KYC.pdfSeiten = KYC.pdfSeiten || {};
+  const typen = ['ausweis','selfie','standort','beleg'];
+  for (const typ of typen) {
+    const doks = KYC.doks[typ] || [];
+    for (let n = 0; n < doks.length; n++) {
+      const d = doks[n];
+      if ((d.mime_type || '').indexOf('pdf') < 0) continue;
+      const schluessel = typ + ':' + n;
+      if (KYC.pdfSeiten[schluessel]) continue;
+      const url = (KYC.urls[typ] || [])[n];
+      if (!url) continue;
+      try {
+        KYC.pdfSeiten[schluessel] = await pdfSeitenAlsBilder(url, 15);
+        try { evidenceBelegZeichnen(); } catch(e) {}
+      } catch (e) { console.warn('PDF-Seiten:', e && e.message); }
+    }
+  }
 }
 
 // ===== Eigene Aufnahmen: Galerie zeichnen =====
@@ -10593,7 +10789,7 @@ async function kycLaden() {
         return new Date(a.created_at) - new Date(b.created_at);
       });
     });
-    const typen = ['ausweis','selfie','standort'];
+    const typen = ['ausweis','selfie','standort','beleg'];
     for (const t of typen) {
       const liste = KYC.doks[t] || [];
       KYC.urls[t] = [];
@@ -10612,6 +10808,8 @@ async function kycLaden() {
     } catch(e) { KYC.link = null; }
     kycRender();
     try { evidenceEigenZeichnen(); } catch(e) {}
+    try { evidenceBelegZeichnen(); } catch(e) {}
+    try { kycPdfVorbereiten(); } catch(e) {}
   } catch (e) { console.warn('KYC laden:', e && e.message); }
 }
 
@@ -10671,19 +10869,42 @@ function kycRender() {
 function kycPrintHtml() {
   let out = '';
   let nr = 0;
-  [['ausweis','Personalausweis'],['selfie','Best\u00e4tigungsfoto'],['standort','Eigene Aufnahme']].forEach(function(p){
+  const kopf = ' \u00b7 ' + escapeHtml(KYC.firmenname) + ' \u00b7 ' + escapeHtml(KYC.pruefId || '');
+  function seite(titel, bildUrl, fuss) {
+    return '<div class="kyc-print-page">'
+      + '<div class="kyc-print-t">' + titel + kopf + '</div>'
+      + '<div class="kyc-print-rahmen"><img class="kyc-print-img" src="' + bildUrl + '" alt="" /></div>'
+      + '<div class="kyc-print-fuss">' + fuss + '</div>'
+      + '</div>';
+  }
+  [['ausweis','Personalausweis'],['selfie','Best\u00e4tigungsfoto'],['standort','Eigene Aufnahme'],['beleg','Nachweis']].forEach(function(p){
     const typ = p[0], basis = p[1];
     (KYC.doks[typ] || []).forEach(function(d, n){
       const url = (KYC.urls[typ] || [])[n];
       const bez = d.bezeichnung ? ' (' + d.bezeichnung + ')' : ((KYC.doks[typ].length > 1) ? ' (' + (n + 1) + ' von ' + KYC.doks[typ].length + ')' : '');
-      const titel = 'Anlage ' + (++nr) + ' \u00b7 ' + basis + bez;
-      if (url && (d.mime_type || '').indexOf('pdf') < 0) {
-      out += '<div class="kyc-print-page">'
-        + '<div class="kyc-print-t">' + titel + ' \u00b7 ' + escapeHtml(KYC.firmenname) + ' \u00b7 ' + escapeHtml(KYC.pruefId || '') + '</div>'
-        + '<div class="kyc-print-rahmen"><img class="kyc-print-img" src="' + url + '" alt="" /></div>'
-        + '<div class="kyc-print-fuss">' + escapeHtml(d.datei_name || '') + '</div>'
-        + '</div>';
+      const dateiname = escapeHtml(d.datei_name || '');
+      const istPdf = (d.mime_type || '').indexOf('pdf') >= 0;
+
+      if (istPdf) {
+        // PDF-Seiten wurden vorab in Bilder umgewandelt
+        const seiten = (KYC.pdfSeiten || {})['beleg' === typ ? 'beleg:' + n : typ + ':' + n] || [];
+        if (seiten.length) {
+          const anlage = ++nr;
+          seiten.forEach(function(bild, si){
+            const titel = 'Anlage ' + anlage + ' \u00b7 ' + basis + bez
+              + (seiten.length > 1 ? ' \u00b7 Seite ' + (si + 1) + ' von ' + seiten.length : '');
+            out += seite(titel, bild, dateiname);
+          });
+        } else if (url) {
+          const titel = 'Anlage ' + (++nr) + ' \u00b7 ' + basis + bez;
+          out += '<div class="kyc-print-page"><div class="kyc-print-t">' + titel + kopf + '</div>'
+            + '<div class="kyc-print-fehlt">Dieses Dokument liegt als PDF-Datei in der digitalen Akte vor'
+            + (dateiname ? '<br/>(' + dateiname + ')' : '') + '</div></div>';
+        }
+        return;
       }
+
+      if (url) out += seite('Anlage ' + (++nr) + ' \u00b7 ' + basis + bez, url, dateiname);
     });
   });
   return out;
@@ -10861,7 +11082,8 @@ async function kycUpload(typ, file) {
       storage_path: pfad, datei_name: file.name, mime_type: file.type,
       position: bisher + 1,
       bezeichnung: (typ === 'ausweis') ? (bisher === 0 ? 'Vorderseite' : (bisher === 1 ? 'R\u00fcckseite' : 'Seite ' + (bisher + 1)))
-                 : (typ === 'standort' ? ('Aufnahme ' + (bisher + 1)) : null),
+                 : (typ === 'standort' ? ('Aufnahme ' + (bisher + 1))
+                 : (typ === 'beleg' ? ('Nachweis ' + (bisher + 1)) : null)),
       hochgeladen_von: (typeof CURRENT_USER_ID !== 'undefined' ? CURRENT_USER_ID : null)
     });
     if (db && db.error) throw db.error;
