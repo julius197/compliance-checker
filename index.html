@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content" />
   <title>Compliance-Checker · KYC &amp; GwG-Prüfung</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1052,7 +1052,7 @@
     .haft-box { margin-top:14px; padding:13px 15px; background:var(--neutral,#F6F8F9); border:1px solid var(--border,#E2E6E9); border-left:3px solid var(--gray-l,#8A949D); border-radius:0 12px 12px 0; }
     .haft-t { font-size:11.5px; font-weight:800; letter-spacing:.04em; text-transform:uppercase; color:var(--gray,#5A6670); margin-bottom:6px; }
     .haft-d { font-size:11.5px; line-height:1.7; color:var(--gray,#5A6670); }
-    .kyc-print-haft { font-size:9px; line-height:1.5; color:#555; margin-top:10px; padding-top:8px; border-top:1px solid #ddd; }
+    .kyc-print-haft { font-size:8pt; line-height:1.5; color:#555; margin-top:9px; padding-top:7px; border-top:1px solid #ddd; }
     @media (max-width:760px) { .ds-hinweis { padding:12px 13px; } .ds-text { font-size:11px; } }
     .up-senden-aus, .up-senden:disabled { background:#D5E3DB !important; box-shadow:none !important; cursor:not-allowed; animation:none; }
     .up-senden-aus:hover, .up-senden:disabled:hover { transform:none !important; box-shadow:none !important; }
@@ -1529,9 +1529,42 @@
     .kyc-print-page { display:none; }
     @media print {
       .kyc-card { display:none !important; }
-      .kyc-print-page { display:block; page-break-before:always; }
-      .kyc-print-t { font-size:13px; font-weight:700; margin-bottom:10px; }
-      .kyc-print-img { max-width:100%; max-height:88vh; }
+      /* Jede Anlage bekommt eine eigene Seite und nutzt sie ganz aus.
+         Wichtig: mit echten Seitenmassen rechnen - "vh" meint beim Drucken
+         nicht die Seitenhoehe, dadurch wurden Bilder abgeschnitten.
+         A4 hoch = 29,7 cm, abzueglich 2 x 1,4 cm Rand = 26,9 cm. */
+      .kyc-print-page {
+        display:flex !important; flex-direction:column;
+        height:26.4cm; max-height:26.4cm; box-sizing:border-box;
+        page-break-before:always; page-break-inside:avoid; break-inside:avoid;
+        overflow:hidden;
+      }
+      .kyc-print-t {
+        flex-shrink:0; font-size:11pt; font-weight:700; color:#0F1715;
+        padding-bottom:7px; margin-bottom:10px; border-bottom:2px solid #16A34A;
+      }
+      /* Rahmen fuellt den verbleibenden Platz, das Bild passt sich ein */
+      .kyc-print-rahmen {
+        flex:1 1 auto; min-height:0;
+        display:flex; align-items:center; justify-content:center;
+        border:1px solid #C7D2CC; border-radius:5px; padding:0.5cm; background:#fff;
+        overflow:hidden;
+      }
+      .kyc-print-img {
+        display:block; max-width:100%; max-height:100%;
+        width:auto; height:auto; object-fit:contain;
+      }
+      .kyc-print-fuss { flex-shrink:0; margin-top:9px; font-size:8pt; color:#6B7280; }
+      .kyc-print-haft { flex-shrink:0; }
+      .kyc-print-fehlt {
+        flex:1 1 auto; display:flex; align-items:center; justify-content:center;
+        border:1px dashed #C7D2CC; border-radius:5px; font-size:10pt; color:#6B7280;
+        text-align:center; padding:1cm;
+      }
+      /* Querformat: Seite ist niedriger */
+      @media (orientation: landscape) {
+        .kyc-print-page { height:17.5cm; max-height:17.5cm; }
+      }
     }
     .plan-gate { position:fixed; inset:0; z-index:9990; display:flex; align-items:flex-start; justify-content:center; overflow:auto; padding:48px 22px;
       background:
@@ -1956,6 +1989,576 @@
     /* Sanfter Auftritt für Overlays statt hartem Aufploppen */
     .auth-card, .plan-wrap { animation: premiumIn .45s cubic-bezier(.16,1,.3,1); }
     #authGate, .ob-gate, .plan-gate { animation: fadeIn .3s ease; }
+
+    /* ===== Neu bewerten: klareres Symbol, ruhiger Ladezustand ===== */
+    .bearb-btn { gap:9px; }
+    .bearb-btn .bearb-refresh { flex-shrink:0; transition:transform .5s cubic-bezier(.2,.7,.2,1); }
+    .bearb-btn:hover:not(:disabled) .bearb-refresh { transform:rotate(-180deg); }
+    .bearb-btn:disabled {
+      opacity:1 !important; cursor:not-allowed;
+      background:#EDF1F6 !important; color:#94A3B2 !important; box-shadow:none !important;
+    }
+    .bearb-btn:disabled .bearb-refresh { opacity:.55; }
+    .bearb-btn.laedt {
+      opacity:1 !important; cursor:wait;
+      background:linear-gradient(135deg,#1E4E8C,#2E6FBF) !important; color:#fff !important;
+      box-shadow:0 8px 20px -10px rgba(30,78,140,.7) !important;
+    }
+    .bearb-spin {
+      display:inline-block; width:15px; height:15px; flex-shrink:0;
+      border:2.2px solid rgba(255,255,255,.32); border-top-color:#fff;
+      border-radius:50%; animation:bsDreh .75s linear infinite;
+    }
+    .bearb-label { white-space:nowrap; }
+    @media (prefers-reduced-motion: reduce) {
+      .bearb-btn .bearb-refresh { transition:none; }
+      .bearb-btn:hover:not(:disabled) .bearb-refresh { transform:none; }
+      .bearb-spin { animation:none; border-top-color:rgba(255,255,255,.75); }
+    }
+
+    /* ===== Beweismittel: eigene Aufnahmen ===== */
+    .evidence-eigen { margin-top:12px; }
+    .ev-eigen-kachel { position:relative; opacity:0;
+      animation:evEigenIn .4s cubic-bezier(.2,.7,.2,1) var(--ed,0s) both; }
+    @keyframes evEigenIn { from { opacity:0; transform:scale(.94); } to { opacity:1; transform:none; } }
+    .ev-eigen-kachel .evidence-thumb { width:100%; height:100%; }
+    .ev-eigen-pdf { display:flex; align-items:center; justify-content:center;
+      background:#0d1d16; color:#6EE7B7; font-weight:800; font-size:13px; letter-spacing:.06em; }
+    .ev-eigen-nr { position:absolute; left:7px; bottom:7px; z-index:2;
+      font-size:10px; font-weight:800; color:#fff; background:rgba(10,22,17,.72);
+      border-radius:999px; padding:2px 8px; pointer-events:none; }
+    .ev-eigen-x { position:absolute; top:6px; right:6px; z-index:3;
+      width:26px; height:26px; border-radius:50%; border:none; cursor:pointer;
+      background:rgba(10,22,17,.75); color:#fff;
+      display:flex; align-items:center; justify-content:center;
+      transition:background .16s, transform .16s; }
+    .ev-eigen-x:hover { background:#DC2626; transform:scale(1.1); }
+    .ev-eigen-tools { display:flex; gap:9px; flex-wrap:wrap; padding:13px 16px;
+      background:var(--card,#fff); border-top:1px solid var(--border2,#EDF0F2); }
+    .ev-eigen-add { display:inline-flex; align-items:center; gap:7px;
+      padding:10px 16px; border-radius:11px; cursor:pointer; font-family:inherit;
+      font-size:12.5px; font-weight:700; color:var(--green-d,#16A34A);
+      background:var(--green-pale,#EAF9F0); border:1.5px dashed rgba(34,197,94,.45);
+      transition:all .18s; }
+    .ev-eigen-add:hover { border-style:solid; transform:translateY(-1px);
+      box-shadow:0 8px 18px -10px rgba(34,197,94,.6); }
+    .ev-eigen-add:active { transform:translateY(0) scale(.97); }
+    .ev-eigen-cam { background:var(--neutral,#F6F8F9); color:var(--gray,#5A6670);
+      border-color:var(--border,#E2E6E9); }
+    .ev-eigen-cam:hover { color:var(--green-d,#16A34A); border-color:rgba(34,197,94,.45); }
+    .ev-eigen-hinweis { padding:13px 16px; font-size:12px; color:var(--gray,#5A6670);
+      background:var(--card,#fff); border-top:1px solid var(--border2,#EDF0F2);
+      display:flex; align-items:center; gap:9px; }
+    .ev-eigen-spin { display:inline-block; width:13px; height:13px; flex-shrink:0;
+      border:2px solid rgba(34,197,94,.28); border-top-color:#16A34A;
+      border-radius:50%; animation:bsDreh .75s linear infinite; }
+    @media (max-width:760px) {
+      .ev-eigen-tools { flex-direction:column; }
+      .ev-eigen-add { width:100%; justify-content:center; box-sizing:border-box; }
+    }
+    @media print {
+      .ev-eigen-tools, .ev-eigen-hinweis, .ev-eigen-x { display:none !important; }
+      .ev-eigen-kachel { opacity:1 !important; animation:none !important; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .ev-eigen-kachel { opacity:1 !important; transform:none !important; animation:none !important; }
+      .ev-eigen-spin { animation:none; }
+    }
+
+    :root {
+      --ico-chat:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.1' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21 11.5a8.4 8.4 0 0 1-9 8.4 8.6 8.6 0 0 1-3.9-.9L3 21l1.9-5A8.4 8.4 0 0 1 12 3.1a8.4 8.4 0 0 1 9 8.4z'/%3E%3C/svg%3E");
+      --ico-x:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.6' stroke-linecap='round'%3E%3Cpath d='M18 6 6 18M6 6l12 12'/%3E%3C/svg%3E");
+    }
+
+    /* ============================================================
+       SUPPORT-CHAT
+       Farben aus dem Tool: Markengruen #359651, dunkle Flaechen wie in
+       den Premium-Abschnitten. Bewusst zurueckhaltend - das Werkzeug
+       ist ein Compliance-Produkt, kein Spielzeug.
+       ============================================================ */
+    :root {
+      --cc-gruen:#359651;
+      --cc-gruen-d:#2E8749;
+      --cc-gruen-t:#EDF5F0;
+      --cc-dunkel:#0E1A14;
+      --cc-rand:#E4EBE7;
+    }
+
+    /* ---------- Knopf unten rechts ---------- */
+    .help-btn {
+      background:linear-gradient(145deg,#3FA45C,#2E8749) !important;
+      box-shadow:0 10px 26px -10px rgba(46,135,73,.75), 0 1px 0 rgba(255,255,255,.22) inset !important;
+      display:flex; align-items:center; justify-content:center; font-size:0 !important;
+      transition:transform .26s cubic-bezier(.2,.8,.3,1.2), box-shadow .26s, background .26s !important;
+    }
+    .help-btn::before {
+      content:''; width:19px; height:19px; display:block;
+      background:currentColor; transition:transform .3s cubic-bezier(.2,.8,.3,1.3), opacity .2s;
+      -webkit-mask:var(--ico-chat) center/contain no-repeat; mask:var(--ico-chat) center/contain no-repeat;
+    }
+    .help-btn.offen::before {
+      -webkit-mask:var(--ico-x) center/contain no-repeat; mask:var(--ico-x) center/contain no-repeat;
+      transform:rotate(90deg);
+    }
+    .help-btn:hover { transform:translateY(-2px) scale(1.05); }
+    .help-btn:active { transform:translateY(0) scale(.94); }
+    .help-btn.offen { background:linear-gradient(145deg,#1F3227,#15241B) !important;
+      box-shadow:0 10px 26px -12px rgba(10,22,17,.8) !important; }
+
+    /* ---------- Fenster ---------- */
+    .chat-backdrop { position:fixed; inset:0; z-index:10000; background:rgba(10,22,17,.42);
+      backdrop-filter:blur(2px); -webkit-backdrop-filter:blur(2px);
+      opacity:0; pointer-events:none; transition:opacity .28s ease; }
+    .chat-backdrop.an { opacity:1; pointer-events:auto; }
+
+    .help-pop {
+      width:min(392px, calc(100vw - 32px)); padding:0; overflow:hidden;
+      display:flex; flex-direction:column;
+      height:min(600px, calc(100vh - 108px)); max-height:calc(100vh - 108px);
+      background:#fff; border:1px solid var(--cc-rand); border-radius:20px;
+      box-shadow:0 2px 6px rgba(10,22,17,.05), 0 28px 68px -24px rgba(10,22,17,.42);
+      transform-origin:bottom right;
+      opacity:0; transform:translateY(16px) scale(.94);
+    }
+    .help-pop[style*="display: block"], .help-pop[style*="display:block"] { display:flex !important; }
+    .help-pop.pop-in  { animation:chatAuf .38s cubic-bezier(.2,.86,.3,1.06) forwards; }
+    .help-pop.pop-out { animation:chatZu .24s cubic-bezier(.4,0,.7,.2) forwards; }
+    @keyframes chatAuf {
+      from { opacity:0; transform:translateY(16px) scale(.94); }
+      to   { opacity:1; transform:translateY(0) scale(1); }
+    }
+    @keyframes chatZu {
+      from { opacity:1; transform:translateY(0) scale(1); }
+      to   { opacity:0; transform:translateY(12px) scale(.95); }
+    }
+
+    /* ---------- Kopfzeile ---------- */
+    .chat-kopf { position:relative; display:flex; align-items:center; gap:11px;
+      padding:15px 14px 15px 16px; flex-shrink:0; color:#fff; overflow:hidden;
+      background:
+        radial-gradient(420px 150px at 88% -30%, rgba(53,150,81,.34), transparent 66%),
+        linear-gradient(140deg, #14251B 0%, #0E1A14 100%);
+    }
+    .chat-kopf::after { content:''; position:absolute; left:0; right:0; bottom:0; height:2px;
+      background:linear-gradient(90deg, var(--cc-gruen), rgba(53,150,81,.15) 62%, transparent); }
+    .chat-avatar { width:36px; height:36px; border-radius:12px; flex-shrink:0;
+      display:flex; align-items:center; justify-content:center; color:#8FE0AB;
+      background:linear-gradient(145deg, rgba(53,150,81,.34), rgba(53,150,81,.14));
+      border:1px solid rgba(143,224,171,.28); }
+    .chat-kopf-txt { flex:1; min-width:0; }
+    .chat-t { font-size:13.5px; font-weight:700; letter-spacing:-.01em; }
+    .chat-sub { display:flex; align-items:center; gap:6px; font-size:11px; font-weight:500;
+      color:#9CBAA8; margin-top:2px; }
+    .chat-punkt { width:6px; height:6px; border-radius:50%; background:#4ADE80; flex-shrink:0;
+      box-shadow:0 0 0 0 rgba(74,222,128,.6); animation:chatPuls 2.4s ease-in-out infinite; }
+    @keyframes chatPuls { 0%,100% { box-shadow:0 0 0 0 rgba(74,222,128,.55); } 50% { box-shadow:0 0 0 5px rgba(74,222,128,0); } }
+    .chat-kopf-btn { width:30px; height:30px; border-radius:9px; border:none; cursor:pointer; flex-shrink:0;
+      background:rgba(255,255,255,.08); color:#CFE3D7;
+      display:flex; align-items:center; justify-content:center;
+      transition:background .16s, color .16s, transform .2s; }
+    .chat-kopf-btn:hover { background:rgba(255,255,255,.17); color:#fff; }
+    .chat-kopf-btn:active { transform:scale(.9); }
+    .chat-zu:hover { transform:rotate(90deg); }
+
+    /* ---------- Einwilligung vor dem ersten Chat ---------- */
+    .chat-tor { flex:1 1 auto; min-height:0; overflow-y:auto; overscroll-behavior:contain;
+      display:flex; flex-direction:column; align-items:flex-start;
+      padding:24px 22px; background:#fff;
+      animation:chatIn .4s cubic-bezier(.2,.8,.3,1) both; }
+    .chat-tor-ico { width:46px; height:46px; border-radius:14px; flex-shrink:0;
+      display:flex; align-items:center; justify-content:center; color:var(--cc-gruen-d);
+      background:var(--cc-gruen-t); border:1px solid rgba(53,150,81,.2); margin-bottom:15px; }
+    .chat-tor-t { font-size:15px; font-weight:800; color:#12211A; letter-spacing:-.01em; margin-bottom:7px; }
+    .chat-tor-txt { font-size:12.3px; line-height:1.68; color:#5A6B62; margin-bottom:13px; }
+    .chat-tor-txt b { color:#1B2C23; font-weight:700; }
+    .chat-tor-warn { display:flex; align-items:flex-start; gap:8px; width:100%; box-sizing:border-box;
+      background:#FFF8EC; border:1px solid #F5E0B9; border-radius:10px;
+      padding:10px 12px; font-size:11.3px; line-height:1.55; color:#8A6420; margin-bottom:18px; }
+    .chat-tor-warn svg { flex-shrink:0; margin-top:1px; color:#C98A16; }
+
+    .chat-tor-box { display:flex; align-items:flex-start; gap:10px; width:100%; box-sizing:border-box;
+      cursor:pointer; padding:12px; border:1.5px solid var(--cc-rand); border-radius:12px;
+      background:#FAFCFB; margin-bottom:14px;
+      transition:border-color .18s, background .18s; }
+    .chat-tor-box:hover { border-color:rgba(53,150,81,.4); background:#fff; }
+    .chat-tor-box input { position:absolute; opacity:0; width:0; height:0; }
+    .chat-haken { width:19px; height:19px; flex-shrink:0; margin-top:1px; border-radius:6px;
+      border:1.8px solid #C2CEC7; background:#fff; color:#fff;
+      display:flex; align-items:center; justify-content:center;
+      transition:background .18s, border-color .18s, transform .18s; }
+    .chat-haken svg { opacity:0; transform:scale(.5); transition:opacity .18s, transform .22s cubic-bezier(.2,.8,.3,1.4); }
+    .chat-tor-box input:checked ~ .chat-haken { background:var(--cc-gruen); border-color:var(--cc-gruen); }
+    .chat-tor-box input:checked ~ .chat-haken svg { opacity:1; transform:scale(1); }
+    .chat-tor-box input:focus-visible ~ .chat-haken { box-shadow:0 0 0 3px rgba(53,150,81,.22); }
+    .chat-tor-label { font-size:11.8px; line-height:1.6; color:#2A3B33; }
+    .chat-tor-label a { color:var(--cc-gruen-d); font-weight:700; text-decoration:underline; cursor:pointer; }
+
+    .chat-tor-btn { display:flex; align-items:center; justify-content:center; gap:8px;
+      width:100%; box-sizing:border-box; padding:13px; border:none; border-radius:12px;
+      font-family:inherit; font-size:13px; font-weight:700; color:#fff; cursor:pointer;
+      background:linear-gradient(145deg,#3FA45C,#2E8749);
+      box-shadow:0 10px 22px -12px rgba(46,135,73,.85);
+      transition:transform .2s cubic-bezier(.2,.8,.3,1.2), filter .2s, background .2s, box-shadow .2s; }
+    .chat-tor-btn svg { transition:transform .2s; }
+    .chat-tor-btn:hover:not(:disabled) { transform:translateY(-2px); filter:brightness(1.06); }
+    .chat-tor-btn:hover:not(:disabled) svg { transform:translateX(3px); }
+    .chat-tor-btn:active:not(:disabled) { transform:translateY(0) scale(.98); }
+    .chat-tor-btn:disabled { background:#E4EBE7; color:#A3B1A9; box-shadow:none; cursor:not-allowed; }
+    .chat-tor-fuss { width:100%; text-align:center; font-size:10.3px; color:#A3B1A9; margin-top:10px; }
+    /* Solange die Einwilligung fehlt, ist das Eingabefeld gesperrt */
+    .help-pop.tor-offen .chat-eingabe { opacity:.45; pointer-events:none; filter:grayscale(.4); }
+    @media (max-width:760px) {
+      .chat-tor { padding:22px 18px 28px; }
+      .chat-tor-label { font-size:12.5px; }
+      .chat-tor-btn { padding:15px; font-size:14px; }
+    }
+
+    /* ---------- Verlauf ---------- */
+    .chat-verlauf { flex:1 1 auto; min-height:0; overflow-y:auto; overflow-x:hidden;
+      -webkit-overflow-scrolling:touch; overscroll-behavior:contain; scrollbar-width:thin;
+      padding:16px 14px 18px; display:flex; flex-direction:column; gap:3px;
+      background:
+        radial-gradient(rgba(14,26,20,.028) 1px, transparent 1.3px) 0 0/22px 22px,
+        linear-gradient(180deg,#FAFCFB,#F6F9F7); }
+    .chat-verlauf::-webkit-scrollbar { width:9px; }
+    .chat-verlauf::-webkit-scrollbar-thumb { background:#D2DCD6; border-radius:99px;
+      border:3px solid transparent; background-clip:padding-box; }
+    .chat-verlauf::-webkit-scrollbar-thumb:hover { background:#B3C1B9; background-clip:padding-box; }
+
+    /* ---------- Nachrichten ---------- */
+    .chat-reihe { display:flex; gap:9px; align-items:flex-end; margin-top:9px; }
+    .chat-reihe.ist-ich { flex-direction:row-reverse; }
+    .chat-stapel { display:flex; flex-direction:column; align-items:flex-start; max-width:84%; min-width:0; }
+    .chat-reihe.ist-ich .chat-stapel { align-items:flex-end; }
+    .chat-stapel .chat-blase { max-width:100%; }
+    .chat-meta { display:flex; align-items:center; gap:6px; height:18px; padding:0 3px;
+      opacity:0; transform:translateY(-2px); transition:opacity .2s, transform .2s; }
+    .chat-reihe:hover .chat-meta { opacity:1; transform:none; }
+    /* Nur die neueste Nachricht wird eingeblendet - alle anderen stehen still */
+    .chat-frisch .chat-blase { animation:chatIn .4s cubic-bezier(.2,.8,.3,1) both; }
+    .chat-frisch .chat-mini { animation:chatIn .4s cubic-bezier(.2,.8,.3,1) both; }
+    .chat-mini { width:26px; height:26px; border-radius:9px; flex-shrink:0; margin-bottom:2px;
+      display:flex; align-items:center; justify-content:center; color:#8FE0AB;
+      background:linear-gradient(145deg,#14251B,#0E1A14); }
+    .chat-mini.leer { background:none; }
+    .chat-blase { max-width:84%; padding:11px 14px; font-size:12.8px; line-height:1.62;
+      word-break:break-word; position:relative; }
+    @keyframes chatIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:none; } }
+    .chat-bot { background:#fff; color:#1B2C23; border:1px solid var(--cc-rand);
+      border-radius:14px 14px 14px 4px; box-shadow:0 1px 3px rgba(10,22,17,.05); }
+    .chat-ich { background:var(--cc-gruen); color:#fff; border-radius:14px 14px 4px 14px;
+      box-shadow:0 4px 12px -6px rgba(46,135,73,.5); }
+    .chat-start { max-width:100%; }
+
+    .chat-zeit { font-size:9.5px; color:#A3B1A9; }
+    .chat-kopier { display:inline-flex; align-items:center; gap:4px; height:18px;
+      padding:0 7px; border:none; border-radius:6px; background:transparent;
+      color:#8A9A91; font-family:inherit; font-size:9.5px; font-weight:700; cursor:pointer;
+      transition:background .16s, color .16s; }
+    .chat-kopier:hover { background:var(--cc-gruen-t); color:var(--cc-gruen-d); }
+    .chat-kopier.fertig { color:var(--cc-gruen-d); }
+
+    /* ---------- Vorschlaege ---------- */
+    .chat-chips { display:flex; flex-direction:column; gap:7px; margin-top:12px; }
+    .chat-chip { display:flex; align-items:center; justify-content:space-between; gap:10px;
+      font-size:12px; font-weight:600; color:#2A3B33; text-align:left;
+      background:#fff; border:1px solid var(--cc-rand); border-radius:11px;
+      padding:11px 13px; cursor:pointer; font-family:inherit;
+      box-shadow:0 1px 3px rgba(10,22,17,.04);
+      transition:border-color .18s, transform .18s, box-shadow .18s, color .18s; }
+    .chat-chips.chat-frisch .chat-chip { opacity:0; animation:chatIn .4s cubic-bezier(.2,.8,.3,1) var(--cd,0s) both; }
+    .chat-chip svg { flex-shrink:0; color:#C2CEC7; transition:color .18s, transform .18s; }
+    .chat-chip:hover { border-color:rgba(53,150,81,.45); color:var(--cc-gruen-d);
+      transform:translateX(3px); box-shadow:0 6px 16px -10px rgba(10,22,17,.35); }
+    .chat-chip:hover svg { color:var(--cc-gruen); transform:translateX(2px); }
+    .chat-chip:active { transform:translateX(1px) scale(.99); }
+
+    /* ---------- Schreibt gerade ---------- */
+    .chat-tippt { display:flex; gap:4px; align-items:center; padding:14px 15px; }
+    .chat-tippt span { width:6px; height:6px; border-radius:50%; background:#B7C4BC;
+      animation:chatTippt 1.3s ease-in-out infinite; }
+    .chat-tippt span:nth-child(2) { animation-delay:.16s; }
+    .chat-tippt span:nth-child(3) { animation-delay:.32s; }
+    @keyframes chatTippt { 0%,100% { opacity:.35; transform:translateY(0); } 50% { opacity:1; transform:translateY(-3px); } }
+    .chat-schreibt { animation:none; }
+    .chat-cursor { display:inline-block; width:2px; height:1em; margin-left:2px;
+      vertical-align:-2px; background:var(--cc-gruen); border-radius:1px;
+      animation:chatCursor 1s steps(2,start) infinite; }
+    @keyframes chatCursor { 0%,100% { opacity:1; } 50% { opacity:0; } }
+
+    /* ---------- Nach unten springen ---------- */
+    .chat-runter { position:absolute; right:14px; bottom:96px; z-index:3;
+      width:32px; height:32px; border-radius:50%; border:1px solid var(--cc-rand);
+      background:#fff; color:#5A6B62; cursor:pointer;
+      display:flex; align-items:center; justify-content:center;
+      box-shadow:0 6px 16px -8px rgba(10,22,17,.35);
+      opacity:0; transform:translateY(8px) scale(.9); pointer-events:none;
+      transition:all .26s cubic-bezier(.2,.8,.3,1.1); }
+    .chat-runter.an { opacity:1; transform:none; pointer-events:auto; }
+    .chat-runter:hover { color:var(--cc-gruen-d); border-color:rgba(53,150,81,.45); }
+
+    /* ---------- Eingabe ---------- */
+    .chat-eingabe { display:flex; gap:9px; align-items:flex-end; padding:12px;
+      background:#fff; border-top:1px solid var(--cc-rand); flex-shrink:0; }
+    .chat-feld-wrap { flex:1; min-width:0; position:relative; }
+    .chat-feld { width:100%; box-sizing:border-box; resize:none;
+      border:1.5px solid var(--cc-rand); border-radius:12px; padding:11px 13px;
+      font-family:inherit; font-size:13px; line-height:1.5; color:#1B2C23;
+      background:#FAFCFB; outline:none; max-height:112px; overflow-y:auto;
+      transition:border-color .2s, box-shadow .2s, background .2s; }
+    .chat-feld::placeholder { color:#A3B1A9; }
+    .chat-feld:focus { border-color:var(--cc-gruen); background:#fff;
+      box-shadow:0 0 0 3px rgba(53,150,81,.13); }
+    .chat-zaehler { position:absolute; right:10px; bottom:-15px; font-size:9.5px;
+      color:#B7C4BC; opacity:0; transition:opacity .2s; }
+    .chat-zaehler.an { opacity:1; }
+    .chat-zaehler.voll { color:#D97706; font-weight:700; }
+    .chat-senden { width:42px; height:42px; flex-shrink:0; border:none; border-radius:12px;
+      cursor:pointer; background:linear-gradient(145deg,#3FA45C,#2E8749); color:#fff;
+      display:flex; align-items:center; justify-content:center;
+      box-shadow:0 8px 18px -10px rgba(46,135,73,.8);
+      transition:transform .2s cubic-bezier(.2,.8,.3,1.2), filter .2s, background .2s; }
+    .chat-senden:hover:not(:disabled) { transform:translateY(-2px); filter:brightness(1.07); }
+    .chat-senden:active:not(:disabled) { transform:translateY(0) scale(.92); }
+    .chat-senden:disabled { background:#DCE4DF; color:#A3B1A9; box-shadow:none; cursor:not-allowed; }
+    .chat-senden.laedt { cursor:wait; }
+    .chat-senden.laedt svg { animation:chatSendPuls 1.1s ease-in-out infinite; }
+    @keyframes chatSendPuls { 0%,100% { opacity:.45; } 50% { opacity:1; } }
+
+    /* ---------- Fusszeile ---------- */
+    .chat-fuss { display:flex; align-items:center; justify-content:space-between; gap:8px;
+      padding:9px 15px; background:#F6F9F7; border-top:1px solid var(--cc-rand);
+      font-size:10px; color:#7D8C84; flex-shrink:0; }
+    .chat-fuss a { color:var(--cc-gruen-d); font-weight:700; text-decoration:none; cursor:pointer; }
+    .chat-fuss a:hover { text-decoration:underline; }
+    .chat-fuss-ds { flex-shrink:0; }
+    .chat-griff { display:none; }
+
+    /* ============================================================
+       MOBIL: von unten einfahrendes Blatt
+       ============================================================ */
+    @media (max-width:760px) {
+      .help-pop {
+        left:0; right:0; bottom:0; top:auto; width:100%;
+        height:min(88dvh, 720px); max-height:88dvh;
+        border-radius:22px 22px 0 0; border-left:none; border-right:none; border-bottom:none;
+        transform-origin:bottom center;
+        padding-bottom:env(safe-area-inset-bottom, 0px);
+        box-shadow:0 -12px 48px -12px rgba(10,22,17,.42);
+      }
+      .help-pop.pop-in  { animation:chatAufM .4s cubic-bezier(.2,.86,.3,1.04) forwards; }
+      .help-pop.pop-out { animation:chatZuM .26s cubic-bezier(.4,0,.7,.2) forwards; }
+      @keyframes chatAufM { from { opacity:.4; transform:translateY(100%); } to { opacity:1; transform:translateY(0); } }
+      @keyframes chatZuM  { from { opacity:1; transform:translateY(0); } to { opacity:0; transform:translateY(100%); } }
+
+      .chat-griff { display:block; width:38px; height:4px; border-radius:99px;
+        background:rgba(255,255,255,.28); margin:9px auto -4px;
+        position:relative; z-index:2; flex-shrink:0; }
+      .chat-kopf { padding:13px 13px 15px 15px; }
+      .chat-verlauf { padding:16px 13px 20px; }
+      .chat-blase { max-width:88%; font-size:13.5px; padding:12px 15px; }
+      .chat-feld { font-size:16px; }          /* verhindert das Zoomen auf iPhones */
+      .chat-senden { width:46px; height:46px; }
+      .chat-meta { opacity:1; transform:none; }          /* am Handy gibt es kein Hover */
+      .chat-runter { bottom:104px; }
+      .chat-fuss { font-size:10.5px; padding:10px 15px; }
+      .help-btn { bottom:18px; right:18px; width:52px; height:52px; }
+      .help-btn::before { width:22px; height:22px; }
+    }
+    @media (max-width:380px) {
+      .chat-t { font-size:12.5px; }
+      .chat-sub { font-size:10px; }
+      .chat-avatar { width:32px; height:32px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .help-pop, .chat-blase, .chat-chip, .chat-ds, .chat-mini, .chat-meta { animation:none !important;
+        opacity:1 !important; transform:none !important; }
+      .chat-punkt, .chat-tippt span, .chat-cursor, .chat-senden.laedt svg { animation:none; }
+      .help-btn::before { transition:none; }
+    }
+    @media print { .chat-backdrop { display:none !important; } }
+
+    /* ===== Dokumente & Nachweise ===== */
+    .beleg-liste { display:flex; flex-direction:column; }
+    .beleg-zeile { display:flex; align-items:center; gap:11px; padding:11px 16px;
+      border-bottom:1px solid var(--border2,#EDF0F2); background:var(--card,#fff);
+      opacity:0; animation:belegIn .38s cubic-bezier(.2,.8,.3,1) var(--bd,0s) both; }
+    @keyframes belegIn { from { opacity:0; transform:translateY(5px); } to { opacity:1; transform:none; } }
+    .beleg-zeile:last-child { border-bottom:none; }
+    .beleg-ico { width:32px; height:32px; border-radius:9px; flex-shrink:0;
+      display:flex; align-items:center; justify-content:center;
+      background:var(--neutral,#F6F8F9); color:var(--gray,#5A6670);
+      border:1px solid var(--border,#E2E6E9); }
+    .beleg-ico.ist-pdf { background:#FDECEC; color:#C0392B; border-color:#F5C9C4; }
+    .beleg-txt { flex:1; min-width:0; display:flex; flex-direction:column; gap:1px; }
+    .beleg-name { font-size:12.5px; font-weight:600; color:var(--ink2,#1F2937);
+      overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .beleg-sub { font-size:10.5px; color:var(--gray-l,#8A949D); font-weight:600;
+      letter-spacing:.03em; }
+    .beleg-btn { width:28px; height:28px; flex-shrink:0; border:none; border-radius:8px; cursor:pointer;
+      background:var(--neutral,#F6F8F9); color:var(--gray,#5A6670);
+      display:flex; align-items:center; justify-content:center; text-decoration:none;
+      transition:background .16s, color .16s, transform .16s; }
+    .beleg-btn:hover { background:#E8EEEA; color:#2E8749; transform:translateY(-1px); }
+    .beleg-weg:hover { background:#FDECEC; color:#C0392B; }
+    .beleg-leer { padding:18px 16px; text-align:center; font-size:12px;
+      color:var(--gray-l,#8A949D); background:var(--card,#fff); }
+    @media print {
+      .beleg-btn { display:none !important; }
+      .beleg-zeile { opacity:1 !important; animation:none !important; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .beleg-zeile { opacity:1 !important; transform:none !important; animation:none !important; }
+    }
+
+    /* ===== Verantwortung fuer manuelle Angaben ===== */
+    .bearb-haft { display:block; margin-top:6px; font-size:10.5px; line-height:1.55;
+      color:var(--gray,#5A6670); opacity:.9; max-width:560px; }
+    .manuell-haft { margin:14px 0 0; padding:14px 16px; border-radius:12px;
+      background:#FFFBF2; border:1px solid #F0DFBD; border-left:3px solid #D9A441; }
+    .manuell-haft-t { display:flex; align-items:center; gap:7px;
+      font-size:11px; font-weight:800; letter-spacing:.05em; text-transform:uppercase;
+      color:#8A6420; margin-bottom:7px; }
+    .manuell-haft-t svg { flex-shrink:0; }
+    .manuell-haft-txt { font-size:11.5px; line-height:1.7; color:#6B5624; }
+    @media print {
+      .manuell-haft { break-inside:avoid; page-break-inside:avoid;
+        background:#FFFBF2 !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+      .bearb-haft { display:none !important; }
+    }
+
+    /* ============================================================
+       STARTSEITE: Mini-Demo
+       ============================================================ */
+    .dm-sec { padding-top:44px; }
+    .dm-kopf { text-align:center; max-width:720px; margin:0 auto 30px; }
+    .dm-box { display:grid; grid-template-columns:290px 1fr; gap:22px;
+      max-width:1060px; margin:0 auto; align-items:start; }
+
+    .dm-links { background:#fff; border:1px solid #E4EBE7; border-radius:16px; padding:18px;
+      box-shadow:0 2px 6px rgba(10,22,17,.04); }
+    .dm-label { font-size:10.5px; font-weight:800; letter-spacing:.07em; text-transform:uppercase;
+      color:#8A9A91; margin-bottom:11px; }
+    .dm-wahl { display:flex; flex-direction:column; gap:8px; margin-bottom:15px; }
+    .dm-firma { display:flex; align-items:flex-start; gap:10px; text-align:left; cursor:pointer;
+      background:#FAFCFB; border:1.5px solid #E4EBE7; border-radius:12px; padding:11px 12px;
+      font-family:inherit; transition:border-color .18s, background .18s, transform .18s; }
+    .dm-firma:hover { border-color:rgba(53,150,81,.4); background:#fff; transform:translateX(2px); }
+    .dm-firma.aktiv { border-color:#359651; background:#EDF5F0; }
+    .dm-flagge { font-size:17px; line-height:1.25; flex-shrink:0; }
+    .dm-firma-txt { min-width:0; }
+    .dm-firma-n { font-size:12.5px; font-weight:700; color:#1B2C23; line-height:1.35; }
+    .dm-firma-s { font-size:10.5px; color:#7D8C84; margin-top:2px; }
+    .dm-start { display:flex; align-items:center; justify-content:center; gap:8px; width:100%;
+      box-sizing:border-box; padding:13px; border:none; border-radius:12px; cursor:pointer;
+      font-family:inherit; font-size:13px; font-weight:700; color:#fff;
+      background:linear-gradient(145deg,#3FA45C,#2E8749);
+      box-shadow:0 10px 22px -12px rgba(46,135,73,.85);
+      transition:transform .2s cubic-bezier(.2,.8,.3,1.2), filter .2s; }
+    .dm-start:hover:not(:disabled) { transform:translateY(-2px); filter:brightness(1.06); }
+    .dm-start:active:not(:disabled) { transform:translateY(0) scale(.98); }
+    .dm-start:disabled { background:#E4EBE7; color:#A3B1A9; box-shadow:none; cursor:wait; }
+    .dm-fuss { font-size:9.8px; line-height:1.55; color:#A3B1A9; margin-top:11px; }
+
+    .dm-fenster { background:#fff; border:1px solid #E4EBE7; border-radius:16px; overflow:hidden;
+      box-shadow:0 20px 48px -28px rgba(10,22,17,.42); }
+    .dm-leiste { display:flex; align-items:center; gap:6px; padding:10px 14px;
+      background:#F6F9F7; border-bottom:1px solid #E4EBE7; }
+    .dm-punkt { width:9px; height:9px; border-radius:50%; background:#D6DEDA; flex-shrink:0; }
+    .dm-adresse { margin-left:9px; font-size:10.5px; color:#8A9A91; font-weight:600; }
+    .dm-inhalt { min-height:352px; padding:20px; position:relative; }
+
+    .dm-ruhe { display:flex; flex-direction:column; align-items:center; justify-content:center;
+      text-align:center; min-height:312px; color:#8A9A91; }
+    .dm-ruhe-ico { width:56px; height:56px; border-radius:17px; margin-bottom:14px;
+      display:flex; align-items:center; justify-content:center;
+      background:#EDF5F0; color:#359651; border:1px solid rgba(53,150,81,.2); }
+    .dm-ruhe-t { font-size:14px; font-weight:700; color:#1B2C23; }
+    .dm-ruhe-s { font-size:12px; margin-top:5px; }
+
+    /* ----- Ablauf ----- */
+    .dm-lauf { display:flex; flex-direction:column; gap:3px; }
+    .dm-schritt { display:flex; align-items:center; gap:11px; padding:9px 4px;
+      font-size:12.3px; color:#A3B1A9; opacity:0;
+      animation:dmIn .4s cubic-bezier(.2,.8,.3,1) var(--dd,0s) both; }
+    @keyframes dmIn { from { opacity:0; transform:translateX(-7px); } to { opacity:1; transform:none; } }
+    .dm-schritt.laeuft { color:#1B2C23; font-weight:600; }
+    .dm-schritt.fertig { color:#5A6B62; }
+    .dm-s-ico { width:21px; height:21px; border-radius:50%; flex-shrink:0;
+      display:flex; align-items:center; justify-content:center;
+      background:#F0F4F2; color:#B7C4BC; transition:background .3s, color .3s; }
+    .dm-schritt.laeuft .dm-s-ico { background:#EDF5F0; color:#359651; }
+    .dm-schritt.fertig .dm-s-ico { background:#359651; color:#fff; }
+    .dm-s-dreh { width:11px; height:11px; border:2px solid rgba(53,150,81,.3);
+      border-top-color:#359651; border-radius:50%; animation:dmDreh .7s linear infinite; }
+    @keyframes dmDreh { to { transform:rotate(360deg); } }
+    .dm-s-quelle { margin-left:auto; font-size:10px; color:#B7C4BC; font-weight:600; }
+
+    /* ----- Bericht ----- */
+    .dm-bericht { animation:dmAuf .5s cubic-bezier(.2,.8,.3,1) both; }
+    @keyframes dmAuf { from { opacity:0; transform:translateY(9px); } to { opacity:1; transform:none; } }
+    .dm-b-kopf { display:flex; align-items:flex-start; gap:14px; padding-bottom:15px;
+      border-bottom:1px solid #EDF0F2; margin-bottom:15px; }
+    .dm-gauge { width:74px; height:74px; flex-shrink:0; position:relative; }
+    .dm-gauge svg { transform:rotate(-90deg); }
+    .dm-gauge-ring { stroke:#EDF0F2; }
+    .dm-gauge-wert { stroke:#359651; stroke-linecap:round;
+      transition:stroke-dashoffset 1.1s cubic-bezier(.3,.9,.3,1); }
+    .dm-gauge-zahl { position:absolute; inset:0; display:flex; flex-direction:column;
+      align-items:center; justify-content:center; }
+    .dm-gauge-zahl b { font-size:21px; font-weight:800; color:#1B2C23; line-height:1; }
+    .dm-gauge-zahl span { font-size:8.5px; color:#A3B1A9; font-weight:700; }
+    .dm-b-titel { flex:1; min-width:0; }
+    .dm-b-n { font-size:14.5px; font-weight:800; color:#1B2C23; letter-spacing:-.01em; }
+    .dm-b-s { font-size:10.8px; color:#8A9A91; margin-top:3px; }
+    .dm-marke { display:inline-flex; align-items:center; gap:5px; margin-top:8px;
+      padding:4px 10px; border-radius:999px; font-size:10.5px; font-weight:700; }
+    .dm-marke.gut { background:#EDF5F0; color:#2E8749; }
+    .dm-marke.mittel { background:#FFF8EC; color:#B57D16; }
+    .dm-marke.schlecht { background:#FDECEC; color:#C0392B; }
+
+    .dm-kats { display:grid; grid-template-columns:repeat(auto-fit,minmax(128px,1fr)); gap:8px; margin-bottom:14px; }
+    .dm-kat { background:#FAFCFB; border:1px solid #EDF0F2; border-radius:10px; padding:9px 11px;
+      opacity:0; animation:dmIn .4s cubic-bezier(.2,.8,.3,1) var(--dd,0s) both; }
+    .dm-kat-k { font-size:9.8px; font-weight:700; color:#8A9A91; letter-spacing:.04em; text-transform:uppercase; }
+    .dm-kat-w { display:flex; align-items:baseline; gap:4px; margin-top:3px; }
+    .dm-kat-w b { font-size:17px; font-weight:800; color:#1B2C23; line-height:1; }
+    .dm-kat-w span { font-size:9.5px; color:#B7C4BC; }
+    .dm-balken { height:3px; border-radius:99px; background:#EDF0F2; margin-top:6px; overflow:hidden; }
+    .dm-balken i { display:block; height:100%; border-radius:99px; background:#359651;
+      width:0; transition:width .9s cubic-bezier(.3,.9,.3,1); }
+
+    .dm-zeilen { display:flex; flex-direction:column; gap:6px; }
+    .dm-zeile { display:flex; align-items:flex-start; gap:9px; padding:9px 11px;
+      border-radius:10px; background:#FAFCFB; border:1px solid #EDF0F2; font-size:11.5px;
+      opacity:0; animation:dmIn .4s cubic-bezier(.2,.8,.3,1) var(--dd,0s) both; }
+    .dm-zeile.warn { background:#FFF8EC; border-color:#F0DFBD; }
+    .dm-zeile.bad { background:#FDECEC; border-color:#F5C9C4; }
+    .dm-z-ico { flex-shrink:0; margin-top:1px; color:#359651; }
+    .dm-zeile.warn .dm-z-ico { color:#D9A441; }
+    .dm-zeile.bad .dm-z-ico { color:#C0392B; }
+    .dm-z-txt { min-width:0; color:#2A3B33; line-height:1.6; }
+    .dm-z-txt b { color:#1B2C23; }
+
+    .dm-cta { display:flex; align-items:center; justify-content:center; gap:16px; flex-wrap:wrap;
+      max-width:1060px; margin:26px auto 0; padding-top:22px; border-top:1px solid #E4EBE7; }
+    .dm-cta span { font-size:12.5px; color:#7D8C84; }
+
+    @media (max-width:900px) {
+      .dm-box { grid-template-columns:1fr; gap:16px; }
+      .dm-wahl { flex-direction:row; flex-wrap:wrap; }
+      .dm-firma { flex:1 1 168px; }
+      .dm-inhalt { min-height:auto; padding:16px; }
+      .dm-ruhe { min-height:208px; }
+      .dm-kats { grid-template-columns:repeat(2,1fr); }
+      .dm-cta { flex-direction:column; gap:12px; text-align:center; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .dm-schritt, .dm-kat, .dm-zeile, .dm-bericht { animation:none !important; opacity:1 !important; transform:none !important; }
+      .dm-s-dreh { animation:none; }
+      .dm-gauge-wert, .dm-balken i { transition:none; }
+    }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -1967,10 +2570,70 @@
   <div id="printWatermark"></div>
   <button id="langBtn" class="lang-btn" onclick="toggleLang()" title="Sprache / Language">🌐 EN</button>
   <button id="helpBtn" class="help-btn" onclick="toggleHelp()" title="Hilfe & Kontakt">?</button>
-  <div id="helpPop" class="help-pop" style="display:none;">
-    <div class="help-pop-t">Hilfe & Kontakt</div>
-    <div class="help-pop-d">Fragen oder Probleme? Schreib uns – wir melden uns schnell.</div>
-    <a class="help-pop-mail" href="mailto:support@automatilabs.de">support@automatilabs.de</a>
+  <div id="chatBackdrop" class="chat-backdrop" onclick="toggleHelp()"></div>
+  <div id="helpPop" class="help-pop" style="display:none;" role="dialog" aria-label="Hilfe zum Compliance-Checker">
+    <div class="chat-griff"></div>
+    <div class="chat-kopf">
+      <div class="chat-avatar">
+        <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+      </div>
+      <div class="chat-kopf-txt">
+        <div class="chat-t">Hilfe zum Compliance-Checker</div>
+        <div class="chat-sub"><span class="chat-punkt"></span>Antwortet sofort</div>
+      </div>
+      <button class="chat-kopf-btn" id="chatNeuBtn" onclick="chatNeu()" title="Gespr\u00e4ch neu beginnen" style="display:none;">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M3 21v-5h5"/></svg>
+      </button>
+      <button class="chat-kopf-btn chat-zu" onclick="toggleHelp()" title="Schlie\u00dfen">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="chat-tor" id="chatTor" style="display:none;">
+      <div class="chat-tor-ico">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+      </div>
+      <div class="chat-tor-t">Kurz vorab</div>
+      <div class="chat-tor-txt">
+        Deine Fragen werden zur Beantwortung verarbeitet und dabei an unseren Dienstleister
+        <b>Anthropic</b> \u00fcbermittelt. Der Gespr\u00e4chsverlauf wird <b>nicht gespeichert</b> und
+        ist beim Schlie\u00dfen der Seite gel\u00f6scht. Der Assistent kennt weder dein Konto noch
+        deine Pr\u00fcfungen.
+      </div>
+      <div class="chat-tor-warn">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 2 18a2 2 0 0 0 1.7 3h16.6a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
+        <span>Bitte keine Ausweis-, Zugangs- oder Gesundheitsdaten eingeben.</span>
+      </div>
+      <label class="chat-tor-box" for="chatTorBox">
+        <input type="checkbox" id="chatTorBox" onchange="chatTorPruefen()" />
+        <span class="chat-haken">
+          <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+        </span>
+        <span class="chat-tor-label">Ich habe die <a onclick="event.preventDefault(); event.stopPropagation(); openLegal('datenschutz');">Datenschutzerkl\u00e4rung</a> gelesen und bin mit der Verarbeitung meiner Eingaben einverstanden.</span>
+      </label>
+      <button class="chat-tor-btn" id="chatTorBtn" disabled onclick="chatTorOk()">
+        Chat starten
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </button>
+      <div class="chat-tor-fuss">Du wirst nur einmal gefragt.</div>
+    </div>
+    <div class="chat-verlauf" id="chatVerlauf" onscroll="chatScrollGeprueft()"></div>
+    <button class="chat-runter" id="chatRunter" onclick="chatNachUnten(true)" title="Zum Ende springen">
+      <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>
+    </button>
+    <div class="chat-eingabe">
+      <div class="chat-feld-wrap">
+        <textarea id="chatFeld" class="chat-feld" rows="1" maxlength="1000"
+          placeholder="Frage eingeben\u2026" onkeydown="chatTaste(event)" oninput="chatFeldHoehe(this)"></textarea>
+        <span class="chat-zaehler" id="chatZaehler"></span>
+      </div>
+      <button class="chat-senden" id="chatSendenBtn" onclick="chatSenden()" title="Senden">
+        <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4z"/></svg>
+      </button>
+    </div>
+    <div class="chat-fuss">
+      <span>Unverbindliche Auskunft \u00b7 keine Rechtsberatung</span>
+      <span class="chat-fuss-ds"><a onclick="openLegal('datenschutz')">Datenschutz</a></span>
+    </div>
   </div>
 
   <!-- ===== INFO-SEITEN: Bewertung & Datenquellen ===== -->
@@ -2027,6 +2690,54 @@
           <div class="lp-stat"><b>4</b><span>Sanktionslisten</span></div>
           <div class="lp-stat"><b>PDF</b><span>Nachweis je Prüfung</span></div>
         </div>
+      </div>
+    </section>
+
+    <section class="lp-sec lp-reveal dm-sec" id="lpDemo">
+      <div class="dm-kopf">
+        <div class="lp-eyebrow">Live ausprobieren · keine Anmeldung nötig</div>
+        <h2 class="lp-h2">So sieht eine Prüfung aus</h2>
+        <p class="lp-secsub">Wähle ein Beispielunternehmen und sieh dir an, was der Compliance-Checker in wenigen Minuten liefert. Die Demo arbeitet mit hinterlegten Beispieldaten – in der Anwendung wird jede Angabe live recherchiert.</p>
+      </div>
+
+      <div class="dm-box">
+        <div class="dm-links">
+          <div class="dm-label">Beispielunternehmen</div>
+          <div class="dm-wahl" id="dmWahl"></div>
+          <button class="dm-start" id="dmStart" onclick="demoStart()">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+            <span>Analyse starten</span>
+          </button>
+          <div class="dm-fuss">Beispieldaten zu erfundenen Unternehmen. Jede Ähnlichkeit mit bestehenden Firmen ist unbeabsichtigt.</div>
+        </div>
+
+        <div class="dm-rechts">
+          <div class="dm-fenster">
+            <div class="dm-leiste">
+              <span class="dm-punkt"></span><span class="dm-punkt"></span><span class="dm-punkt"></span>
+              <span class="dm-adresse">checker.automatilabs.de</span>
+            </div>
+
+            <div class="dm-inhalt" id="dmInhalt">
+              <div class="dm-ruhe" id="dmRuhe">
+                <div class="dm-ruhe-ico">
+                  <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+                </div>
+                <div class="dm-ruhe-t">Bereit zur Prüfung</div>
+                <div class="dm-ruhe-s">Wähle links ein Unternehmen und starte die Analyse.</div>
+              </div>
+
+              <div class="dm-lauf" id="dmLauf" style="display:none;"></div>
+
+              <div class="dm-bericht" id="dmBericht" style="display:none;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="dm-cta">
+        <span>Das war eine Demo mit Beispieldaten.</span>
+        <button class="lp-btn lp-btn-solid" onclick="landingStart('register')">Jetzt mit echten Firmen testen – 3 Analysen gratis</button>
       </div>
     </section>
 
@@ -2544,8 +3255,8 @@
       #trOverlay, .header, .search-card, .actions, .hist-nav-btn, .mehr-analysen-btn,
       .fav-stern, .hr-arrow, .akte-export-bar, .kyc-link, .ref-box { display:none !important; }
       .report, #report, .akte-view { display:block !important; overflow:visible !important; }
-      .sec-card, .rec-card, .flags-card, .kyc-print-page, .akte-analyse { page-break-inside:avoid; }
-      .kyc-print-page { display:block !important; page-break-before:always; }
+      .sec-card, .rec-card, .flags-card, .akte-analyse { page-break-inside:avoid; }
+      .kyc-print-page { display:flex !important; }
       .grid4, .fields-row { grid-template-columns:1fr 1fr !important; }
       .evidence-gallery { grid-template-columns:1fr 1fr !important; }
       .kv { grid-template-columns:38% 1fr !important; }
@@ -3915,7 +4626,20 @@
     }
     .verl-card .up-warn-ico { background:var(--bad-bg,#FEF1F1) !important; color:var(--bad-text,#B42318) !important; }
 
-    /* ===== Kopfzeilen-Knoepfe: alle gleichzeitig starten ===== */
+    /* ===== Kopfzeilen-Knoepfe: alle gleichzeitig starten =====
+       Wichtig: Solange die Leiste noch nicht bereit ist, bleiben die Knoepfe
+       unsichtbar. Sonst blitzen sie kurz auf und werden danach erneut
+       eingeblendet - das sah aus wie ein Flackern. */
+    .header-actions:not(.nav-bereit) #infoBewertungBtn,
+    .header-actions:not(.nav-bereit) #infoQuellenBtn,
+    .header-actions:not(.nav-bereit) #historyBtn,
+    .header-actions:not(.nav-bereit) #teamBtn,
+    .header-actions:not(.nav-bereit) #werBinIch,
+    .header-actions:not(.nav-bereit) #supportBtn,
+    .header-actions:not(.nav-bereit) #kontoBtn,
+    .header-actions:not(.nav-bereit) #logoutBtn {
+      opacity:0;
+    }
     .nav-bereit #infoBewertungBtn, .nav-bereit #infoQuellenBtn, .nav-bereit #historyBtn,
     .nav-bereit #teamBtn, .nav-bereit #werBinIch, .nav-bereit #supportBtn,
     .nav-bereit #kontoBtn, .nav-bereit #logoutBtn {
@@ -3937,7 +4661,15 @@
     /* Symbole reagieren beim Drueberfahren */
     #logoutBtn { transition:all .2s !important; }
     @media (prefers-reduced-motion: reduce) {
-      #infoBewertungBtn, #infoQuellenBtn, #historyBtn, #teamBtn, #werBinIch, #supportBtn, #kontoBtn, #logoutBtn {
+      #infoBewertungBtn, #infoQuellenBtn, #historyBtn, #teamBtn, #werBinIch, #supportBtn, #kontoBtn, #logoutBtn,
+      .header-actions:not(.nav-bereit) #infoBewertungBtn,
+      .header-actions:not(.nav-bereit) #infoQuellenBtn,
+      .header-actions:not(.nav-bereit) #historyBtn,
+      .header-actions:not(.nav-bereit) #teamBtn,
+      .header-actions:not(.nav-bereit) #werBinIch,
+      .header-actions:not(.nav-bereit) #supportBtn,
+      .header-actions:not(.nav-bereit) #kontoBtn,
+      .header-actions:not(.nav-bereit) #logoutBtn {
         animation:none !important; opacity:1 !important; transform:none !important;
       }
     }
@@ -4221,7 +4953,27 @@
 <p>Google Ads<br>Der Websitebetreiber verwendet Google Ads. Google Ads ist ein Online-Werbeprogramm der Google Ireland Limited („Google&quot;), Gordon House, Barrow Street, Dublin 4, Irland.<br>Google Ads ermöglicht es uns Werbeanzeigen in der Google-Suchmaschine oder auf Drittwebseiten auszuspielen, wenn der Nutzer bestimmte Suchbegriffe bei Google eingibt (Keyword-Targeting). Ferner können zielgerichtete Werbeanzeigen anhand der bei Google vorhandenen Nutzerdaten (z. B. Standortdaten und Interessen) ausgespielt werden (Zielgruppen-Targeting). Wir als Websitebetreiber können diese Daten quantitativ auswerten, indem wir beispielsweise analysieren, welche Suchbegriffe zur Ausspielung unserer Werbeanzeigen geführt haben und wie viele Anzeigen zu entsprechenden Klicks geführt haben.<br>Die Nutzung dieses Dienstes erfolgt auf Grundlage Ihrer Einwilligung nach Art. 6 Abs. 1 lit. a DSGVO und § 25 Abs. 1 TDDDG. Die Einwilligung ist jederzeit widerrufbar.<br>Die Datenübertragung in die USA wird auf die Standardvertragsklauseln der EU-Kommission gestützt. Details finden Sie hier: https://policies.google.com/privacy/frameworks und https://business.safety.google/controllerterms/.<br>Das Unternehmen verfügt über eine Zertifizierung nach dem „EU-US Data Privacy Framework&quot; (DPF). Der DPF ist ein Übereinkommen zwischen der Europäischen Union und den USA, der die Einhaltung europäischer Datenschutzstandards bei Datenverarbeitungen in den USA gewährleisten soll. Jedes nach dem DPF zertifizierte Unternehmen verpflichtet sich, diese Datenschutzstandards einzuhalten. Weitere Informationen hierzu erhalten Sie vom Anbieter unter folgendem Link: https://www.dataprivacyframework.gov/participant/5780.</p>
 <p>Auftragsverarbeitung<br>Wir haben einen Vertrag über Auftragsverarbeitung (AVV) zur Nutzung des oben genannten Dienstes geschlossen. Hierbei handelt es sich um einen datenschutzrechtlich vorgeschriebenen Vertrag, der gewährleistet, dass dieser die personenbezogenen Daten unserer Websitebesucher nur nach unseren Weisungen und unter Einhaltung der DSGVO verarbeitet.</p>
 <h3>5. eCommerce und Zahlungsanbieter</h3>
-<p>Verarbeiten von Kunden- und Vertragsdaten<br>Wir erheben, verarbeiten und nutzen personenbezogene Kunden- und Vertragsdaten zur Begründung, inhaltlichen Ausgestaltung und Änderung unserer Vertragsbeziehungen. Personenbezogene Daten über die Inanspruchnahme dieser Website (Nutzungsdaten) erheben, verarbeiten und nutzen wir nur, soweit dies erforderlich ist, um dem Nutzer die Inanspruchnahme des Dienstes zu ermöglichen oder abzurechnen. Rechtsgrundlage hierfür ist Art. 6 Abs. 1 lit. b DSGVO.<br>Die erhobenen Kundendaten werden nach Abschluss des Auftrags oder Beendigung der Geschäftsbeziehung und Ablauf der ggf. bestehenden gesetzlichen Aufbewahrungsfristen gelöscht. Gesetzliche Aufbewahrungsfristen bleiben unberührt.</p></div>
+<p>Verarbeiten von Kunden- und Vertragsdaten<br>Wir erheben, verarbeiten und nutzen personenbezogene Kunden- und Vertragsdaten zur Begründung, inhaltlichen Ausgestaltung und Änderung unserer Vertragsbeziehungen. Personenbezogene Daten über die Inanspruchnahme dieser Website (Nutzungsdaten) erheben, verarbeiten und nutzen wir nur, soweit dies erforderlich ist, um dem Nutzer die Inanspruchnahme des Dienstes zu ermöglichen oder abzurechnen. Rechtsgrundlage hierfür ist Art. 6 Abs. 1 lit. b DSGVO.<br>Die erhobenen Kundendaten werden nach Abschluss des Auftrags oder Beendigung der Geschäftsbeziehung und Ablauf der ggf. bestehenden gesetzlichen Aufbewahrungsfristen gelöscht. Gesetzliche Aufbewahrungsfristen bleiben unberührt.</p>
+
+<h3>6. Compliance-Checker – Verarbeitung im Online-Portal</h3>
+<p>Prüfanfragen und Prüfberichte<br>Wenn Sie über das Online-Portal checker.automatilabs.de eine Prüfung starten, verarbeiten wir die von Ihnen eingegebenen Angaben zum zu prüfenden Unternehmen (Firmenname, Sitzland, gegebenenfalls Umsatzsteuer-Identifikationsnummer oder Steuernummer). Zur Beantwortung recherchiert das System in öffentlich zugänglichen Quellen – insbesondere in amtlichen Unternehmensregistern, im Mehrwertsteuer-Informationsaustauschsystem der Europäischen Union (VIES), in öffentlich bereitgestellten Sanktionslisten sowie in Presse- und Internetveröffentlichungen. Nicht-öffentliche Datenbestände Dritter werden nicht abgefragt.<br>Der erstellte Prüfbericht wird Ihrem Nutzerkonto zugeordnet und gespeichert, damit Sie ihn erneut aufrufen und als Nachweis verwenden können. Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO (Erfüllung des mit Ihnen geschlossenen Vertrags) sowie Art. 6 Abs. 1 lit. c DSGVO in Verbindung mit den Sorgfalts- und Aufzeichnungspflichten des Geldwäschegesetzes, soweit Sie als Verpflichteter im Sinne des § 2 GwG handeln.<br>Enthält ein Prüfbericht personenbezogene Daten Dritter – etwa Namen von Geschäftsführern oder wirtschaftlich Berechtigten –, stammen diese ausschließlich aus öffentlich zugänglichen Quellen. Für die weitere Verwendung dieser Daten in Ihrem Unternehmen sind Sie datenschutzrechtlich verantwortlich.</p>
+<p>Hochgeladene Ausweisdokumente und Lichtbilder<br>Sie können zu einer Prüfung Ausweisdokumente, Bestätigungsfotos und eigene Aufnahmen hinterlegen. Diese Dateien werden verschlüsselt übertragen und auf Servern innerhalb der Europäischen Union gespeichert. Der Zugriff ist auf Ihr Nutzerkonto beziehungsweise auf die Mitglieder Ihres Unternehmenskontos beschränkt.<br>Rechtsgrundlage ist Art. 6 Abs. 1 lit. c DSGVO in Verbindung mit den §§ 10 ff. GwG sowie, soweit die betroffene Person die Dateien selbst übermittelt, deren Einwilligung nach Art. 6 Abs. 1 lit. a DSGVO. Die Aufbewahrung richtet sich nach den gesetzlichen Fristen des Geldwäschegesetzes; danach werden die Daten gelöscht.</p>
+<p>Upload-Link für Geschäftspartner<br>Sie können einen zeitlich begrenzten Link erzeugen und Ihrem Geschäftspartner übermitteln, über den dieser seine Unterlagen selbst hochladen kann, ohne ein Nutzerkonto anzulegen. Der Link ist 72 Stunden gültig und nur einmal verwendbar. Vor dem Hochladen bestätigt die betroffene Person die Verarbeitung ihrer Daten; ohne diese Bestätigung ist kein Hochladen möglich. Verantwortlich für die Verarbeitung der so übermittelten Daten ist das Unternehmen, das den Link versendet hat; die Automati Labs GmbH stellt insoweit ausschließlich die technische Infrastruktur als Auftragsverarbeiter bereit.</p>
+<p>Laufende Überwachung<br>Auf Ihre ausdrückliche Veranlassung hin können einzelne Unternehmen in eine wiederkehrende Prüfung aufgenommen werden. In diesem Fall wird die Prüfung alle drei Monate automatisiert wiederholt und das Ergebnis Ihrem Konto zugeordnet. Sie können die Überwachung jederzeit beenden. Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO.</p>
+<p>Keine automatisierte Entscheidung im Einzelfall<br>Der im Prüfbericht ausgewiesene Vertrauenswert ist eine Entscheidungshilfe. Eine automatisierte Entscheidung im Sinne des Art. 22 DSGVO, die gegenüber einer betroffenen Person rechtliche Wirkung entfaltet, findet nicht statt. Ob und wie Sie eine Geschäftsbeziehung eingehen, entscheiden allein Sie.</p>
+
+<h3>7. KI-gestützter Hilfe-Assistent (Support-Chat)</h3>
+<p>Zweck und Ablauf<br>In unserem Online-Portal checker.automatilabs.de bieten wir einen Hilfe-Assistenten an, der Fragen zur Bedienung und zum Funktionsumfang des Compliance-Checkers beantwortet. Wenn Sie den Assistenten nutzen, werden der von Ihnen eingegebene Text sowie die vorangegangenen Nachrichten des laufenden Gesprächs an unseren Server übermittelt und von dort zur Beantwortung an die Anthropic PBC, 548 Market Street, PMB 90375, San Francisco, CA 94104, USA, weitergeleitet.</p>
+<p>Keine Speicherung<br>Der Gesprächsverlauf wird nicht gespeichert. Er besteht ausschließlich für die Dauer Ihrer Sitzung im Arbeitsspeicher Ihres Browsers und wird beim Schließen oder Neuladen der Seite gelöscht. Eine Speicherung bei uns, eine Zuordnung zu Ihrem Nutzerkonto sowie eine Verwendung zu Werbe- oder Profilbildungszwecken finden nicht statt. Es werden für diesen Zweck weder Cookies gesetzt noch Daten in Ihrem Endgerät gespeichert.</p>
+<p>Keine Übermittlung von Kontodaten<br>An den Assistenten werden keine Bestandsdaten Ihres Kontos übermittelt – insbesondere weder Ihr Name, Ihre E-Mail-Adresse, Ihre Unternehmenszugehörigkeit noch Ihre durchgeführten Prüfungen oder hochgeladenen Dokumente. Der Assistent kann Sie nicht identifizieren. Übermittelt werden ausschließlich der Text Ihrer Anfrage, die letzten Nachrichten des laufenden Gesprächs sowie die eingestellte Oberflächensprache.</p>
+<p>Rechtsgrundlage<br>Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO. Unser berechtigtes Interesse liegt in der unmittelbaren und ressourcenschonenden Beantwortung von Anwendungsfragen zu unserem Produkt. Die Nutzung des Assistenten ist freiwillig; Sie können uns Ihr Anliegen stattdessen jederzeit per E-Mail an support@automatilabs.de übermitteln. Sie können der Verarbeitung nach Art. 21 DSGVO widersprechen, indem Sie den Assistenten nicht verwenden.</p>
+<p>Drittlandsübermittlung<br>Die Übermittlung an die Anthropic PBC erfolgt in die Vereinigten Staaten von Amerika auf Grundlage eines Vertrags über Auftragsverarbeitung unter Einbeziehung der Standardvertragsklauseln der Europäischen Kommission nach Art. 46 Abs. 2 lit. c DSGVO. Der Anbieter verwendet die über die Programmierschnittstelle übermittelten Eingaben nach eigenen Angaben nicht zum Training seiner Modelle und hält sie lediglich befristet zur Erkennung missbräuchlicher Nutzung vor.</p>
+<p>Grenzen des Assistenten und Hinweis zur Eingabe<br>Der Assistent erteilt keine Rechtsberatung, gibt keine Einschätzung zu einzelnen, namentlich genannten Unternehmen ab und trifft keine Entscheidung über das Zustandekommen von Geschäftsbeziehungen. Seine Auskunft ist unverbindlich und ersetzt weder eine rechtliche Beratung noch die Ihnen obliegende Prüfung im Einzelfall. Bitte geben Sie in den Chat keine Ausweisdaten, Zugangsdaten, Gesundheitsdaten oder sonstigen besonders schützenswerten Informationen im Sinne des Art. 9 DSGVO ein. Vor der ersten Nachricht weisen wir Sie im Chatfenster nochmals hierauf hin.</p>
+
+<h3>8. Auftragsverarbeiter im Überblick</h3>
+<p>Zur Bereitstellung des Compliance-Checkers setzen wir folgende Dienstleister als Auftragsverarbeiter nach Art. 28 DSGVO ein. Mit allen genannten Anbietern bestehen entsprechende Verträge; bei Übermittlungen in Drittländer werden die Standardvertragsklauseln der Europäischen Kommission einbezogen.</p>
+<p>Cloudflare, Inc., 101 Townsend Street, San Francisco, CA 94107, USA – Auslieferung der Anwendung und Ausführung der serverseitigen Programmlogik.<br>Supabase, Inc., 970 Toa Payoh North #07-04, Singapur 318992 – Nutzerverwaltung, Datenbank und Dateiablage; die von uns genutzten Server stehen innerhalb der Europäischen Union.<br>Anthropic, PBC, 548 Market Street, PMB 90375, San Francisco, CA 94104, USA – Auswertung der Rechercheergebnisse sowie Betrieb des Hilfe-Assistenten.<br>Stripe, Inc., 354 Oyster Point Boulevard, South San Francisco, CA 94080, USA – Abwicklung der Zahlungen.<br>GitHub, Inc., 88 Colin P. Kelly Jr. Street, San Francisco, CA 94107, USA – Bereitstellung der Programmdateien.</p>
+<p>Darüber hinaus rufen wir öffentlich zugängliche Daten bei Dritten ab, ohne dass hierbei personenbezogene Daten unserer Nutzer übermittelt werden – etwa bei der Europäischen Kommission (Mehrwertsteuer-Informationsaustauschsystem VIES sowie konsolidierte Sanktionsliste) und bei Google Ireland Limited (Standort- und Kontaktangaben zu geprüften Unternehmen über die Dienste Places und Street View).</p></div>
 
 <div class="app" style="display:none;">
   <header class="header">
@@ -4231,7 +4983,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.57</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.72</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -4882,18 +5634,334 @@ function applyLang() {
 
 function toggleHelp() {
   const p = document.getElementById('helpPop');
+  const bd = document.getElementById('chatBackdrop');
+  const btn = document.getElementById('helpBtn');
   if (!p) return;
-  const offen = p.style.display === 'block';
+  const offen = p.style.display === 'flex';
+
   if (offen) {
     p.classList.remove('pop-in');
     p.classList.add('pop-out');
-    setTimeout(function(){ p.style.display = 'none'; p.classList.remove('pop-out'); }, 180);
+    if (bd) bd.classList.remove('an');
+    if (btn) btn.classList.remove('offen');
+    document.body.style.overflow = '';
+    setTimeout(function(){ p.style.display = 'none'; p.classList.remove('pop-out'); }, 260);
   } else {
-    p.style.display = 'block';
+    p.style.display = 'flex';
     p.classList.remove('pop-out');
     void p.offsetWidth;
     p.classList.add('pop-in');
+    if (bd && window.innerWidth <= 760) bd.classList.add('an');
+    if (btn) btn.classList.add('offen');
+    // Am Handy den Hintergrund festhalten, damit nicht die Seite mitscrollt
+    if (window.innerWidth <= 760) document.body.style.overflow = 'hidden';
+    chatZeichnen();
+    // Einwilligung pruefen - bis dahin bleibt die Frage verborgen
+    chatTorLaden().then(function(ok){
+      chatTorZeigen(!ok);
+      if (ok && window.innerWidth > 760) {
+        const f = document.getElementById('chatFeld'); if (f) f.focus();
+      }
+    });
   }
+}
+
+// ============================================================
+// SUPPORT-CHAT
+// Der Verlauf lebt nur in diesem Browserfenster. Nichts wird gespeichert,
+// weder hier noch auf dem Server. Beim Schliessen der Seite ist er weg.
+// ============================================================
+let CHAT_VERLAUF = [];
+let CHAT_LAEUFT = false;
+let CHAT_TEILTEXT = '';
+let CHAT_FRISCH = -1;          // Index der Nachricht, die eingeblendet werden darf
+let CHAT_ERSTER_AUFBAU = true; // Vorschlaege nur beim ersten Mal animieren
+let CHAT_DS_OK = null;         // null = noch nicht geprueft
+let CHAT_UID = null;
+
+// ============================================================
+// Einwilligung: wird in den Kontodaten hinterlegt und gilt damit
+// auch auf anderen Geraeten. Zusaetzlich lokal gemerkt, damit die
+// Frage beim naechsten Oeffnen nicht kurz aufblitzt.
+// ============================================================
+function chatTorSchluessel(uid) { return 'cc_chat_ds_' + (uid || 'gast'); }
+
+async function chatTorLaden() {
+  if (CHAT_DS_OK !== null) return CHAT_DS_OK;
+  try {
+    const { data } = await sb.auth.getUser();
+    const u = data && data.user;
+    CHAT_UID = u ? u.id : null;
+    if (u && u.user_metadata && u.user_metadata.chat_ds_ok === true) {
+      CHAT_DS_OK = true;
+      try { localStorage.setItem(chatTorSchluessel(CHAT_UID), '1'); } catch(e) {}
+      return true;
+    }
+  } catch(e) { CHAT_UID = null; }
+  let lokal = false;
+  try { lokal = localStorage.getItem(chatTorSchluessel(CHAT_UID)) === '1'; } catch(e) {}
+  CHAT_DS_OK = lokal;
+  return CHAT_DS_OK;
+}
+
+function chatTorPruefen() {
+  const box = document.getElementById('chatTorBox');
+  const btn = document.getElementById('chatTorBtn');
+  if (btn) btn.disabled = !(box && box.checked);
+}
+
+async function chatTorOk() {
+  const box = document.getElementById('chatTorBox');
+  if (!box || !box.checked) return;
+  CHAT_DS_OK = true;
+  try { localStorage.setItem(chatTorSchluessel(CHAT_UID), '1'); } catch(e) {}
+  // Im Konto hinterlegen, damit die Frage auf anderen Geraeten ausbleibt
+  try { await sb.auth.updateUser({ data: { chat_ds_ok: true } }); } catch(e) {}
+  chatTorZeigen(false);
+  const f = document.getElementById('chatFeld');
+  if (f && window.innerWidth > 760) f.focus();
+}
+
+function chatTorZeigen(an) {
+  const tor = document.getElementById('chatTor');
+  const verlauf = document.getElementById('chatVerlauf');
+  const pop = document.getElementById('helpPop');
+  if (tor) tor.style.display = an ? 'flex' : 'none';
+  if (verlauf) verlauf.style.display = an ? 'none' : 'flex';
+  if (pop) pop.classList.toggle('tor-offen', !!an);
+  const runter = document.getElementById('chatRunter');
+  if (runter && an) runter.classList.remove('an');
+  if (!an) chatNachUnten(true);
+}
+
+const CHAT_VORSCHLAEGE = [
+  'Wie lade ich Kollegen ins Team ein?',
+  'Wie kommt der Vertrauens-Score zustande?',
+  'Wie schicke ich einem Kunden den Upload-Link?',
+  'Wie l\u00f6sche ich mein Konto?'
+];
+
+const CHAT_PFEIL = '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>';
+const CHAT_MARKE = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>';
+
+function chatZeit(t) {
+  const d = t ? new Date(t) : new Date();
+  return d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+}
+
+function chatZeichnen() {
+  const box = document.getElementById('chatVerlauf');
+  if (!box) return;
+  let html = '';
+
+  const frischKl = CHAT_ERSTER_AUFBAU ? ' chat-frisch' : '';
+
+  if (!CHAT_VERLAUF.length) {
+    html += '<div class="chat-reihe' + frischKl + '">'
+      + '<span class="chat-mini">' + CHAT_MARKE + '</span>'
+      + '<div class="chat-stapel"><div class="chat-blase chat-bot chat-start">'
+      + 'Hallo! Ich bin der Hilfe-Assistent des Compliance-Checkers. Ich erkl\u00e4re dir Schritt f\u00fcr Schritt, '
+      + 'wo du was findest \u2013 vom Team einladen bis zum Ausweis-Upload. Was m\u00f6chtest du tun?'
+      + '</div></div></div>'
+      + '<div class="chat-chips' + frischKl + '">'
+      + CHAT_VORSCHLAEGE.map(function(v, i){
+          return '<button class="chat-chip" style="--cd:' + (0.12 + i * 0.07) + 's" onclick="chatVorschlag(' + i + ')">'
+            + '<span>' + v + '</span>' + CHAT_PFEIL + '</button>';
+        }).join('')
+      + '</div>';
+  } else {
+    html += CHAT_VERLAUF.map(function(m, i){
+      const ich = (m.role === 'user');
+      const frisch = (i === CHAT_FRISCH) ? ' chat-frisch' : '';
+      const meta = '<div class="chat-meta">'
+        + '<span class="chat-zeit">' + chatZeit(m.t) + '</span>'
+        + (ich ? '' : '<button class="chat-kopier" onclick="chatKopieren(' + i + ', this)" title="Antwort kopieren">'
+            + '<svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Kopieren</button>')
+        + '</div>';
+      return '<div class="chat-reihe' + (ich ? ' ist-ich' : '') + frisch + '">'
+        + '<span class="chat-mini' + (ich ? ' leer' : '') + '">' + (ich ? '' : CHAT_MARKE) + '</span>'
+        + '<div class="chat-stapel">'
+        + '<div class="chat-blase ' + (ich ? 'chat-ich' : 'chat-bot') + '">' + chatText(m.content) + '</div>'
+        + meta + '</div></div>';
+    }).join('');
+  }
+
+  if (CHAT_LAEUFT && !CHAT_TEILTEXT) {
+    html += '<div class="chat-reihe chat-frisch"><span class="chat-mini">' + CHAT_MARKE + '</span>'
+      + '<div class="chat-stapel"><div class="chat-blase chat-bot chat-tippt"><span></span><span></span><span></span></div></div></div>';
+  }
+  if (CHAT_TEILTEXT) {
+    html += '<div class="chat-reihe"><span class="chat-mini">' + CHAT_MARKE + '</span>'
+      + '<div class="chat-stapel"><div class="chat-blase chat-bot chat-schreibt" id="chatLaufend">'
+      + chatText(CHAT_TEILTEXT) + '<span class="chat-cursor"></span></div></div></div>';
+  }
+
+  box.innerHTML = html;
+  CHAT_ERSTER_AUFBAU = false;
+  const nb = document.getElementById('chatNeuBtn');
+  if (nb) nb.style.display = CHAT_VERLAUF.length ? '' : 'none';
+  chatNachUnten();
+}
+
+// Nur ans Ende springen, wenn der Nutzer nicht gerade selbst hochgescrollt hat
+function chatNachUnten(erzwingen) {
+  const box = document.getElementById('chatVerlauf');
+  if (!box) return;
+  const nahAmEnde = (box.scrollHeight - box.scrollTop - box.clientHeight) < 90;
+  if (erzwingen || nahAmEnde) {
+    box.scrollTo({ top: box.scrollHeight, behavior: erzwingen ? 'smooth' : 'auto' });
+    const k = document.getElementById('chatRunter');
+    if (k) k.classList.remove('an');
+    return;
+  }
+  chatScrollGeprueft();
+}
+
+// Knopf "nach unten" zeigen, sobald man weiter oben liest
+function chatScrollGeprueft() {
+  const box = document.getElementById('chatVerlauf');
+  const knopf = document.getElementById('chatRunter');
+  if (!box || !knopf) return;
+  const weitOben = (box.scrollHeight - box.scrollTop - box.clientHeight) > 140;
+  knopf.classList.toggle('an', weitOben);
+}
+
+// Waehrend des Schreibens nur die letzte Blase auffrischen - das bleibt fluessig
+function chatLaufendAuffrischen() {
+  const el = document.getElementById('chatLaufend');
+  if (!el) { chatZeichnen(); return; }
+  el.innerHTML = chatText(CHAT_TEILTEXT) + '<span class="chat-cursor"></span>';
+  chatNachUnten();
+}
+
+// Nur Zeilenumbrueche erhalten, alles andere wird entschaerft
+function chatText(t) {
+  return escapeHtml(String(t || '')).replace(/\n/g, '<br/>');
+}
+
+function chatVorschlag(i) {
+  const f = document.getElementById('chatFeld');
+  if (f) f.value = CHAT_VORSCHLAEGE[i] || '';
+  chatSenden();
+}
+
+function chatNeu() {
+  if (CHAT_LAEUFT) return;
+  CHAT_VERLAUF = [];
+  CHAT_TEILTEXT = '';
+  CHAT_FRISCH = -1;
+  CHAT_ERSTER_AUFBAU = true;
+  chatZeichnen();
+  const f = document.getElementById('chatFeld');
+  if (f && window.innerWidth > 760) f.focus();
+}
+
+function chatKopieren(i, btn) {
+  const m = CHAT_VERLAUF[i];
+  if (!m) return;
+  function fertig() {
+    if (!btn) return;
+    const alt = btn.innerHTML;
+    btn.classList.add('fertig');
+    btn.innerHTML = '<svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Kopiert';
+    setTimeout(function(){ btn.classList.remove('fertig'); btn.innerHTML = alt; }, 1500);
+  }
+  try { navigator.clipboard.writeText(m.content).then(fertig).catch(function(){ kopierNotloesung(m.content, fertig); }); }
+  catch (e) { kopierNotloesung(m.content, fertig); }
+}
+
+function chatFeldHoehe(el) {
+  if (!el) return;
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 112) + 'px';
+  const z = document.getElementById('chatZaehler');
+  if (z) {
+    const n = (el.value || '').length;
+    z.textContent = n + ' / 1000';
+    z.classList.toggle('an', n > 700);
+    z.classList.toggle('voll', n > 940);
+  }
+}
+
+function chatTaste(ev) {
+  if (ev.key === 'Enter' && !ev.shiftKey) { ev.preventDefault(); chatSenden(); }
+  if (ev.key === 'Escape') toggleHelp();
+}
+
+async function chatSenden() {
+  if (CHAT_LAEUFT) return;
+  const feld = document.getElementById('chatFeld');
+  const btn = document.getElementById('chatSendenBtn');
+  const frage = ((feld && feld.value) || '').trim();
+  if (!frage) { if (feld) feld.focus(); return; }
+
+  CHAT_VERLAUF.push({ role: 'user', content: frage, t: Date.now() });
+  CHAT_FRISCH = CHAT_VERLAUF.length - 1;
+  if (feld) { feld.value = ''; feld.style.height = 'auto'; chatFeldHoehe(feld); }
+  CHAT_LAEUFT = true;
+  CHAT_TEILTEXT = '';
+  if (btn) { btn.disabled = true; btn.classList.add('laedt'); }
+  chatZeichnen();
+  chatNachUnten(true);
+
+  const stoerung = 'Das hat gerade nicht geklappt. Bitte versuch es gleich noch einmal \u2013 '
+    + 'oder schreib uns an support@automatilabs.de.';
+
+  try {
+    const res = await fetch(WORKER, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'support_chat',
+        payload: {
+          // Nur Rolle und Text weitergeben - sonst nichts
+          verlauf: CHAT_VERLAUF.slice(-10).map(function(m){ return { role: m.role, content: m.content }; }),
+          sprache: (typeof LANG !== 'undefined' ? LANG : 'de')
+        }
+      })
+    });
+
+    const art = res.headers.get('content-type') || '';
+    if (!res.ok || art.indexOf('application/json') >= 0 || !res.body) {
+      // Fehlermeldung oder Browser ohne Datenstrom: Antwort am Stueck lesen
+      let txt = '';
+      try {
+        const j = await res.json();
+        txt = (j && j.antwort) ? j.antwort : '';
+        if (!txt && j && j.error) txt = friendlyError(j.error);
+      } catch (e) {}
+      CHAT_VERLAUF.push({ role: 'assistant', content: txt || stoerung, t: Date.now() });
+      CHAT_FRISCH = CHAT_VERLAUF.length - 1;
+    } else {
+      // Antwort Stueck fuer Stueck anzeigen - man sieht den Text entstehen
+      const leser = res.body.getReader();
+      const dec = new TextDecoder();
+      let letzte = 0;
+      while (true) {
+        const { done, value } = await leser.read();
+        if (done) break;
+        CHAT_TEILTEXT += dec.decode(value, { stream: true });
+        const jetzt = Date.now();
+        if (jetzt - letzte > 45) { letzte = jetzt; chatLaufendAuffrischen(); }
+      }
+      chatLaufendAuffrischen();
+      CHAT_VERLAUF.push({ role: 'assistant', content: CHAT_TEILTEXT.trim() || stoerung, t: Date.now() });
+      CHAT_FRISCH = -1;   // stand schon da - nicht noch einmal einblenden
+    }
+  } catch (e) {
+    CHAT_VERLAUF.push({ role: 'assistant', content:
+      'Ich bin gerade nicht erreichbar. Bitte sp\u00e4ter erneut versuchen oder an '
+      + 'support@automatilabs.de schreiben.', t: Date.now() });
+    CHAT_FRISCH = CHAT_VERLAUF.length - 1;
+  }
+
+  CHAT_TEILTEXT = '';
+  CHAT_LAEUFT = false;
+  if (btn) { btn.disabled = false; btn.classList.remove('laedt'); }
+  chatZeichnen();
+  chatNachUnten(true);
+  const f2 = document.getElementById('chatFeld');
+  if (f2 && window.innerWidth > 760) f2.focus();
 }
 
 function toggleLang() {
@@ -5449,10 +6517,20 @@ function favDlgSchliessen(ja) {
 let BEARBEITEN_AN = false;
 let ERGAENZUNGEN = {};        // "Kategorie|Feld" -> neuer Wert
 
+function bearbIcoSvg() {
+  return '<svg class="bearb-refresh" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" '
+    + 'stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">'
+    + '<path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/>'
+    + '<path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M3 21v-5h5"/></svg>';
+}
+
 function bearbLeisteZeichnen() {
+  // Wieviele Dokumente liegen bereit? Auch sie rechtfertigen eine Neubewertung.
+  const belegAnz = (typeof KYC !== 'undefined' && KYC.doks && KYC.doks.beleg) ? KYC.doks.beleg.length : 0;
   const l = document.getElementById('bearbLeiste');
   if (!l || !CURRENT_REPORT) return;
   const n = Object.keys(ERGAENZUNGEN).length;
+  const bereit = (n > 0 || belegAnz > 0);
   const d = CURRENT_REPORT;
   const fassung = d._fassung || 1;
   const hinweisAlt = d._fassung_hinweis ? '<div class="bearb-fassung">Fassung ' + fassung + ' \u00b7 ' + escapeHtml(d._fassung_hinweis) + '</div>' : '';
@@ -5470,12 +6548,15 @@ function bearbLeisteZeichnen() {
       + '<div class="bearb-karte bearb-aktiv">'
       + '<div class="bearb-ico bearb-ico-an"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></div>'
       + '<div class="bearb-text"><div class="bearb-t">Bearbeitungsmodus</div>'
-      + '<div class="bearb-d">Klicke auf den Stift neben einem Feld. ' + (n ? '<b>' + n + ' Angabe' + (n === 1 ? '' : 'n') + ' erg\u00e4nzt.</b>' : 'Noch nichts erg\u00e4nzt.') + '</div></div>'
+      + '<div class="bearb-d">Klicke auf den Stift neben einem Feld. ' + (n ? '<b>' + n + ' Angabe' + (n === 1 ? '' : 'n') + ' erg\u00e4nzt.</b>' : 'Noch nichts erg\u00e4nzt.')
+      + (belegAnz ? ' <b>' + belegAnz + ' Dokument' + (belegAnz === 1 ? '' : 'e') + '</b> wird beim Neubewerten ausgelesen.' : '')
+      + ((n || belegAnz) ? '<span class="bearb-haft">F\u00fcr die Richtigkeit selbst erg\u00e4nzter Angaben und hochgeladener Unterlagen bist du verantwortlich. Sie werden \u00fcbernommen, ohne dass wir sie amtlich verifizieren k\u00f6nnen.</span>' : '')
+      + '</div></div>'
       + '<div class="bearb-btns">'
       + '<button class="kyc-btn" onclick="bearbeitenAbbruch()">Abbrechen</button>'
-      + '<button class="bearb-btn" id="neuBewertenBtn" onclick="neuBewerten()"' + (n ? '' : ' disabled') + '>'
-      + '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.2-8.6"/><path d="M21 3v6h-6"/></svg>'
-      + ' Neu bewerten' + (n ? ' (' + n + ')' : '') + '</button>'
+      + '<button class="bearb-btn" id="neuBewertenBtn" onclick="neuBewerten()"' + (bereit ? '' : ' disabled') + '>'
+      + bearbIcoSvg()
+      + '<span class="bearb-label">Neu bewerten' + (n ? ' \u00b7 ' + n : '') + '</span></button>'
       + '</div></div>';
   }
   requestAnimationFrame(function(){ const k = l.querySelector('.bearb-karte'); if (k) k.classList.add('an'); });
@@ -5487,6 +6568,8 @@ function bearbeitenStart() {
   // Nur eine Klasse setzen - der Bericht wird NICHT neu aufgebaut
   const rep = document.getElementById('report') || document.body;
   rep.classList.add('bearb-modus');
+  try { evidenceEigenZeichnen(); } catch(e) {}
+  try { evidenceBelegZeichnen(); } catch(e) {}
   bearbLeisteZeichnen();
   zeigeToast('Bearbeitungsmodus', 'Klicke auf den Stift rechts neben einem Feld.');
 }
@@ -5496,6 +6579,8 @@ function bearbeitenAbbruch() {
   ERGAENZUNGEN = {};
   const rep = document.getElementById('report') || document.body;
   rep.classList.remove('bearb-modus');
+  try { evidenceEigenZeichnen(); } catch(e) {}
+  try { evidenceBelegZeichnen(); } catch(e) {}
   // Alle offenen Eingaben und Markierungen zuruecknehmen
   document.querySelectorAll('.kv-ergaenzt').forEach(function(z){
     z.classList.remove('kv-ergaenzt');
@@ -5538,8 +6623,9 @@ function feldBearbeiten(feldId, ev) {
   // Vorhandenen Wert als Startwert anbieten (auch den urspruenglichen)
   let start = ERGAENZUNGEN[schluessel];
   if (start === undefined) {
-    const roh = (v.textContent || '').replace(/\u2197/g, '').trim();
-    start = (/^n\/?a$/i.test(roh) || !roh) ? '' : roh.split('\n')[0].slice(0, 200);
+    const link = v.querySelector ? v.querySelector('a[href]') : null;
+    const roh = link ? link.getAttribute('href') : (v.textContent || '').replace(/\u2197/g, '').trim();
+    start = (/^n\/?a$/i.test(roh) || !roh) ? '' : String(roh).split('\n')[0].trim().slice(0, 200);
   }
 
   v.innerHTML = '<div class="kv-edit">'
@@ -5595,16 +6681,22 @@ function feldAbbruch(feldId) {
 
 async function neuBewerten() {
   const n = Object.keys(ERGAENZUNGEN).length;
-  if (!n || !CURRENT_REPORT) return;
+  const belegeRoh = (typeof KYC !== 'undefined' && KYC.doks && KYC.doks.beleg) ? KYC.doks.beleg : [];
+  if ((!n && !belegeRoh.length) || !CURRENT_REPORT) return;
   const btn = document.getElementById('neuBewertenBtn');
-  if (btn) { btn.disabled = true; btn.innerHTML = '<span class="bearb-spin"></span> Wird neu bewertet\u2026'; }
+  if (btn) { btn.disabled = true; btn.classList.add('laedt'); btn.innerHTML = '<span class="bearb-spin"></span><span class="bearb-label">Wird neu bewertet\u2026</span>'; }
 
   // Ergaenzungen fuer den Worker aufbereiten: "Kategorie > Feld": Wert
   const erg = {};
   Object.keys(ERGAENZUNGEN).forEach(function(k){ erg[k.replace('|', ' > ')] = ERGAENZUNGEN[k]; });
 
+  // Hinterlegte Dokumente mitgeben - der Worker holt und liest sie aus
+  const belege = belegeRoh.slice(0, 3).map(function(d){
+    return { path: d.storage_path, name: d.datei_name || '', mime: d.mime_type || '' };
+  });
+
   try {
-    const r = await workerCall('neu_bewerten', { bericht: CURRENT_REPORT, ergaenzungen: erg });
+    const r = await workerCall('neu_bewerten', { bericht: CURRENT_REPORT, ergaenzungen: erg, belege: belege });
     if (!r || !r.ok || !r.bericht) throw new Error((r && r.error) || 'Neubewertung fehlgeschlagen');
     const neu = r.bericht;
     // Kennzeichen uebernehmen
@@ -5639,7 +6731,7 @@ async function neuBewerten() {
     }, 80);
   } catch (e) {
     alert('Neubewertung fehlgeschlagen: ' + ((e && e.message) || ''));
-    if (btn) { btn.disabled = false; btn.innerHTML = 'Neu bewerten (' + n + ')'; }
+    if (btn) { btn.disabled = false; btn.classList.remove('laedt'); btn.innerHTML = bearbIcoSvg() + '<span class="bearb-label">Neu bewerten \u00b7 ' + n + '</span>'; }
   }
 }
 
@@ -5914,6 +7006,12 @@ function enterApp() {
   appUnterseitenReset();
   document.getElementById('logoutBtn').style.display = '';
   const hb = document.getElementById('historyBtn'); if (hb) hb.style.display = '';
+  // Sicherheitsnetz: Sollte der Rang einmal nicht laden, werden die Knoepfe
+  // trotzdem sichtbar - sie duerfen nie dauerhaft ausgeblendet bleiben.
+  setTimeout(function(){
+    const leiste = document.querySelector('.header-actions');
+    if (leiste && !leiste.classList.contains('nav-bereit')) leiste.classList.add('nav-bereit');
+  }, 2500);
   // Kam der Nutzer ueber einen Paket-Button auf der Startseite? Dann direkt dorthin.
   if (WUNSCH_PAKET) {
     const wunsch = WUNSCH_PAKET;
@@ -7110,7 +8208,10 @@ function infoOeffnen(welche) {
 }
 
 document.addEventListener('keydown', function(e){
-  if (e.key === 'Escape') { const g = document.getElementById('infoGate'); if (g && g.style.display === 'flex') infoSchliessen(); }
+  if (e.key === 'Escape') {
+    const g = document.getElementById('infoGate'); if (g && g.style.display === 'flex') { infoSchliessen(); return; }
+    const p = document.getElementById('helpPop'); if (p && p.style.display === 'flex') toggleHelp();
+  }
 });
 
 function infoSchliessen() {
@@ -7607,6 +8708,7 @@ function showLanding() {
   if (lg) {
     const schonGezeigt = lg.dataset.gezeigt === '1';
     lg.style.display = 'block';
+    try { demoWahlZeichnen(); } catch(e) {}
     if (!schonGezeigt) {
       lg.dataset.gezeigt = '1';
       lg.scrollTop = 0;
@@ -7680,6 +8782,187 @@ function lpCountUp() {
       if (p < 1) requestAnimationFrame(schritt); else b.textContent = ziel;
     }
     requestAnimationFrame(schritt);
+  });
+}
+
+// ============================================================
+// STARTSEITE: Mini-Demo
+// Arbeitet ausschliesslich mit hinterlegten Beispieldaten zu
+// erfundenen Unternehmen. Keine Anfrage nach aussen.
+// ============================================================
+const DEMO_FIRMEN = [
+  {
+    name: 'Nordwind Handels GmbH', land: 'Deutschland', flagge: '\u{1F1E9}\u{1F1EA}',
+    kurz: 'Kfz-Handel \u00b7 Hamburg', score: 91, stufe: 'gut',
+    marke: 'Geringe Auff\u00e4lligkeiten',
+    kats: [['Grunddaten',95],['Personen',92],['Kontakt',90],['Finanzen',85],['Reputation',88]],
+    zeilen: [
+      ['ok','<b>HRB 118422, Amtsgericht Hamburg</b> \u2013 eingetragen seit 2009, Rechtsform und Sitz best\u00e4tigt'],
+      ['ok','<b>Kein Sanktionstreffer</b> \u2013 Unternehmen und beide Gesch\u00e4ftsf\u00fchrer gegen die EU-Liste gepr\u00fcft'],
+      ['ok','<b>Wirtschaftlich Berechtigte ermittelt</b> \u2013 zwei Gesellschafter mit je 50 Prozent'],
+      ['ok','<b>USt-IdNr. \u00fcber EU-VIES best\u00e4tigt</b> \u2013 Name und Anschrift stimmen \u00fcberein']
+    ]
+  },
+  {
+    name: 'Baltic Trade Solutions O\u00dc', land: 'Estland', flagge: '\u{1F1EA}\u{1F1EA}',
+    kurz: 'Gro\u00dfhandel \u00b7 Tallinn', score: 58, stufe: 'mittel',
+    marke: 'Erh\u00f6hte Sorgfaltspflicht',
+    kats: [['Grunddaten',72],['Personen',45],['Kontakt',65],['Finanzen',40],['Reputation',70]],
+    zeilen: [
+      ['ok','<b>Registernummer 14 882 301</b> \u2013 im estnischen Handelsregister gef\u00fchrt, gegr\u00fcndet 2021'],
+      ['warn','<b>Wirtschaftlich Berechtigte nicht feststellbar</b> \u2013 Anteile werden von einer Holding in Zypern gehalten'],
+      ['warn','<b>Keine Jahresabschl\u00fcsse ver\u00f6ffentlicht</b> \u2013 wirtschaftliche Substanz nicht belegbar'],
+      ['warn','<b>Anschrift mit 40 weiteren Firmen geteilt</b> \u2013 Hinweis auf Briefkastenadresse, vor Gesch\u00e4ftsabschluss kl\u00e4ren']
+    ]
+  },
+  {
+    name: 'Meridian Motors s.r.o.', land: 'Slowakei', flagge: '\u{1F1F8}\u{1F1F0}',
+    kurz: 'Fahrzeugexport \u00b7 Bratislava', score: 24, stufe: 'schlecht',
+    marke: 'Verst\u00e4rkte Sorgfaltspflicht',
+    kats: [['Grunddaten',55],['Personen',15],['Kontakt',48],['Finanzen',30],['Reputation',20]],
+    zeilen: [
+      ['bad','<b>Treffer in der EU-Sanktionsliste</b> \u2013 Namens\u00e4hnlichkeit bei einem Gesellschafter. Ob Personenidentit\u00e4t vorliegt, muss im Wege der Amtsermittlung gekl\u00e4rt werden'],
+      ['bad','<b>Insolvenzverfahren er\u00f6ffnet</b> \u2013 Eintrag im Insolvenzregister vom M\u00e4rz 2026'],
+      ['warn','<b>Gesch\u00e4ftsf\u00fchrer erst seit drei Wochen im Amt</b> \u2013 zuvor vier Wechsel innerhalb eines Jahres'],
+      ['warn','<b>Negative Presseberichte</b> \u2013 mehrere Meldungen zu ausstehenden Zahlungen an Lieferanten']
+    ]
+  }
+];
+
+const DEMO_SCHRITTE = [
+  ['Unternehmen im Handelsregister gesucht', 'Amtliches Register'],
+  ['Rechtsform, Sitz und Gr\u00fcndung gepr\u00fcft', 'Register'],
+  ['Gesch\u00e4ftsf\u00fchrung und Gesellschafter ermittelt', 'Register / North Data'],
+  ['USt-IdNr. \u00fcber das EU-System abgeglichen', 'VIES'],
+  ['Gegen die EU-Sanktionsliste gepr\u00fcft', 'Konsolidierte Liste'],
+  ['Presse und \u00f6ffentliche Quellen durchsucht', 'Web-Recherche'],
+  ['Bewertung erstellt und Quellen zugeordnet', 'Auswertung']
+];
+
+let DEMO_AKTIV = 0;
+let DEMO_LAEUFT = false;
+
+function demoWahlZeichnen() {
+  const box = document.getElementById('dmWahl');
+  if (!box) return;
+  box.innerHTML = DEMO_FIRMEN.map(function(f, i){
+    return '<button class="dm-firma' + (i === DEMO_AKTIV ? ' aktiv' : '') + '" onclick="demoWaehlen(' + i + ')">'
+      + '<span class="dm-flagge">' + f.flagge + '</span>'
+      + '<span class="dm-firma-txt"><span class="dm-firma-n">' + f.name + '</span>'
+      + '<span class="dm-firma-s">' + f.kurz + '</span></span></button>';
+  }).join('');
+}
+
+function demoWaehlen(i) {
+  if (DEMO_LAEUFT) return;
+  DEMO_AKTIV = i;
+  demoWahlZeichnen();
+  const ruhe = document.getElementById('dmRuhe');
+  const lauf = document.getElementById('dmLauf');
+  const ber = document.getElementById('dmBericht');
+  if (ruhe) ruhe.style.display = '';
+  if (lauf) lauf.style.display = 'none';
+  if (ber) ber.style.display = 'none';
+}
+
+function demoWarte(ms) { return new Promise(function(f){ setTimeout(f, ms); }); }
+
+async function demoStart() {
+  if (DEMO_LAEUFT) return;
+  DEMO_LAEUFT = true;
+  const btn = document.getElementById('dmStart');
+  const ruhe = document.getElementById('dmRuhe');
+  const lauf = document.getElementById('dmLauf');
+  const ber = document.getElementById('dmBericht');
+  if (btn) { btn.disabled = true; btn.querySelector('span').textContent = 'Pr\u00fcfung l\u00e4uft\u2026'; }
+  if (ruhe) ruhe.style.display = 'none';
+  if (ber) { ber.style.display = 'none'; ber.innerHTML = ''; }
+  if (lauf) { lauf.style.display = ''; lauf.innerHTML = ''; }
+
+  // Schritte nacheinander abarbeiten
+  for (let i = 0; i < DEMO_SCHRITTE.length; i++) {
+    const sch = DEMO_SCHRITTE[i];
+    const el = document.createElement('div');
+    el.className = 'dm-schritt laeuft';
+    el.style.setProperty('--dd', '0s');
+    el.innerHTML = '<span class="dm-s-ico"><span class="dm-s-dreh"></span></span>'
+      + '<span>' + sch[0] + '</span>'
+      + '<span class="dm-s-quelle">' + sch[1] + '</span>';
+    if (lauf) lauf.appendChild(el);
+    await demoWarte(360 + Math.random() * 300);
+    el.className = 'dm-schritt fertig';
+    el.querySelector('.dm-s-ico').innerHTML =
+      '<svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
+  }
+
+  await demoWarte(320);
+  demoBerichtZeigen();
+
+  if (lauf) lauf.style.display = 'none';
+  if (btn) { btn.disabled = false; btn.querySelector('span').textContent = 'Erneut starten'; }
+  DEMO_LAEUFT = false;
+}
+
+function demoBerichtZeigen() {
+  const f = DEMO_FIRMEN[DEMO_AKTIV];
+  const ber = document.getElementById('dmBericht');
+  if (!ber || !f) return;
+
+  const u = 2 * Math.PI * 32;
+  ber.innerHTML =
+    '<div class="dm-b-kopf">'
+    + '<div class="dm-gauge"><svg width="74" height="74" viewBox="0 0 74 74">'
+    + '<circle class="dm-gauge-ring" cx="37" cy="37" r="32" fill="none" stroke-width="6"/>'
+    + '<circle class="dm-gauge-wert" id="dmRing" cx="37" cy="37" r="32" fill="none" stroke-width="6" '
+    + 'stroke-dasharray="' + u.toFixed(1) + '" stroke-dashoffset="' + u.toFixed(1) + '"/>'
+    + '</svg><div class="dm-gauge-zahl"><b id="dmZahl">0</b><span>/ 100</span></div></div>'
+    + '<div class="dm-b-titel">'
+    + '<div class="dm-b-n">' + f.name + '</div>'
+    + '<div class="dm-b-s">' + f.land + ' \u00b7 Pr\u00fcfung gem\u00e4\u00df \u00a7\u00a7 10\u201317 GwG \u00b7 Pr\u00fcf-ID AL-DEMO-' + (DEMO_AKTIV + 1) + '</div>'
+    + '<div class="dm-marke ' + f.stufe + '">' + (f.stufe === 'gut' ? '\u2713 ' : '\u26A0 ') + f.marke + '</div>'
+    + '</div></div>'
+    + '<div class="dm-kats">'
+    + f.kats.map(function(k, i){
+        return '<div class="dm-kat" style="--dd:' + (0.1 + i * 0.07) + 's">'
+          + '<div class="dm-kat-k">' + k[0] + '</div>'
+          + '<div class="dm-kat-w"><b>' + k[1] + '</b><span>/ 100</span></div>'
+          + '<div class="dm-balken"><i data-w="' + k[1] + '"></i></div></div>';
+      }).join('')
+    + '</div>'
+    + '<div class="dm-zeilen">'
+    + f.zeilen.map(function(z, i){
+        const ico = (z[0] === 'ok')
+          ? '<path d="M20 6 9 17l-5-5"/>'
+          : (z[0] === 'warn'
+              ? '<path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 2 18a2 2 0 0 0 1.7 3h16.6a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/>'
+              : '<circle cx="12" cy="12" r="9"/><path d="M15 9l-6 6M9 9l6 6"/>');
+        return '<div class="dm-zeile ' + z[0] + '" style="--dd:' + (0.4 + i * 0.09) + 's">'
+          + '<svg class="dm-z-ico" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">' + ico + '</svg>'
+          + '<span class="dm-z-txt">' + z[1] + '</span></div>';
+      }).join('')
+    + '</div>';
+
+  ber.style.display = '';
+
+  // Ring, Zahl und Balken anlaufen lassen
+  requestAnimationFrame(function(){
+    const ring = document.getElementById('dmRing');
+    if (ring) ring.style.strokeDashoffset = (u * (1 - f.score / 100)).toFixed(1);
+    const farbe = (f.stufe === 'gut') ? '#359651' : (f.stufe === 'mittel' ? '#D9A441' : '#C0392B');
+    if (ring) ring.style.stroke = farbe;
+    ber.querySelectorAll('.dm-balken i').forEach(function(el){
+      el.style.width = (el.getAttribute('data-w') || 0) + '%';
+      el.style.background = farbe;
+    });
+    const zahl = document.getElementById('dmZahl');
+    if (zahl) {
+      const start = performance.now();
+      (function zaehl(t){
+        const p = Math.min(1, (t - start) / 1100);
+        zahl.textContent = Math.round(f.score * (1 - Math.pow(1 - p, 3)));
+        if (p < 1) requestAnimationFrame(zaehl);
+      })(start);
+    }
   });
 }
 
@@ -8523,6 +9806,7 @@ function druckeJetzt() {
   const alterTitel = document.title;
   try {
     ['helpPop','trOverlay'].forEach(function(id){ const e = document.getElementById(id); if (e) e.style.display = 'none'; });
+    CHAT_DS_OK = null; CHAT_UID = null;   // beim naechsten Konto erneut pruefen
     document.querySelectorAll('.tr-toast').forEach(function(t){ t.remove(); });
     document.title = druckDateiname();            // legt den Namen der PDF-Datei fest
   } catch (e) {}
@@ -9491,6 +10775,42 @@ function insolvenzHTML(d) {
 
 // Erzeugt das diagonale Wasserzeichen für Ausdrucke (nutzergebunden + eindeutige ID)
 // Beweismittel-Sektion: Standort-Foto der Firma (Außenansicht)
+// Zaehlt Felder, die der Nutzer selbst eingetragen hat
+function manuelleFelder(d) {
+  let n = 0;
+  ['grunddaten','personen','reputation','finanzen'].forEach(function(kat){
+    const k = d && d[kat];
+    if (!k || !Array.isArray(k.felder)) return;
+    k.felder.forEach(function(f){ if (f && f._manuell) n++; });
+  });
+  const kt = (d && d.kontakt) || {};
+  if (String(kt.source || '').indexOf('Manuell') >= 0) n++;
+  return n;
+}
+
+// Hinweisblock fuer den Bericht und den Ausdruck
+function manuellHinweisHTML(d) {
+  const n = manuelleFelder(d);
+  const belege = (typeof KYC !== 'undefined' && KYC.doks && KYC.doks.beleg) ? KYC.doks.beleg.length : 0;
+  if (!n && !belege) return '';
+  const was = [];
+  if (n) was.push(n === 1 ? 'eine Angabe' : n + ' Angaben');
+  if (belege) was.push(belege === 1 ? 'ein Dokument' : belege + ' Dokumente');
+  return `<div class="manuell-haft">
+    <div class="manuell-haft-t">
+      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>
+      Vom Nutzer ergänzte Angaben
+    </div>
+    <div class="manuell-haft-txt">
+      Dieser Bericht enthält ${was.join(' und ')}, die der prüfende Nutzer selbst eingetragen
+      beziehungsweise hochgeladen hat. Diese Inhalte stammen nicht aus der automatischen Recherche.
+      Sie sind im Bericht als „Manuell ergänzt“ gekennzeichnet und fließen in die Bewertung ein.
+      Die Verantwortung für ihre Richtigkeit und Vollständigkeit liegt beim Nutzer; eine amtliche
+      Verifizierung durch die Automati Labs GmbH findet insoweit nicht statt.
+    </div>
+  </div>`;
+}
+
 function evidenceHTML(d) {
   const ev = d._evidence || {};
   // Eindeutige ID für das Bild-Element, damit wir es nach dem Laden befüllen können
@@ -9514,7 +10834,250 @@ function evidenceHTML(d) {
       </div>
       <div class="evidence-note">Automatisch über Google zugeordnete Bilder zur angegebenen Adresse. Die Zuordnung erfolgt anhand des Namens des Unternehmens und sollte bei Bedarf manuell verifiziert werden.</div>
     </div>
+    <div class="evidence-item evidence-eigen" id="evidenceEigenBox" style="display:none;">
+      <div class="evidence-item-label">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+        Eigene Aufnahmen <span id="evidenceEigenCount" style="margin-left:auto;font-weight:600;color:var(--gray-l);text-transform:none;letter-spacing:0"></span>
+      </div>
+      <div class="evidence-gallery" id="evidenceEigenGallery"></div>
+      <div id="evidenceEigenTools"></div>
+      <div class="evidence-note">Selbst aufgenommene Bilder zum Unternehmen – etwa Firmenschild, Gebäude oder Geschäftsräume. Sie werden beim Drucken als eigene Anlagen angehängt.</div>
+    </div>
+    <div class="evidence-item evidence-eigen" id="evidenceBelegBox" style="display:none;">
+      <div class="evidence-item-label">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 13h6M9 17h4"/></svg>
+        Dokumente &amp; Nachweise <span id="evidenceBelegCount" style="margin-left:auto;font-weight:600;color:var(--gray-l);text-transform:none;letter-spacing:0"></span>
+      </div>
+      <div class="beleg-liste" id="evidenceBelegListe"></div>
+      <div id="evidenceBelegTools"></div>
+      <div class="evidence-note">Handelsregisterauszug, Gewerbeanmeldung oder ähnliche Nachweise als PDF oder Bild. <b>Diese Dateien werden bei „Neu bewerten“ ausgelesen</b> und fließen in den Bericht ein. Beim Drucken hängen alle Seiten als Anlagen an.</div>
+    </div>
   </div>`;
+}
+
+// ===== Dokumente & Nachweise: Liste zeichnen =====
+function evidenceBelegZeichnen() {
+  const box = document.getElementById('evidenceBelegBox');
+  const liste = document.getElementById('evidenceBelegListe');
+  const tools = document.getElementById('evidenceBelegTools');
+  const zaehler = document.getElementById('evidenceBelegCount');
+  if (!box || !liste || !tools) return;
+
+  const doks = (typeof KYC !== 'undefined' && KYC.doks && KYC.doks.beleg) ? KYC.doks.beleg : [];
+  const urls = (typeof KYC !== 'undefined' && KYC.urls && KYC.urls.beleg) ? KYC.urls.beleg : [];
+  let bearbeiten = false;
+  try { bearbeiten = (document.getElementById('report') || document.body).classList.contains('bearb-modus'); } catch(e) {}
+
+  if (!doks.length && !bearbeiten) { box.style.display = 'none'; return; }
+  box.style.display = '';
+
+  if (doks.length) {
+    liste.innerHTML = doks.map(function(d, n){
+      const url = urls[n];
+      const pdf = (d.mime_type || '').indexOf('pdf') >= 0;
+      const seiten = (KYC.pdfSeiten && KYC.pdfSeiten['beleg:' + n]) ? KYC.pdfSeiten['beleg:' + n].length : 0;
+      return '<div class="beleg-zeile" style="--bd:' + (0.04 + n * 0.05) + 's">'
+        + '<span class="beleg-ico ' + (pdf ? 'ist-pdf' : '') + '">'
+        + (pdf
+            ? '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>'
+            : '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>')
+        + '</span>'
+        + '<span class="beleg-txt">'
+        + '<span class="beleg-name">' + escapeHtml(d.datei_name || (pdf ? 'Dokument.pdf' : 'Bild')) + '</span>'
+        + '<span class="beleg-sub">' + (pdf ? ('PDF' + (seiten ? ' \u00b7 ' + seiten + ' Seite' + (seiten > 1 ? 'n' : '') : '')) : 'Bild') + '</span>'
+        + '</span>'
+        + (url ? '<a class="beleg-btn" href="' + url + '" target="_blank" title="\u00d6ffnen"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6M10 14 21 3"/></svg></a>' : '')
+        + (bearbeiten ? '<button class="beleg-btn beleg-weg" onclick="evidenceBelegLoeschen(' + n + ')" title="Entfernen"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>' : '')
+        + '</div>';
+    }).join('');
+  } else {
+    liste.innerHTML = '<div class="beleg-leer">Noch keine Dokumente hinterlegt</div>';
+  }
+
+  if (zaehler) zaehler.textContent = doks.length ? (doks.length === 1 ? '1 Datei' : doks.length + ' Dateien') : '';
+
+  if (!bearbeiten) { tools.innerHTML = ''; return; }
+  if (!KYC.analyseId) {
+    tools.innerHTML = '<div class="ev-eigen-hinweis">Die Analyse wird gerade gespeichert \u2013 in einem Moment k\u00f6nnen Dokumente hinzugef\u00fcgt werden.</div>';
+    return;
+  }
+  tools.innerHTML = '<div class="ev-eigen-tools">'
+    + '<label class="ev-eigen-add" for="evBelegFile">'
+    + '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>'
+    + ' PDF oder Bild hinzuf\u00fcgen</label>'
+    + '<input type="file" id="evBelegFile" accept="application/pdf,image/jpeg,image/png,image/webp" multiple style="display:none" onchange="evidenceBelegWaehlen(this.files)" />'
+    + '</div>';
+}
+
+async function evidenceBelegWaehlen(files) {
+  if (!files || !files.length) return;
+  const tools = document.getElementById('evidenceBelegTools');
+  if (tools) tools.innerHTML = '<div class="ev-eigen-hinweis ev-eigen-laedt"><span class="ev-eigen-spin"></span> Wird hochgeladen\u2026</div>';
+  let ok = 0;
+  try {
+    for (let i = 0; i < files.length; i++) {
+      if (await kycUpload('beleg', files[i])) ok++;
+    }
+  } catch (e) { console.warn('Beleg:', e && e.message); }
+  try { evidenceBelegZeichnen(); } catch(e) {}
+  if (ok) zeigeToast('Dokument hinzugef\u00fcgt',
+    'Beim n\u00e4chsten \u201eNeu bewerten\u201c wird es ausgelesen.');
+}
+
+async function evidenceBelegLoeschen(n) {
+  const d = (KYC.doks && KYC.doks.beleg) ? KYC.doks.beleg[n] : null;
+  if (!d) return;
+  if (!confirm('Dieses Dokument wirklich entfernen?')) return;
+  try {
+    try { await sb.storage.from('kyc').remove([d.storage_path]); } catch(e) {}
+    await sb.from('kyc_dokumente').delete().eq('id', d.id);
+    await kycLaden();
+  } catch (e) { alert('Entfernen fehlgeschlagen: ' + ((e && e.message) || '')); }
+}
+
+// ============================================================
+// PDF-Seiten fuer den Ausdruck in Bilder umwandeln.
+// Ohne das fehlen PDF-Anlagen im Ausdruck komplett - ein Browser
+// kann eine fremde PDF-Datei nicht in die eigene Druckseite legen.
+// ============================================================
+let PDFJS_GELADEN = null;
+function pdfJsLaden() {
+  if (PDFJS_GELADEN) return PDFJS_GELADEN;
+  PDFJS_GELADEN = new Promise(function(fertig, fehler){
+    if (window.pdfjsLib) return fertig(window.pdfjsLib);
+    const sk = document.createElement('script');
+    sk.src = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js';
+    sk.onload = function(){
+      try {
+        window.pdfjsLib.GlobalWorkerOptions.workerSrc =
+          'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
+      } catch(e) {}
+      fertig(window.pdfjsLib);
+    };
+    sk.onerror = function(){ fehler(new Error('PDF-Anzeige nicht verfuegbar')); };
+    document.head.appendChild(sk);
+  });
+  return PDFJS_GELADEN;
+}
+
+async function pdfSeitenAlsBilder(url, maxSeiten) {
+  const lib = await pdfJsLaden();
+  const doc = await lib.getDocument({ url: url }).promise;
+  const bilder = [];
+  const anzahl = Math.min(doc.numPages, maxSeiten || 15);
+  for (let i = 1; i <= anzahl; i++) {
+    const seite = await doc.getPage(i);
+    const sicht = seite.getViewport({ scale: 1.7 });
+    const c = document.createElement('canvas');
+    c.width = Math.round(sicht.width); c.height = Math.round(sicht.height);
+    await seite.render({ canvasContext: c.getContext('2d'), viewport: sicht }).promise;
+    bilder.push(c.toDataURL('image/jpeg', 0.82));
+  }
+  return bilder;
+}
+
+// Alle hinterlegten PDFs im Hintergrund vorbereiten
+async function kycPdfVorbereiten() {
+  KYC.pdfSeiten = KYC.pdfSeiten || {};
+  const typen = ['ausweis','selfie','standort','beleg'];
+  for (const typ of typen) {
+    const doks = KYC.doks[typ] || [];
+    for (let n = 0; n < doks.length; n++) {
+      const d = doks[n];
+      if ((d.mime_type || '').indexOf('pdf') < 0) continue;
+      const schluessel = typ + ':' + n;
+      if (KYC.pdfSeiten[schluessel]) continue;
+      const url = (KYC.urls[typ] || [])[n];
+      if (!url) continue;
+      try {
+        KYC.pdfSeiten[schluessel] = await pdfSeitenAlsBilder(url, 15);
+        try { evidenceBelegZeichnen(); } catch(e) {}
+      } catch (e) { console.warn('PDF-Seiten:', e && e.message); }
+    }
+  }
+}
+
+// ===== Eigene Aufnahmen: Galerie zeichnen =====
+// Sichtbar, sobald mindestens ein Bild vorliegt – oder wenn der
+// Bearbeitungsmodus läuft, damit man welche hinzufügen kann.
+function evidenceEigenZeichnen() {
+  const box = document.getElementById('evidenceEigenBox');
+  const gal = document.getElementById('evidenceEigenGallery');
+  const tools = document.getElementById('evidenceEigenTools');
+  const zaehler = document.getElementById('evidenceEigenCount');
+  if (!box || !gal || !tools) return;
+
+  const liste = (typeof KYC !== 'undefined' && KYC.doks && KYC.doks.standort) ? KYC.doks.standort : [];
+  const urls = (typeof KYC !== 'undefined' && KYC.urls && KYC.urls.standort) ? KYC.urls.standort : [];
+  let bearbeiten = false;
+  try { bearbeiten = (document.getElementById('report') || document.body).classList.contains('bearb-modus'); } catch(e) {}
+
+  if (!liste.length && !bearbeiten) { box.style.display = 'none'; return; }
+  box.style.display = '';
+
+  if (liste.length) {
+    gal.innerHTML = liste.map(function(d, n){
+      const url = urls[n];
+      const istPdf = (d.mime_type || '').indexOf('pdf') >= 0;
+      const inhalt = (url && !istPdf)
+        ? '<a class="evidence-thumb" href="' + url + '" target="_blank" title="In voller Gr\u00f6\u00dfe \u00f6ffnen"><img src="' + url + '" alt="Eigene Aufnahme ' + (n + 1) + '" loading="lazy" /></a>'
+        : '<a class="evidence-thumb ev-eigen-pdf" ' + (url ? 'href="' + url + '" target="_blank"' : '') + '><span>PDF</span></a>';
+      return '<div class="ev-eigen-kachel" style="--ed:' + (0.04 + n * 0.06) + 's">'
+        + inhalt
+        + (bearbeiten ? '<button class="ev-eigen-x" onclick="evidenceEigenLoeschen(' + n + ')" title="Bild entfernen">'
+            + '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>' : '')
+        + '<span class="ev-eigen-nr">' + (n + 1) + '</span>'
+        + '</div>';
+    }).join('');
+  } else {
+    gal.innerHTML = '<div class="evidence-img-none"><div>Noch keine eigenen Aufnahmen hinterlegt</div></div>';
+  }
+
+  if (zaehler) zaehler.textContent = liste.length ? (liste.length === 1 ? '1 Bild' : liste.length + ' Bilder') : '';
+
+  if (!bearbeiten) { tools.innerHTML = ''; return; }
+  if (!KYC.analyseId) {
+    tools.innerHTML = '<div class="ev-eigen-hinweis">Die Analyse wird gerade gespeichert – in einem Moment k\u00f6nnen Bilder hinzugef\u00fcgt werden.</div>';
+    return;
+  }
+  tools.innerHTML = '<div class="ev-eigen-tools">'
+    + '<label class="ev-eigen-add" for="evEigenFile">'
+    + '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>'
+    + ' Bild ausw\u00e4hlen</label>'
+    + '<label class="ev-eigen-add ev-eigen-cam" for="evEigenCam">'
+    + '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>'
+    + ' Foto aufnehmen</label>'
+    + '<input type="file" id="evEigenFile" accept="image/jpeg,image/png,image/webp,application/pdf" multiple style="display:none" onchange="evidenceEigenWaehlen(this.files)" />'
+    + '<input type="file" id="evEigenCam" accept="image/*" capture="environment" style="display:none" onchange="evidenceEigenWaehlen(this.files)" />'
+    + '</div>';
+}
+
+async function evidenceEigenWaehlen(files) {
+  if (!files || !files.length) return;
+  const tools = document.getElementById('evidenceEigenTools');
+  if (tools) tools.innerHTML = '<div class="ev-eigen-hinweis ev-eigen-laedt"><span class="ev-eigen-spin"></span> Wird hochgeladen\u2026</div>';
+  let ok = 0;
+  try {
+    for (let i = 0; i < files.length; i++) {
+      if (await kycUpload('standort', files[i])) ok++;
+    }
+  } catch (e) { console.warn('Eigene Aufnahme:', e && e.message); }
+  // Ladeanzeige in JEDEM Fall wieder aufloesen - sonst dreht sie ewig weiter
+  try { evidenceEigenZeichnen(); } catch(e) {}
+  if (ok) zeigeToast('Aufnahme hinzugef\u00fcgt',
+    ok === 1 ? 'Das Bild h\u00e4ngt beim Drucken als eigene Anlage an.'
+             : ok + ' Bilder h\u00e4ngen beim Drucken als eigene Anlagen an.');
+}
+
+async function evidenceEigenLoeschen(n) {
+  const d = (KYC.doks && KYC.doks.standort) ? KYC.doks.standort[n] : null;
+  if (!d) return;
+  if (!confirm('Diese Aufnahme wirklich entfernen?')) return;
+  try {
+    try { await sb.storage.from('kyc').remove([d.storage_path]); } catch(e) {}
+    await sb.from('kyc_dokumente').delete().eq('id', d.id);
+    await kycLaden();
+  } catch (e) { alert('Entfernen fehlgeschlagen: ' + ((e && e.message) || '')); }
 }
 
 // Lädt ALLE Google-Fotos der Firma als Galerie (Fallback: Street View)
@@ -9642,7 +11205,7 @@ async function kycLaden() {
         return new Date(a.created_at) - new Date(b.created_at);
       });
     });
-    const typen = ['ausweis','selfie'];
+    const typen = ['ausweis','selfie','standort','beleg'];
     for (const t of typen) {
       const liste = KYC.doks[t] || [];
       KYC.urls[t] = [];
@@ -9660,6 +11223,9 @@ async function kycLaden() {
       KYC.link = (l && l.data && l.data[0]) || null;
     } catch(e) { KYC.link = null; }
     kycRender();
+    try { evidenceEigenZeichnen(); } catch(e) {}
+    try { evidenceBelegZeichnen(); } catch(e) {}
+    try { kycPdfVorbereiten(); } catch(e) {}
   } catch (e) { console.warn('KYC laden:', e && e.message); }
 }
 
@@ -9719,16 +11285,42 @@ function kycRender() {
 function kycPrintHtml() {
   let out = '';
   let nr = 0;
-  [['ausweis','Personalausweis'],['selfie','Best\u00e4tigungsfoto']].forEach(function(p){
+  const kopf = ' \u00b7 ' + escapeHtml(KYC.firmenname) + ' \u00b7 ' + escapeHtml(KYC.pruefId || '');
+  function seite(titel, bildUrl, fuss) {
+    return '<div class="kyc-print-page">'
+      + '<div class="kyc-print-t">' + titel + kopf + '</div>'
+      + '<div class="kyc-print-rahmen"><img class="kyc-print-img" src="' + bildUrl + '" alt="" /></div>'
+      + '<div class="kyc-print-fuss">' + fuss + '</div>'
+      + '</div>';
+  }
+  [['ausweis','Personalausweis'],['selfie','Best\u00e4tigungsfoto'],['standort','Eigene Aufnahme'],['beleg','Nachweis']].forEach(function(p){
     const typ = p[0], basis = p[1];
     (KYC.doks[typ] || []).forEach(function(d, n){
       const url = (KYC.urls[typ] || [])[n];
       const bez = d.bezeichnung ? ' (' + d.bezeichnung + ')' : ((KYC.doks[typ].length > 1) ? ' (' + (n + 1) + ' von ' + KYC.doks[typ].length + ')' : '');
-      const titel = 'Anlage ' + (++nr) + ' \u00b7 ' + basis + bez;
-      if (url && (d.mime_type || '').indexOf('pdf') < 0) {
-      out += '<div class="kyc-print-page"><div class="kyc-print-t">' + titel + ' \u00b7 ' + escapeHtml(KYC.firmenname) + ' \u00b7 ' + escapeHtml(KYC.pruefId || '') + '</div>'
-        + '<img class="kyc-print-img" src="' + url + '" alt="" /></div>';
+      const dateiname = escapeHtml(d.datei_name || '');
+      const istPdf = (d.mime_type || '').indexOf('pdf') >= 0;
+
+      if (istPdf) {
+        // PDF-Seiten wurden vorab in Bilder umgewandelt
+        const seiten = (KYC.pdfSeiten || {})['beleg' === typ ? 'beleg:' + n : typ + ':' + n] || [];
+        if (seiten.length) {
+          const anlage = ++nr;
+          seiten.forEach(function(bild, si){
+            const titel = 'Anlage ' + anlage + ' \u00b7 ' + basis + bez
+              + (seiten.length > 1 ? ' \u00b7 Seite ' + (si + 1) + ' von ' + seiten.length : '');
+            out += seite(titel, bild, dateiname);
+          });
+        } else if (url) {
+          const titel = 'Anlage ' + (++nr) + ' \u00b7 ' + basis + bez;
+          out += '<div class="kyc-print-page"><div class="kyc-print-t">' + titel + kopf + '</div>'
+            + '<div class="kyc-print-fehlt">Dieses Dokument liegt als PDF-Datei in der digitalen Akte vor'
+            + (dateiname ? '<br/>(' + dateiname + ')' : '') + '</div></div>';
+        }
+        return;
       }
+
+      if (url) out += seite('Anlage ' + (++nr) + ' \u00b7 ' + basis + bez, url, dateiname);
     });
   });
   return out;
@@ -9905,15 +11497,23 @@ async function kycUpload(typ, file) {
       analyse_id: KYC.analyseId, firma_id: CURRENT_FIRMA.firma_id, typ: typ,
       storage_path: pfad, datei_name: file.name, mime_type: file.type,
       position: bisher + 1,
-      bezeichnung: (typ === 'ausweis') ? (bisher === 0 ? 'Vorderseite' : (bisher === 1 ? 'R\u00fcckseite' : 'Seite ' + (bisher + 1))) : null,
+      bezeichnung: (typ === 'ausweis') ? (bisher === 0 ? 'Vorderseite' : (bisher === 1 ? 'R\u00fcckseite' : 'Seite ' + (bisher + 1)))
+                 : (typ === 'standort' ? ('Aufnahme ' + (bisher + 1))
+                 : (typ === 'beleg' ? ('Nachweis ' + (bisher + 1)) : null)),
       hochgeladen_von: (typeof CURRENT_USER_ID !== 'undefined' ? CURRENT_USER_ID : null)
-    }, { onConflict: 'analyse_id,typ' });
+    });
     if (db && db.error) throw db.error;
-    if (alt && alt.storage_path) { try { await sb.storage.from('kyc').remove([alt.storage_path]); } catch(e) {} }
     await kycLaden();
+    return true;
   } catch (e) {
     console.warn('KYC Upload:', e && e.message);
-    alert('Upload fehlgeschlagen: ' + ((e && e.message) || 'Unbekannter Fehler'));
+    let t = (e && e.message) || 'Unbekannter Fehler';
+    if (/typ_check|check constraint/i.test(t)) {
+      t = 'Die Datenbank kennt diese Dokumentart noch nicht. Bitte einmal das SQL '
+        + '\u201esql_eigene_aufnahmen\u201c in Supabase ausf\u00fchren.';
+    }
+    alert('Upload fehlgeschlagen: ' + t);
+    return false;
   }
 }
 
@@ -10019,17 +11619,15 @@ function showReport(d, rawName, fromHistory) {
     return `<div class="flag"><span class="flag-icon ${typ}">${icon}</span><span class="flag-text">${katLabel}${text}</span></div>`;
   }).filter(Boolean).join('');
 
+  // Herkunftszeile: benennt, welche Zusatzquellen angesprungen sind.
+  // Register-, Presse- und Sanktionsrecherche laeuft IMMER - deshalb gibt es
+  // hier keinen Warnhinweis mehr, sondern nur eine sachliche Aufzaehlung.
   let banner = '';
   const ds = d._dataSource || '';
-  if (ds.includes('vies') && ds.includes('google')) {
-    banner = `<div class="data-banner"><span class="data-banner-dot"></span>USt-ID offiziell via EU-VIES verifiziert · Bewertungen & Kontakt von Google</div>`;
-  } else if (ds.includes('vies')) {
-    banner = `<div class="data-banner"><span class="data-banner-dot"></span>USt-ID offiziell via EU-VIES verifiziert · Keine Google-Bewertungen gefunden</div>`;
-  } else if (ds.includes('google')) {
-    banner = `<div class="data-banner"><span class="data-banner-dot"></span>Echte Daten von Google · Bewertungen, Kontakt & Standort verifiziert</div>`;
-  } else {
-    banner = `<div class="partial-banner">⚠ Keine externen Daten gefunden – Analyse basiert auf KI-Wissen</div>`;
-  }
+  const teile = ['Register-, Presse- und Online-Recherche', 'Abgleich mit der EU-Sanktionsliste'];
+  if (ds.includes('vies')) teile.push('USt-IdNr. amtlich \u00fcber EU-VIES best\u00e4tigt');
+  if (ds.includes('google')) teile.push('Kontakt und Standort \u00fcber Google');
+  banner = `<div class="data-banner"><span class="data-banner-dot"></span>${teile.join(' \u00b7 ')}</div>`;
 
   const na = v => isNA(v)?'<span class="cc-value na">N/A</span>':`<div class="cc-value">${v}</div>`;
 
@@ -10108,7 +11706,6 @@ function showReport(d, rawName, fromHistory) {
         <div class="bar-track"><div class="bar-fill ${barC(d.gesamtScore)}" style="width:${d.gesamtScore||0}%"></div></div>
         <div class="score-desc">${(d.empfehlung && d.empfehlung.length > 20) ? d.empfehlung.split('.')[0] + '.' : (d.verdictText || 'Prüfung abgeschlossen') + '.'}</div>
         ${d._score_begruendung ? `<div class="score-rechnung" title="So setzt sich der Wert zusammen"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h3"/></svg>${escapeHtml(d._score_begruendung)}</div>` : ''}
-        \${d._score_begruendung ? '<div class="score-rechnung" title="So setzt sich der Wert zusammen"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 7h6M9 12h6M9 17h3"/><rect x="4" y="3" width="16" height="18" rx="2"/></svg>' + escapeHtml(d._score_begruendung) + '</div>' : ''}
       </div>
     </div>
     <div class="grid4 reveal">
@@ -10128,12 +11725,12 @@ function showReport(d, rawName, fromHistory) {
         <div class="cc" id="cc_website" data-kat="Kontakt" data-feld="Website">${ccStift('cc_website')}<div class="cc-label">Website</div><span class="cc-wert">${isNA(d.kontakt.website)?'<span class="cc-value na">N/A</span>':`<a class="maps-link" href="${d.kontakt.website.startsWith('http')?d.kontakt.website:'https://'+d.kontakt.website}" target="_blank">${d.kontakt.website} ↗</a>`}${!isNA(d.kontakt.website)?`<span class="cc-badge ${d.kontakt.httpsOk?'ok':'warn'}" style="margin-left:6px">${d.kontakt.httpsOk?'HTTPS ✓':'Kein HTTPS'}</span>`:''}</span></div>
         <div class="cc" id="cc_email" data-kat="Kontakt" data-feld="E-Mail">${ccStift('cc_email')}<div class="cc-label">E-Mail</div><span class="cc-wert">${na(d.kontakt.email)}</span></div>
         <div class="cc" id="cc_telefon" data-kat="Kontakt" data-feld="Telefon">${ccStift('cc_telefon')}<div class="cc-label">Telefon</div><span class="cc-wert">${na(d.kontakt.telefon)}</span></div>
-        <div class="cc"><div class="cc-label">LinkedIn</div>${d.kontakt.linkedinAktiv && d.kontakt.linkedinUrl && !isNA(d.kontakt.linkedinUrl)?`<a class="maps-link" href="${d.kontakt.linkedinUrl}" target="_blank">Profil öffnen ↗</a>`:`<div class="cc-value ${d.kontakt.linkedinAktiv?'':'na'}">${d.kontakt.linkedinAktiv?'Vorhanden':'N/A'}</div>`}</div>
-        <div class="cc"><div class="cc-label">Social Media</div>${(() => {
+        <div class="cc" id="cc_linkedin" data-kat="Kontakt" data-feld="LinkedIn">${ccStift('cc_linkedin')}<div class="cc-label">LinkedIn</div><span class="cc-wert">${d.kontakt.linkedinAktiv && d.kontakt.linkedinUrl && !isNA(d.kontakt.linkedinUrl)?`<a class="maps-link" href="${d.kontakt.linkedinUrl}" target="_blank">Profil öffnen ↗</a>`:`<div class="cc-value ${d.kontakt.linkedinAktiv?'':'na'}">${d.kontakt.linkedinAktiv?'Vorhanden':'N/A'}</div>`}</span></div>
+        <div class="cc" id="cc_social" data-kat="Kontakt" data-feld="Social Media">${ccStift('cc_social')}<div class="cc-label">Social Media</div><span class="cc-wert">${(() => {
           const links = (d.kontakt.socialLinks||[]).filter(s=>s && s.url && !isNA(s.url));
           if (links.length>0) return links.map(s=>`<a class="maps-link" href="${s.url}" target="_blank" style="display:block;font-size:11px">${s.platform||'Profil'} ↗</a>`).join('');
           return `<div class="cc-value ${isNA(d.kontakt.socialMedia)?'na':''}" style="font-size:11px">${isNA(d.kontakt.socialMedia)?'N/A':d.kontakt.socialMedia}</div>`;
-        })()}</div>
+        })()}</span></div>
       </div>
       ${d.kontakt.source && !isNA(d.kontakt.source) ? `<div style="margin-top:10px;font-size:8px;letter-spacing:.08em;text-transform:uppercase;color:var(--gray-l)">Quelle: ${d.kontakt.source}</div>` : ''}
     </div>
@@ -10141,6 +11738,7 @@ function showReport(d, rawName, fromHistory) {
     <div id="bearbLeiste" class="bearb-leiste"></div>
     ${AUS_HISTORIE ? '<button class="zurueck-hist" onclick="openHistory()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Zur\u00fcck zu Historie &amp; Ordner</button>' : ''}
     ${evidenceHTML(d)}
+    ${manuellHinweisHTML(d)}
     <div id="sankBereich" class="sank-bereich"><div class="sank-laedt">Sanktionslisten werden abgeglichen&hellip;</div></div>
     <div class="flags-card reveal">
       <div class="flags-heading"><span class="sec-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4m0 4h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg></span>Risiko-Hinweise</div>
@@ -11253,14 +12851,19 @@ async function _akteDrucken(folderId) {
         const dj = (r && r.report_json) || {};
         const fname = dj.firmenname || (r && r.firmenname) || '';
         const pid = dj.pruefId || (r && r.pruef_id) || '';
-        const titel = (d.typ === 'ausweis' ? 'Anlage \u00b7 Personalausweis' : 'Anlage \u00b7 Best\u00e4tigungsfoto') + ' \u00b7 ' + fname + ' \u00b7 ' + pid;
+        const basis = (d.typ === 'ausweis') ? 'Personalausweis'
+                    : (d.typ === 'standort') ? 'Eigene Aufnahme' : 'Best\u00e4tigungsfoto';
+        const titel = 'Anlage \u00b7 ' + basis + (d.bezeichnung ? ' (' + d.bezeichnung + ')' : '') + ' \u00b7 ' + fname + ' \u00b7 ' + pid;
         let seite;
         const url = urlMap[d.storage_path];
         if (url) {
-          seite = '<div class="kyc-print-page"><div class="kyc-print-t">' + escapeHtml(titel) + '</div><img class="kyc-print-img" src="' + url + '" alt="" />'
+          seite = '<div class="kyc-print-page"><div class="kyc-print-t">' + escapeHtml(titel) + '</div>'
+            + '<div class="kyc-print-rahmen"><img class="kyc-print-img" src="' + url + '" alt="" /></div>'
             + '<div class="kyc-print-haft">Haftungsausschluss: Die Automati Labs GmbH \u00fcbernimmt keinerlei Haftung f\u00fcr die Authentizit\u00e4t, die Richtigkeit und/oder Vollst\u00e4ndigkeit der hochgeladenen und/oder erstellten Aufnahmen. Es obliegt einzig und allein in der Verantwortung des Nutzers zu ermitteln, ob die verifizierte Person identisch mit den \u00fcbermittelten Ausweisdokumenten ist. Jedwede Art von Verantwortlichkeit wird ausdr\u00fccklich ausgeschlossen.</div></div>';
         } else {
-          seite = '<div class="kyc-print-page"><div class="kyc-print-t">' + escapeHtml(titel) + '</div><div style="font-size:12px;">Dokument liegt als PDF-Datei in der digitalen Akte vor (' + escapeHtml(d.datei_name || '') + ').</div></div>';
+          seite = '<div class="kyc-print-page"><div class="kyc-print-t">' + escapeHtml(titel) + '</div>'
+            + '<div class="kyc-print-fehlt">Dieses Dokument liegt als PDF-Datei in der digitalen Akte vor'
+            + (d.datei_name ? '<br/>(' + escapeHtml(d.datei_name) + ')' : '') + '</div></div>';
         }
         anhaenge[d.analyse_id] = (anhaenge[d.analyse_id] || '') + seite;
       });
