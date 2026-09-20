@@ -2559,6 +2559,78 @@
       .dm-s-dreh { animation:none; }
       .dm-gauge-wert, .dm-balken i { transition:none; }
     }
+
+    /* ============================================================
+       BEARBEITUNGSLEISTE ALS MITLAUFENDES FELD RECHTS
+       Sitzt neben dem Bericht und bleibt beim Scrollen stehen.
+       Ab schmaleren Fenstern wandert sie an den unteren Rand.
+       ============================================================ */
+    @media (min-width:1280px) {
+      .bearb-leiste {
+        position:fixed; right:22px; top:50%; transform:translateY(-50%);
+        width:278px; margin:0; z-index:60;
+        max-height:calc(100vh - 40px); overflow-y:auto; overscroll-behavior:contain;
+        scrollbar-width:thin;
+      }
+      .bearb-leiste::-webkit-scrollbar { width:0; }
+
+      .bearb-karte {
+        flex-direction:column; align-items:stretch; gap:12px; padding:17px;
+        border-radius:18px;
+        box-shadow:0 3px 8px rgba(10,22,17,.05), 0 22px 50px -24px rgba(10,22,17,.5);
+        transform:translateX(18px);
+      }
+      .bearb-karte.an { transform:none; }
+      .bearb-ico { width:38px; height:38px; border-radius:11px; }
+      .bearb-t { font-size:13.5px; }
+      .bearb-d { font-size:11.8px; line-height:1.6; }
+      .bearb-haft { font-size:10px; margin-top:8px; padding-top:8px;
+        border-top:1px solid var(--border2,#EDF0F2); }
+      .bearb-btns { flex-direction:column-reverse; gap:7px; }
+      .bearb-btns .bearb-btn, .bearb-btns .kyc-btn {
+        width:100%; justify-content:center; box-sizing:border-box; }
+      .bearb-leiste .bearb-karte > .bearb-btn {
+        width:100%; justify-content:center; box-sizing:border-box; }
+      .bearb-fassung { display:block; text-align:center; margin-bottom:9px; font-size:10.5px;
+        padding:6px 10px; }
+      /* Platz schaffen, damit die Karte den Bericht nicht verdeckt */
+      body.bearb-offen .report-wrap, body.bearb-offen #report { margin-right:0; }
+    }
+
+    /* Schmalere Fenster: Leiste klebt unten am Rand */
+    @media (max-width:1279px) {
+      .bearb-leiste {
+        position:fixed; left:0; right:0; bottom:0; margin:0; z-index:60;
+        padding:10px 12px calc(10px + env(safe-area-inset-bottom, 0px));
+        background:linear-gradient(180deg, rgba(246,249,247,0), rgba(246,249,247,.96) 38%);
+        pointer-events:none;
+      }
+      .bearb-leiste .bearb-karte, .bearb-leiste .bearb-fassung { pointer-events:auto; }
+      .bearb-karte {
+        max-width:760px; margin:0 auto; padding:13px 15px; border-radius:15px;
+        box-shadow:0 3px 8px rgba(10,22,17,.06), 0 -6px 30px -14px rgba(10,22,17,.4);
+        transform:translateY(14px);
+      }
+      .bearb-karte.an { transform:none; }
+      .bearb-fassung { display:none; }
+      .bearb-ico { display:none; }
+      .bearb-t { font-size:12.5px; margin-bottom:2px; }
+      .bearb-d { font-size:11px; line-height:1.5; }
+      .bearb-haft { display:none; }
+      /* Hilfe-Knopf nach oben schieben, damit nichts überlappt */
+      body.bearb-offen .help-btn { bottom:104px; }
+    }
+    @media (max-width:640px) {
+      .bearb-karte { flex-direction:column; align-items:stretch; gap:10px; }
+      .bearb-btns { gap:7px; }
+      .bearb-btns .bearb-btn, .bearb-btns .kyc-btn { flex:1; justify-content:center; }
+      .bearb-d { font-size:10.8px; }
+    }
+
+    @media print { .bearb-leiste { display:none !important; } }
+    @media (prefers-reduced-motion: reduce) {
+      .bearb-karte { transform:none !important; }
+    }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -4904,18 +4976,26 @@
 <p>9.5 Der Nutzer hat seine Mitarbeiter oder sonstige Dritte, die notwendiger Weise Zugang zu den Daten der Auskunft haben, zur Verschwiegenheit zu verpflichten. Er hat in geeigneter Weise Vorkehrungen zum Schutze und zur Sicherung der ihm anvertrauten Daten gegen den unbefugten Zugriff der eigenen Mitarbeiter oder Dritter zu treffen, und zwar in dem Maße, wie es auch zum Schutz der eigenen Daten üblich ist.</p>
 <p>9.6 Der Nutzer wird hiermit davon unterrichtet, dass Identifikations- und Nutzungsdaten, wie z. B. Adresse und Bestelldatum, gespeichert und zu Dokumentations- und Abrechnungszwecken sowie zur Datensicherheitskontrolle maschinell verarbeitet und genutzt werden.</p>
 <p>9.7 Der Nutzer wird hiermit davon unterrichtet, dass AL den liefernden Auskunfteien und Dienstleistern die belieferten Nutzer samt Anschrift mitteilen wird, wenn die Auskunfteien und Dienstleister die gesetzliche Auskunftspflicht des § 34 BDSG zu erfüllen haben.</p>
-<h3>10. Vertragslaufzeit und Kündigung</h3>
-<p>10.1 Der Vertrag mit dem Nutzer auf Erteilung von Auskünften hat eine Mindestlaufzeit von 36 Monaten. Er verlängert sich um weitere 36 Monate, sofern der Vertrag nicht mit einer Frist von 3 Monaten vor Ablauf durch eingeschriebenen Brief gekündigt wird.</p>
-<p>10.2 AL kann den Vertrag mit einer Frist von 2 Monaten kündigen, wenn der zwischen AL und den dritten Auskunfteien geschlossene Vertrag nicht mehr durchgeführt wird. Das Recht zur außerordentlichen Kündigung bleibt hiervon unberührt.</p>
-<p>10.3 Jede Kündigung bedarf der Schriftform.</p>
-<h3>11. Erfüllungsort, Gerichtsstand und anwendbares Recht</h3>
-<p>11.1 Bei Verträgen unter Vollkaufleuten ist der Erfüllungsort und Gerichtsstand der Sitz von AL. Der Sitz von AL gilt auch dann als vereinbarter Gerichtsstand, wenn der Nutzer seinen Sitz während der Vertragslaufzeit ins Ausland verlegt oder sein Sitz bei Klageerhebung unbekannt ist.</p>
-<p>11.2 Dieses Vertragsverhältnis unterliegt dem Recht der Bundesrepublik Deutschland unter Ausschluss der Vorschriften des UN-Kaufrechtsübereinkommens.</p>
-<h3>12. Schlussbestimmungen</h3>
-<p>12.1 Alle Urheberrechte bleiben vorbehalten. Die jeweils gültige Inkassokostenaufstellung ist Bestandteil dieser allgemeinen Geschäftsbedingungen.</p>
-<p>12.2 Gegen Ansprüche von AL kann der Nutzer nur dann aufrechnen oder ein Zurückbehaltungsrecht geltend machen, wenn die Gegenforderung des Nutzers unbestritten oder rechtskräftig festgestellt ist.</p>
-<p>12.3 Sämtliche Änderungen und Ergänzungen sowie Nebenabreden und Sondervereinbarungen des Vertrages bedürfen zu ihrer Wirksamkeit der schriftlichen Bestätigung durch AL. Dies gilt auch für eine etwaige Aufhebung dieser Klausel.</p>
-<p>12.4 Soweit einzelne Bestimmungen dieser Geschäftsbedingungen unwirksam sind oder werden, wird die Gültigkeit der übrigen Bestimmungen davon nicht berührt. An die Stelle der ungültigen Bestimmungen tritt die für diesen Fall bestehende branchenübliche Bestimmung, bei Fehlen einer zulässigen branchenüblichen die entsprechende gesetzliche Bestimmung.</p>
+<h3>10. Vom Nutzer eingebrachte Inhalte</h3>
+<p>10.1 Der Nutzer hat die Möglichkeit, in einem erstellten Prüfbericht eigene Angaben zu ergänzen oder zu korrigieren sowie Dokumente und Bilddateien hochzuladen (nachfolgend &quot;eingebrachte Inhalte&quot;). Eingebrachte Inhalte werden in den Prüfbericht übernommen und fließen in die Neubewertung sowie in den ausgewiesenen Vertrauenswert ein.</p>
+<p>10.2 Der Nutzer sichert zu, dass die von ihm eingebrachten Inhalte zutreffend und vollständig sind und dass er zu ihrer Verwendung berechtigt ist. Er stellt sicher, dass durch das Hochladen keine Rechte Dritter verletzt werden, insbesondere keine Urheber-, Persönlichkeits- oder Datenschutzrechte.</p>
+<p>10.3 Eine inhaltliche Überprüfung eingebrachter Inhalte durch AL findet nicht statt. Insbesondere wird nicht geprüft, ob hochgeladene Dokumente echt sind, von der ausstellenden Stelle stammen oder den aktuellen Stand wiedergeben. AL haftet nicht für die Richtigkeit, Vollständigkeit und Aktualität eingebrachter Inhalte sowie für Schlussfolgerungen, die auf ihrer Grundlage gezogen werden.</p>
+<p>10.4 Eingebrachte Inhalte werden im Prüfbericht als solche gekennzeichnet. Ein Prüfbericht, der eingebrachte Inhalte enthält, stellt insoweit keine Feststellung von AL dar.</p>
+<p>10.5 Der Nutzer stellt AL von Ansprüchen Dritter frei, die auf der Unrichtigkeit eingebrachter Inhalte oder auf einer Verletzung von Rechten Dritter durch das Hochladen beruhen, soweit der Nutzer die Pflichtverletzung zu vertreten hat.</p>
+<p>10.6 AL ist berechtigt, eingebrachte Inhalte zu entfernen, wenn konkrete Anhaltspunkte dafür bestehen, dass sie rechtswidrig sind oder gegen diese Bedingungen verstoßen.</p>
+<p>10.7 Die Regelungen der Ziffer 7 gelten für Prüfberichte mit eingebrachten Inhalten entsprechend; für diese Inhalte trägt der Nutzer die Verantwortung.</p>
+<h3>11. Vertragslaufzeit und Kündigung</h3>
+<p>11.1 Der Vertrag mit dem Nutzer auf Erteilung von Auskünften hat eine Mindestlaufzeit von 36 Monaten. Er verlängert sich um weitere 36 Monate, sofern der Vertrag nicht mit einer Frist von 3 Monaten vor Ablauf durch eingeschriebenen Brief gekündigt wird.</p>
+<p>11.2 AL kann den Vertrag mit einer Frist von 2 Monaten kündigen, wenn der zwischen AL und den dritten Auskunfteien geschlossene Vertrag nicht mehr durchgeführt wird. Das Recht zur außerordentlichen Kündigung bleibt hiervon unberührt.</p>
+<p>11.3 Jede Kündigung bedarf der Schriftform.</p>
+<h3>12. Erfüllungsort, Gerichtsstand und anwendbares Recht</h3>
+<p>12.1 Bei Verträgen unter Vollkaufleuten ist der Erfüllungsort und Gerichtsstand der Sitz von AL. Der Sitz von AL gilt auch dann als vereinbarter Gerichtsstand, wenn der Nutzer seinen Sitz während der Vertragslaufzeit ins Ausland verlegt oder sein Sitz bei Klageerhebung unbekannt ist.</p>
+<p>12.2 Dieses Vertragsverhältnis unterliegt dem Recht der Bundesrepublik Deutschland unter Ausschluss der Vorschriften des UN-Kaufrechtsübereinkommens.</p>
+<h3>13. Schlussbestimmungen</h3>
+<p>13.1 Alle Urheberrechte bleiben vorbehalten. Die jeweils gültige Inkassokostenaufstellung ist Bestandteil dieser allgemeinen Geschäftsbedingungen.</p>
+<p>13.2 Gegen Ansprüche von AL kann der Nutzer nur dann aufrechnen oder ein Zurückbehaltungsrecht geltend machen, wenn die Gegenforderung des Nutzers unbestritten oder rechtskräftig festgestellt ist.</p>
+<p>13.3 Sämtliche Änderungen und Ergänzungen sowie Nebenabreden und Sondervereinbarungen des Vertrages bedürfen zu ihrer Wirksamkeit der schriftlichen Bestätigung durch AL. Dies gilt auch für eine etwaige Aufhebung dieser Klausel.</p>
+<p>13.4 Soweit einzelne Bestimmungen dieser Geschäftsbedingungen unwirksam sind oder werden, wird die Gültigkeit der übrigen Bestimmungen davon nicht berührt. An die Stelle der ungültigen Bestimmungen tritt die für diesen Fall bestehende branchenübliche Bestimmung, bei Fehlen einer zulässigen branchenüblichen die entsprechende gesetzliche Bestimmung.</p>
 <p>Nürnberg, Juli 2026</p></div>
 <div id="legalDatenschutzHtml" style="display:none;"><h3>Datenschutzerklärung</h3>
 <h3>Datenschutz auf einen Blick</h3>
@@ -4983,7 +5063,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.72</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.74</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -6568,6 +6648,7 @@ function bearbeitenStart() {
   // Nur eine Klasse setzen - der Bericht wird NICHT neu aufgebaut
   const rep = document.getElementById('report') || document.body;
   rep.classList.add('bearb-modus');
+  document.body.classList.add('bearb-offen');
   try { evidenceEigenZeichnen(); } catch(e) {}
   try { evidenceBelegZeichnen(); } catch(e) {}
   bearbLeisteZeichnen();
@@ -6579,6 +6660,7 @@ function bearbeitenAbbruch() {
   ERGAENZUNGEN = {};
   const rep = document.getElementById('report') || document.body;
   rep.classList.remove('bearb-modus');
+  document.body.classList.remove('bearb-offen');
   try { evidenceEigenZeichnen(); } catch(e) {}
   try { evidenceBelegZeichnen(); } catch(e) {}
   // Alle offenen Eingaben und Markierungen zuruecknehmen
