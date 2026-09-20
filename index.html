@@ -2580,7 +2580,6 @@
       box-shadow:0 3px 8px rgba(10,22,17,.05), 0 22px 50px -24px rgba(10,22,17,.5);
       opacity:0; transform:translateX(26px) scale(.965);
       transition:none;                      /* die Einblendung uebernimmt die Animation */
-      will-change:transform, opacity;
     }
     .bearb-leiste.folgt .bearb-karte.an {
       animation:bearbRein .58s cubic-bezier(.22,.9,.3,1.04) both;
@@ -5096,7 +5095,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.78</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.79</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -6671,8 +6670,16 @@ function bearbLeisteFolgen() {
   const l = document.getElementById('bearbSchwebe');
   if (!l || !l.firstChild) return;
   const rep = document.getElementById('report');
-  // Nur zeigen, wenn der Bericht wirklich zu sehen ist
-  if (!rep || !rep.classList.contains('active') || !CURRENT_REPORT) { l.style.display = 'none'; return; }
+  const main = document.getElementById('mainView');
+  // Nur zeigen, wenn der Bericht wirklich zu sehen ist:
+  // - er ist aktiv
+  // - die Hauptansicht ist nicht ausgeblendet (Historie, Team, Akte ...)
+  // - kein Elternelement ist unsichtbar (offsetParent waere dann null)
+  const sichtbar = rep && CURRENT_REPORT
+    && rep.classList.contains('active')
+    && (!main || main.style.display !== 'none')
+    && rep.offsetParent !== null;
+  if (!sichtbar) { l.style.display = 'none'; return; }
   l.style.display = '';
 
   const repR = rep.getBoundingClientRect();
@@ -6695,30 +6702,17 @@ function bearbLeisteFolgen() {
   l.classList.add('folgt');
   l.classList.toggle('schmal', breite < 230);   // kompakte Darstellung bei wenig Platz
   // Exakt in die Mitte des freien Streifens setzen
-  l.style.left = Math.round(repR.right + (platz - breite) / 2) + 'px';
-  l.style.width = breite + 'px';
+  const leftPx = Math.round(repR.right + (platz - breite) / 2) + 'px';
+  const breitePx = breite + 'px';
+  if (l.style.left !== leftPx) l.style.left = leftPx;
+  if (l.style.width !== breitePx) l.style.width = breitePx;
 
-  // Bereich: von der Score-Karte bis zum Ende des Sanktions-Abgleichs
-  const start = rep.querySelector('.score-card');
-  const ende = document.getElementById('sankBereich') || rep.lastElementChild;
-  if (!start) { l.style.top = '16px'; return; }
-
-  const sR = start.getBoundingClientRect();
-  const eR = ende ? ende.getBoundingClientRect() : repR;
+  // Immer mittig im Fenster - keine Start- und Endgrenze.
+  // Dadurch haengt die Position nicht vom Scrollen ab und bleibt absolut ruhig.
   const hoehe = l.offsetHeight || 200;
-
-  const obenGrenze = sR.top;                    // nicht höher als der Score
-  const untenGrenze = eR.bottom - hoehe;        // nicht tiefer als die Sanktionsliste
-  const wunsch = Math.round((window.innerHeight - hoehe) / 2);
-
-  let top = wunsch;
-  if (top < obenGrenze) top = obenGrenze;
-  if (top > untenGrenze) top = untenGrenze;
-  if (untenGrenze < obenGrenze) top = obenGrenze;   // Bereich kürzer als die Karte
-  // Immer im sichtbaren Fenster halten
-  top = Math.max(14, Math.min(top, window.innerHeight - hoehe - 14));
-
-  l.style.top = Math.round(top) + 'px';
+  const top = Math.max(14, Math.round((window.innerHeight - hoehe) / 2));
+  const topPx = top + 'px';
+  if (l.style.top !== topPx) l.style.top = topPx;   // nur schreiben, wenn sich etwas aendert
 }
 
 let BEARB_TICK = false;
@@ -7097,9 +7091,15 @@ function appUnterseitenReset() {
   ['historyView','teamView','akteView','supportView'].forEach(function(id){ const e = document.getElementById(id); if (e) e.style.display = 'none'; });
   const mv = document.getElementById('mainView'); if (mv) mv.style.display = 'block';
   const sc = document.querySelector('.search-card'); if (sc) sc.style.display = '';
+  try { bearbLeisteFolgen(); } catch(e) {}
 }
 // Sanftes Reinfaden eines Bereichs (Animation neu auslösen)
-function fadeInView(el) { if (!el) return; el.classList.remove('view-anim', 'view-out'); void el.offsetWidth; el.classList.add('view-anim'); }
+function fadeInView(el) {
+  if (!el) return;
+  el.classList.remove('view-anim', 'view-out'); void el.offsetWidth; el.classList.add('view-anim');
+  // Bearbeitungsleiste nur zeigen, wenn der Bericht sichtbar ist
+  try { bearbLeisteFolgen(); } catch(e) {}
+}
 // Blendet die aktuell sichtbare App-Hauptansicht sanft RAUS, dann erst den Wechsel (cb)
 function mitAusBlende(cb) {
   const ids = ['mainView', 'historyView', 'teamView', 'akteView'];
@@ -7113,6 +7113,7 @@ function mitAusBlende(cb) {
     cur.classList.add('view-out');
     setTimeout(function () {
       cb();                                   // wechseln; 'view-out' bleibt drauf
+      try { bearbLeisteFolgen(); } catch(e) {}
       // Sicherheitsnetz: falls die Ansicht doch sichtbar bleibt, Klasse spaeter loesen
       setTimeout(function(){
         if (cur && cur.style.display === 'none') cur.classList.remove('view-out');
