@@ -2566,6 +2566,8 @@
        rechts NEBEN dem Bericht, und nur im Bereich zwischen
        Vertrauensscore und Sanktionslisten-Abgleich.
        ============================================================ */
+    #bearbSchwebe { margin:0; }
+    #bearbSchwebe:empty { display:none; }
     .bearb-leiste.folgt {
       position:fixed; margin:0; z-index:60;
       max-height:calc(100vh - 28px); overflow-y:auto; overscroll-behavior:contain;
@@ -5067,7 +5069,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.76</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.77</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -6614,15 +6616,37 @@ function bearbIcoSvg() {
 // bleibt nur zwischen Vertrauensscore und Sanktionslisten-Abgleich
 // stehen. Ist daneben kein Platz, klebt sie unten am Rand.
 // ============================================================
+// Die Karte lebt direkt im <body>. Im Bericht selbst darf sie nicht
+// liegen: dessen Einblend-Animation setzt ein transform, und damit
+// wuerde sich "position:fixed" auf den Bericht beziehen statt aufs
+// Fenster - die Karte wandert dann beim Scrollen mit oder verschwindet.
+function bearbSchwebe() {
+  let sch = document.getElementById('bearbSchwebe');
+  if (!sch) {
+    sch = document.createElement('div');
+    sch.id = 'bearbSchwebe';
+    sch.className = 'bearb-leiste';
+    document.body.appendChild(sch);
+  }
+  return sch;
+}
+
+function bearbSchwebeVerstecken() {
+  const sch = document.getElementById('bearbSchwebe');
+  if (sch) sch.style.display = 'none';
+}
+
 const BEARB_BREITE_MAX = 278;   // wenn viel Platz ist
 const BEARB_BREITE_MIN = 164;   // schmalste noch brauchbare Karte
 const BEARB_LUFT = 16;          // Abstand zum Bericht
 
 function bearbLeisteFolgen() {
-  const l = document.getElementById('bearbLeiste');
+  const l = document.getElementById('bearbSchwebe');
   if (!l || !l.firstChild) return;
   const rep = document.getElementById('report');
-  if (!rep || rep.style.display === 'none') { l.classList.remove('folgt','unten'); return; }
+  // Nur zeigen, wenn der Bericht wirklich zu sehen ist
+  if (!rep || !rep.classList.contains('active') || !CURRENT_REPORT) { l.style.display = 'none'; return; }
+  l.style.display = '';
 
   const repR = rep.getBoundingClientRect();
   const platz = window.innerWidth - repR.right;
@@ -6679,7 +6703,9 @@ window.addEventListener('resize', bearbLeisteTick);
 function bearbLeisteZeichnen() {
   // Wieviele Dokumente liegen bereit? Auch sie rechtfertigen eine Neubewertung.
   const belegAnz = (typeof KYC !== 'undefined' && KYC.doks && KYC.doks.beleg) ? KYC.doks.beleg.length : 0;
-  const l = document.getElementById('bearbLeiste');
+  const ph = document.getElementById('bearbLeiste');
+  if (ph) ph.innerHTML = '';                 // Platzhalter im Bericht bleibt leer
+  const l = bearbSchwebe();
   if (!l || !CURRENT_REPORT) return;
   const n = Object.keys(ERGAENZUNGEN).length;
   const bereit = (n > 0 || belegAnz > 0);
@@ -10091,6 +10117,7 @@ function zumTool() {
     appUnterseitenReset();
     const rep = document.getElementById('report');
     if (rep) rep.classList.remove('active');
+    bearbSchwebeVerstecken();
     const empty = document.getElementById('emptyState');
     if (empty && rep && !rep.classList.contains('active')) empty.style.display = '';
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -10682,6 +10709,7 @@ async function startSearch(ignoriereDuplikat) {
   if (ust && UST_ART === 'stnr') ust = 'StNr: ' + ust;
   document.getElementById('emptyState').style.display = 'none';
   document.getElementById('report').classList.remove('active');
+  bearbSchwebeVerstecken();
   document.getElementById('loading').classList.add('active');
   document.getElementById('searchBtn').disabled = true;
   stepIdx = 0; setStep(STEPS[0]); fortschrittStart();
@@ -11920,6 +11948,7 @@ function showReport(d, rawName, fromHistory) {
     </div>`;
 
   document.getElementById('report').classList.add('active');
+  setTimeout(bearbLeisteFolgen, 50);
   if (d && d.pruefId) initKyc(d.pruefId);
 
   // WASSERZEICHEN für Ausdrucke aufbauen (E-Mail + Zeitstempel + gespeicherte Prüf-ID)
