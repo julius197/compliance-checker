@@ -2592,6 +2592,17 @@
     .bearb-leiste.folgt .bearb-fassung { display:block; text-align:center; margin-bottom:9px;
       font-size:10.5px; padding:6px 10px; }
 
+    /* Wenig Platz daneben: kompakte Karte */
+    .bearb-leiste.folgt.schmal .bearb-karte { padding:13px; gap:9px; border-radius:15px; }
+    .bearb-leiste.folgt.schmal .bearb-ico { display:none; }
+    .bearb-leiste.folgt.schmal .bearb-t { font-size:12.5px; line-height:1.3; }
+    .bearb-leiste.folgt.schmal .bearb-d { font-size:10.8px; line-height:1.55; }
+    .bearb-leiste.folgt.schmal .bearb-haft { font-size:9.5px; }
+    .bearb-leiste.folgt.schmal .bearb-btn,
+    .bearb-leiste.folgt.schmal .kyc-btn { padding:10px 8px; font-size:12px; }
+    .bearb-leiste.folgt.schmal .bearb-label { white-space:normal; text-align:center; }
+    .bearb-leiste.folgt.schmal .bearb-fassung { font-size:9.5px; padding:5px 8px; }
+
     /* Kein Platz daneben: Leiste klebt unten am Rand */
     .bearb-leiste.unten {
       position:fixed; left:0; right:0; bottom:0; top:auto; margin:0; z-index:60;
@@ -5056,7 +5067,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.75</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.76</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -6603,8 +6614,9 @@ function bearbIcoSvg() {
 // bleibt nur zwischen Vertrauensscore und Sanktionslisten-Abgleich
 // stehen. Ist daneben kein Platz, klebt sie unten am Rand.
 // ============================================================
-const BEARB_BREITE = 278;
-const BEARB_LUFT = 22;
+const BEARB_BREITE_MAX = 278;   // wenn viel Platz ist
+const BEARB_BREITE_MIN = 164;   // schmalste noch brauchbare Karte
+const BEARB_LUFT = 16;          // Abstand zum Bericht
 
 function bearbLeisteFolgen() {
   const l = document.getElementById('bearbLeiste');
@@ -6615,9 +6627,12 @@ function bearbLeisteFolgen() {
   const repR = rep.getBoundingClientRect();
   const platz = window.innerWidth - repR.right;
 
-  // Passt die Karte rechts neben den Bericht?
-  if (platz < BEARB_BREITE + BEARB_LUFT + 10) {
-    l.classList.remove('folgt');
+  // Wie breit darf die Karte im freien Streifen rechts sein?
+  const breite = Math.min(BEARB_BREITE_MAX, Math.floor(platz - BEARB_LUFT - 12));
+
+  // Erst wenn selbst die schmalste Karte nicht mehr passt: nach unten
+  if (breite < BEARB_BREITE_MIN) {
+    l.classList.remove('folgt','schmal');
     l.classList.add('unten');
     l.style.left = ''; l.style.top = ''; l.style.width = '';
     return;
@@ -6625,8 +6640,9 @@ function bearbLeisteFolgen() {
 
   l.classList.remove('unten');
   l.classList.add('folgt');
+  l.classList.toggle('schmal', breite < 230);   // kompakte Darstellung bei wenig Platz
   l.style.left = Math.round(repR.right + BEARB_LUFT) + 'px';
-  l.style.width = BEARB_BREITE + 'px';
+  l.style.width = breite + 'px';
 
   // Bereich: von der Score-Karte bis zum Ende des Sanktions-Abgleichs
   const start = rep.querySelector('.score-card');
