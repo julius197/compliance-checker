@@ -2578,9 +2578,30 @@
       flex-direction:column; align-items:stretch; gap:12px; padding:17px;
       border-radius:18px;
       box-shadow:0 3px 8px rgba(10,22,17,.05), 0 22px 50px -24px rgba(10,22,17,.5);
-      transform:translateX(18px);
+      opacity:0; transform:translateX(26px) scale(.965);
+      transition:none;                      /* die Einblendung uebernimmt die Animation */
+      will-change:transform, opacity;
     }
-    .bearb-leiste.folgt .bearb-karte.an { transform:none; }
+    .bearb-leiste.folgt .bearb-karte.an {
+      animation:bearbRein .58s cubic-bezier(.22,.9,.3,1.04) both;
+    }
+    @keyframes bearbRein {
+      0%   { opacity:0; transform:translateX(26px) scale(.965); }
+      60%  { opacity:1; }
+      100% { opacity:1; transform:translateX(0) scale(1); }
+    }
+    /* Inhalt der Karte laeuft leicht versetzt nach */
+    .bearb-leiste.folgt .bearb-karte.an > * {
+      animation:bearbReinInhalt .5s cubic-bezier(.2,.8,.3,1) both;
+    }
+    .bearb-leiste.folgt .bearb-karte.an > *:nth-child(1) { animation-delay:.12s; }
+    .bearb-leiste.folgt .bearb-karte.an > *:nth-child(2) { animation-delay:.18s; }
+    .bearb-leiste.folgt .bearb-karte.an > *:nth-child(3) { animation-delay:.24s; }
+    .bearb-leiste.folgt .bearb-karte.an > *:nth-child(4) { animation-delay:.30s; }
+    @keyframes bearbReinInhalt {
+      from { opacity:0; transform:translateX(8px); }
+      to   { opacity:1; transform:none; }
+    }
     .bearb-leiste.folgt .bearb-ico { width:38px; height:38px; border-radius:11px; }
     .bearb-leiste.folgt .bearb-t { font-size:13.5px; }
     .bearb-leiste.folgt .bearb-d { font-size:11.8px; line-height:1.6; }
@@ -2616,9 +2637,13 @@
     .bearb-leiste.unten .bearb-karte {
       max-width:760px; margin:0 auto; padding:13px 15px; border-radius:15px;
       box-shadow:0 3px 8px rgba(10,22,17,.06), 0 -6px 30px -14px rgba(10,22,17,.4);
-      transform:translateY(14px);
+      opacity:0; transform:translateY(18px); transition:none;
     }
-    .bearb-leiste.unten .bearb-karte.an { transform:none; }
+    .bearb-leiste.unten .bearb-karte.an { animation:bearbReinUnten .5s cubic-bezier(.22,.9,.3,1.04) both; }
+    @keyframes bearbReinUnten {
+      from { opacity:0; transform:translateY(18px); }
+      to   { opacity:1; transform:none; }
+    }
     .bearb-leiste.unten .bearb-fassung,
     .bearb-leiste.unten .bearb-ico,
     .bearb-leiste.unten .bearb-haft { display:none; }
@@ -2636,7 +2661,9 @@
     }
 
     @media print { .bearb-leiste { display:none !important; } }
-    @media (prefers-reduced-motion: reduce) { .bearb-karte { transform:none !important; } }
+    @media (prefers-reduced-motion: reduce) {
+      .bearb-karte, .bearb-karte > * { animation:none !important; opacity:1 !important; transform:none !important; }
+    }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -5069,7 +5096,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.77</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.78</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -6638,7 +6665,7 @@ function bearbSchwebeVerstecken() {
 
 const BEARB_BREITE_MAX = 278;   // wenn viel Platz ist
 const BEARB_BREITE_MIN = 164;   // schmalste noch brauchbare Karte
-const BEARB_LUFT = 16;          // Abstand zum Bericht
+const BEARB_RAND = 14;          // Mindestabstand zu Bericht UND Fensterrand
 
 function bearbLeisteFolgen() {
   const l = document.getElementById('bearbSchwebe');
@@ -6649,10 +6676,12 @@ function bearbLeisteFolgen() {
   l.style.display = '';
 
   const repR = rep.getBoundingClientRect();
-  const platz = window.innerWidth - repR.right;
+  // Sichtbare Breite ohne Bildlaufleiste, sonst haengt die Karte rechts ueber
+  const fenster = document.documentElement.clientWidth || window.innerWidth;
+  const platz = fenster - repR.right;
 
-  // Wie breit darf die Karte im freien Streifen rechts sein?
-  const breite = Math.min(BEARB_BREITE_MAX, Math.floor(platz - BEARB_LUFT - 12));
+  // Wie breit darf die Karte im freien Streifen sein? Links und rechts bleibt Rand.
+  const breite = Math.min(BEARB_BREITE_MAX, Math.floor(platz - BEARB_RAND * 2));
 
   // Erst wenn selbst die schmalste Karte nicht mehr passt: nach unten
   if (breite < BEARB_BREITE_MIN) {
@@ -6665,7 +6694,8 @@ function bearbLeisteFolgen() {
   l.classList.remove('unten');
   l.classList.add('folgt');
   l.classList.toggle('schmal', breite < 230);   // kompakte Darstellung bei wenig Platz
-  l.style.left = Math.round(repR.right + BEARB_LUFT) + 'px';
+  // Exakt in die Mitte des freien Streifens setzen
+  l.style.left = Math.round(repR.right + (platz - breite) / 2) + 'px';
   l.style.width = breite + 'px';
 
   // Bereich: von der Score-Karte bis zum Ende des Sanktions-Abgleichs
@@ -6692,8 +6722,9 @@ function bearbLeisteFolgen() {
 }
 
 let BEARB_TICK = false;
+let BEARB_RUHE = false;   // waehrend der Einblendung keine Neuberechnung
 function bearbLeisteTick() {
-  if (BEARB_TICK) return;
+  if (BEARB_TICK || BEARB_RUHE) return;
   BEARB_TICK = true;
   requestAnimationFrame(function(){ BEARB_TICK = false; bearbLeisteFolgen(); });
 }
@@ -6737,12 +6768,16 @@ function bearbLeisteZeichnen() {
       + '<span class="bearb-label">Neu bewerten' + (n ? ' \u00b7 ' + n : '') + '</span></button>'
       + '</div></div>';
   }
+  // Erst positionieren, dann einblenden - nie beides gleichzeitig.
+  // Waehrend der Einblendung wird nicht mehr nachgerechnet, sonst zittert es.
+  BEARB_RUHE = true;
   bearbLeisteFolgen();
   requestAnimationFrame(function(){
-    const k = l.querySelector('.bearb-karte'); if (k) k.classList.add('an');
-    bearbLeisteFolgen();
+    requestAnimationFrame(function(){
+      const k = l.querySelector('.bearb-karte'); if (k) k.classList.add('an');
+      setTimeout(function(){ BEARB_RUHE = false; bearbLeisteFolgen(); }, 620);
+    });
   });
-  setTimeout(bearbLeisteFolgen, 260);
 }
 
 function bearbeitenStart() {
