@@ -4992,7 +4992,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.80</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.81</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -6688,6 +6688,25 @@ function feldAbbruch(feldId) {
   }
 }
 
+// Datensatz-ID der aktuellen Analyse zuverlaessig ermitteln.
+// Reihenfolge: im Bericht gemerkt -> aus der KYC-Ablage -> aus der Historie -> Datenbank
+async function analyseIdErmitteln(d) {
+  if (d && d._analyseId) return d._analyseId;
+  if (typeof KYC !== 'undefined' && KYC.analyseId && KYC.pruefId === (d && d.pruefId)) return KYC.analyseId;
+  const pid = d && (d.pruefId || d.pruef_id);
+  if (!pid) return null;
+  try {
+    const row = (HISTORY_ROWS || []).find(function(x){ return x.pruef_id === pid; });
+    if (row && row.id) return row.id;
+  } catch(e) {}
+  if (!sb) return null;
+  try {
+    const q = await sb.from('analysen').select('id').eq('pruef_id', pid).limit(1);
+    if (q && q.data && q.data[0] && q.data[0].id) return q.data[0].id;
+  } catch(e) {}
+  return null;
+}
+
 async function neuBewerten() {
   const n = Object.keys(ERGAENZUNGEN).length;
   const belegeRoh = (typeof KYC !== 'undefined' && KYC.doks && KYC.doks.beleg) ? KYC.doks.beleg : [];
@@ -6715,15 +6734,37 @@ async function neuBewerten() {
     neu._analyseId = CURRENT_REPORT._analyseId;
     neu._sanktionen = CURRENT_REPORT._sanktionen;
 
-    // In der Datenbank als neue Fassung sichern
-    const analyseId = CURRENT_REPORT._analyseId || (HISTORY_ROWS.find(function(x){ return x.pruef_id === neu.pruefId; }) || {}).id;
-    if (analyseId && sb) {
-      try {
-        await sb.rpc('fassung_speichern', {
-          p_analyse: analyseId, p_report: neu, p_score: neu.gesamtScore,
-          p_grund: 'neubewertung', p_ergaenzungen: erg
-        });
-      } catch (e) { console.warn('Fassung speichern:', e && e.message); }
+    // In der Datenbank als neue Fassung sichern.
+    // WICHTIG: sb.rpc() wirft keinen Fehler, es gibt ihn zurueck - deshalb
+    // wird das Ergebnis hier ausdruecklich geprueft. Ohne Speicherung wuerde
+    // beim naechsten Oeffnen aus der Historie die alte Fassung erscheinen.
+    const analyseId = await analyseIdErmitteln(neu);
+    let gespeichert = false;
+    let speicherFehler = '';
+    if (!analyseId) {
+      speicherFehler = 'Der Datensatz der Analyse wurde nicht gefunden.';
+    } else if (!sb) {
+      speicherFehler = 'Keine Verbindung zur Datenbank.';
+    } else {
+      const r2 = await sb.rpc('fassung_speichern', {
+        p_analyse: analyseId, p_report: neu, p_score: neu.gesamtScore,
+        p_grund: 'neubewertung', p_ergaenzungen: erg
+      });
+      if (r2 && r2.error) {
+        speicherFehler = r2.error.message || 'Unbekannter Datenbankfehler';
+      } else if (r2 && r2.data && r2.data.ok === false) {
+        speicherFehler = r2.data.grund || 'Speichern abgelehnt';
+      } else {
+        gespeichert = true;
+        if (r2 && r2.data && r2.data.fassung) neu._fassung = r2.data.fassung;
+        neu._analyseId = analyseId;
+        // Historie im Speicher sofort aktualisieren, damit ein erneutes
+        // Oeffnen die neue Fassung zeigt - auch bevor die Liste neu laedt
+        try {
+          const row = HISTORY_ROWS.find(function(x){ return x.id === analyseId || x.pruef_id === neu.pruefId; });
+          if (row) { row.report_json = neu; row.score = neu.gesamtScore; }
+        } catch(e) {}
+      }
     }
 
     BEARBEITEN_AN = false;
@@ -6731,12 +6772,19 @@ async function neuBewerten() {
     try { (document.getElementById('report') || document.body).classList.remove('bearb-modus'); } catch(e) {}
     const alt = CURRENT_REPORT.gesamtScore;
     CURRENT_REPORT = neu;
-    showReport(neu, neu.firmenname, AUS_HISTORIE);
+    showReport(neu, neu.firmenname, AUS_HISTORIE, true);   // true = nicht erneut einfuegen
     setTimeout(function(){
       bearbLeisteZeichnen();
       const diff = (neu.gesamtScore || 0) - (alt || 0);
-      zeigeToast('Neu bewertet', 'Score: ' + alt + ' \u2192 ' + neu.gesamtScore + (diff ? ' (' + (diff > 0 ? '+' : '') + diff + ')' : '') + '. Fassung ' + neu._fassung + ' gespeichert.');
-      try { ladeHistorie(); } catch(e) {}
+      if (gespeichert) {
+        zeigeToast('Neu bewertet', 'Score: ' + alt + ' \u2192 ' + neu.gesamtScore + (diff ? ' (' + (diff > 0 ? '+' : '') + diff + ')' : '') + '. Fassung ' + neu._fassung + ' gespeichert.');
+        try { ladeHistorie(); } catch(e) {}
+      } else {
+        // Ehrlich bleiben: Bericht ist zu sehen, aber NICHT gesichert
+        alert('Der Bericht wurde neu bewertet und wird angezeigt \u2013 konnte aber NICHT gespeichert werden:\n\n'
+          + speicherFehler + '\n\nBitte drucke ihn jetzt, falls du ihn brauchst, und versuche die Neubewertung sp\u00e4ter erneut. '
+          + 'Bleibt der Fehler, schreib an support@automatilabs.de.');
+      }
     }, 80);
   } catch (e) {
     alert('Neubewertung fehlgeschlagen: ' + ((e && e.message) || ''));
@@ -9810,12 +9858,22 @@ function druckenMoeglich() {
 
 function druckeJetzt() {
   if (!druckenMoeglich()) { druckAusweg(); return; }
+  // Offene Ergaenzungen, die noch nicht neu bewertet wurden? Dann waere der
+  // Ausdruck weder Original noch neue Fassung - lieber vorher fragen.
+  try {
+    const offen = (typeof ERGAENZUNGEN !== 'undefined') ? Object.keys(ERGAENZUNGEN).length : 0;
+    if (BEARBEITEN_AN && offen) {
+      const weiter = confirm('Du hast ' + offen + ' Angabe' + (offen === 1 ? '' : 'n') + ' erg\u00e4nzt, aber noch nicht auf \u201eNeu bewerten\u201c geklickt.\n\n'
+        + 'Der Ausdruck w\u00fcrde diese Angaben ohne Neubewertung und ohne Speicherung enthalten.\n\n'
+        + 'Trotzdem drucken? (Abbrechen = erst neu bewerten)');
+      if (!weiter) return;
+    }
+  } catch(e) {}
   // WICHTIG: window.print() muss direkt in der Nutzer-Aktion laufen.
   // In einem Timer blockiert iOS Safari den Aufruf komplett.
   const alterTitel = document.title;
   try {
     ['helpPop','trOverlay'].forEach(function(id){ const e = document.getElementById(id); if (e) e.style.display = 'none'; });
-    CHAT_DS_OK = null; CHAT_UID = null;   // beim naechsten Konto erneut pruefen
     document.querySelectorAll('.tr-toast').forEach(function(t){ t.remove(); });
     document.title = druckDateiname();            // legt den Namen der PDF-Datei fest
   } catch (e) {}
@@ -10480,6 +10538,7 @@ async function kontoLoeschenFinal() {
     if (!res || res.error) throw new Error((res && res.error) || 'Unbekannter Fehler');
     // Erfolg -> Overlay zu, abmelden (SIGNED_OUT -> Login-Seite), Hinweis zeigen
     const g = document.getElementById('kontoGate'); if (g) g.style.display = 'none';
+    CHAT_DS_OK = null; CHAT_UID = null;   // beim naechsten Konto erneut pruefen
     await sb.auth.signOut();
     setTimeout(function () { showAuthMsg('Dein Konto wurde gelöscht. Du kannst dich jederzeit neu registrieren.', 'ok'); }, 250);
   } catch (e) {
@@ -10550,10 +10609,10 @@ async function runAnalysis(name, ust, land) {
       setStep('USt-ID wird offiziell geprüft (VIES)…');
       try {
         const viesRes = await workerCall('vies', { vatId: ust.trim() });
-        if (viesRes && viesRes.valid) {
-          viesData = viesRes;
+        if (viesRes && (viesRes.valid || viesRes.status)) {
+          viesData = viesRes;           // auch "nicht erreichbar" / "ungueltig" weitergeben
           // Offiziellen Namen für Google-Suche verwenden
-          if (viesRes.name && viesRes.name !== '---') searchName = viesRes.name;
+          if (viesRes.valid && viesRes.name && viesRes.name !== '---') searchName = viesRes.name;
         }
       } catch(e) {}
     }
@@ -10613,7 +10672,9 @@ async function runAnalysis(name, ust, land) {
         report = JSON.parse(retryText); // wenn das auch fehlschlägt → catch unten
       }
     }
-    report._dataSource = (viesData ? 'vies' : '') + (googleData ? 'google' : (viesData ? '' : 'ki'));
+    const viesOk = !!(viesData && viesData.valid);
+    report._dataSource = (viesOk ? 'vies' : '') + (googleData ? 'google' : (viesOk ? '' : 'ki'));
+    if (viesData && viesData.status === 'unavailable') report._viesUnavailable = true;
     if (land && land !== 'Andere') report._land = land;
 
     // Standort-Beweismittel: ALLE Google-Fotos (falls vorhanden) + Adresse für Street View
@@ -11554,7 +11615,7 @@ async function kycLoeschenEin(typ, n) {
   } catch (e) { console.warn('KYC l\u00f6schen:', e && e.message); }
 }
 
-function showReport(d, rawName, fromHistory) {
+function showReport(d, rawName, fromHistory, nichtSpeichern) {
   // Aus der Historie geöffnet = nur ANSEHEN -> Suchformular oben ausblenden.
   // "Neue Analyse" unten lädt die Seite neu und zeigt das Formular wieder.
   const sc = document.querySelector('.search-card');
@@ -11841,7 +11902,11 @@ function showReport(d, rawName, fromHistory) {
   }
 
   // Frisch erstellte Analyse in der Historie speichern (nicht beim erneuten Öffnen aus der Historie)
-  if (!fromHistory) saveAnalysisToHistory(d, rawName);
+  // Nur eine FRISCHE Analyse wird hier eingefuegt. Eine Neubewertung ist bereits
+  // ueber fassung_speichern gesichert - ein zweites Insert wuerde wegen der
+  // gleichen Pruef-ID abgelehnt, eine NEUE Pruef-ID erzeugen und ein Duplikat
+  // anlegen, das zusaetzlich das Kontingent belastet.
+  if (!fromHistory && !nichtSpeichern) saveAnalysisToHistory(d, rawName);
 }
 
 // ===== HISTORIE =====
@@ -12518,8 +12583,9 @@ function _openFromHistory(i) {
   const r = HISTORY_ROWS[i];
   if (!r || !r.report_json) return;
   const d = r.report_json;
-  // Ursprüngliche Prüf-ID / Datum sichern, falls im JSON nicht vorhanden
+  // Ursprüngliche Prüf-ID / Datum / Datensatz-ID sichern
   if (!d.pruefId && r.pruef_id) d.pruefId = r.pruef_id;
+  if (r.id) d._analyseId = r.id;
   if (!d._createdAt && r.created_at) d._createdAt = r.created_at;
   const view = document.getElementById('historyView');
   const main = document.getElementById('mainView');
