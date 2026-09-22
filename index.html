@@ -2560,6 +2560,143 @@
       .dm-gauge-wert, .dm-balken i { transition:none; }
     }
 
+
+    /* ============================================================
+       NACHWEISE & UNTERLAGEN
+       ============================================================ */
+    .nw-card { position:relative; }
+    .nw-head { display:flex; align-items:center; gap:12px; margin-bottom:16px; }
+    .nw-ico { width:42px; height:42px; border-radius:11px; flex-shrink:0;
+      background:linear-gradient(135deg,#3FA45C,#2E8749); display:flex; align-items:center; justify-content:center;
+      box-shadow:0 4px 12px rgba(46,135,73,.3); }
+    .nw-titel { flex:1; min-width:0; }
+    .nw-sub { font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--green-dd,#15803D); font-weight:700; margin-bottom:2px; }
+    .nw-t { font-size:17px; font-weight:800; color:var(--ink,#111827); letter-spacing:-.01em; }
+    .nw-modus { display:inline-flex; align-items:center; gap:7px; padding:9px 14px; border-radius:10px; cursor:pointer;
+      font-family:inherit; font-size:12.5px; font-weight:700; color:var(--ink2,#1F2937);
+      background:#fff; border:1.5px solid var(--border,#E2E6E9); flex-shrink:0;
+      transition:all .18s; }
+    .nw-modus:hover { border-color:#2E8749; color:#2E8749; transform:translateY(-1px); }
+    .nw-modus.an { background:#2E8749; border-color:#2E8749; color:#fff; box-shadow:0 8px 18px -10px rgba(46,135,73,.8); }
+
+    .nw-tabs { display:inline-flex; gap:3px; padding:3px; border-radius:11px; background:var(--neutral,#F6F8F9);
+      border:1px solid var(--border2,#EDF0F2); margin-bottom:14px; }
+    .nw-tab { display:inline-flex; align-items:center; gap:7px; padding:8px 13px; border:none; border-radius:8px;
+      background:transparent; color:var(--gray,#5A6670); font-family:inherit; font-size:12.5px; font-weight:700; cursor:pointer;
+      transition:all .18s; }
+    .nw-tab:hover { color:var(--ink,#111827); }
+    .nw-tab.aktiv { background:#fff; color:#2E8749; box-shadow:0 1px 3px rgba(10,22,17,.08); }
+    .nw-z { min-width:18px; height:18px; padding:0 6px; border-radius:999px; font-size:10.5px; font-weight:800;
+      display:inline-flex; align-items:center; justify-content:center; background:var(--border2,#EDF0F2); color:var(--gray,#5A6670); }
+    .nw-tab.aktiv .nw-z { background:#EDF5F0; color:#2E8749; }
+
+    .nw-inhalt { display:flex; flex-direction:column; gap:12px; }
+    .nw-drop { position:relative; border:2px dashed rgba(46,135,73,.4); border-radius:14px; padding:22px 18px; text-align:center;
+      background:linear-gradient(180deg,#F8FCF9,#F1F8F3); transition:border-color .18s, background .18s, transform .18s; }
+    .nw-card.drag .nw-drop { border-color:#2E8749; background:#EAF6EE; transform:scale(1.005); }
+    .nw-drop-ico { width:44px; height:44px; margin:0 auto 9px; border-radius:13px; background:#fff; color:#2E8749;
+      display:flex; align-items:center; justify-content:center; border:1px solid rgba(46,135,73,.2); }
+    .nw-drop-t { font-size:13.5px; font-weight:700; color:var(--ink,#111827); }
+    .nw-drop-s { font-size:11.3px; color:var(--gray,#5A6670); margin:3px 0 12px; }
+    .nw-drop-btns { display:flex; gap:8px; justify-content:center; flex-wrap:wrap; }
+    .nw-btn { display:inline-flex; align-items:center; gap:7px; padding:10px 15px; border-radius:10px; cursor:pointer;
+      font-family:inherit; font-size:12.5px; font-weight:700; color:var(--ink2,#1F2937);
+      background:#fff; border:1.5px solid var(--border,#E2E6E9); transition:all .18s; }
+    .nw-btn:hover { transform:translateY(-1px); border-color:#2E8749; color:#2E8749; }
+    .nw-btn-p { background:linear-gradient(145deg,#3FA45C,#2E8749); border-color:transparent; color:#fff;
+      box-shadow:0 8px 18px -10px rgba(46,135,73,.8); }
+    .nw-btn-p:hover { color:#fff; filter:brightness(1.06); }
+    .nw-fortschritt { position:relative; display:flex; align-items:center; gap:9px; padding:11px 14px; border-radius:10px;
+      background:#fff; border:1px solid var(--border2,#EDF0F2); font-size:12px; font-weight:600; color:var(--gray,#5A6670); overflow:hidden; }
+    .nw-fortschritt i { position:absolute; left:0; bottom:0; height:3px; background:#2E8749; transition:width .3s; }
+    .nw-warte { display:flex; align-items:center; gap:9px; padding:12px 14px; border-radius:10px; background:var(--neutral,#F6F8F9);
+      font-size:12px; color:var(--gray,#5A6670); }
+
+    .nw-leer { text-align:center; padding:30px 16px 26px; border-radius:14px; background:var(--neutral,#F6F8F9);
+      border:1px solid var(--border2,#EDF0F2); }
+    .nw-leer.im-modus { padding:16px; }
+    .nw-leer-ico { width:52px; height:52px; margin:0 auto 10px; border-radius:15px; background:#fff; color:#A3B1A9;
+      display:flex; align-items:center; justify-content:center; border:1px solid var(--border2,#EDF0F2); }
+    .nw-leer.im-modus .nw-leer-ico { display:none; }
+    .nw-leer-t { font-size:13.5px; font-weight:700; color:var(--ink,#111827); }
+    .nw-leer-s { font-size:11.5px; color:var(--gray,#5A6670); margin:4px auto 14px; max-width:420px; line-height:1.55; }
+    .nw-leer.im-modus .nw-leer-s { margin-bottom:0; }
+
+    .nw-galerie { display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:10px; }
+    .nw-kachel { border-radius:12px; overflow:hidden; background:#fff; border:1px solid var(--border2,#EDF0F2);
+      opacity:0; animation:nwIn .4s cubic-bezier(.2,.8,.3,1) var(--nd,0s) both; transition:box-shadow .18s, transform .18s; }
+    .nw-kachel:hover { box-shadow:0 10px 24px -14px rgba(10,22,17,.4); transform:translateY(-2px); }
+    @keyframes nwIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
+    .nw-bild { display:block; aspect-ratio:4/3; background:#0A1611; overflow:hidden; }
+    .nw-bild img { width:100%; height:100%; object-fit:cover; display:block; transition:transform .3s; }
+    .nw-kachel:hover .nw-bild img { transform:scale(1.03); }
+    .nw-kachel-fuss { display:flex; align-items:center; gap:7px; padding:8px 9px; }
+    .nw-nr { width:20px; height:20px; border-radius:6px; flex-shrink:0; font-size:10px; font-weight:800;
+      display:flex; align-items:center; justify-content:center; background:#EDF5F0; color:#2E8749; }
+    .nw-kachel-name { flex:1; min-width:0; font-size:11.8px; font-weight:600; color:var(--ink2,#1F2937);
+      overflow:hidden; text-overflow:ellipsis; white-space:nowrap; border-radius:5px; padding:1px 3px; outline:none; }
+    .nw-card.modus .nw-kachel-name, .nw-card.modus .nw-doc-name { background:#FAFCFB; border:1px dashed rgba(46,135,73,.35); cursor:text; }
+    .nw-card.modus .nw-kachel-name:focus, .nw-card.modus .nw-doc-name:focus { border-style:solid; border-color:#2E8749; background:#fff; white-space:normal; }
+    .nw-x { width:24px; height:24px; border:none; border-radius:7px; cursor:pointer; flex-shrink:0;
+      background:var(--neutral,#F6F8F9); color:var(--gray,#5A6670); display:flex; align-items:center; justify-content:center; transition:all .16s; }
+    .nw-x:hover { background:#FDECEC; color:#C0392B; }
+
+    .nw-liste { display:flex; flex-direction:column; gap:7px; }
+    .nw-zeile { display:flex; align-items:center; gap:11px; padding:10px 12px; border-radius:11px; background:#fff;
+      border:1px solid var(--border2,#EDF0F2); opacity:0; animation:nwIn .4s cubic-bezier(.2,.8,.3,1) var(--nd,0s) both;
+      transition:box-shadow .18s, border-color .18s; }
+    .nw-zeile:hover { border-color:var(--border,#E2E6E9); box-shadow:0 6px 16px -12px rgba(10,22,17,.35); }
+    .nw-doc-ico { width:38px; height:38px; border-radius:9px; flex-shrink:0; font-size:9.5px; font-weight:800; letter-spacing:.05em;
+      display:flex; align-items:center; justify-content:center; }
+    .nw-doc-ico.pdf { background:#FDECEC; color:#C0392B; }
+    .nw-doc-ico.bild { background:#EDF5F0; color:#2E8749; }
+    .nw-doc-txt { flex:1; min-width:0; display:flex; flex-direction:column; gap:2px; }
+    .nw-doc-name { font-size:12.8px; font-weight:700; color:var(--ink,#111827); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+      border-radius:5px; padding:1px 3px; outline:none; }
+    .nw-doc-sub { font-size:10.5px; color:var(--gray-l,#8A949D); font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .nw-tag { display:inline-flex; align-items:center; gap:4px; padding:4px 8px; border-radius:999px; font-size:10px; font-weight:800;
+      letter-spacing:.04em; text-transform:uppercase; flex-shrink:0; }
+    .nw-tag.ok { background:#EDF5F0; color:#2E8749; }
+    .nw-tag.neu { background:#FFF8EC; color:#B57D16; }
+    .nw-icobtn { width:30px; height:30px; border:none; border-radius:8px; cursor:pointer; flex-shrink:0; text-decoration:none;
+      background:var(--neutral,#F6F8F9); color:var(--gray,#5A6670); display:flex; align-items:center; justify-content:center; transition:all .16s; }
+    .nw-icobtn:hover { background:#EDF5F0; color:#2E8749; transform:translateY(-1px); }
+    .nw-weg:hover { background:#FDECEC; color:#C0392B; }
+
+    .nw-cta { display:flex; align-items:center; gap:14px; padding:13px 15px; border-radius:12px;
+      background:linear-gradient(135deg,#F4FAF6,#EAF4EE); border:1px solid rgba(46,135,73,.25); }
+    .nw-cta-txt { flex:1; font-size:12px; line-height:1.55; color:#2A3B33; }
+    .nw-cta-txt b { color:#1B2C23; }
+    .nw-cta .nw-btn { flex-shrink:0; white-space:nowrap; }
+
+    .nw-fuss { display:flex; align-items:center; gap:8px; padding:9px 2px 0; font-size:10.8px; color:var(--gray-l,#8A949D); }
+    .nw-fuss svg { flex-shrink:0; }
+    .nw-fuss-r { margin-left:auto; font-weight:700; letter-spacing:.03em; text-transform:uppercase; font-size:9.5px; }
+
+    .nw-drop-overlay { position:absolute; inset:0; border-radius:inherit; z-index:5; display:none;
+      align-items:center; justify-content:center; flex-direction:column; gap:8px;
+      background:rgba(234,246,238,.92); border:2px dashed #2E8749; color:#2E8749; font-weight:800; font-size:14px; pointer-events:none; }
+    .nw-card.drag .nw-drop-overlay { display:flex; }
+
+    @media (max-width:640px) {
+      .nw-head { flex-wrap:wrap; }
+      .nw-modus { width:100%; justify-content:center; }
+      .nw-tabs { width:100%; display:flex; }
+      .nw-tab { flex:1; justify-content:center; padding:9px 6px; }
+      .nw-galerie { grid-template-columns:repeat(2,1fr); }
+      .nw-cta { flex-direction:column; align-items:stretch; }
+      .nw-cta .nw-btn { justify-content:center; }
+      .nw-fuss { flex-wrap:wrap; }
+      .nw-fuss-r { margin-left:0; width:100%; }
+      .nw-drop-btns .nw-btn { flex:1; justify-content:center; }
+    }
+    @media print {
+      .nw-modus, .nw-tabs, .nw-drop, .nw-cta, .nw-x, .nw-icobtn, .nw-fuss, .nw-fortschritt, .nw-warte, .nw-drop-overlay { display:none !important; }
+      .nw-kachel, .nw-zeile { opacity:1 !important; animation:none !important; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .nw-kachel, .nw-zeile { opacity:1 !important; animation:none !important; transform:none !important; }
+    }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -4992,7 +5129,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.81</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.82</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -6577,8 +6714,6 @@ function bearbeitenStart() {
   // Nur eine Klasse setzen - der Bericht wird NICHT neu aufgebaut
   const rep = document.getElementById('report') || document.body;
   rep.classList.add('bearb-modus');
-  try { evidenceEigenZeichnen(); } catch(e) {}
-  try { evidenceBelegZeichnen(); } catch(e) {}
   bearbLeisteZeichnen();
   zeigeToast('Bearbeitungsmodus', 'Klicke auf den Stift rechts neben einem Feld.');
 }
@@ -6588,8 +6723,6 @@ function bearbeitenAbbruch() {
   ERGAENZUNGEN = {};
   const rep = document.getElementById('report') || document.body;
   rep.classList.remove('bearb-modus');
-  try { evidenceEigenZeichnen(); } catch(e) {}
-  try { evidenceBelegZeichnen(); } catch(e) {}
   // Alle offenen Eingaben und Markierungen zuruecknehmen
   document.querySelectorAll('.kv-ergaenzt').forEach(function(z){
     z.classList.remove('kv-ergaenzt');
@@ -6738,6 +6871,7 @@ async function neuBewerten() {
     // WICHTIG: sb.rpc() wirft keinen Fehler, es gibt ihn zurueck - deshalb
     // wird das Ergebnis hier ausdruecklich geprueft. Ohne Speicherung wuerde
     // beim naechsten Oeffnen aus der Historie die alte Fassung erscheinen.
+    neu._belegeAusgewertet = belege.map(function(b){ return b.path; });
     const analyseId = await analyseIdErmitteln(neu);
     let gespeichert = false;
     let speicherFehler = '';
@@ -6757,6 +6891,7 @@ async function neuBewerten() {
       } else {
         gespeichert = true;
         if (r2 && r2.data && r2.data.fassung) neu._fassung = r2.data.fassung;
+        neu._belegeAusgewertet = belege.map(function(b){ return b.path; });
         neu._analyseId = analyseId;
         // Historie im Speicher sofort aktualisieren, damit ein erneutes
         // Oeffnen die neue Fassung zeigt - auch bevor die Liste neu laedt
@@ -10904,106 +11039,293 @@ function evidenceHTML(d) {
       </div>
       <div class="evidence-note">Automatisch über Google zugeordnete Bilder zur angegebenen Adresse. Die Zuordnung erfolgt anhand des Namens des Unternehmens und sollte bei Bedarf manuell verifiziert werden.</div>
     </div>
-    <div class="evidence-item evidence-eigen" id="evidenceEigenBox" style="display:none;">
-      <div class="evidence-item-label">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-        Eigene Aufnahmen <span id="evidenceEigenCount" style="margin-left:auto;font-weight:600;color:var(--gray-l);text-transform:none;letter-spacing:0"></span>
+  </div>`;
+}
+
+// ============================================================
+// NACHWEISE & UNTERLAGEN
+// Eigenstaendiger Bereich im Bericht fuer Bilder und Dokumente,
+// mit eigenem Bearbeitungsmodus - unabhaengig vom Ergaenzen der Angaben.
+//   Aufnahmen  = Fotos zum Unternehmen (Typ 'standort')
+//   Dokumente  = PDFs/Bilder als Nachweis, werden bei "Neu bewerten" gelesen (Typ 'beleg')
+// ============================================================
+let NW = { modus: false, tab: 'aufnahmen', laeuft: 0, gesamt: 0, drag: false };
+const NW_MAX_MB = 10;
+const NW_TYPEN = {
+  aufnahmen: { typ: 'standort', accept: 'image/jpeg,image/png,image/webp', bilderNur: true,
+               titel: 'Aufnahmen', leer: 'Noch keine eigenen Aufnahmen',
+               hinweis: 'Firmenschild, Geb\u00e4ude, Gesch\u00e4ftsr\u00e4ume \u2013 alles, was den Standort belegt.' },
+  dokumente: { typ: 'beleg', accept: 'application/pdf,image/jpeg,image/png,image/webp', bilderNur: false,
+               titel: 'Dokumente', leer: 'Noch keine Dokumente hinterlegt',
+               hinweis: 'Handelsregisterauszug, Gewerbeanmeldung, Gesellschafterliste \u2013 werden bei \u201eNeu bewerten\u201c ausgelesen.' }
+};
+
+function nachweisCardHTML() {
+  return `<div class="sec-card nw-card reveal" id="nwCard" ondragover="nwDragOver(event)" ondragleave="nwDragLeave(event)" ondrop="nwDrop(event)">
+    <div class="nw-head">
+      <div class="nw-ico">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
       </div>
-      <div class="evidence-gallery" id="evidenceEigenGallery"></div>
-      <div id="evidenceEigenTools"></div>
-      <div class="evidence-note">Selbst aufgenommene Bilder zum Unternehmen – etwa Firmenschild, Gebäude oder Geschäftsräume. Sie werden beim Drucken als eigene Anlagen angehängt.</div>
+      <div class="nw-titel">
+        <div class="nw-sub">Nachweise \u00b7 Eigene Unterlagen</div>
+        <div class="nw-t">Bilder &amp; Dokumente zum Unternehmen</div>
+      </div>
+      <button class="nw-modus" id="nwModusBtn" onclick="nwModus()">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>
+        <span>Bearbeiten</span>
+      </button>
     </div>
-    <div class="evidence-item evidence-eigen" id="evidenceBelegBox" style="display:none;">
-      <div class="evidence-item-label">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 13h6M9 17h4"/></svg>
-        Dokumente &amp; Nachweise <span id="evidenceBelegCount" style="margin-left:auto;font-weight:600;color:var(--gray-l);text-transform:none;letter-spacing:0"></span>
-      </div>
-      <div class="beleg-liste" id="evidenceBelegListe"></div>
-      <div id="evidenceBelegTools"></div>
-      <div class="evidence-note">Handelsregisterauszug, Gewerbeanmeldung oder ähnliche Nachweise als PDF oder Bild. <b>Diese Dateien werden bei „Neu bewerten“ ausgelesen</b> und fließen in den Bericht ein. Beim Drucken hängen alle Seiten als Anlagen an.</div>
+    <div class="nw-tabs" role="tablist">
+      <button class="nw-tab aktiv" data-tab="aufnahmen" onclick="nwTab('aufnahmen')">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+        Aufnahmen <span class="nw-z" id="nwZAuf">0</span>
+      </button>
+      <button class="nw-tab" data-tab="dokumente" onclick="nwTab('dokumente')">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 13h6M9 17h4"/></svg>
+        Dokumente <span class="nw-z" id="nwZDok">0</span>
+      </button>
+    </div>
+    <div class="nw-inhalt" id="nwInhalt"></div>
+    <div class="nw-drop-overlay" id="nwDropOverlay">
+      <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5M12 3v12"/></svg>
+      <span>Loslassen zum Hochladen</span>
     </div>
   </div>`;
 }
 
-// ===== Dokumente & Nachweise: Liste zeichnen =====
-function evidenceBelegZeichnen() {
-  const box = document.getElementById('evidenceBelegBox');
-  const liste = document.getElementById('evidenceBelegListe');
-  const tools = document.getElementById('evidenceBelegTools');
-  const zaehler = document.getElementById('evidenceBelegCount');
-  if (!box || !liste || !tools) return;
-
-  const doks = (typeof KYC !== 'undefined' && KYC.doks && KYC.doks.beleg) ? KYC.doks.beleg : [];
-  const urls = (typeof KYC !== 'undefined' && KYC.urls && KYC.urls.beleg) ? KYC.urls.beleg : [];
-  let bearbeiten = false;
-  try { bearbeiten = (document.getElementById('report') || document.body).classList.contains('bearb-modus'); } catch(e) {}
-
-  if (!doks.length && !bearbeiten) { box.style.display = 'none'; return; }
-  box.style.display = '';
-
-  if (doks.length) {
-    liste.innerHTML = doks.map(function(d, n){
-      const url = urls[n];
-      const pdf = (d.mime_type || '').indexOf('pdf') >= 0;
-      const seiten = (KYC.pdfSeiten && KYC.pdfSeiten['beleg:' + n]) ? KYC.pdfSeiten['beleg:' + n].length : 0;
-      return '<div class="beleg-zeile" style="--bd:' + (0.04 + n * 0.05) + 's">'
-        + '<span class="beleg-ico ' + (pdf ? 'ist-pdf' : '') + '">'
-        + (pdf
-            ? '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>'
-            : '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>')
-        + '</span>'
-        + '<span class="beleg-txt">'
-        + '<span class="beleg-name">' + escapeHtml(d.datei_name || (pdf ? 'Dokument.pdf' : 'Bild')) + '</span>'
-        + '<span class="beleg-sub">' + (pdf ? ('PDF' + (seiten ? ' \u00b7 ' + seiten + ' Seite' + (seiten > 1 ? 'n' : '') : '')) : 'Bild') + '</span>'
-        + '</span>'
-        + (url ? '<a class="beleg-btn" href="' + url + '" target="_blank" title="\u00d6ffnen"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6M10 14 21 3"/></svg></a>' : '')
-        + (bearbeiten ? '<button class="beleg-btn beleg-weg" onclick="evidenceBelegLoeschen(' + n + ')" title="Entfernen"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>' : '')
-        + '</div>';
-    }).join('');
-  } else {
-    liste.innerHTML = '<div class="beleg-leer">Noch keine Dokumente hinterlegt</div>';
-  }
-
-  if (zaehler) zaehler.textContent = doks.length ? (doks.length === 1 ? '1 Datei' : doks.length + ' Dateien') : '';
-
-  if (!bearbeiten) { tools.innerHTML = ''; return; }
-  if (!KYC.analyseId) {
-    tools.innerHTML = '<div class="ev-eigen-hinweis">Die Analyse wird gerade gespeichert \u2013 in einem Moment k\u00f6nnen Dokumente hinzugef\u00fcgt werden.</div>';
-    return;
-  }
-  tools.innerHTML = '<div class="ev-eigen-tools">'
-    + '<label class="ev-eigen-add" for="evBelegFile">'
-    + '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>'
-    + ' PDF oder Bild hinzuf\u00fcgen</label>'
-    + '<input type="file" id="evBelegFile" accept="application/pdf,image/jpeg,image/png,image/webp" multiple style="display:none" onchange="evidenceBelegWaehlen(this.files)" />'
-    + '</div>';
+function nwDaten(tab) {
+  const k = NW_TYPEN[tab] || NW_TYPEN.aufnahmen;
+  const doks = (typeof KYC !== 'undefined' && KYC.doks && KYC.doks[k.typ]) ? KYC.doks[k.typ] : [];
+  const urls = (typeof KYC !== 'undefined' && KYC.urls && KYC.urls[k.typ]) ? KYC.urls[k.typ] : [];
+  return { k: k, doks: doks, urls: urls };
 }
 
-async function evidenceBelegWaehlen(files) {
-  if (!files || !files.length) return;
-  const tools = document.getElementById('evidenceBelegTools');
-  if (tools) tools.innerHTML = '<div class="ev-eigen-hinweis ev-eigen-laedt"><span class="ev-eigen-spin"></span> Wird hochgeladen\u2026</div>';
+function nwAusgewertet(path) {
+  const liste = (CURRENT_REPORT && Array.isArray(CURRENT_REPORT._belegeAusgewertet)) ? CURRENT_REPORT._belegeAusgewertet : [];
+  return liste.indexOf(path) >= 0;
+}
+
+function nwGroesse(bytes) {
+  if (!bytes && bytes !== 0) return '';
+  if (bytes < 1024 * 1024) return Math.max(1, Math.round(bytes / 1024)) + ' KB';
+  return (bytes / (1024 * 1024)).toFixed(1).replace('.', ',') + ' MB';
+}
+
+function nwZeichnen() {
+  const card = document.getElementById('nwCard');
+  const box = document.getElementById('nwInhalt');
+  if (!card || !box) return;
+
+  const auf = nwDaten('aufnahmen'), dok = nwDaten('dokumente');
+  const zA = document.getElementById('nwZAuf'), zD = document.getElementById('nwZDok');
+  if (zA) zA.textContent = auf.doks.length;
+  if (zD) zD.textContent = dok.doks.length;
+  card.querySelectorAll('.nw-tab').forEach(function(t){ t.classList.toggle('aktiv', t.getAttribute('data-tab') === NW.tab); });
+  card.classList.toggle('modus', NW.modus);
+  const mb = document.getElementById('nwModusBtn');
+  if (mb) {
+    mb.classList.toggle('an', NW.modus);
+    mb.querySelector('span').textContent = NW.modus ? 'Fertig' : 'Bearbeiten';
+  }
+
+  const d = nwDaten(NW.tab);
+  let html = '';
+
+  // Ablagezone im Bearbeitungsmodus
+  if (NW.modus) {
+    if (!KYC.analyseId) {
+      html += '<div class="nw-warte"><span class="ev-eigen-spin"></span> Die Analyse wird gerade gespeichert \u2013 gleich kannst du Dateien hinzuf\u00fcgen.</div>';
+    } else {
+      html += '<div class="nw-drop" id="nwDrop">'
+        + '<input type="file" id="nwFile" accept="' + d.k.accept + '" multiple style="display:none" onchange="nwWaehlen(this.files)" />'
+        + (d.k.bilderNur ? '<input type="file" id="nwCam" accept="image/*" capture="environment" style="display:none" onchange="nwWaehlen(this.files)" />' : '')
+        + '<div class="nw-drop-ico"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5M12 3v12"/></svg></div>'
+        + '<div class="nw-drop-t">Dateien hierher ziehen</div>'
+        + '<div class="nw-drop-s">' + (d.k.bilderNur ? 'JPG, PNG oder WebP' : 'PDF, JPG, PNG oder WebP') + ' \u00b7 bis ' + NW_MAX_MB + ' MB je Datei \u00b7 auch per Einf\u00fcgen (Strg+V)</div>'
+        + '<div class="nw-drop-btns">'
+        + '<label class="nw-btn nw-btn-p" for="nwFile"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Datei ausw\u00e4hlen</label>'
+        + (d.k.bilderNur ? '<label class="nw-btn" for="nwCam"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>Foto aufnehmen</label>' : '')
+        + '</div>'
+        + '</div>';
+      if (NW.gesamt) {
+        html += '<div class="nw-fortschritt"><span class="ev-eigen-spin"></span> Wird hochgeladen \u2026 ' + NW.laeuft + ' von ' + NW.gesamt
+          + '<i style="width:' + Math.round((NW.laeuft - 1) / NW.gesamt * 100) + '%"></i></div>';
+      }
+    }
+  }
+
+  // Inhalt
+  if (!d.doks.length) {
+    html += '<div class="nw-leer' + (NW.modus ? ' im-modus' : '') + '">'
+      + '<div class="nw-leer-ico">' + (NW.tab === 'aufnahmen'
+          ? '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>'
+          : '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 13h6M9 17h4"/></svg>')
+      + '</div>'
+      + '<div class="nw-leer-t">' + d.k.leer + '</div>'
+      + '<div class="nw-leer-s">' + d.k.hinweis + '</div>'
+      + (NW.modus ? '' : '<button class="nw-btn nw-btn-p" onclick="nwModus(true)"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Hinzuf\u00fcgen</button>')
+      + '</div>';
+  } else if (NW.tab === 'aufnahmen') {
+    html += '<div class="nw-galerie">' + d.doks.map(function(x, n){
+      const url = d.urls[n];
+      return '<div class="nw-kachel" style="--nd:' + (0.03 + n * 0.05) + 's">'
+        + (url ? '<a class="nw-bild" href="' + url + '" target="_blank" title="In voller Gr\u00f6\u00dfe \u00f6ffnen"><img src="' + url + '" alt="' + escapeHtml(x.bezeichnung || 'Aufnahme') + '" loading="lazy" /></a>'
+               : '<div class="nw-bild nw-bild-leer"></div>')
+        + '<div class="nw-kachel-fuss">'
+        + '<span class="nw-nr">' + (n + 1) + '</span>'
+        + '<span class="nw-kachel-name" ' + (NW.modus ? 'contenteditable="true" spellcheck="false" onblur="nwUmbenennen(\'standort\',' + n + ',this)" onkeydown="nwNameTaste(event)"' : '') + '>' + escapeHtml(x.bezeichnung || ('Aufnahme ' + (n + 1))) + '</span>'
+        + (NW.modus ? '<button class="nw-x" onclick="nwLoeschen(\'standort\',' + n + ')" title="Entfernen"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>' : '')
+        + '</div></div>';
+    }).join('') + '</div>';
+  } else {
+    html += '<div class="nw-liste">' + d.doks.map(function(x, n){
+      const url = d.urls[n];
+      const pdf = (x.mime_type || '').indexOf('pdf') >= 0;
+      const seiten = (KYC.pdfSeiten && KYC.pdfSeiten['beleg:' + n]) ? KYC.pdfSeiten['beleg:' + n].length : 0;
+      const ausgew = nwAusgewertet(x.storage_path);
+      return '<div class="nw-zeile" style="--nd:' + (0.03 + n * 0.05) + 's">'
+        + '<span class="nw-doc-ico ' + (pdf ? 'pdf' : 'bild') + '">' + (pdf ? 'PDF' : 'IMG') + '</span>'
+        + '<span class="nw-doc-txt">'
+        + '<span class="nw-doc-name" ' + (NW.modus ? 'contenteditable="true" spellcheck="false" onblur="nwUmbenennen(\'beleg\',' + n + ',this)" onkeydown="nwNameTaste(event)"' : '') + '>' + escapeHtml(x.bezeichnung || x.datei_name || ('Nachweis ' + (n + 1))) + '</span>'
+        + '<span class="nw-doc-sub">' + escapeHtml(x.datei_name || '') + (seiten ? ' \u00b7 ' + seiten + ' Seite' + (seiten > 1 ? 'n' : '') : '') + (x.groesse ? ' \u00b7 ' + nwGroesse(x.groesse) : '') + '</span>'
+        + '</span>'
+        + (ausgew ? '<span class="nw-tag ok" title="Wurde bei der letzten Neubewertung ausgelesen"><svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Ausgewertet</span>'
+                  : '<span class="nw-tag neu" title="Noch nicht in eine Neubewertung eingeflossen">Neu</span>')
+        + (url ? '<a class="nw-icobtn" href="' + url + '" target="_blank" title="\u00d6ffnen"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6M10 14 21 3"/></svg></a>' : '')
+        + (NW.modus ? '<button class="nw-icobtn nw-weg" onclick="nwLoeschen(\'beleg\',' + n + ')" title="Entfernen"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>' : '')
+        + '</div>';
+    }).join('') + '</div>';
+
+    // Aufforderung zur Neubewertung, wenn neue Dokumente vorliegen
+    const neue = d.doks.filter(function(x){ return !nwAusgewertet(x.storage_path); }).length;
+    if (neue && !NW.gesamt) {
+      html += '<div class="nw-cta">'
+        + '<div class="nw-cta-txt"><b>' + neue + ' Dokument' + (neue === 1 ? '' : 'e') + ' noch nicht ausgewertet.</b> '
+        + 'Bei der Neubewertung liest die Pr\u00fcfung die Unterlagen und \u00fcbernimmt Registernummer, Gesch\u00e4ftsf\u00fchrung und Co. in den Bericht.</div>'
+        + '<button class="nw-btn nw-btn-p" onclick="nwNeuBewerten()">' + bearbIcoSvg() + 'Mit Dokumenten neu bewerten</button>'
+        + '</div>';
+    }
+  }
+
+  // Fusszeile
+  const gesamt = auf.doks.length + dok.doks.length;
+  html += '<div class="nw-fuss">'
+    + '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>'
+    + (gesamt ? '<span>' + gesamt + ' Datei' + (gesamt === 1 ? '' : 'en') + ' h\u00e4ng' + (gesamt === 1 ? 't' : 'en') + ' beim Drucken als nummerierte Anlagen an.</span>'
+              : '<span>Hinterlegte Dateien h\u00e4ngen beim Drucken automatisch als Anlagen an.</span>')
+    + '<span class="nw-fuss-r">Verschl\u00fcsselt \u00b7 Server in der EU</span>'
+    + '</div>';
+
+  box.innerHTML = html;
+}
+
+function nwModus(an) {
+  NW.modus = (typeof an === 'boolean') ? an : !NW.modus;
+  nwZeichnen();
+  if (NW.modus) {
+    const card = document.getElementById('nwCard');
+    if (card) { const r = card.getBoundingClientRect(); if (r.top < 0 || r.top > window.innerHeight - 200) card.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+  }
+}
+
+function nwTab(t) { NW.tab = t; nwZeichnen(); }
+
+function nwNameTaste(ev) {
+  if (ev.key === 'Enter') { ev.preventDefault(); ev.target.blur(); }
+  if (ev.key === 'Escape') { ev.target.textContent = ev.target.getAttribute('data-alt') || ev.target.textContent; ev.target.blur(); }
+}
+
+async function nwUmbenennen(typ, n, el) {
+  const d = (KYC.doks && KYC.doks[typ]) ? KYC.doks[typ][n] : null;
+  if (!d || !el) return;
+  const neu = (el.textContent || '').replace(/\s+/g, ' ').trim().slice(0, 80);
+  if (!neu || neu === (d.bezeichnung || '')) { nwZeichnen(); return; }
+  try {
+    const r = await sb.from('kyc_dokumente').update({ bezeichnung: neu }).eq('id', d.id);
+    if (r && r.error) throw r.error;
+    d.bezeichnung = neu;
+  } catch (e) { alert('Umbenennen fehlgeschlagen: ' + ((e && e.message) || '')); }
+  nwZeichnen();
+}
+
+function nwPruefen(file, k) {
+  const mime = (file.type || '').toLowerCase();
+  const ok = k.bilderNur ? /^image\/(jpeg|png|webp)$/.test(mime) : (/^image\/(jpeg|png|webp)$/.test(mime) || mime === 'application/pdf');
+  if (!ok) return (file.name || 'Datei') + ': Dateityp nicht unterst\u00fctzt.';
+  if (file.size > NW_MAX_MB * 1024 * 1024) return (file.name || 'Datei') + ': gr\u00f6\u00dfer als ' + NW_MAX_MB + ' MB.';
+  return '';
+}
+
+async function nwWaehlen(files) {
+  if (!files || !files.length || NW.gesamt) return;
+  const k = NW_TYPEN[NW.tab];
+  const liste = Array.prototype.slice.call(files);
+  const fehler = [];
+  const gut = liste.filter(function(f){ const m = nwPruefen(f, k); if (m) fehler.push(m); return !m; });
+  if (fehler.length) alert(fehler.join('\n'));
+  if (!gut.length) return;
+
+  NW.gesamt = gut.length; NW.laeuft = 1; nwZeichnen();
   let ok = 0;
   try {
-    for (let i = 0; i < files.length; i++) {
-      if (await kycUpload('beleg', files[i])) ok++;
+    for (let i = 0; i < gut.length; i++) {
+      NW.laeuft = i + 1; nwZeichnen();
+      if (await kycUpload(k.typ, gut[i])) ok++;
     }
-  } catch (e) { console.warn('Beleg:', e && e.message); }
-  try { evidenceBelegZeichnen(); } catch(e) {}
-  if (ok) zeigeToast('Dokument hinzugef\u00fcgt',
-    'Beim n\u00e4chsten \u201eNeu bewerten\u201c wird es ausgelesen.');
+  } catch (e) { console.warn('Nachweis:', e && e.message); }
+  NW.gesamt = 0; NW.laeuft = 0;
+  nwZeichnen();
+  if (ok) zeigeToast(ok === 1 ? 'Datei hinzugef\u00fcgt' : ok + ' Dateien hinzugef\u00fcgt',
+    NW.tab === 'dokumente' ? 'Bei der n\u00e4chsten Neubewertung wird sie ausgelesen.' : 'H\u00e4ngt beim Drucken als Anlage an.');
 }
 
-async function evidenceBelegLoeschen(n) {
-  const d = (KYC.doks && KYC.doks.beleg) ? KYC.doks.beleg[n] : null;
+async function nwLoeschen(typ, n) {
+  const d = (KYC.doks && KYC.doks[typ]) ? KYC.doks[typ][n] : null;
   if (!d) return;
-  if (!confirm('Dieses Dokument wirklich entfernen?')) return;
+  if (!confirm('\u201e' + (d.bezeichnung || d.datei_name || 'Datei') + '\u201c wirklich entfernen?')) return;
   try {
     try { await sb.storage.from('kyc').remove([d.storage_path]); } catch(e) {}
-    await sb.from('kyc_dokumente').delete().eq('id', d.id);
+    const r = await sb.from('kyc_dokumente').delete().eq('id', d.id);
+    if (r && r.error) throw r.error;
     await kycLaden();
   } catch (e) { alert('Entfernen fehlgeschlagen: ' + ((e && e.message) || '')); }
 }
+
+function nwNeuBewerten() {
+  NW.modus = false; nwZeichnen();
+  try { neuBewerten(); } catch(e) { console.warn(e); }
+}
+
+// ---------- Ziehen & Ablegen ----------
+function nwDragOver(ev) {
+  if (!NW.modus || !KYC.analyseId) return;
+  ev.preventDefault();
+  const card = document.getElementById('nwCard');
+  if (card && !card.classList.contains('drag')) card.classList.add('drag');
+}
+function nwDragLeave(ev) {
+  const card = document.getElementById('nwCard');
+  if (!card) return;
+  if (ev.relatedTarget && card.contains(ev.relatedTarget)) return;
+  card.classList.remove('drag');
+}
+function nwDrop(ev) {
+  const card = document.getElementById('nwCard');
+  if (card) card.classList.remove('drag');
+  if (!NW.modus || !KYC.analyseId) return;
+  ev.preventDefault();
+  const files = ev.dataTransfer && ev.dataTransfer.files;
+  if (files && files.length) nwWaehlen(files);
+}
+// Einfuegen aus der Zwischenablage (z.B. Screenshot)
+document.addEventListener('paste', function(ev){
+  if (!NW.modus || !KYC.analyseId) return;
+  const t = ev.target; if (t && (t.isContentEditable || t.tagName === 'INPUT' || t.tagName === 'TEXTAREA')) return;
+  const items = ev.clipboardData && ev.clipboardData.items; if (!items) return;
+  const files = [];
+  for (let i = 0; i < items.length; i++) { if (items[i].kind === 'file') { const f = items[i].getAsFile(); if (f) files.push(f); } }
+  if (files.length) { ev.preventDefault(); nwWaehlen(files); }
+});
 
 // ============================================================
 // PDF-Seiten fuer den Ausdruck in Bilder umwandeln.
@@ -11061,93 +11383,10 @@ async function kycPdfVorbereiten() {
       if (!url) continue;
       try {
         KYC.pdfSeiten[schluessel] = await pdfSeitenAlsBilder(url, 15);
-        try { evidenceBelegZeichnen(); } catch(e) {}
+        try { nwZeichnen(); } catch(e) {}
       } catch (e) { console.warn('PDF-Seiten:', e && e.message); }
     }
   }
-}
-
-// ===== Eigene Aufnahmen: Galerie zeichnen =====
-// Sichtbar, sobald mindestens ein Bild vorliegt – oder wenn der
-// Bearbeitungsmodus läuft, damit man welche hinzufügen kann.
-function evidenceEigenZeichnen() {
-  const box = document.getElementById('evidenceEigenBox');
-  const gal = document.getElementById('evidenceEigenGallery');
-  const tools = document.getElementById('evidenceEigenTools');
-  const zaehler = document.getElementById('evidenceEigenCount');
-  if (!box || !gal || !tools) return;
-
-  const liste = (typeof KYC !== 'undefined' && KYC.doks && KYC.doks.standort) ? KYC.doks.standort : [];
-  const urls = (typeof KYC !== 'undefined' && KYC.urls && KYC.urls.standort) ? KYC.urls.standort : [];
-  let bearbeiten = false;
-  try { bearbeiten = (document.getElementById('report') || document.body).classList.contains('bearb-modus'); } catch(e) {}
-
-  if (!liste.length && !bearbeiten) { box.style.display = 'none'; return; }
-  box.style.display = '';
-
-  if (liste.length) {
-    gal.innerHTML = liste.map(function(d, n){
-      const url = urls[n];
-      const istPdf = (d.mime_type || '').indexOf('pdf') >= 0;
-      const inhalt = (url && !istPdf)
-        ? '<a class="evidence-thumb" href="' + url + '" target="_blank" title="In voller Gr\u00f6\u00dfe \u00f6ffnen"><img src="' + url + '" alt="Eigene Aufnahme ' + (n + 1) + '" loading="lazy" /></a>'
-        : '<a class="evidence-thumb ev-eigen-pdf" ' + (url ? 'href="' + url + '" target="_blank"' : '') + '><span>PDF</span></a>';
-      return '<div class="ev-eigen-kachel" style="--ed:' + (0.04 + n * 0.06) + 's">'
-        + inhalt
-        + (bearbeiten ? '<button class="ev-eigen-x" onclick="evidenceEigenLoeschen(' + n + ')" title="Bild entfernen">'
-            + '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>' : '')
-        + '<span class="ev-eigen-nr">' + (n + 1) + '</span>'
-        + '</div>';
-    }).join('');
-  } else {
-    gal.innerHTML = '<div class="evidence-img-none"><div>Noch keine eigenen Aufnahmen hinterlegt</div></div>';
-  }
-
-  if (zaehler) zaehler.textContent = liste.length ? (liste.length === 1 ? '1 Bild' : liste.length + ' Bilder') : '';
-
-  if (!bearbeiten) { tools.innerHTML = ''; return; }
-  if (!KYC.analyseId) {
-    tools.innerHTML = '<div class="ev-eigen-hinweis">Die Analyse wird gerade gespeichert – in einem Moment k\u00f6nnen Bilder hinzugef\u00fcgt werden.</div>';
-    return;
-  }
-  tools.innerHTML = '<div class="ev-eigen-tools">'
-    + '<label class="ev-eigen-add" for="evEigenFile">'
-    + '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>'
-    + ' Bild ausw\u00e4hlen</label>'
-    + '<label class="ev-eigen-add ev-eigen-cam" for="evEigenCam">'
-    + '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>'
-    + ' Foto aufnehmen</label>'
-    + '<input type="file" id="evEigenFile" accept="image/jpeg,image/png,image/webp,application/pdf" multiple style="display:none" onchange="evidenceEigenWaehlen(this.files)" />'
-    + '<input type="file" id="evEigenCam" accept="image/*" capture="environment" style="display:none" onchange="evidenceEigenWaehlen(this.files)" />'
-    + '</div>';
-}
-
-async function evidenceEigenWaehlen(files) {
-  if (!files || !files.length) return;
-  const tools = document.getElementById('evidenceEigenTools');
-  if (tools) tools.innerHTML = '<div class="ev-eigen-hinweis ev-eigen-laedt"><span class="ev-eigen-spin"></span> Wird hochgeladen\u2026</div>';
-  let ok = 0;
-  try {
-    for (let i = 0; i < files.length; i++) {
-      if (await kycUpload('standort', files[i])) ok++;
-    }
-  } catch (e) { console.warn('Eigene Aufnahme:', e && e.message); }
-  // Ladeanzeige in JEDEM Fall wieder aufloesen - sonst dreht sie ewig weiter
-  try { evidenceEigenZeichnen(); } catch(e) {}
-  if (ok) zeigeToast('Aufnahme hinzugef\u00fcgt',
-    ok === 1 ? 'Das Bild h\u00e4ngt beim Drucken als eigene Anlage an.'
-             : ok + ' Bilder h\u00e4ngen beim Drucken als eigene Anlagen an.');
-}
-
-async function evidenceEigenLoeschen(n) {
-  const d = (KYC.doks && KYC.doks.standort) ? KYC.doks.standort[n] : null;
-  if (!d) return;
-  if (!confirm('Diese Aufnahme wirklich entfernen?')) return;
-  try {
-    try { await sb.storage.from('kyc').remove([d.storage_path]); } catch(e) {}
-    await sb.from('kyc_dokumente').delete().eq('id', d.id);
-    await kycLaden();
-  } catch (e) { alert('Entfernen fehlgeschlagen: ' + ((e && e.message) || '')); }
 }
 
 // Lädt ALLE Google-Fotos der Firma als Galerie (Fallback: Street View)
@@ -11293,8 +11532,7 @@ async function kycLaden() {
       KYC.link = (l && l.data && l.data[0]) || null;
     } catch(e) { KYC.link = null; }
     kycRender();
-    try { evidenceEigenZeichnen(); } catch(e) {}
-    try { evidenceBelegZeichnen(); } catch(e) {}
+    try { nwZeichnen(); } catch(e) {}
     try { kycPdfVorbereiten(); } catch(e) {}
   } catch (e) { console.warn('KYC laden:', e && e.message); }
 }
@@ -11569,7 +11807,7 @@ async function kycUpload(typ, file) {
       position: bisher + 1,
       bezeichnung: (typ === 'ausweis') ? (bisher === 0 ? 'Vorderseite' : (bisher === 1 ? 'R\u00fcckseite' : 'Seite ' + (bisher + 1)))
                  : (typ === 'standort' ? ('Aufnahme ' + (bisher + 1))
-                 : (typ === 'beleg' ? ('Nachweis ' + (bisher + 1)) : null)),
+                 : (typ === 'beleg' ? (String(file.name || '').replace(/\.[a-z0-9]{2,5}$/i, '').slice(0, 80) || ('Nachweis ' + (bisher + 1))) : null)),
       hochgeladen_von: (typeof CURRENT_USER_ID !== 'undefined' ? CURRENT_USER_ID : null)
     });
     if (db && db.error) throw db.error;
@@ -11808,6 +12046,7 @@ function showReport(d, rawName, fromHistory, nichtSpeichern) {
     <div id="bearbLeiste" class="bearb-leiste"></div>
     ${AUS_HISTORIE ? '<button class="zurueck-hist" onclick="openHistory()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Zur\u00fcck zu Historie &amp; Ordner</button>' : ''}
     ${evidenceHTML(d)}
+    ${nachweisCardHTML()}
     ${manuellHinweisHTML(d)}
     <div id="sankBereich" class="sank-bereich"><div class="sank-laedt">Sanktionslisten werden abgeglichen&hellip;</div></div>
     <div class="flags-card reveal">
@@ -11831,6 +12070,8 @@ function showReport(d, rawName, fromHistory, nichtSpeichern) {
     </div>`;
 
   document.getElementById('report').classList.add('active');
+  NW.modus = false; NW.gesamt = 0; NW.laeuft = 0;
+  try { nwZeichnen(); } catch(e) {}
   if (d && d.pruefId) initKyc(d.pruefId);
 
   // WASSERZEICHEN für Ausdrucke aufbauen (E-Mail + Zeitstempel + gespeicherte Prüf-ID)
