@@ -2738,17 +2738,41 @@
     .fg-kachel:hover { border-color:rgba(46,135,73,.4); }
     .fg-kachel:has(input:checked) { border-color:#2E8749; background:#F1F8F3; }
     .fg-kachel input { position:absolute; opacity:0; width:0; height:0; }
+    /* Haekchen wie in der Personenliste - im Markengruen */
+    .fg-kachel .einw-mark { width:20px; height:20px; margin-top:0; transition:all .2s cubic-bezier(.2,.9,.3,1.5); }
+    .fg-kachel input:checked ~ .einw-mark { background:linear-gradient(135deg,#2E8749,#3FA45C); border-color:#2E8749; box-shadow:0 6px 16px -6px rgba(46,135,73,.8); }
+    .fg-kachel input:checked ~ .einw-mark::after { opacity:1; transform:scale(1); }
+    .fg-kachel:hover .einw-mark { border-color:#2E8749; }
     .fg-kachel-txt { display:flex; flex-direction:column; min-width:0; }
     .fg-kachel-txt b { font-size:12.5px; color:var(--ink,#111827); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
     .fg-kachel-txt small { font-size:10.5px; color:var(--gray-l,#8A949D); }
     .fg-rang small { margin-left:auto; font-size:10.5px; font-weight:700; color:var(--gray-l,#8A949D); }
-    .fg-vorschau { margin-top:14px; padding:11px 13px; border-radius:10px; background:var(--neutral,#F6F8F9);
-      border:1px solid var(--border2,#EDF0F2); font-size:12px; line-height:1.55; color:#2A3B33; }
+    .fg-vorschau { margin:18px 0 20px; padding:12px 14px; border-radius:10px; background:var(--neutral,#F6F8F9);
+      border:1px solid var(--border2,#EDF0F2); font-size:12px; line-height:1.6; color:#2A3B33; }
+    .fg-card-gross .up-warn-btns { margin-top:0; padding-top:16px; border-top:1px solid var(--border2,#EDF0F2); justify-content:flex-end; }
+    .fg-card-gross .fg-liste { margin-bottom:0; }
+    .fg-card-gross .fg-abschnitt + .fg-abschnitt { margin-top:18px; }
     .fg-vorschau-l { font-weight:800; color:#1B2C23; }
     @media (max-width:640px) {
       .fg-kacheln, .fg-kacheln-rang { grid-template-columns:1fr 1fr; }
       .gr-neu .up-senden { width:100%; }
     }
+
+    /* ===== Hinweise gestapelt ===== */
+    #toastStapel { position:fixed; bottom:118px; right:16px; z-index:10002;
+      display:flex; flex-direction:column; align-items:flex-end; gap:10px; pointer-events:none; }
+    #toastStapel .tr-toast { position:relative; bottom:auto; right:auto; left:auto; pointer-events:auto; }
+    #toastStapel .tr-toast.weg { margin-bottom:-8px; }
+    @media (max-width:760px) {
+      #toastStapel { bottom:108px; right:12px; left:12px; align-items:stretch; }
+      #toastStapel .tr-toast { max-width:none; }
+    }
+    @media print { #toastStapel { display:none !important; } }
+
+    .audit-ic.folderplus { background:#EDF5F0; color:#2E8749; }
+    .audit-ic.share { background:#EEF4FF; color:#1E4E8C; }
+    .audit-ic.group { background:#F3EEFF; color:#7C3AED; }
+    .audit-detail { font-size:11px; color:var(--gray,#5A6670); margin-top:2px; }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -5181,7 +5205,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.83</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.87</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -7468,9 +7492,10 @@ async function _openTeam() {
 async function ladeAudit() {
   if (!sb) { AUDIT_ROWS = []; return; }
   try {
-    const { data, error } = await sb.rpc('firma_audit_log');
-    if (error) throw error;
-    AUDIT_ROWS = data || [];
+    let r = await sb.rpc('protokoll_liste');
+    if (r.error) r = await sb.rpc('firma_audit_log');     // Rueckfall auf die alte Quelle
+    if (r.error) throw r.error;
+    AUDIT_ROWS = r.data || [];
   } catch (e) {
     AUDIT_ROWS = [];
     console.warn('Audit-Log konnte nicht geladen werden:', e && e.message);
@@ -7481,13 +7506,25 @@ function renderAudit() {
   const tv = document.getElementById('teamView');
   if (!tv) return;
   const old = document.getElementById('auditBody'); if (old) old.remove();
-  const verb = { befoerdert:'im Rang bef\u00f6rdert', zurueckgestuft:'im Rang zur\u00fcckgestuft', entfernt:'aus der Firma entfernt', ordner_geloescht:'Ordner gelöscht' , geprueft:'eine Pr\u00fcfung durchgef\u00fchrt' };
-  const icCls = { befoerdert:'up', zurueckgestuft:'down', entfernt:'kick', ordner_geloescht:'folder', geprueft:'check' };
+  // Das Protokoll sehen nur President, Vice President und Support - keine Member, keine Senior
+  if (!darfVerwalten()) return;
+  const verb = { befoerdert:'im Rang bef\u00f6rdert', zurueckgestuft:'im Rang zur\u00fcckgestuft', entfernt:'aus der Firma entfernt',
+                 ordner_geloescht:'einen Ordner gel\u00f6scht', ordner_angelegt:'einen Ordner angelegt',
+                 ordner_sichtbarkeit:'die Sichtbarkeit eines Ordners ge\u00e4ndert', ordner_freigegeben:'Freigaben ge\u00e4ndert',
+                 gruppe_angelegt:'eine Gruppe angelegt', gruppe_geloescht:'eine Gruppe gel\u00f6scht',
+                 gruppe_umbenannt:'eine Gruppe umbenannt', gruppe_mitglieder:'die Mitglieder einer Gruppe ge\u00e4ndert',
+                 geprueft:'eine Pr\u00fcfung durchgef\u00fchrt' };
+  const icCls = { befoerdert:'up', zurueckgestuft:'down', entfernt:'kick', ordner_geloescht:'folder', ordner_angelegt:'folderplus',
+                  ordner_sichtbarkeit:'share', ordner_freigegeben:'share', gruppe_angelegt:'group', gruppe_geloescht:'group',
+                  gruppe_umbenannt:'group', gruppe_mitglieder:'group', geprueft:'check' };
   const icSvg = {
     up:'<path d="M12 19V5M5 12l7-7 7 7"/>',
     down:'<path d="M12 5v14M5 12l7 7 7-7"/>',
     kick:'<path d="M18 6 6 18M6 6l12 12"/>',
     folder:'<path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>',
+    folderplus:'<path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/><path d="M12 10v6M9 13h6"/>',
+    share:'<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/>',
+    group:'<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>',
     check:'<path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>'
   };
   // Pruefungen aus der Historie als Aktivitaeten ergaenzen
@@ -7500,13 +7537,17 @@ function renderAudit() {
       _score: (typeof r.score === 'number') ? r.score : null
     };
   });
+  (AUDIT_ROWS || []).forEach(function(a){
+    if (a.detail) a.detail = a.detail.replace(/\bpresident\b/g, 'President').replace(/\bvice\b/g, 'Vice President')
+                                     .replace(/\bsenior\b/g, 'Senior').replace(/\bmember\b/g, 'Member');
+  });
   const alleAktivitaeten = (AUDIT_ROWS || []).concat(ausPruefungen)
     .sort(function(a, b){ return new Date(b.created_at) - new Date(a.created_at); })
     .slice(0, 40);
 
   let listHtml;
   if (!alleAktivitaeten.length) {
-    listHtml = '<div class="audit-empty">Noch keine Aktivitäten protokolliert. Beförderungen, Zurückstufungen, Entfernungen und gelöschte Ordner erscheinen hier.</div>';
+    listHtml = '<div class="audit-empty">Noch keine Aktivit\u00e4ten protokolliert. Rangwechsel, Ordner (angelegt, freigegeben, gel\u00f6scht), Gruppen und Pr\u00fcfungen erscheinen hier.</div>';
   } else {
     listHtml = '<div class="audit-list">' + alleAktivitaeten.map(function(a, idx){
       const cls = icCls[a.aktion] || 'down';
@@ -7516,7 +7557,8 @@ function renderAudit() {
       return '<div class="audit-row" style="animation-delay:' + Math.min(idx * 40, 500) + 'ms">'
         + '<span class="audit-ic ' + cls + '"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">' + (icSvg[cls]||'') + '</svg></span>'
         + '<div class="audit-txt"><b>' + escapeHtml(a.akteur_email||'(unbekannt)') + '</b> hat ' + v + (a.ziel_text ? ': <b>' + escapeHtml(a.ziel_text) + '</b>' : '')
-          + (a._score != null ? ' <span class="audit-score audit-s-' + (a._score >= 70 ? 'gruen' : (a._score >= 45 ? 'gelb' : 'rot')) + '">Score ' + a._score + '</span>' : '') + '</div>'
+          + (a._score != null ? ' <span class="audit-score audit-s-' + (a._score >= 70 ? 'gruen' : (a._score >= 45 ? 'gelb' : 'rot')) + '">Score ' + a._score + '</span>' : '')
+          + (a.detail ? '<div class="audit-detail">' + escapeHtml(a.detail) + '</div>' : '') + '</div>'
         + '<span class="audit-time">' + when + '</span>'
         + '</div>';
     }).join('') + '</div>';
@@ -7616,7 +7658,10 @@ function renderTeam() {
     + rangZeile('member','F\u00fchrt Pr\u00fcfungen durch und arbeitet mit den freigegebenen Ordnern.', 3)
     + '</div></div>';
 
-  tv.insertAdjacentHTML('beforeend', '<div id="teamBody">'
+  // Immer vor dem Protokoll einhaengen - sonst rutscht das Protokoll nach oben
+  const _audit = document.getElementById('auditBody');
+  const _ziel = _audit ? _audit : tv;
+  _ziel.insertAdjacentHTML(_audit ? 'beforebegin' : 'beforeend', '<div id="teamBody">'
     + einladungsBereich
     + '<div class="team-block sec-in sec-in-2" style="margin-top:22px;">'
     + '<div class="team-block-h">Mitglieder (' + TEAM_MEMBERS.length + ')</div>'
@@ -11850,9 +11895,16 @@ function zeigeToast(titel, text, ziel) {
     if (ziel) { toastWeg(); toastZielOeffnen(ziel); }
     else toastWeg();
   };
-  document.body.appendChild(t);
+  // Alle Hinweise landen in einem Stapel - neue unten, aeltere ruecken hoch
+  let stapel = document.getElementById('toastStapel');
+  if (!stapel) {
+    stapel = document.createElement('div');
+    stapel.id = 'toastStapel';
+    document.body.appendChild(stapel);
+  }
+  stapel.appendChild(t);
   requestAnimationFrame(function(){ t.classList.add('an'); });
-  setTimeout(toastWeg, 9000);
+  setTimeout(toastWeg, 10000);
 }
 
 // Klick auf die Benachrichtigung -> passende Akte oeffnen
@@ -12790,6 +12842,17 @@ function gruppenBlockHtml() {
     + '</div>';
 }
 
+// Nur den Gruppen-Block neu zeichnen - die Seite bleibt, wo sie ist
+function gruppenBlockAuffrischen() {
+  const alt = document.getElementById('gruppenBlock');
+  if (!alt) { renderTeam(); return; }
+  const y = window.scrollY;
+  alt.outerHTML = gruppenBlockHtml();
+  const neu = document.getElementById('gruppenBlock');
+  if (neu) neu.classList.remove('sec-in', 'sec-in-3');   // keine erneute Einblend-Animation
+  window.scrollTo(0, y);
+}
+
 function grFarbeWahl(el) {
   document.querySelectorAll('#grFarben .gr-farbe').forEach(function(b){ b.classList.remove('an'); });
   el.classList.add('an');
@@ -12804,7 +12867,7 @@ async function gruppeAnlegen() {
   const { data, error } = await sb.rpc('gruppe_speichern', { p_id: null, p_name: name, p_farbe: farbe });
   if (error || !data || !data.ok) { alert('Gruppe konnte nicht angelegt werden: ' + ((error && error.message) || (data && data.grund) || '')); return; }
   await gruppenLaden();
-  renderTeam();
+  gruppenBlockAuffrischen();
   zeigeToast('Gruppe angelegt', '\u201e' + name + '\u201c \u2013 jetzt Mitglieder zuordnen.');
   setTimeout(function(){ gruppeMitgliederOeffnen(data.id); }, 320);
 }
@@ -12818,7 +12881,7 @@ async function gruppeUmbenennen(id) {
   if (name.length < 2 || name === g.name) return;
   const { data, error } = await sb.rpc('gruppe_speichern', { p_id: id, p_name: name, p_farbe: g.farbe });
   if (error || !data || !data.ok) { alert('Umbenennen fehlgeschlagen: ' + ((error && error.message) || (data && data.grund) || '')); return; }
-  await gruppenLaden(); renderTeam();
+  await gruppenLaden(); gruppenBlockAuffrischen();
 }
 
 async function gruppeLoeschen(id) {
@@ -12827,7 +12890,7 @@ async function gruppeLoeschen(id) {
   if (!confirm('Gruppe \u201e' + g.name + '\u201c l\u00f6schen?\n\nDie Ordner bleiben erhalten \u2013 die Mitglieder dieser Gruppe verlieren nur die Freigabe, die \u00fcber die Gruppe lief.')) return;
   const { data, error } = await sb.rpc('gruppe_loeschen', { p_id: id });
   if (error || !data || !data.ok) { alert('L\u00f6schen fehlgeschlagen: ' + ((error && error.message) || (data && data.grund) || '')); return; }
-  await gruppenLaden(); renderTeam();
+  await gruppenLaden(); gruppenBlockAuffrischen();
   try { await ladeFreigaben(); } catch(e) {}
 }
 
@@ -12894,7 +12957,7 @@ async function gruppeMitgliederSpeichern() {
     return;
   }
   gruppeMitgliederSchliessen();
-  await gruppenLaden(); renderTeam();
+  await gruppenLaden(); gruppenBlockAuffrischen();
   try { await ladeFreigaben(); } catch(e) {}
   zeigeToast('Gruppe aktualisiert', '\u201e' + GRUPPE_OFFEN.name + '\u201c hat jetzt ' + ids.length + ' Mitglied' + (ids.length === 1 ? '' : 'er') + '.');
 }
@@ -13014,7 +13077,7 @@ function fgZaehlen() {
   const v = document.getElementById('fgVorschau');
   if (!v) return;
   if (!ids.length) {
-    v.innerHTML = '<span class="fg-vorschau-l">Sichtbar f\u00fcr:</span> nur f\u00fcr dich' + (FREIGABE_ORDNER && FREIGABE_ORDNER.ersteller_id && FREIGABE_ORDNER.ersteller_id !== CURRENT_USER_ID ? ' und den Ersteller' : '') + '.';
+    v.innerHTML = '<span class="fg-vorschau-l">Sichtbar nur f\u00fcr dich' + (FREIGABE_ORDNER && FREIGABE_ORDNER.ersteller_id && FREIGABE_ORDNER.ersteller_id !== CURRENT_USER_ID ? ' und den Ersteller' : '') + '.</span>';
   } else {
     v.innerHTML = '<span class="fg-vorschau-l">Sichtbar f\u00fcr ' + ids.length + ' weitere Person' + (ids.length === 1 ? '' : 'en') + ':</span> '
       + escapeHtml(namen.slice(0, 8).join(', ')) + (namen.length > 8 ? ' +' + (namen.length - 8) + ' weitere' : '');
