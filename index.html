@@ -2697,6 +2697,58 @@
     @media (prefers-reduced-motion: reduce) {
       .nw-kachel, .nw-zeile { opacity:1 !important; animation:none !important; transform:none !important; }
     }
+
+    /* ===== Gruppen (Team-Ansicht) ===== */
+    .gr-liste { display:flex; flex-direction:column; gap:8px; margin:12px 0 14px; }
+    .gr-zeile { display:flex; align-items:center; gap:11px; padding:11px 13px; border-radius:12px;
+      background:#fff; border:1px solid var(--border2,#EDF0F2); opacity:0;
+      animation:nwIn .4s cubic-bezier(.2,.8,.3,1) both; }
+    .gr-punkt { width:12px; height:12px; border-radius:50%; flex-shrink:0; box-shadow:0 0 0 3px rgba(0,0,0,.05); }
+    .gr-txt { flex:1; min-width:0; display:flex; flex-direction:column; gap:2px; }
+    .gr-name { font-size:13px; font-weight:700; color:var(--ink,#111827); }
+    .gr-sub { font-size:11px; color:var(--gray,#5A6670); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .gr-btn { padding:8px 12px !important; font-size:12px !important; flex-shrink:0; }
+    .gr-ico { width:30px; height:30px; border:none; border-radius:8px; cursor:pointer; flex-shrink:0;
+      background:var(--neutral,#F6F8F9); color:var(--gray,#5A6670); display:flex; align-items:center; justify-content:center; transition:all .16s; }
+    .gr-ico:hover { background:#EDF5F0; color:#2E8749; }
+    .gr-weg:hover { background:#FDECEC; color:#C0392B; }
+    .gr-leer { padding:14px; border-radius:11px; background:var(--neutral,#F6F8F9); font-size:12px; color:var(--gray,#5A6670); line-height:1.55; }
+    .gr-neu { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+    .gr-input { flex:1; min-width:180px; padding:10px 12px; border:1.5px solid var(--border,#E2E6E9); border-radius:10px;
+      font-family:inherit; font-size:13px; outline:none; transition:border-color .18s, box-shadow .18s; }
+    .gr-input:focus { border-color:#2E8749; box-shadow:0 0 0 3px rgba(46,135,73,.13); }
+    .gr-farben { display:flex; gap:5px; }
+    .gr-farbe { width:20px; height:20px; border-radius:50%; border:2px solid #fff; cursor:pointer; padding:0;
+      box-shadow:0 0 0 1px var(--border,#E2E6E9); transition:transform .15s, box-shadow .15s; }
+    .gr-farbe:hover { transform:scale(1.15); }
+    .gr-farbe.an { box-shadow:0 0 0 2px #1B2C23; transform:scale(1.15); }
+    .gm-zaehler { margin-left:auto; font-size:11px; font-weight:700; color:var(--gray,#5A6670); }
+
+    /* ===== Freigabe-Dialog ===== */
+    .fg-card-gross { max-width:640px; width:min(640px, calc(100vw - 32px)); max-height:calc(100vh - 48px); overflow-y:auto; }
+    .fg-abschnitt { margin-top:14px; }
+    .fg-abschnitt-h { font-size:10.5px; font-weight:800; letter-spacing:.07em; text-transform:uppercase; color:var(--gray,#5A6670);
+      margin-bottom:8px; display:flex; align-items:baseline; gap:8px; }
+    .fg-abschnitt-h small { font-weight:600; letter-spacing:0; text-transform:none; color:var(--gray-l,#8A949D); font-size:10.5px; }
+    .fg-kacheln { display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:7px; }
+    .fg-kacheln-rang { grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); }
+    .fg-kachel { display:flex; align-items:center; gap:9px; padding:9px 11px; border-radius:10px; cursor:pointer;
+      background:#fff; border:1.5px solid var(--border2,#EDF0F2); opacity:0;
+      animation:nwIn .35s cubic-bezier(.2,.8,.3,1) both; transition:border-color .16s, background .16s; }
+    .fg-kachel:hover { border-color:rgba(46,135,73,.4); }
+    .fg-kachel:has(input:checked) { border-color:#2E8749; background:#F1F8F3; }
+    .fg-kachel input { position:absolute; opacity:0; width:0; height:0; }
+    .fg-kachel-txt { display:flex; flex-direction:column; min-width:0; }
+    .fg-kachel-txt b { font-size:12.5px; color:var(--ink,#111827); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .fg-kachel-txt small { font-size:10.5px; color:var(--gray-l,#8A949D); }
+    .fg-rang small { margin-left:auto; font-size:10.5px; font-weight:700; color:var(--gray-l,#8A949D); }
+    .fg-vorschau { margin-top:14px; padding:11px 13px; border-radius:10px; background:var(--neutral,#F6F8F9);
+      border:1px solid var(--border2,#EDF0F2); font-size:12px; line-height:1.55; color:#2A3B33; }
+    .fg-vorschau-l { font-weight:800; color:#1B2C23; }
+    @media (max-width:640px) {
+      .fg-kacheln, .fg-kacheln-rang { grid-template-columns:1fr 1fr; }
+      .gr-neu .up-senden { width:100%; }
+    }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -5129,7 +5181,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.82</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.83</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -5184,6 +5236,11 @@
     <div style="margin-bottom:18px">
       <div class="field-label">Umsatzsteuer-ID <span class="opt">(optional, empfohlen)</span></div>
       <input type="text" id="ustInput" placeholder="z.B. DE 298 123 456" />
+    </div>
+    <div style="margin-bottom:18px" id="standortWrap">
+      <div class="field-label">Standort <span class="opt">(optional) – welcher eurer Standorte prüft?</span></div>
+      <input type="text" id="standortInput" list="standortListe" placeholder="z.B. Limburg" maxlength="60" autocomplete="off" />
+      <datalist id="standortListe"></datalist>
     </div>
     <div style="margin-bottom:18px">
       <div class="field-label">Ordner <span class="opt">(optional)</span></div>
@@ -6520,6 +6577,8 @@ let SELECTED_ORDNER_ID = null;   // beim Analysieren gewählter Ordner
 let HISTORY_FILTER = 'alle';
 let HISTORY_PRUEFER = '';
 function setPruefer(v) { HISTORY_PRUEFER = v || ''; renderHistoryList(); }
+let HISTORY_STANDORT = '';
+function setStandortFilter(v) { HISTORY_STANDORT = v || ''; renderHistoryList(); }
 let HISTORY_SORT = 'neu';
 let FAVORITEN = [];              // Liste der ueberwachten Firmen
 let FAV_KERNE = {};              // normalisierter Name -> Favoriten-Datensatz
@@ -6819,6 +6878,35 @@ function feldAbbruch(feldId) {
     const orig = zeile.getAttribute('data-orig');
     if (v && orig !== null) v.innerHTML = orig;
   }
+}
+
+// ===== Standort: Vorschlagsliste aus bisherigen Pruefungen + zuletzt genutzt =====
+function standortVorschlaege() {
+  const dl = document.getElementById('standortListe');
+  const inp = document.getElementById('standortInput');
+  if (!dl) return;
+  const zaehler = {};
+  (HISTORY_ROWS || []).forEach(function(r){
+    const st = (r.standort || '').trim();
+    if (st) zaehler[st] = (zaehler[st] || 0) + 1;
+  });
+  const liste = Object.keys(zaehler).sort(function(a, b){ return zaehler[b] - zaehler[a] || a.localeCompare(b); });
+  dl.innerHTML = liste.map(function(st){ return '<option value="' + escapeHtml(st) + '"></option>'; }).join('');
+  // Zuletzt genutzten Standort vorbelegen (je Unternehmen gemerkt)
+  if (inp && !inp.value) {
+    try {
+      const k = 'cc_standort_' + ((CURRENT_FIRMA && CURRENT_FIRMA.firma_id) || 'x');
+      const zuletzt = localStorage.getItem(k);
+      if (zuletzt) inp.value = zuletzt;
+    } catch(e) {}
+  }
+}
+
+function standortWert() {
+  const inp = document.getElementById('standortInput');
+  const v = ((inp && inp.value) || '').replace(/\s+/g, ' ').trim().slice(0, 60);
+  if (v) { try { localStorage.setItem('cc_standort_' + ((CURRENT_FIRMA && CURRENT_FIRMA.firma_id) || 'x'), v); } catch(e) {} }
+  return v || null;
 }
 
 // Datensatz-ID der aktuellen Analyse zuverlaessig ermitteln.
@@ -7361,6 +7449,7 @@ async function _openTeam() {
                rolle: m.rolle, beigetreten: m.seit || m.beigetreten,
                anzeige: anzeigeName(m.vorname, m.nachname, m.email) };
     });
+    try { await gruppenLaden(); } catch(e) {}
     renderTeam();
   } catch (e) {
     teamError((e && e.message) || 'Team konnte nicht geladen werden.');
@@ -7778,6 +7867,7 @@ function teamFussHtml() {
   const darf = darfVerwalten();
   const istSupport = CURRENT_USER_RANG === 'support';
   let out = '';
+  if (darf) out += gruppenBlockHtml();
   if (darf && !istSupport) {
     out += '<div class="team-block sec-in sec-in-4" id="codeBlock">'
       + '<div class="team-block-h">Unternehmens-Code</div>'
@@ -10807,6 +10897,7 @@ async function runAnalysis(name, ust, land) {
         report = JSON.parse(retryText); // wenn das auch fehlschlägt → catch unten
       }
     }
+    report._standort = standortWert();
     const viesOk = !!(viesData && viesData.valid);
     report._dataSource = (viesOk ? 'vies' : '') + (googleData ? 'google' : (viesOk ? '' : 'ki'));
     if (viesData && viesData.status === 'unavailable') report._viesUnavailable = true;
@@ -11912,6 +12003,7 @@ function showReport(d, rawName, fromHistory, nichtSpeichern) {
   const metaParts = [d.datum];
   if (d._land) metaParts.push('Land: '+d._land);
   if (d.ustId && d.ustId!=='null') metaParts.push('USt-ID: '+d.ustId);
+  if (d._standort) metaParts.push('Standort: '+escapeHtml(d._standort));
   const vIcon = d.verdict==='ok'?'✓':d.verdict==='bad'?'✕':'⚠';
   // Risiko-Hinweise robust verarbeiten (KI liefert manchmal leicht andere Feldnamen pro Eintrag)
   const flagsHTML = (d.risikoHinweise || []).map(f => {
@@ -12182,6 +12274,7 @@ async function saveAnalysisToHistory(d, rawName) {
         firmenname: d.firmenname || rawName || 'Unbekanntes Unternehmen',
         land: d._land || null,
         ust_id: (d.ustId && d.ustId !== 'null') ? d.ustId : null,
+        standort: d._standort || null,
         von_support: (CURRENT_USER_RANG === 'support'),
         score: (typeof d.gesamtScore === 'number' && !isNaN(d.gesamtScore)) ? Math.round(d.gesamtScore) : null,
         verdict: d.verdict || null,
@@ -12254,7 +12347,7 @@ async function _openHistory() {
     await ladeOrdner(); // aktuelle Ordner-Liste für die Filter-Chips
     const { data, error } = await sb
       .from('analysen')
-      .select('id, pruef_id, firmenname, land, ust_id, score, verdict, verdict_text, created_at, report_json, ordner_id')
+      .select('id, pruef_id, firmenname, land, ust_id, standort, score, verdict, verdict_text, created_at, report_json, ordner_id')
       .order('created_at', { ascending: false });
     if (error) throw error;
     HISTORY_ROWS = data || [];
@@ -12306,6 +12399,7 @@ function sichtbarSicherstellen(wurzel) {
 }
 
 function renderHistoryList() {
+  try { standortVorschlaege(); } catch(e) {}
   const view = document.getElementById('historyView');
   const loading = view.querySelector('.history-loading');
   if (loading) loading.remove();
@@ -12400,7 +12494,20 @@ function renderHistoryList() {
         }).join('')
       + '</select>'
     : '';
-  const filterBar = '<div class="hist-filter">' + chips + prueferWahl + '</div>';
+  // Standort-Filter (nur, wenn ueberhaupt Standorte erfasst wurden)
+  const standorte = {};
+  (HISTORY_ROWS || []).forEach(function(r){ const st = (r.standort || '').trim(); if (st) standorte[st] = (standorte[st] || 0) + 1; });
+  const stListe = Object.keys(standorte).sort();
+  const standortWahl = stListe.length
+    ? '<select class="hist-pruefer" onchange="setStandortFilter(this.value)">'
+      + '<option value="">Alle Standorte</option>'
+      + stListe.map(function(st){
+          return '<option value="' + escapeHtml(st) + '"' + (HISTORY_STANDORT === st ? ' selected' : '') + '>'
+            + escapeHtml(st) + ' (' + standorte[st] + ')</option>';
+        }).join('')
+      + '</select>'
+    : '';
+  const filterBar = '<div class="hist-filter">' + chips + prueferWahl + standortWahl + '</div>';
   // Kurzer Hinweis auf den Stern, solange niemand ihn benutzt
   const keineFavs = !(FAVORITEN && FAVORITEN.length);
   let sternGesehen = false;
@@ -12423,6 +12530,7 @@ function renderHistoryList() {
       return wer === HISTORY_PRUEFER;
     });
   }
+  if (HISTORY_STANDORT) rowsData = rowsData.filter(function(r){ return (r.standort || '').trim() === HISTORY_STANDORT; });
   if (HISTORY_FILTER === 'ohne') rowsData = rowsData.filter(function(r){ return !r.ordner_id; });
   else if (HISTORY_FILTER === '__geteilt') {
     const ids = ORDNER_LIST.filter(function(o){ return o.sichtbarkeit === 'oeffentlich'; }).map(function(o){ return o.id; });
@@ -12577,7 +12685,7 @@ function renderOrdnerManage() {
                 : '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg> Nur f\u00fcr mich')
             + '</button>'
           : '<span class="of-vis nur-info">' + (geteilt ? 'Geteilt' : 'Privat') + '</span>'))
-      + (einzel || geteilt ? '' : '<button class="of-fg' + (fgAnzahl ? ' hat-fg' : '') + '" onclick="freigabeOeffnen(\'' + o.id + '\')" title="Gezielt f\u00fcr einzelne Personen freigeben">'
+      + (einzel || geteilt ? '' : '<button class="of-fg' + (fgAnzahl ? ' hat-fg' : '') + '" onclick="freigabeOeffnen(\'' + o.id + '\')" title="Gezielt freigeben: Gruppen, R\u00e4nge oder einzelne Personen">'
           + '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 11h-6"/></svg>'
           + (fgAnzahl ? ' ' + fgAnzahl : ' Freigeben') + '</button>')
       + '<button class="of-del" onclick="ordnerLoeschen(\'' + o.id + '\')" title="Ordner l\u00f6schen">'
@@ -12622,6 +12730,175 @@ function renderOrdnerManage() {
   sichtbarSicherstellen(box);
 }
 
+
+// ============================================================
+// GRUPPEN
+// Benannte Gruppen (z.B. "Bentley", "GWG"), denen Personen zugeordnet
+// werden. Ordner koennen fuer Gruppen freigegeben werden - zusaetzlich
+// zu einzelnen Personen und ganzen Raengen.
+// ============================================================
+let GRUPPEN = [];
+const GRUPPEN_FARBEN = ['#2E8749','#1E4E8C','#B45309','#7C3AED','#0F766E','#BE123C','#4B5563','#0369A1'];
+
+async function gruppenLaden() {
+  GRUPPEN = [];
+  if (!sb || !CURRENT_FIRMA || CURRENT_FIRMA.typ === 'einzel') return;
+  const { data, error } = await sb.rpc('gruppen_liste');
+  if (error) { console.warn('Gruppen:', error.message); return; }
+  GRUPPEN = (data || []).map(function(g){
+    return { id: g.id, name: g.name, farbe: g.farbe || '#2E8749',
+             mitglieder: g.mitglieder || [], ordner_anzahl: g.ordner_anzahl || 0 };
+  });
+}
+
+function mitgliedName(uid) {
+  const m = (TEAM_MEMBERS || []).find(function(x){ return x.user_id === uid; });
+  return m ? (m.anzeige || m.email || '?') : '?';
+}
+
+function gruppenBlockHtml() {
+  const zeilen = GRUPPEN.length
+    ? GRUPPEN.map(function(g, i){
+        const namen = g.mitglieder.slice(0, 3).map(mitgliedName);
+        const rest = g.mitglieder.length - namen.length;
+        return '<div class="gr-zeile" style="animation-delay:' + Math.min(40 + i * 40, 320) + 'ms">'
+          + '<span class="gr-punkt" style="background:' + g.farbe + '"></span>'
+          + '<span class="gr-txt">'
+          + '<span class="gr-name">' + escapeHtml(g.name) + '</span>'
+          + '<span class="gr-sub">' + g.mitglieder.length + ' Mitglied' + (g.mitglieder.length === 1 ? '' : 'er')
+          + (g.mitglieder.length ? ' \u00b7 ' + escapeHtml(namen.join(', ')) + (rest > 0 ? ' +' + rest : '') : '')
+          + ' \u00b7 ' + g.ordner_anzahl + ' Ordner</span>'
+          + '</span>'
+          + '<button class="kyc-btn gr-btn" onclick="gruppeMitgliederOeffnen(\'' + g.id + '\')">Mitglieder</button>'
+          + '<button class="gr-ico" onclick="gruppeUmbenennen(\'' + g.id + '\')" title="Umbenennen"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4z"/></svg></button>'
+          + '<button class="gr-ico gr-weg" onclick="gruppeLoeschen(\'' + g.id + '\')" title="L\u00f6schen"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg></button>'
+          + '</div>';
+      }).join('')
+    : '<div class="gr-leer">Noch keine Gruppen. Lege z.B. \u201eGesch\u00e4ftsleitung\u201c oder eine Abteilung an und gib Ordner gezielt daf\u00fcr frei.</div>';
+
+  return '<div class="team-block sec-in sec-in-3" id="gruppenBlock">'
+    + '<div class="team-block-h">Gruppen</div>'
+    + '<div class="team-block-d">Fasse Personen zu Gruppen zusammen \u2013 etwa nach Abteilung oder Marke. Ordner lassen sich dann f\u00fcr ganze Gruppen freigeben, statt jede Person einzeln anzukreuzen. Eine Person kann in mehreren Gruppen sein.</div>'
+    + '<div class="gr-liste">' + zeilen + '</div>'
+    + '<div class="gr-neu">'
+    + '<input type="text" id="grNeuName" class="gr-input" placeholder="Neue Gruppe, z.B. Bentley" maxlength="40" onkeydown="if(event.key===\'Enter\'){gruppeAnlegen();}" />'
+    + '<div class="gr-farben" id="grFarben">'
+    + GRUPPEN_FARBEN.map(function(f, i){ return '<button class="gr-farbe' + (i === 0 ? ' an' : '') + '" style="background:' + f + '" data-f="' + f + '" onclick="grFarbeWahl(this)" title="Farbe"></button>'; }).join('')
+    + '</div>'
+    + '<button class="up-senden" onclick="gruppeAnlegen()">Gruppe anlegen</button>'
+    + '</div>'
+    + '</div>';
+}
+
+function grFarbeWahl(el) {
+  document.querySelectorAll('#grFarben .gr-farbe').forEach(function(b){ b.classList.remove('an'); });
+  el.classList.add('an');
+}
+
+async function gruppeAnlegen() {
+  const inp = document.getElementById('grNeuName');
+  const name = ((inp && inp.value) || '').trim();
+  if (name.length < 2) { if (inp) inp.focus(); return; }
+  const f = document.querySelector('#grFarben .gr-farbe.an');
+  const farbe = f ? f.getAttribute('data-f') : '#2E8749';
+  const { data, error } = await sb.rpc('gruppe_speichern', { p_id: null, p_name: name, p_farbe: farbe });
+  if (error || !data || !data.ok) { alert('Gruppe konnte nicht angelegt werden: ' + ((error && error.message) || (data && data.grund) || '')); return; }
+  await gruppenLaden();
+  renderTeam();
+  zeigeToast('Gruppe angelegt', '\u201e' + name + '\u201c \u2013 jetzt Mitglieder zuordnen.');
+  setTimeout(function(){ gruppeMitgliederOeffnen(data.id); }, 320);
+}
+
+async function gruppeUmbenennen(id) {
+  const g = GRUPPEN.find(function(x){ return x.id === id; });
+  if (!g) return;
+  const neu = prompt('Neuer Name f\u00fcr die Gruppe:', g.name);
+  if (neu === null) return;
+  const name = neu.trim();
+  if (name.length < 2 || name === g.name) return;
+  const { data, error } = await sb.rpc('gruppe_speichern', { p_id: id, p_name: name, p_farbe: g.farbe });
+  if (error || !data || !data.ok) { alert('Umbenennen fehlgeschlagen: ' + ((error && error.message) || (data && data.grund) || '')); return; }
+  await gruppenLaden(); renderTeam();
+}
+
+async function gruppeLoeschen(id) {
+  const g = GRUPPEN.find(function(x){ return x.id === id; });
+  if (!g) return;
+  if (!confirm('Gruppe \u201e' + g.name + '\u201c l\u00f6schen?\n\nDie Ordner bleiben erhalten \u2013 die Mitglieder dieser Gruppe verlieren nur die Freigabe, die \u00fcber die Gruppe lief.')) return;
+  const { data, error } = await sb.rpc('gruppe_loeschen', { p_id: id });
+  if (error || !data || !data.ok) { alert('L\u00f6schen fehlgeschlagen: ' + ((error && error.message) || (data && data.grund) || '')); return; }
+  await gruppenLaden(); renderTeam();
+  try { await ladeFreigaben(); } catch(e) {}
+}
+
+// ---------- Mitglieder einer Gruppe ----------
+let GRUPPE_OFFEN = null;
+
+function gruppeMitgliederOeffnen(id) {
+  const g = GRUPPEN.find(function(x){ return x.id === id; });
+  if (!g) return;
+  GRUPPE_OFFEN = g;
+  const zeilen = (TEAM_MEMBERS || []).length
+    ? TEAM_MEMBERS.map(function(m, i){
+        const an = g.mitglieder.indexOf(m.user_id) >= 0;
+        const info = RANG_INFO[m.rang] || RANG_INFO.member;
+        return '<label class="fg-zeile" style="animation-delay:' + Math.min(60 + i * 40, 400) + 'ms">'
+          + '<input type="checkbox" class="gm-check" value="' + m.user_id + '"' + (an ? ' checked' : '') + ' onchange="gmZaehlen()" />'
+          + '<span class="einw-mark"></span>'
+          + '<span class="fg-mail">' + escapeHtml(m.anzeige || m.email || '') + '</span>'
+          + '<span class="tm-badge tm-' + info.farbe + '">' + info.name + '</span>'
+          + '</label>';
+      }).join('')
+    : '<div class="fg-leer">Noch keine Mitglieder im Team.</div>';
+
+  const box = document.createElement('div');
+  box.id = 'gmGate';
+  box.className = 'up-warn-back';
+  box.innerHTML = '<div class="up-warn-card fg-card">'
+    + '<div class="fg-kopf"><span class="of-punkt" style="background:' + g.farbe + '"></span>'
+    + '<span class="fg-titel">' + escapeHtml(g.name) + '</span>'
+    + '<span class="gm-zaehler" id="gmZaehler"></span></div>'
+    + '<div class="up-warn-d">Wer geh\u00f6rt zu dieser Gruppe? Die Personen sehen automatisch alle Ordner, die f\u00fcr die Gruppe freigegeben sind.</div>'
+    + '<div class="fg-liste">' + zeilen + '</div>'
+    + '<div class="up-warn-btns">'
+    + '<button class="kyc-btn" onclick="gruppeMitgliederSchliessen()">Abbrechen</button>'
+    + '<button class="up-senden up-warn-ok" onclick="gruppeMitgliederSpeichern()">Speichern</button>'
+    + '</div></div>';
+  document.body.appendChild(box);
+  requestAnimationFrame(function(){ box.classList.add('an'); gmZaehlen(); });
+}
+
+function gmZaehlen() {
+  const n = document.querySelectorAll('#gmGate .gm-check:checked').length;
+  const z = document.getElementById('gmZaehler');
+  if (z) z.textContent = n + ' ausgew\u00e4hlt';
+}
+
+function gruppeMitgliederSchliessen() {
+  const b = document.getElementById('gmGate');
+  if (!b) return;
+  b.classList.remove('an');
+  setTimeout(function(){ if (b.parentNode) b.remove(); }, 240);
+}
+
+async function gruppeMitgliederSpeichern() {
+  if (!GRUPPE_OFFEN) return;
+  const ids = [];
+  document.querySelectorAll('#gmGate .gm-check').forEach(function(c){ if (c.checked) ids.push(c.value); });
+  const btn = document.querySelector('#gmGate .up-warn-ok');
+  if (btn) { btn.disabled = true; btn.textContent = 'Wird gespeichert\u2026'; }
+  const { data, error } = await sb.rpc('gruppe_mitglieder_setzen', { p_gruppe: GRUPPE_OFFEN.id, p_user_ids: ids });
+  if (error || !data || !data.ok) {
+    alert('Speichern fehlgeschlagen: ' + ((error && error.message) || (data && data.grund) || ''));
+    if (btn) { btn.disabled = false; btn.textContent = 'Speichern'; }
+    return;
+  }
+  gruppeMitgliederSchliessen();
+  await gruppenLaden(); renderTeam();
+  try { await ladeFreigaben(); } catch(e) {}
+  zeigeToast('Gruppe aktualisiert', '\u201e' + GRUPPE_OFFEN.name + '\u201c hat jetzt ' + ids.length + ' Mitglied' + (ids.length === 1 ? '' : 'er') + '.');
+}
+
 let ORDNER_FREIGABEN = {};   // ordner_id -> [ {user_id, email, rang} ]
 
 async function ladeFreigaben() {
@@ -12636,8 +12913,9 @@ async function ladeFreigaben() {
   } catch (e) { ORDNER_FREIGABEN = {}; }
 }
 
-// ===== Ordner gezielt freigeben =====
+// ===== Ordner gezielt freigeben: Gruppen, Raenge, einzelne Personen =====
 let FREIGABE_ORDNER = null;
+const FG_RAENGE = [['president','President'],['vice','Vice President'],['senior','Senior'],['member','Member']];
 
 async function freigabeOeffnen(ordnerId) {
   const o = ORDNER_LIST.find(function(x){ return x.id === ordnerId; });
@@ -12647,44 +12925,100 @@ async function freigabeOeffnen(ordnerId) {
     try {
       const { data } = await sb.rpc('team_mitglieder');
       TEAM_MEMBERS = (data || []).map(function(m){
-        return { user_id: m.user_id, email: m.email, rang: m.rang || 'member' };
+        return { user_id: m.user_id, email: m.email, rang: m.rang || 'member',
+                 anzeige: anzeigeName(m.vorname, m.nachname, m.email) };
       });
     } catch (e) {}
   }
-  let bereits = [];
+  try { await gruppenLaden(); } catch(e) {}
+
+  let info = { gruppen: [], raenge: [], direkt: [] };
   try {
-    const { data } = await sb.rpc('ordner_freigaben_liste', { p_ordner: ordnerId });
-    bereits = (data || []).map(function(f){ return f.user_id; });
+    const { data } = await sb.rpc('ordner_freigabe_info', { p_ordner: ordnerId });
+    if (data && data.ok) info = data;
   } catch (e) {}
 
-  const andere = TEAM_MEMBERS.filter(function(m){ return m.user_id !== CURRENT_USER_ID; });
-  const zeilen = andere.length
-    ? andere.map(function(m, i){
-        const an = bereits.indexOf(m.user_id) >= 0;
-        const info = RANG_INFO[m.rang] || RANG_INFO.member;
-        return '<label class="fg-zeile" style="animation-delay:' + Math.min(60 + i * 45, 400) + 'ms">'
-          + '<input type="checkbox" class="fg-check" value="' + m.user_id + '"' + (an ? ' checked' : '') + ' />'
+  const gruppenHtml = GRUPPEN.length
+    ? GRUPPEN.map(function(g, i){
+        const an = (info.gruppen || []).indexOf(g.id) >= 0;
+        return '<label class="fg-kachel" style="animation-delay:' + Math.min(40 + i * 35, 300) + 'ms">'
+          + '<input type="checkbox" class="fg-gruppe" value="' + g.id + '"' + (an ? ' checked' : '') + ' onchange="fgZaehlen()" />'
           + '<span class="einw-mark"></span>'
-          + '<span class="fg-mail">' + escapeHtml(m.email || '') + '</span>'
-          + '<span class="tm-badge tm-' + info.farbe + '">' + info.name + '</span>'
+          + '<span class="of-punkt" style="background:' + g.farbe + '"></span>'
+          + '<span class="fg-kachel-txt"><b>' + escapeHtml(g.name) + '</b><small>' + g.mitglieder.length + ' Mitglied' + (g.mitglieder.length === 1 ? '' : 'er') + '</small></span>'
           + '</label>';
       }).join('')
-    : '<div class="fg-leer">Es sind noch keine weiteren Mitglieder im Team. Lade zuerst jemanden \u00fcber \u201eTeam verwalten\u201c ein.</div>';
+    : '<div class="fg-leer">Noch keine Gruppen angelegt. Unter \u201eTeam\u201c kannst du welche erstellen.</div>';
+
+  const raengeHtml = FG_RAENGE.map(function(r, i){
+    const an = (info.raenge || []).indexOf(r[0]) >= 0;
+    const anz = (TEAM_MEMBERS || []).filter(function(m){ return m.rang === r[0]; }).length;
+    const infoR = RANG_INFO[r[0]] || RANG_INFO.member;
+    return '<label class="fg-kachel fg-rang" style="animation-delay:' + Math.min(60 + i * 35, 300) + 'ms">'
+      + '<input type="checkbox" class="fg-rangbox" value="' + r[0] + '"' + (an ? ' checked' : '') + ' onchange="fgZaehlen()" />'
+      + '<span class="einw-mark"></span>'
+      + '<span class="tm-badge tm-' + infoR.farbe + '">' + r[1] + '</span>'
+      + '<small>' + anz + '</small>'
+      + '</label>';
+  }).join('');
+
+  const andere = TEAM_MEMBERS.filter(function(m){ return m.user_id !== CURRENT_USER_ID && m.user_id !== o.ersteller_id; });
+  const personenHtml = andere.length
+    ? andere.map(function(m, i){
+        const an = (info.direkt || []).indexOf(m.user_id) >= 0;
+        const infoR = RANG_INFO[m.rang] || RANG_INFO.member;
+        return '<label class="fg-zeile" style="animation-delay:' + Math.min(60 + i * 30, 360) + 'ms">'
+          + '<input type="checkbox" class="fg-check" value="' + m.user_id + '"' + (an ? ' checked' : '') + ' onchange="fgZaehlen()" />'
+          + '<span class="einw-mark"></span>'
+          + '<span class="fg-mail">' + escapeHtml(m.anzeige || m.email || '') + '</span>'
+          + '<span class="tm-badge tm-' + infoR.farbe + '">' + infoR.name + '</span>'
+          + '</label>';
+      }).join('')
+    : '<div class="fg-leer">Keine weiteren Personen im Team.</div>';
 
   const box = document.createElement('div');
   box.id = 'fgGate';
   box.className = 'up-warn-back';
-  box.innerHTML = '<div class="up-warn-card fg-card">'
+  box.innerHTML = '<div class="up-warn-card fg-card fg-card-gross">'
     + '<div class="fg-kopf"><span class="of-punkt" style="background:' + (o.farbe || '#22C55E') + '"></span>'
     + '<span class="fg-titel">' + escapeHtml(o.name) + '</span></div>'
-    + '<div class="up-warn-d">W\u00e4hle aus, wer diesen Ordner sehen darf. Ausgew\u00e4hlte Personen sehen den Ordner und alle darin enthaltenen Pr\u00fcfungen.</div>'
-    + '<div class="fg-liste">' + zeilen + '</div>'
+    + '<div class="up-warn-d">Wer darf diesen Ordner und alle Pr\u00fcfungen darin sehen? Gruppen, R\u00e4nge und einzelne Personen lassen sich kombinieren.</div>'
+    + '<div class="fg-abschnitt"><div class="fg-abschnitt-h">Gruppen</div><div class="fg-kacheln">' + gruppenHtml + '</div></div>'
+    + '<div class="fg-abschnitt"><div class="fg-abschnitt-h">R\u00e4nge <small>alle Personen mit diesem Rang, auch k\u00fcnftige</small></div><div class="fg-kacheln fg-kacheln-rang">' + raengeHtml + '</div></div>'
+    + '<div class="fg-abschnitt"><div class="fg-abschnitt-h">Einzelne Personen</div><div class="fg-liste">' + personenHtml + '</div></div>'
+    + '<div class="fg-vorschau" id="fgVorschau"></div>'
     + '<div class="up-warn-btns">'
     + '<button class="kyc-btn" onclick="freigabeSchliessen()">Abbrechen</button>'
     + '<button class="up-senden up-warn-ok" onclick="freigabeSpeichern()">Freigaben speichern</button>'
     + '</div></div>';
   document.body.appendChild(box);
-  requestAnimationFrame(function(){ box.classList.add('an'); });
+  requestAnimationFrame(function(){ box.classList.add('an'); fgZaehlen(); });
+}
+
+// Live-Vorschau: wer sieht den Ordner nach dem Speichern?
+function fgZaehlen() {
+  const gewGruppen = [], gewRaenge = [], gewPersonen = [];
+  document.querySelectorAll('#fgGate .fg-gruppe:checked').forEach(function(c){ gewGruppen.push(c.value); });
+  document.querySelectorAll('#fgGate .fg-rangbox:checked').forEach(function(c){ gewRaenge.push(c.value); });
+  document.querySelectorAll('#fgGate .fg-check:checked').forEach(function(c){ gewPersonen.push(c.value); });
+
+  const sicht = {};
+  gewPersonen.forEach(function(u){ sicht[u] = true; });
+  GRUPPEN.forEach(function(g){ if (gewGruppen.indexOf(g.id) >= 0) g.mitglieder.forEach(function(u){ sicht[u] = true; }); });
+  (TEAM_MEMBERS || []).forEach(function(m){ if (gewRaenge.indexOf(m.rang) >= 0) sicht[m.user_id] = true; });
+  if (FREIGABE_ORDNER && FREIGABE_ORDNER.ersteller_id) sicht[FREIGABE_ORDNER.ersteller_id] = true;
+  if (CURRENT_USER_ID) delete sicht[CURRENT_USER_ID];
+
+  const ids = Object.keys(sicht);
+  const namen = ids.map(mitgliedName).filter(function(n){ return n && n !== '?'; }).sort();
+  const v = document.getElementById('fgVorschau');
+  if (!v) return;
+  if (!ids.length) {
+    v.innerHTML = '<span class="fg-vorschau-l">Sichtbar f\u00fcr:</span> nur f\u00fcr dich' + (FREIGABE_ORDNER && FREIGABE_ORDNER.ersteller_id && FREIGABE_ORDNER.ersteller_id !== CURRENT_USER_ID ? ' und den Ersteller' : '') + '.';
+  } else {
+    v.innerHTML = '<span class="fg-vorschau-l">Sichtbar f\u00fcr ' + ids.length + ' weitere Person' + (ids.length === 1 ? '' : 'en') + ':</span> '
+      + escapeHtml(namen.slice(0, 8).join(', ')) + (namen.length > 8 ? ' +' + (namen.length - 8) + ' weitere' : '');
+  }
 }
 
 function freigabeSchliessen() {
@@ -12696,25 +13030,26 @@ function freigabeSchliessen() {
 
 async function freigabeSpeichern() {
   if (!FREIGABE_ORDNER || !sb) return;
-  const gewaehlt = [];
-  document.querySelectorAll('#fgGate .fg-check').forEach(function(c){ if (c.checked) gewaehlt.push(c.value); });
+  const gruppen = [], raenge = [], personen = [];
+  document.querySelectorAll('#fgGate .fg-gruppe:checked').forEach(function(c){ gruppen.push(c.value); });
+  document.querySelectorAll('#fgGate .fg-rangbox:checked').forEach(function(c){ raenge.push(c.value); });
+  document.querySelectorAll('#fgGate .fg-check:checked').forEach(function(c){ personen.push(c.value); });
   const btn = document.querySelector('#fgGate .up-warn-ok');
   if (btn) { btn.disabled = true; btn.textContent = 'Wird gespeichert\u2026'; }
   try {
-    await sb.from('ordner_freigaben').delete().eq('ordner_id', FREIGABE_ORDNER.id);
-    if (gewaehlt.length) {
-      const neu = gewaehlt.map(function(uid){
-        return { ordner_id: FREIGABE_ORDNER.id, user_id: uid, firma_id: CURRENT_FIRMA.firma_id, erstellt_von: CURRENT_USER_ID };
-      });
-      const { error } = await sb.from('ordner_freigaben').insert(neu);
-      if (error) throw error;
-    }
+    const { data, error } = await sb.rpc('ordner_freigaben_setzen', {
+      p_ordner: FREIGABE_ORDNER.id, p_gruppen: gruppen, p_raenge: raenge, p_user_ids: personen
+    });
+    if (error) throw error;
+    if (!data || !data.ok) throw new Error((data && data.grund) || 'Speichern abgelehnt');
     await ladeFreigaben();
+    try { await gruppenLaden(); } catch(e) {}
     freigabeSchliessen();
-    setTimeout(renderOrdnerManage, 260);          // erst schliessen, dann neu zeichnen
+    setTimeout(renderOrdnerManage, 260);
+    const n = data.sichtbar || 0;
     zeigeToast('Freigaben aktualisiert',
-      gewaehlt.length ? 'Der Ordner ist jetzt f\u00fcr ' + gewaehlt.length + ' weitere Person' + (gewaehlt.length === 1 ? '' : 'en') + ' sichtbar.'
-                      : 'Der Ordner ist wieder nur f\u00fcr dich sichtbar.');
+      n ? 'Der Ordner ist jetzt f\u00fcr ' + n + ' Person' + (n === 1 ? '' : 'en') + ' sichtbar.'
+        : 'Der Ordner ist wieder nur f\u00fcr dich sichtbar.');
   } catch (e) {
     alert('Freigaben konnten nicht gespeichert werden: ' + ((e && e.message) || ''));
     if (btn) { btn.disabled = false; btn.textContent = 'Freigaben speichern'; }
@@ -12827,6 +13162,7 @@ function _openFromHistory(i) {
   // Ursprüngliche Prüf-ID / Datum / Datensatz-ID sichern
   if (!d.pruefId && r.pruef_id) d.pruefId = r.pruef_id;
   if (r.id) d._analyseId = r.id;
+  if (r.standort && !d._standort) d._standort = r.standort;
   if (!d._createdAt && r.created_at) d._createdAt = r.created_at;
   const view = document.getElementById('historyView');
   const main = document.getElementById('mainView');
@@ -13075,6 +13411,7 @@ function buildAkteAnalyse(d) {
   if (d.datum) meta.push(escapeHtml(d.datum));
   if (d._land) meta.push('Land: ' + escapeHtml(d._land));
   if (d.ustId && d.ustId !== 'null') meta.push('USt-ID: ' + escapeHtml(d.ustId));
+  if (d._standort) meta.push('Standort: ' + escapeHtml(d._standort));
   if (d.pruefId) meta.push('Prüf-ID: ' + escapeHtml(d.pruefId));
   if (d._email) meta.push('Geprüft von ' + escapeHtml(d._email));
   const score = (typeof d.gesamtScore === 'number') ? d.gesamtScore : null;
