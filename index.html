@@ -2884,6 +2884,72 @@
       .ab-card, .ev-card { break-inside:avoid; page-break-inside:avoid; }
       .ab-fertig { background:#F4FAF6 !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
     }
+
+    /* ============================================================
+       AKTE: Bereiche statt Stapel
+       ============================================================ */
+    .akte-panel { display:none; }
+    .akte-panel.an { display:block; animation:panelIn .32s cubic-bezier(.2,.8,.3,1) both; }
+    @keyframes panelIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
+    .akte-hub { margin-bottom:14px; }
+    .akte-stepper { margin-bottom:0; }
+    .akte-hub .mon-bereich { margin-top:14px; }
+    .akte-hub .mon-bereich:empty { display:none; }
+    .akte-zurueck { width:34px; height:34px; border-radius:10px; flex-shrink:0; cursor:pointer;
+      border:1.5px solid var(--border,#E2E6E9); background:#fff; color:var(--gray,#5A6670);
+      display:flex; align-items:center; justify-content:center; transition:all .16s; }
+    .akte-zurueck:hover { border-color:#2E8749; color:#2E8749; transform:translateX(-2px); }
+    .akte-schritt.offen { border-color:#2E8749; background:#F4FAF6; box-shadow:0 0 0 3px rgba(46,135,73,.12); }
+    .akte-schritt.offen .akte-txt b { color:#2E8749; }
+
+    /* Stammdaten */
+    .st-head, .sk-head { display:flex; align-items:center; gap:12px; margin-bottom:14px; }
+    .st-ico, .sk-ico { width:42px; height:42px; border-radius:11px; flex-shrink:0; display:flex; align-items:center; justify-content:center; }
+    .st-ico { background:linear-gradient(135deg,#1B2C23,#2E4A39); }
+    .sk-ico { background:linear-gradient(135deg,#3FA45C,#2E8749); box-shadow:0 4px 12px rgba(46,135,73,.3); }
+    .st-sub, .sk-sub { font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:#2E8749; font-weight:700; margin-bottom:2px; }
+    .st-t, .sk-t { font-size:17px; font-weight:800; color:var(--ink,#111827); letter-spacing:-.01em; }
+    .st-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:8px; }
+    .st-zeile { display:flex; flex-direction:column; gap:2px; padding:10px 12px; border-radius:10px; background:var(--neutral,#F6F8F9); border:1px solid var(--border2,#EDF0F2); }
+    .st-k { font-size:9.5px; font-weight:800; letter-spacing:.07em; text-transform:uppercase; color:var(--gray-l,#8A949D); }
+    .st-v { font-size:13px; font-weight:600; color:var(--ink,#111827); word-break:break-word; }
+    .st-fuss { margin-top:12px; font-size:11px; line-height:1.55; color:var(--gray-l,#8A949D); }
+    .st-card { margin-bottom:14px; }
+    .sk-intro { margin-bottom:14px; }
+    .sk-txt { font-size:12.5px; line-height:1.65; color:var(--gray,#5A6670); }
+
+    @media print {
+      .akte-panel { display:block !important; animation:none !important; }
+      .akte-zurueck, .akte-hub .mon-bereich { display:none !important; }
+      .akte-panel .reveal { opacity:1 !important; transform:none !important; filter:none !important; }
+    }
+
+    /* ===== Branche ===== */
+    .br-card { max-width:600px; width:min(600px, calc(100vw - 32px)); }
+    .br-eyebrow { font-size:10.5px; letter-spacing:.08em; text-transform:uppercase; color:#2E8749; font-weight:800; margin-bottom:6px; }
+    .br-t { font-size:18px; font-weight:800; color:var(--ink,#111827); letter-spacing:-.01em; margin-bottom:6px; }
+    .br-d { font-size:12.5px; line-height:1.6; color:var(--gray,#5A6670); margin-bottom:16px; }
+    .br-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+    .br-wahl { display:flex; align-items:center; gap:11px; padding:12px 13px; border-radius:12px; cursor:pointer; text-align:left;
+      background:#fff; border:1.5px solid var(--border,#E2E6E9); font-family:inherit; opacity:0;
+      animation:nwIn .4s cubic-bezier(.2,.8,.3,1) both; transition:border-color .16s, transform .16s, box-shadow .16s; }
+    .br-wahl:hover { border-color:rgba(46,135,73,.5); transform:translateY(-1px); box-shadow:0 8px 18px -12px rgba(10,22,17,.4); }
+    .br-wahl.an { border-color:#2E8749; background:#F1F8F3; }
+    .br-ico { width:40px; height:40px; border-radius:11px; flex-shrink:0; display:flex; align-items:center; justify-content:center;
+      background:#EDF5F0; color:#2E8749; }
+    .br-txt { display:flex; flex-direction:column; min-width:0; }
+    .br-txt b { font-size:13px; color:var(--ink,#111827); }
+    .br-txt small { font-size:10.8px; color:var(--gray-l,#8A949D); line-height:1.4; }
+    .br-konto { display:flex; flex-wrap:wrap; gap:7px; }
+    .br-chip { display:inline-flex; align-items:center; gap:7px; padding:9px 13px; border-radius:999px; cursor:pointer;
+      font-family:inherit; font-size:12px; font-weight:700; color:var(--ink2,#1F2937);
+      background:#fff; border:1.5px solid var(--border,#E2E6E9); transition:all .16s; }
+    .br-chip:hover:not(:disabled) { border-color:rgba(46,135,73,.5); }
+    .br-chip.an { background:#2E8749; border-color:#2E8749; color:#fff; }
+    .br-chip:disabled { cursor:default; opacity:.7; }
+    .akte-schritte.fuenf { grid-template-columns:repeat(5,1fr); }
+    @media (max-width:900px) { .akte-schritte.fuenf { grid-template-columns:repeat(3,1fr); } }
+    @media (max-width:560px) { .br-grid { grid-template-columns:1fr; } .akte-schritte.fuenf { grid-template-columns:repeat(2,1fr); } }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -3457,6 +3523,7 @@
         <button class="plan-btn" id="kontoNameBtn" onclick="kontoNameSpeichern()">Name speichern</button>
         <div id="kontoNameMsg" class="auth-msg" style="display:none; margin-top:12px;"></div>
       </div>
+      <div class="konto-card" id="kontoBrancheCard" style="display:none;"></div>
       <div class="konto-card" id="kontoSanktionenCard" style="display:none;">
         <div class="konto-card-h">Sanktionslisten</div>
         <p class="konto-card-p">Stand der gespiegelten EU-Sanktionsliste. Die Aktualisierung läuft automatisch – hier kannst du sie zusätzlich von Hand anstoßen.</p>
@@ -5316,7 +5383,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.89</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.90</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -5333,7 +5400,7 @@
         </button>
         <button class="hist-nav-btn" id="historyBtn" onclick="openHistory()" style="display:none;">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 2M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
-          Historie & Ordner
+          Akten & Ordner
         </button>
         <button class="hist-nav-btn alt" id="teamBtn" onclick="openTeam()" style="display:none;">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
@@ -5353,8 +5420,8 @@
   <div id="mainView">
   <div class="search-card">
     <div class="search-eyebrow">Geldwäscherechtliche Prüfung</div>
-    <div class="search-heading">Compliance-Prüfung</div>
-    <div class="search-sub">Geldwäscherechtliche Prüfung gemäß §§ 10–17 GwG. Name des Unternehmens und Land wählen – USt-ID empfohlen für präzise Zuordnung.</div>
+    <div class="search-heading">Neue Akte</div>
+    <div class="search-sub">Jedes Unternehmen bekommt eine eigene Akte: Analyse, Dokumente, Sanktionsabgleich und Abschluss an einem Ort. Name und Land wählen – USt-ID empfohlen für präzise Zuordnung.</div>
     <div class="fields-row">
       <div>
         <div class="field-label">Name des Unternehmens <span class="req">*</span></div>
@@ -5401,7 +5468,7 @@
     </div>
     <button class="btn-search" id="searchBtn" onclick="startSearch()">
       <span class="bs-links">
-        <span class="bs-haupt">Analyse starten</span>
+        <span class="bs-haupt">Neue Akte erstellen</span>
         <span class="bs-sub">Prüfung nach §§ 10–17 GwG</span>
       </span>
       <span class="bs-rechts">
@@ -7131,6 +7198,7 @@ async function neuBewerten() {
     try { (document.getElementById('report') || document.body).classList.remove('bearb-modus'); } catch(e) {}
     const alt = CURRENT_REPORT.gesamtScore;
     CURRENT_REPORT = neu;
+    AKTE.ansichtStart = 'analyse';
     showReport(neu, neu.firmenname, AUS_HISTORIE, true);   // true = nicht erneut einfuegen
     setTimeout(function(){
       bearbLeisteZeichnen();
@@ -9482,6 +9550,8 @@ async function ladeKontingent() {
       return;
     }
     CURRENT_FIRMA = row;
+    // Branche einmalig abfragen, sobald das Unternehmen bekannt ist
+    setTimeout(function(){ try { brancheAbfragen(); } catch(e) {} }, 900);
     if (row.aktiv && row.monatslimit > 0) {
       // Auch bei aufgebrauchter Testphase: normal in die App (Pille zeigt rot "3 / 3").
       // Der Upgrade-Screen kommt erst beim Klick auf "Neue Analyse" (kontingentVerfuegbar).
@@ -11291,6 +11361,105 @@ function evidenceHTML(d) {
 }
 
 // ============================================================
+// BRANCHE
+// Steuert die Version der Akte: Autohandel bekommt die
+// Endverbleibserklaerung (Schritt 5), alle anderen nicht.
+// ============================================================
+let FIRMA_BRANCHE = null;       // null = noch nicht gesetzt / unbekannt
+let BRANCHE_GEPRUEFT = false;
+const BRANCHEN = [
+  { key: 'autohandel', name: 'Autohandel / Fahrzeughandel', hinweis: 'Mit Endverbleibserkl\u00e4rung f\u00fcr den Export',
+    ico: '<path d="M5 17h14M7 17a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm10 0a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM3 13l2-5h14l2 5"/>' },
+  { key: 'immobilien', name: 'Immobilien', hinweis: 'Makler, Verwalter, Bautr\u00e4ger',
+    ico: '<path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6"/>' },
+  { key: 'finanz', name: 'Finanzdienstleistungen', hinweis: 'Leasing, Vermittlung, Zahlungsdienste',
+    ico: '<path d="M2 10h20M2 14h20M6 18h.01M6 6h.01"/><rect x="2" y="4" width="20" height="16" rx="2"/>' },
+  { key: 'kanzlei', name: 'Kanzlei / Steuerberatung', hinweis: 'Rechtsanw\u00e4lte, Notare, Steuerberater',
+    ico: '<path d="M12 3v18M5 7l7-4 7 4M5 7v10l7 4 7-4V7"/>' },
+  { key: 'handel', name: 'G\u00fcterhandel', hinweis: 'Luxusg\u00fcter, Schmuck, Kunst, Maschinen',
+    ico: '<path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4zM3 6h18M16 10a4 4 0 0 1-8 0"/>' },
+  { key: 'sonstige', name: 'Sonstige', hinweis: 'Andere Verpflichtete nach \u00a7 2 GwG',
+    ico: '<circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/>' }
+];
+
+function brancheName(k) { const b = BRANCHEN.find(function(x){ return x.key === k; }); return b ? b.name : ''; }
+function istAutohandel() { return FIRMA_BRANCHE === 'autohandel' || FIRMA_BRANCHE === null; }  // unbekannt = volle Version
+
+async function brancheLaden() {
+  if (!sb) return;
+  try {
+    const { data, error } = await sb.rpc('meine_branche');
+    if (!error && data) FIRMA_BRANCHE = data.branche || null;
+  } catch (e) {}
+  BRANCHE_GEPRUEFT = true;
+  brancheKontoZeichnen();
+}
+
+// Beim ersten Anmelden: einmalig fragen (Leitung oder Einzelkonto)
+async function brancheAbfragen() {
+  if (!BRANCHE_GEPRUEFT) await brancheLaden();
+  if (FIRMA_BRANCHE) return;
+  const einzel = !CURRENT_FIRMA || CURRENT_FIRMA.typ === 'einzel';
+  if (!einzel && !darfVerwalten()) return;   // Member/Senior: die Leitung waehlt
+  if (document.getElementById('brancheGate')) return;
+  const box = document.createElement('div');
+  box.id = 'brancheGate';
+  box.className = 'up-warn-back';
+  box.innerHTML = '<div class="up-warn-card br-card">'
+    + '<div class="br-eyebrow">Einmalige Einstellung</div>'
+    + '<div class="br-t">In welcher Branche ist ' + escapeHtml((CURRENT_FIRMA && CURRENT_FIRMA.firma_name) || 'dein Unternehmen') + ' t\u00e4tig?</div>'
+    + '<div class="br-d">Danach richtet sich, welche Schritte eine Akte enth\u00e4lt. Im Autohandel geh\u00f6rt zum Beispiel die Endverbleibserkl\u00e4rung dazu. L\u00e4sst sich sp\u00e4ter unter \u201eKonto\u201c \u00e4ndern.</div>'
+    + '<div class="br-grid">'
+    + BRANCHEN.map(function(b, i){
+        return '<button class="br-wahl" style="animation-delay:' + (60 + i * 40) + 'ms" onclick="brancheWaehlen(\'' + b.key + '\', this)">'
+          + '<span class="br-ico"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">' + b.ico + '</svg></span>'
+          + '<span class="br-txt"><b>' + b.name + '</b><small>' + b.hinweis + '</small></span>'
+          + '</button>';
+      }).join('')
+    + '</div></div>';
+  document.body.appendChild(box);
+  requestAnimationFrame(function(){ box.classList.add('an'); });
+}
+
+async function brancheWaehlen(key, btn) {
+  if (btn) { btn.classList.add('an'); btn.disabled = true; }
+  const ok = await brancheSpeichern(key);
+  const box = document.getElementById('brancheGate');
+  if (ok && box) { box.classList.remove('an'); setTimeout(function(){ if (box.parentNode) box.remove(); }, 240); }
+  else if (btn) { btn.classList.remove('an'); btn.disabled = false; }
+}
+
+async function brancheSpeichern(key) {
+  if (!sb) return false;
+  const { data, error } = await sb.rpc('firma_branche_setzen', { p_branche: key });
+  if (error || !data || !data.ok) { alert('Branche konnte nicht gespeichert werden: ' + ((error && error.message) || (data && data.grund) || '')); return false; }
+  FIRMA_BRANCHE = key;
+  brancheKontoZeichnen();
+  try { if (CURRENT_REPORT) { akteZeichnen(); akteAnsicht(AKTE.ansicht, true); } } catch(e) {}
+  zeigeToast('Branche gespeichert', brancheName(key) + (key === 'autohandel' ? ' \u2013 Akten enthalten die Endverbleibserkl\u00e4rung.' : ' \u2013 Akten ohne Endverbleibserkl\u00e4rung.'));
+  return true;
+}
+
+// Karte unter "Konto"
+function brancheKontoZeichnen() {
+  const card = document.getElementById('kontoBrancheCard');
+  if (!card) return;
+  const einzel = !CURRENT_FIRMA || CURRENT_FIRMA.typ === 'einzel';
+  const darf = einzel || darfVerwalten();
+  card.style.display = '';
+  card.innerHTML = '<div class="konto-card-h">Branche</div>'
+    + '<p class="konto-card-p">Bestimmt, welche Schritte eine Akte enth\u00e4lt. Im Autohandel geh\u00f6rt die Endverbleibserkl\u00e4rung dazu, in anderen Branchen nicht.'
+    + (darf ? '' : ' Die Einstellung kann nur die Leitung (President / Vice President) \u00e4ndern.') + '</p>'
+    + '<div class="br-konto">'
+    + BRANCHEN.map(function(b){
+        return '<button class="br-chip' + (FIRMA_BRANCHE === b.key ? ' an' : '') + '"' + (darf ? ' onclick="brancheSpeichern(\'' + b.key + '\')"' : ' disabled') + '>'
+          + '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + b.ico + '</svg>' + b.name + '</button>';
+      }).join('')
+    + '</div>'
+    + (FIRMA_BRANCHE ? '' : '<div class="auth-msg" style="margin-top:10px;">Noch nicht festgelegt \u2013 bis dahin gilt die vollst\u00e4ndige Version mit allen Schritten.</div>');
+}
+
+// ============================================================
 // AKTE: 6-Schritt-Ablauf
 //   1 Akte angelegt  2 Analyse  3 Dokumente  4 Sanktionslisten
 //   5 Endverbleibserklaerung  6 Abschluss (Vollstaendigkeitsbestaetigung)
@@ -11298,7 +11467,7 @@ function evidenceHTML(d) {
 // zu seinem Abschnitt. Sind alle Schritte erledigt, gilt die Akte
 // als vollstaendig abgesichert.
 // ============================================================
-let AKTE = { sankFertig: false, sankFehler: false };
+let AKTE = { sankFertig: false, sankFehler: false, ansicht: 'analyse', ansichtStart: null };
 
 const AKTE_SCHRITTE = [
   { n: 1, key: 'akte',     titel: 'Akte angelegt',          ziel: '.report-top' },
@@ -11325,6 +11494,7 @@ function akteStatus(key) {
       if (AKTE.sankFertig || (d._sanktionen && d._sanktionen.stand)) return 'ok';
       return AKTE.sankFehler ? 'teil' : 'laeuft';
     case 'endverbleib': {
+      if (!istAutohandel()) return 'uebersprungen';
       if ((doks.endverbleib || []).length) return 'ok';
       if (sch.endverbleib && sch.endverbleib.status === 'nicht_erforderlich') return 'uebersprungen';
       return (sch.endverbleib && sch.endverbleib.erstellt_am) ? 'teil' : 'offen';
@@ -11334,22 +11504,68 @@ function akteStatus(key) {
   return 'offen';
 }
 
+// Schritte je nach Branche: ohne Autohandel entfaellt die Endverbleibserklaerung
+function akteSchritteAktiv() {
+  return istAutohandel() ? AKTE_SCHRITTE : AKTE_SCHRITTE.filter(function(x){ return x.key !== 'endverbleib'; });
+}
+
 function akteZaehlung() {
   let ok = 0;
-  AKTE_SCHRITTE.forEach(function(sch){ const st = akteStatus(sch.key); if (st === 'ok' || st === 'uebersprungen') ok++; });
+  akteSchritteAktiv().forEach(function(sch){ const st = akteStatus(sch.key); if (st === 'ok' || st === 'uebersprungen') ok++; });
   return ok;
 }
 
 function akteStepperHTML() {
-  return '<div class="akte-stepper reveal" id="akteStepper"></div>';
+  return '<div class="akte-hub" id="akteHub">'
+    + '<div class="akte-stepper" id="akteStepper"></div>'
+    + '<div id="monBereich" class="mon-bereich"></div>'
+    + '</div>';
+}
+
+// Stammdaten der Akte (Schritt 1)
+function akteStammHTML(d) {
+  const z = function(k, v){ return v ? '<div class="st-zeile"><span class="st-k">' + k + '</span><span class="st-v">' + v + '</span></div>' : ''; };
+  const datum = d._createdAt ? new Date(d._createdAt).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '';
+  return '<div class="sec-card st-card reveal">'
+    + '<div class="st-head"><div class="st-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/></svg></div>'
+    + '<div><div class="st-sub">Schritt 1 \u00b7 Stammdaten</div><div class="st-t">Akte angelegt</div></div></div>'
+    + '<div class="st-grid">'
+    + z('Unternehmen', escapeHtml(d.firmenname || ''))
+    + z('Land', escapeHtml(d._land || ''))
+    + z('USt-IdNr.', (d.ustId && d.ustId !== 'null') ? escapeHtml(d.ustId) : '')
+    + z('Standort', escapeHtml(d._standort || ''))
+    + z('Pr\u00fcf-ID', escapeHtml(d.pruefId || ''))
+    + z('Angelegt am', datum)
+    + z('Angelegt von', escapeHtml(d._name || d._email || ''))
+    + z('Fassung', d._fassung ? String(d._fassung) : '')
+    + '</div>'
+    + '<div class="st-fuss">Die Akte ist angelegt und in der \u00dcbersicht \u201eAkten &amp; Ordner\u201c abgelegt. Ordner-Zuordnung und \u00dcberwachung verwaltest du dort bzw. oben in der \u00dcbersicht.</div>'
+    + '</div>';
+}
+
+// Welcher Bereich ist gerade offen?
+function akteAnsicht(key, ohneScroll) {
+  if (!akteSchritteAktiv().some(function(x){ return x.key === key; })) key = 'analyse';
+  AKTE.ansicht = key;
+  document.querySelectorAll('.akte-panel').forEach(function(p){
+    const an = p.getAttribute('data-panel') === key;
+    p.classList.toggle('an', an);
+    if (an) p.querySelectorAll('.reveal').forEach(function(el){ el.classList.add('in-view'); });
+  });
+  akteStepperZeichnen();
+  if (!ohneScroll) {
+    const hub = document.getElementById('akteHub');
+    if (hub) { const r = hub.getBoundingClientRect(); if (r.top < -20) hub.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+  }
 }
 
 function akteStepperZeichnen() {
   const box = document.getElementById('akteStepper');
   if (!box) return;
   const d = CURRENT_REPORT || {};
+  const schritte = akteSchritteAktiv();
   const fertig = akteZaehlung();
-  const alle = fertig === AKTE_SCHRITTE.length;
+  const alle = fertig === schritte.length;
   const ico = {
     ok: '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>',
     uebersprungen: '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M5 12h14"/></svg>',
@@ -11357,15 +11573,16 @@ function akteStepperZeichnen() {
     teil: '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M12 6v6l4 2"/></svg>'
   };
   box.innerHTML = '<div class="akte-kopf">'
+    + (AUS_HISTORIE ? '<button class="akte-zurueck" onclick="openHistory()" title="Zur\u00fcck zu Akten &amp; Ordner"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>' : '')
     + '<div class="akte-titel"><span class="akte-eyebrow">Akte \u00b7 Vollst\u00e4ndigkeit</span>'
-    + '<span class="akte-h">' + (alle ? 'Vollst\u00e4ndig abgesichert' : fertig + ' von ' + AKTE_SCHRITTE.length + ' Schritten erledigt') + '</span></div>'
-    + '<div class="akte-balken"><i style="width:' + Math.round(fertig / AKTE_SCHRITTE.length * 100) + '%"></i></div>'
+    + '<span class="akte-h">' + (alle ? 'Vollst\u00e4ndig abgesichert' : fertig + ' von ' + schritte.length + ' Schritten erledigt') + '</span></div>'
+    + '<div class="akte-balken"><i style="width:' + Math.round(fertig / schritte.length * 100) + '%"></i></div>'
     + '</div>'
-    + '<div class="akte-schritte">'
-    + AKTE_SCHRITTE.map(function(sch, i){
+    + '<div class="akte-schritte' + (schritte.length === 5 ? ' fuenf' : '') + '">'
+    + schritte.map(function(sch, i){
         const st = akteStatus(sch.key);
-        return '<button class="akte-schritt st-' + st + '" onclick="akteSpringe(\'' + sch.ziel + '\')" style="--ad:' + (0.05 + i * 0.05) + 's">'
-          + '<span class="akte-nr">' + (ico[st] || sch.n) + '</span>'
+        return '<button class="akte-schritt st-' + st + (AKTE.ansicht === sch.key ? ' offen' : '') + '" onclick="akteAnsicht(\'' + sch.key + '\')" style="--ad:' + (0.05 + i * 0.05) + 's">'
+          + '<span class="akte-nr">' + (ico[st] || (i + 1)) + '</span>'
           + '<span class="akte-txt"><b>' + sch.titel + '</b><small>' + akteStatusText(sch.key, st) + '</small></span>'
           + '</button>';
       }).join('')
@@ -11565,19 +11782,20 @@ function abschlussZeichnen() {
   if (!box) return;
   const d = CURRENT_REPORT || {};
   const zu = !!d._abgeschlossen_am;
-  const liste = AKTE_SCHRITTE.slice(0, 5).map(function(sch){
+  const vor = akteSchritteAktiv().filter(function(x){ return x.key !== 'abschluss'; });
+  const liste = vor.map(function(sch, i){
     const st = akteStatus(sch.key);
     const ic = (st === 'ok') ? '\u2713' : (st === 'uebersprungen' ? '\u2013' : (st === 'laeuft' ? '\u2026' : '\u25CB'));
-    return '<div class="ab-zeile st-' + st + '"><span class="ab-ic">' + ic + '</span><span class="ab-name">' + sch.n + '. ' + sch.titel + '</span><span class="ab-st">' + akteStatusText(sch.key, st) + '</span></div>';
+    return '<div class="ab-zeile st-' + st + '"><span class="ab-ic">' + ic + '</span><span class="ab-name">' + (i + 1) + '. ' + sch.titel + '</span><span class="ab-st">' + akteStatusText(sch.key, st) + '</span></div>';
   }).join('');
-  const offen = AKTE_SCHRITTE.slice(0, 5).filter(function(sch){ const st = akteStatus(sch.key); return st !== 'ok' && st !== 'uebersprungen'; });
+  const offen = vor.filter(function(sch){ const st = akteStatus(sch.key); return st !== 'ok' && st !== 'uebersprungen'; });
 
   box.innerHTML = '<div class="ab-head">'
     + '<div class="ab-ico' + (zu ? ' zu' : '') + '">'
     + (zu ? '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>'
           : '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>')
     + '</div>'
-    + '<div class="ab-titel"><div class="ab-sub">Schritt 6 \u00b7 Vollst\u00e4ndigkeitsbest\u00e4tigung</div><div class="ab-t">' + (zu ? 'Akte abgeschlossen' : 'Akte abschlie\u00dfen') + '</div></div>'
+    + '<div class="ab-titel"><div class="ab-sub">Schritt ' + akteSchritteAktiv().length + ' \u00b7 Vollst\u00e4ndigkeitsbest\u00e4tigung</div><div class="ab-t">' + (zu ? 'Akte abgeschlossen' : 'Akte abschlie\u00dfen') + '</div></div>'
     + '</div>'
     + '<div class="ab-liste">' + liste + '</div>'
     + (zu
@@ -12606,6 +12824,8 @@ function showReport(d, rawName, fromHistory, nichtSpeichern) {
       <span class="verdict ${d.verdict}">${vIcon2} ${d.verdictText}</span>
     </div>
     ${akteStepperHTML()}
+    <div class="akte-panel" data-panel="akte" id="panelAkte">${akteStammHTML(d)}</div>
+    <div class="akte-panel" data-panel="analyse" id="panelAnalyse">
     <div class="score-card reveal">
       <div class="gauge-wrap">${gauge(d.gesamtScore)}<div class="gauge-num"><span class="gauge-num-val" style="color:${d.gesamtScore?scC(d.gesamtScore):'var(--gray-l)'}">${d.gesamtScore||'N/A'}</span><span class="gauge-num-label">${d.gesamtScore?'/ 100':''}</span></div></div>
       <div class="score-right">
@@ -12641,14 +12861,6 @@ function showReport(d, rawName, fromHistory, nichtSpeichern) {
       </div>
       ${d.kontakt.source && !isNA(d.kontakt.source) ? `<div style="margin-top:10px;font-size:8px;letter-spacing:.08em;text-transform:uppercase;color:var(--gray-l)">Quelle: ${d.kontakt.source}</div>` : ''}
     </div>
-    <div id="monBereich" class="mon-bereich"></div>
-    <div id="bearbLeiste" class="bearb-leiste"></div>
-    ${AUS_HISTORIE ? '<button class="zurueck-hist" onclick="openHistory()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Zur\u00fcck zu Historie &amp; Ordner</button>' : ''}
-    ${evidenceHTML(d)}
-    ${nachweisCardHTML()}
-    ${endverbleibCardHTML()}
-    ${manuellHinweisHTML(d)}
-    <div id="sankBereich" class="sank-bereich"><div class="sank-laedt">Sanktionslisten werden abgeglichen&hellip;</div></div>
     <div class="flags-card reveal">
       <div class="flags-heading"><span class="sec-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4m0 4h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg></span>Risiko-Hinweise</div>
       ${flagsHTML || '<div class="flag"><span class="flag-icon warn">⚠</span><span class="flag-text">Es konnten keine spezifischen Risiko-Hinweise automatisch ermittelt werden. Bitte prüfen Sie die Einzelangaben oben sorgfältig im Rahmen Ihrer Sorgfaltspflicht.</span></div>'}
@@ -12657,8 +12869,24 @@ function showReport(d, rawName, fromHistory, nichtSpeichern) {
       <div class="rec-label">Compliance-Empfehlung</div>
       <div class="rec-text">${d.empfehlung}</div>
     </div>
-    <div id="kycMount" style="display:none;"></div>
-    ${abschlussCardHTML()}
+    ${evidenceHTML(d)}
+    <div id="bearbLeiste" class="bearb-leiste"></div>
+    ${manuellHinweisHTML(d)}
+    </div>
+    <div class="akte-panel" data-panel="dokumente" id="panelDokumente">
+      <div id="kycMount" style="display:none;"></div>
+      ${nachweisCardHTML()}
+    </div>
+    <div class="akte-panel" data-panel="sanktion" id="panelSanktion">
+      <div class="sec-card sk-intro reveal">
+        <div class="sk-head"><div class="sk-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg></div>
+          <div><div class="sk-sub">Schritt 4 \u00b7 Abgleich</div><div class="sk-t">Sanktionslisten</div></div></div>
+        <div class="sk-txt">Unternehmen, Gesch\u00e4ftsf\u00fchrung und wirtschaftlich Berechtigte werden gegen die konsolidierte Sanktionsliste der Europ\u00e4ischen Union abgeglichen \u2013 t\u00e4glich gespiegelt, auch mit abweichenden Schreibweisen. Ein Treffer bedeutet Namens\u00e4hnlichkeit, nicht Personenidentit\u00e4t.</div>
+      </div>
+      <div id="sankBereich" class="sank-bereich"><div class="sank-laedt">Sanktionslisten werden abgeglichen&hellip;</div></div>
+    </div>
+    <div class="akte-panel" data-panel="endverbleib" id="panelEndverbleib">${endverbleibCardHTML()}</div>
+    <div class="akte-panel" data-panel="abschluss" id="panelAbschluss">${abschlussCardHTML()}</div>
     <div class="actions reveal">
       <button class="btn-action primary" onclick="druckeJetzt()">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
@@ -12666,14 +12894,14 @@ function showReport(d, rawName, fromHistory, nichtSpeichern) {
       </button>
       <button class="btn-action" onclick="location.reload()">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
-        Neue Analyse
+        Neue Akte
       </button>
     </div>`;
 
   document.getElementById('report').classList.add('active');
   NW.modus = false; NW.gesamt = 0; NW.laeuft = 0;
   try { nwZeichnen(); } catch(e) {}
-  try { akteZeichnen(); } catch(e) {}
+  try { akteZeichnen(); akteAnsicht(AKTE.ansichtStart || 'analyse', true); AKTE.ansichtStart = null; } catch(e) {}
   if (d && d.pruefId) initKyc(d.pruefId);
 
   // WASSERZEICHEN für Ausdrucke aufbauen (E-Mail + Zeitstempel + gespeicherte Prüf-ID)
@@ -12830,7 +13058,7 @@ async function _openHistory() {
     <div class="history-head">
       <div>
         <div class="history-eyebrow">Geprüfte Unternehmen</div>
-        <div class="history-title">Historie & Ordner</div>
+        <div class="history-title">Akten & Ordner</div>
         <div class="history-sub">Alle Compliance-Prüfungen deines Unternehmens. Klicke einen Eintrag an, um den vollständigen Bericht erneut zu öffnen oder zu drucken – mit derselben Prüf-ID wie auf dem Ausdruck.</div>
       </div>
       <button class="btn-action" onclick="backToMain()">
