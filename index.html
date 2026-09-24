@@ -2564,7 +2564,7 @@
     /* ============================================================
        NACHWEISE & UNTERLAGEN
        ============================================================ */
-    .nw-card { position:relative; }
+    .nw-card { position:relative; margin-bottom:14px; }
     .nw-head { display:flex; align-items:center; gap:12px; margin-bottom:16px; }
     .nw-ico { width:42px; height:42px; border-radius:11px; flex-shrink:0;
       background:linear-gradient(135deg,#3FA45C,#2E8749); display:flex; align-items:center; justify-content:center;
@@ -2807,6 +2807,7 @@
     @media (max-width:560px) { .akte-schritte { grid-template-columns:repeat(2,1fr); } .akte-kopf { flex-wrap:wrap; } .akte-h { white-space:normal; } }
 
     /* Endverbleibserklaerung */
+    .ev-card { margin-bottom:14px; }
     .ev-head { display:flex; align-items:center; gap:12px; margin-bottom:12px; }
     .ev-ico { width:42px; height:42px; border-radius:11px; flex-shrink:0; background:linear-gradient(135deg,#1E4E8C,#2E6FBF);
       display:flex; align-items:center; justify-content:center; box-shadow:0 4px 12px rgba(30,78,140,.3); }
@@ -2835,9 +2836,17 @@
     .ev-dok-txt b { font-size:12.5px; color:var(--ink,#111827); }
     .ev-dok-txt small { font-size:10.5px; color:var(--gray-l,#8A949D); }
     .ev-fuss { margin-top:12px; font-size:10.5px; line-height:1.55; color:var(--gray-l,#8A949D); }
-    @media (max-width:640px) { .ev-form { grid-template-columns:1fr; } .ev-btns .nw-btn { flex:1; justify-content:center; } .ev-link { margin-left:0; } }
+    @media (max-width:640px) {
+      .ev-form { grid-template-columns:1fr; }
+      .ev-btns .nw-btn { flex:1; justify-content:center; }
+      .ev-link { margin-left:0; }
+      .ev-head, .ab-head { flex-wrap:wrap; }
+      .ev-status { order:3; width:100%; justify-content:center; box-sizing:border-box; }
+      .akte-schritt { padding:8px; }
+    }
 
     /* Abschluss */
+    .ab-card, .ab-card:hover { margin:18px 0 14px; border-left-color:#2E8749; }
     .ab-head { display:flex; align-items:center; gap:12px; margin-bottom:14px; }
     .ab-ico { width:42px; height:42px; border-radius:11px; flex-shrink:0; background:linear-gradient(135deg,#1B2C23,#2E4A39);
       display:flex; align-items:center; justify-content:center; }
@@ -5307,7 +5316,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.88</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.89</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -6138,7 +6147,8 @@ function chatNachUnten(erzwingen) {
   if (!box) return;
   const nahAmEnde = (box.scrollHeight - box.scrollTop - box.clientHeight) < 90;
   if (erzwingen || nahAmEnde) {
-    box.scrollTo({ top: box.scrollHeight, behavior: erzwingen ? 'smooth' : 'auto' });
+    if (typeof box.scrollTo === 'function') box.scrollTo({ top: box.scrollHeight, behavior: erzwingen ? 'smooth' : 'auto' });
+    else box.scrollTop = box.scrollHeight;
     const k = document.getElementById('chatRunter');
     if (k) k.classList.remove('an');
     return;
@@ -11288,7 +11298,7 @@ function evidenceHTML(d) {
 // zu seinem Abschnitt. Sind alle Schritte erledigt, gilt die Akte
 // als vollstaendig abgesichert.
 // ============================================================
-let AKTE = { sankFertig: false };
+let AKTE = { sankFertig: false, sankFehler: false };
 
 const AKTE_SCHRITTE = [
   { n: 1, key: 'akte',     titel: 'Akte angelegt',          ziel: '.report-top' },
@@ -11311,7 +11321,9 @@ function akteStatus(key) {
       if (n > 0) return 'ok';
       return (sch.dokumente && sch.dokumente.status === 'nicht_erforderlich') ? 'uebersprungen' : 'offen';
     }
-    case 'sanktion': return (AKTE.sankFertig || (d._sanktionen && d._sanktionen.stand)) ? 'ok' : 'laeuft';
+    case 'sanktion':
+      if (AKTE.sankFertig || (d._sanktionen && d._sanktionen.stand)) return 'ok';
+      return AKTE.sankFehler ? 'teil' : 'laeuft';
     case 'endverbleib': {
       if ((doks.endverbleib || []).length) return 'ok';
       if (sch.endverbleib && sch.endverbleib.status === 'nicht_erforderlich') return 'uebersprungen';
@@ -11371,7 +11383,7 @@ function akteStatusText(key, st) {
   }
   if (st === 'uebersprungen') return 'nicht erforderlich';
   if (st === 'laeuft') return 'l\u00e4uft \u2026';
-  if (st === 'teil') return 'erstellt, Unterschrift fehlt';
+  if (st === 'teil') return (key === 'sanktion') ? 'Liste nicht verf\u00fcgbar \u2013 manuell pr\u00fcfen' : 'erstellt, Unterschrift fehlt';
   return 'offen';
 }
 
@@ -12456,6 +12468,7 @@ function showReport(d, rawName, fromHistory, nichtSpeichern) {
   if (!d._email) d._email = CURRENT_USER_EMAIL || '';
   if (!d._name) d._name = CURRENT_USER_NAME || '';
   CURRENT_REPORT = d;
+  AKTE.sankFertig = false; AKTE.sankFehler = false;   // Stand gilt je Bericht
   // Sanktionslisten-Abgleich anstossen (laeuft im Hintergrund weiter)
   try { sanktionenAbgleichen(d); } catch(e) {}
   // Ueberwachungs-Kasten im Bericht
@@ -12842,10 +12855,18 @@ async function _openHistory() {
   HISTORY_FILTER = 'alle';
   try {
     await ladeOrdner(); // aktuelle Ordner-Liste für die Filter-Chips
-    const { data, error } = await sb
+    // Fehlt eine neue Spalte noch (SQL nicht eingespielt), auf die Grundspalten zurueckfallen
+    let { data, error } = await sb
       .from('analysen')
       .select('id, pruef_id, firmenname, land, ust_id, standort, score, verdict, verdict_text, created_at, report_json, ordner_id, schritte, abgeschlossen_am, abgeschlossen_von, abgeschlossen_von_name')
       .order('created_at', { ascending: false });
+    if (error && /column|schema cache|does not exist/i.test(error.message || '')) {
+      console.warn('Historie: neue Spalten fehlen noch, lade Grundspalten. (' + error.message + ')');
+      const r2 = await sb.from('analysen')
+        .select('id, pruef_id, firmenname, land, ust_id, score, verdict, verdict_text, created_at, report_json, ordner_id')
+        .order('created_at', { ascending: false });
+      data = r2.data; error = r2.error;
+    }
     if (error) throw error;
     HISTORY_ROWS = data || [];
     try { await ladeFavoriten(); } catch(e) {}
@@ -13787,6 +13808,7 @@ function sanktionenAnzeigen(erg, anzahlNamen) {
   const ziel = document.getElementById('sankBereich');
   if (!ziel) return;
   AKTE.sankFertig = !!(erg && erg.stand && erg.stand.eintraege);
+  AKTE.sankFehler = !AKTE.sankFertig;                  // Abgleich lief, Liste war nicht verfuegbar
   setTimeout(function(){ try { akteZeichnen(); } catch(e) {} }, 0);
 
   const standTxt = (erg && erg.stand && erg.stand.stand)
