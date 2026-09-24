@@ -3034,6 +3034,136 @@
       .grid4 { break-inside:auto; }
       .grid4 .sec-card { break-inside:avoid; page-break-inside:avoid; }
     }
+
+    /* ===== Mobil-Feinschliff (Akte, Mappen, Dialoge) ===== */
+    .akte-titel { flex:1 1 auto; min-width:0; }
+    .akte-h { overflow:hidden; text-overflow:ellipsis; }
+    /* Mappen-Effekt nur auf Geraeten mit echtem Mauszeiger - auf Touch bleibt er sonst "haengen" */
+    @media (hover: none) {
+      .history-list .akte-mappe:hover { transform:none; box-shadow:var(--shadow); }
+      .akte-mappe:hover::after { height:9px; top:-7px; transform:none; }
+    }
+    /* Branche-Auswahl passt auf jedes Handy */
+    .br-card { max-height:calc(100vh - 32px); max-height:calc(100dvh - 32px); overflow-y:auto; overscroll-behavior:contain; }
+    .fg-card { max-height:calc(100vh - 32px); max-height:calc(100dvh - 32px); overflow-y:auto; overscroll-behavior:contain; }
+    @media (max-width:640px) {
+      .akte-mappe::before { max-width:56%; }
+      .akte-mappe::after { width:26%; right:12px; }
+      .gr-zeile { flex-wrap:wrap; }
+      .gr-txt { flex:1 1 calc(100% - 30px); }
+      .gr-btn { margin-left:auto; }
+      .ab-zeile { flex-wrap:wrap; }
+      .ab-st { flex:1 1 100%; padding-left:30px; }
+      .st-grid { grid-template-columns:1fr 1fr; }
+      .br-card { padding:22px 18px; }
+      .br-t { font-size:16px; }
+    }
+    @media (max-width:560px) {
+      .akte-siegel { margin-left:0; }
+      .akte-kopf { row-gap:10px; }
+      .akte-hub .akte-balken { flex:1 1 100%; order:3; }
+    }
+    @media (max-width:400px) {
+      .st-grid { grid-template-columns:1fr; }
+      .akte-schritt { gap:6px; padding:7px; }
+      .akte-txt small { font-size:9.5px; }
+    }
+
+    /* ============================================================
+       FARBEN JE BEREICH
+       ============================================================ */
+    .akte-schritt { --farbe:#2E8749; }
+    .akte-schritt:hover { border-color:rgba(46,135,73,.45); border-color:color-mix(in srgb, var(--farbe) 45%, #fff); }
+    .akte-schritt.st-ok { border-color:rgba(46,135,73,.3); border-color:color-mix(in srgb, var(--farbe) 30%, #fff); }
+    .akte-schritt.st-ok .akte-nr { background:var(--farbe); border-color:var(--farbe); color:#fff; }
+    .akte-schritt.offen { border-color:var(--farbe); background:#F4FAF6; background:color-mix(in srgb, var(--farbe) 7%, #fff);
+      box-shadow:0 0 0 3px rgba(46,135,73,.12); box-shadow:0 0 0 3px color-mix(in srgb, var(--farbe) 14%, transparent); }
+    .akte-schritt.offen .akte-txt b { color:var(--farbe); }
+    .akte-bico { background:#EDF5F0; background:color-mix(in srgb, var(--farbe) 12%, #fff); color:var(--farbe); }
+    .akte-stepper.bereiche .akte-schritt.offen { border-color:var(--farbe); background:color-mix(in srgb, var(--farbe) 7%, #fff);
+      box-shadow:0 0 0 3px color-mix(in srgb, var(--farbe) 14%, transparent); }
+    .akte-stepper.bereiche .akte-schritt.offen .akte-bico { background:var(--farbe); color:#fff; }
+    /* Kopf der Bereichskarten */
+    .sk-ico { background:linear-gradient(135deg,#F59E0B,#D97706) !important; box-shadow:0 4px 12px rgba(217,119,6,.3) !important; }
+    .sk-sub { color:#B45309 !important; }
+    .sk-intro { border-left-color:#F59E0B !important; }
+    .nw-ico { background:linear-gradient(135deg,#8B5CF6,#7C3AED) !important; box-shadow:0 4px 12px rgba(124,58,237,.3) !important; }
+    .nw-sub { color:#6D28D9 !important; }
+    .nw-card { border-left-color:#8B5CF6 !important; }
+    .nw-tab.aktiv { color:#6D28D9; }
+    .nw-tab.aktiv .nw-z { background:#F3EEFF; color:#6D28D9; }
+    .ev-card { border-left-color:#2E6FBF !important; }
+    .ab-sub { color:#0F766E !important; }
+    .ab-ico.zu { background:linear-gradient(135deg,#14B8A6,#0F766E) !important; box-shadow:0 4px 12px rgba(15,118,110,.3) !important; }
+    .ab-card, .ab-card:hover { border-left-color:#0F766E !important; }
+    .st-card { border-left-color:#3F5A4B !important; }
+
+    /* Vorschau unter dem Formular */
+    .akte-vorschau { display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:7px; margin-top:16px; }
+    .av-label { font-size:10.5px; font-weight:800; letter-spacing:.07em; text-transform:uppercase; color:var(--gray-l,#8A949D); margin-right:4px; }
+    .av-chip { display:inline-flex; align-items:center; gap:6px; padding:6px 11px; border-radius:999px; font-size:11.5px; font-weight:700;
+      color:var(--farbe); background:#F4FAF6; background:color-mix(in srgb, var(--farbe) 8%, #fff);
+      border:1px solid rgba(46,135,73,.2); border:1px solid color-mix(in srgb, var(--farbe) 22%, #fff); }
+    @media (max-width:560px) { .av-label { width:100%; text-align:center; margin:0 0 2px; } .av-chip { font-size:11px; padding:5px 9px; } }
+
+    /* Aktionsleiste */
+    .akte-aktionen { flex-wrap:wrap; }
+    .akte-aktionen .btn-action svg { flex-shrink:0; }
+    .akte-aktionen .btn-action:disabled { opacity:.5; cursor:not-allowed; transform:none !important; }
+
+    /* Startseite: Akte-Karten */
+    .lp-ak { border-top:3px solid var(--farbe); }
+    .lp-ak-ico { width:42px; height:42px; border-radius:12px; display:flex; align-items:center; justify-content:center; margin-bottom:12px;
+      color:var(--farbe); background:#F4FAF6; background:color-mix(in srgb, var(--farbe) 10%, #fff); }
+    .lp-ak-ico svg { width:21px; height:21px; }
+
+    /* Neuigkeiten */
+    .neu-card { position:relative; max-width:560px; width:min(560px, calc(100vw - 32px)); text-align:left;
+      max-height:calc(100vh - 32px); max-height:calc(100dvh - 32px); overflow-y:auto; overscroll-behavior:contain; padding:26px 24px 22px; }
+    .neu-zu { position:absolute; top:14px; right:14px; width:32px; height:32px; border-radius:9px; border:none; cursor:pointer;
+      background:var(--neutral,#F6F8F9); color:var(--gray,#5A6670); display:flex; align-items:center; justify-content:center; transition:all .16s; }
+    .neu-zu:hover { background:#EDF0F2; color:var(--ink,#111827); transform:rotate(90deg); }
+    .neu-badge { display:inline-block; padding:5px 12px; border-radius:999px; font-size:10.5px; font-weight:800; letter-spacing:.08em;
+      text-transform:uppercase; color:#fff; background:linear-gradient(135deg,#3FA45C,#2E8749); box-shadow:0 8px 18px -10px rgba(46,135,73,.8); margin-bottom:10px; }
+    .neu-t { font-size:19px; font-weight:800; color:var(--ink,#111827); letter-spacing:-.01em; margin-bottom:16px; padding-right:36px; }
+    .neu-liste { display:flex; flex-direction:column; gap:10px; margin-bottom:16px; }
+    .neu-punkt { display:flex; gap:12px; align-items:flex-start; padding:11px 12px; border-radius:12px; background:#fff;
+      border:1px solid var(--border2,#EDF0F2); opacity:0; animation:nwIn .4s cubic-bezier(.2,.8,.3,1) both; }
+    .neu-ico { width:34px; height:34px; border-radius:10px; flex-shrink:0; display:flex; align-items:center; justify-content:center;
+      color:var(--nf); background:#F4FAF6; background:color-mix(in srgb, var(--nf) 11%, #fff); }
+    .neu-txt { display:flex; flex-direction:column; gap:2px; min-width:0; }
+    .neu-txt b { font-size:13.5px; color:var(--ink,#111827); }
+    .neu-txt span { font-size:12.3px; line-height:1.55; color:var(--gray,#5A6670); }
+    .neu-support { display:flex; gap:10px; align-items:flex-start; padding:12px 14px; border-radius:11px; background:#EEF4FF; border:1px solid #C7DDF5;
+      font-size:12px; line-height:1.55; color:#41566E; margin-bottom:16px; }
+    .neu-support svg { flex-shrink:0; margin-top:1px; color:#1E4E8C; }
+    .neu-support a { color:#1E4E8C; font-weight:700; }
+    .neu-ok { width:100%; }
+    .app-version { cursor:pointer; transition:opacity .16s; }
+    .app-version:hover { opacity:1 !important; text-decoration:underline; }
+    @media (max-width:560px) { .neu-card { padding:22px 16px 18px; } .neu-t { font-size:17px; } }
+    @media (prefers-reduced-motion: reduce) { .neu-punkt { animation:none; opacity:1; } }
+
+    /* ============================================================
+       DRUCK EINZELNER BEREICHE
+       ============================================================ */
+    @media print {
+      body.druck-analyse #panelSanktion, body.druck-analyse #panelDokumente, body.druck-analyse #panelEndverbleib,
+      body.druck-analyse .kyc-print-page { display:none !important; }
+
+      body.druck-sanktion #panelAnalyse, body.druck-sanktion #panelDokumente, body.druck-sanktion #panelEndverbleib,
+      body.druck-sanktion .kyc-print-page { display:none !important; }
+      body.druck-sanktion #panelSanktion .sk-intro { display:block !important; box-shadow:none !important; border:1px solid #DDD !important; }
+
+      body.druck-dokumente .report-top, body.druck-dokumente #panelAnalyse, body.druck-dokumente #panelSanktion,
+      body.druck-dokumente #panelEndverbleib, body.druck-dokumente .kyc-print-page[data-typ="endverbleib"] { display:none !important; }
+
+      body.druck-endverbleib .report-top, body.druck-endverbleib #panelAnalyse, body.druck-endverbleib #panelSanktion,
+      body.druck-endverbleib #panelEndverbleib, body.druck-endverbleib .kyc-print-page:not([data-typ="endverbleib"]) { display:none !important; }
+
+      .kyc-print-page.erste { page-break-before:auto !important; break-before:auto !important; }
+      .akte-vorschau, .akte-aktionen, #neuGate { display:none !important; }
+    }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -3223,13 +3353,13 @@
         <div class="lp-card"><div class="lp-ico">⚡</div><div class="lp-card-t">Prüfung in Minuten</div>
           <ul class="lp-list"><li>Name + Land eingeben – mehr nicht</li><li>KI durchsucht Register, Presse &amp; Web</li><li>Klarer Vertrauens-Score von 0–100</li></ul></div>
         <div class="lp-card"><div class="lp-ico">🛡️</div><div class="lp-card-t">Sanktions- &amp; PEP-Screening</div>
-          <ul class="lp-list"><li>EU-, OFAC-, UN- &amp; UK-Listen bei jeder Analyse</li><li>PEP-Prüfung der verantwortlichen Personen</li><li>K.O.-Kriterien klar gekennzeichnet</li></ul></div>
+          <ul class="lp-list"><li>Konsolidierte EU-Sanktionsliste, täglich aktuell</li><li>PEP-Prüfung der verantwortlichen Personen</li><li>K.O.-Kriterien klar gekennzeichnet</li></ul></div>
         <div class="lp-card"><div class="lp-ico">📄</div><div class="lp-card-t">Nachweise für die Akte</div>
-          <ul class="lp-list"><li>PDF-Bericht mit Quellenangaben</li><li>Manipulationssichere Prüf-ID</li><li>Abgleich mit EU-Sanktionslisten</li></ul></div>
+          <ul class="lp-list"><li>PDF-Bericht mit Quellenangaben</li><li>Manipulationssichere Prüf-ID</li><li>Einzelne Bereiche oder die ganze Akte drucken</li></ul></div>
         <div class="lp-card"><div class="lp-ico">🌍</div><div class="lp-card-t">International einsetzbar</div>
           <ul class="lp-list"><li>56 Länder im Detail, weltweit nutzbar</li><li>Suche in Landessprache (KRS, EGRUL &amp; Co.)</li><li>Berichte auf Deutsch oder Englisch</li></ul></div>
         <div class="lp-card"><div class="lp-ico">👥</div><div class="lp-card-t">Für dein ganzes Team</div>
-          <ul class="lp-list"><li>Geteiltes Kontingent für alle Mitarbeiter</li><li>Ordner für Kunden &amp; Vorgänge</li><li>Rollen: Host &amp; Mitglieder</li></ul></div>
+          <ul class="lp-list"><li>Geteiltes Kontingent für alle Mitarbeiter</li><li>Vier Ränge vom President bis zum Member</li><li>Ordner gezielt für Gruppen &amp; Standorte freigeben</li></ul></div>
         <div class="lp-card"><div class="lp-ico">💶</div><div class="lp-card-t">Fair &amp; planbar</div>
           <ul class="lp-list"><li>Fester Monatspreis, klare Pakete</li><li>3 Gratis-Analysen zum Start</li><li>Von 100 bis 1.000 Analysen im Monat</li></ul></div>
       </div>
@@ -3242,20 +3372,26 @@
         <div class="lp-step"><div class="lp-step-n">1</div><div><div class="lp-step-t">Kostenlos registrieren</div><div class="lp-step-d">Konto erstellen und sofort loslegen – deine ersten 3 Analysen sind gratis. Keine Kreditkarte nötig.</div></div></div>
         <div class="lp-step"><div class="lp-step-n">2</div><div><div class="lp-step-t">Unternehmen eingeben</div><div class="lp-step-d">Name des Unternehmens + Land, optional die USt-ID für eine präzise Zuordnung.</div></div></div>
         <div class="lp-step"><div class="lp-step-n">3</div><div><div class="lp-step-t">KI prüft &amp; bewertet</div><div class="lp-step-d">Handelsregister, wirtschaftlich Berechtigte, Sanktions- &amp; PEP-Listen, Presse – alles mit Quellen und Vertrauens-Score.</div></div></div>
-        <div class="lp-step"><div class="lp-step-n">4</div><div><div class="lp-step-t">PDF ablegen</div><div class="lp-step-d">Bericht herunterladen und in deiner Akte ablegen – bereit für jede Prüfung.</div></div></div>
+        <div class="lp-step"><div class="lp-step-n">4</div><div><div class="lp-step-t">Akte abschließen</div><div class="lp-step-d">Dokumente ergänzen, Vollständigkeit bestätigen und die gesamte Akte als PDF ablegen – bereit für jede Prüfung.</div></div></div>
       </div>
     </section>
 
     <section class="lp-sec lp-reveal" id="lpAkte">
-      <h2 class="lp-h2">Die vollständige Akte – nicht nur die Analyse</h2>
-      <p class="lp-secsub">Eine Prüfung allein reicht der Aufsicht nicht. Der Compliance-Checker sammelt alles, was zu einem Geschäftspartner gehört, an einem Ort – und gibt es auf Knopfdruck als geschlossenes Dokument aus.</p>
-      <div class="lp-grid">
-        <div class="lp-card"><div class="lp-ico">🗂️</div><div class="lp-card-t">Ausweis &amp; Bestätigungsfoto</div>
-          <ul class="lp-list"><li>Personalausweis zu jeder Prüfung hinterlegen</li><li>Bestätigungsfoto der handelnden Person</li><li>Verschlüsselt gespeichert, Server in der EU</li></ul></div>
-        <div class="lp-card"><div class="lp-ico">🔗</div><div class="lp-card-t">Sicherer Upload-Link</div>
-          <ul class="lp-list"><li>Link erzeugen und dem Geschäftspartner schicken</li><li>Er lädt selbst hoch – ganz ohne Konto</li><li>Einmalig nutzbar, danach automatisch ungültig</li></ul></div>
-        <div class="lp-card"><div class="lp-ico">📎</div><div class="lp-card-t">Akte als ein PDF</div>
-          <ul class="lp-list"><li>Bericht, Ausweis und Foto in einem Dokument</li><li>Ganze Ordner auf einmal exportieren</li><li>Jede Anlage sauber beschriftet und zugeordnet</li></ul></div>
+      <h2 class="lp-h2">Eine Akte pro Geschäftspartner</h2>
+      <p class="lp-secsub">Eine Prüfung allein reicht der Aufsicht nicht. Jedes Unternehmen bekommt eine eigene Akte – mit allem, was dazugehört, sauber in Bereiche gegliedert und auf Knopfdruck als ein Dokument.</p>
+      <div class="lp-grid lp-akte-grid">
+        <div class="lp-card lp-ak" style="--farbe:#2E8749"><div class="lp-ak-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m7 15 4-4 3 3 5-6"/></svg></div><div class="lp-card-t">Analyse</div>
+          <ul class="lp-list"><li>Vertrauens-Score mit nachvollziehbarer Rechnung</li><li>Grunddaten, Personen, Finanzen, Reputation</li><li>Fehlende Angaben selbst ergänzen und neu bewerten</li></ul></div>
+        <div class="lp-card lp-ak" style="--farbe:#7C3AED"><div class="lp-ak-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg></div><div class="lp-card-t">Dokumente</div>
+          <ul class="lp-list"><li>Ausweis und Bestätigungsfoto hinterlegen</li><li>Sicherer Upload-Link – der Partner lädt selbst hoch</li><li>Handelsregisterauszüge werden ausgelesen</li></ul></div>
+        <div class="lp-card lp-ak" style="--farbe:#D97706"><div class="lp-ak-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><div class="lp-card-t">Sanktionslisten</div>
+          <ul class="lp-list"><li>Unternehmen und Personen gegen die EU-Liste</li><li>Auch bei abweichender Schreibweise</li><li>Listenstand im Bericht dokumentiert</li></ul></div>
+        <div class="lp-card lp-ak" style="--farbe:#1E4E8C"><div class="lp-ak-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="m9 15 2 2 4-4"/></svg></div><div class="lp-card-t">Endverbleibserklärung</div>
+          <ul class="lp-list"><li>Für den Fahrzeughandel</li><li>Vorausgefüllt mit Käufer, Ort und Datum</li><li>Unterschriebene Fassung direkt in der Akte</li></ul></div>
+        <div class="lp-card lp-ak" style="--farbe:#0F766E"><div class="lp-ak-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.48 12.89 17 22l-5-3-5 3 1.52-9.11"/></svg></div><div class="lp-card-t">Abschluss</div>
+          <ul class="lp-list"><li>Vollständigkeit mit Datum und Namen bestätigen</li><li>Abgeschlossene Akten auf einen Blick erkennbar</li><li>Jederzeit wieder öffnen</li></ul></div>
+        <div class="lp-card lp-ak" style="--farbe:#3F5A4B"><div class="lp-ak-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg></div><div class="lp-card-t">Als PDF</div>
+          <ul class="lp-list"><li>Gesamte Akte als ein Dokument</li><li>Oder einzelne Bereiche separat</li><li>Ganze Ordner auf einmal exportieren</li></ul></div>
       </div>
     </section>
 
@@ -3289,7 +3425,6 @@
     </section>
 
     <section class="lp-sec lp-reveal" id="lpSanktionen">
-      <div class="lp-neu-badge">Neu</div>
       <h2 class="lp-h2">Sanktionslisten – direkt abgeglichen, nicht recherchiert</h2>
       <p class="lp-secsub">Jede Prüfung gleicht Namen unmittelbar gegen die <b>konsolidierte Sanktionsliste der Europäischen Union</b> ab. Nicht über eine Internetsuche, sondern gegen die amtliche Liste selbst – täglich aktualisiert und mit dokumentiertem Stand.</p>
 
@@ -5467,7 +5602,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.91</span>
+      <span class="app-version" onclick="neuigkeitenZeigen()" title="Was ist neu?" style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.93</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -5560,13 +5695,7 @@
         <svg class="bs-lade" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 3a9 9 0 1 0 9 9"/></svg>
       </span>
     </button>
-    <div class="tags">
-      <span class="tag">Handelsregister</span>
-      <span class="tag">Trustpilot</span>
-      <span class="tag">Betrugsprüfung</span>
-      <span class="tag">Weltweit</span>
-      <span class="tag">Quellen-transparent</span>
-    </div>
+    <div class="akte-vorschau" id="akteVorschau"></div>
   </div>
 
   <div class="loading" id="loading">
@@ -5897,7 +6026,6 @@ const LP_EN = {
 "⚖️ Wie die Bewertung funktioniert": "⚖️ How the scoring works",
 "🔍 Woher die Daten stammen": "🔍 Where the data comes from",
 "Länder im Detail": "Countries in detail",
-"Sanktionslisten": "Sanctions lists",
 "PDF": "PDF",
 "Nachweis je Prüfung": "Evidence per check",
 "Deine Vorteile": "Your benefits",
@@ -5907,13 +6035,41 @@ const LP_EN = {
 "KI durchsucht Register, Presse & Web": "AI searches registers, press & web",
 "Klarer Vertrauens-Score von 0–100": "Clear trust score from 0–100",
 "Sanktions- & PEP-Screening": "Sanctions & PEP screening",
-"EU-, OFAC-, UN- & UK-Listen bei jeder Analyse": "EU, OFAC, UN & UK lists with every analysis",
+"Konsolidierte EU-Sanktionsliste, täglich aktuell": "Consolidated EU sanctions list, updated daily",
+"Einzelne Bereiche oder die ganze Akte drucken": "Print single sections or the whole file",
+"Vier Ränge vom President bis zum Member": "Four ranks from President to Member",
+"Ordner gezielt für Gruppen & Standorte freigeben": "Share folders with specific groups & locations",
+"Akte abschließen": "Close the file",
+"Dokumente ergänzen, Vollständigkeit bestätigen und die gesamte Akte als PDF ablegen – bereit für jede Prüfung.": "Add documents, confirm completeness and file the whole record as a PDF – ready for any audit.",
+"Eine Akte pro Geschäftspartner": "One file per business partner",
+"Eine Prüfung allein reicht der Aufsicht nicht. Jedes Unternehmen bekommt eine eigene Akte – mit allem, was dazugehört, sauber in Bereiche gegliedert und auf Knopfdruck als ein Dokument.": "A check alone is not enough for the regulator. Every company gets its own file – with everything that belongs to it, neatly organised into sections and available as one document at the push of a button.",
+"Vertrauens-Score mit nachvollziehbarer Rechnung": "Trust score with a transparent calculation",
+"Grunddaten, Personen, Finanzen, Reputation": "Core data, people, finances, reputation",
+"Fehlende Angaben selbst ergänzen und neu bewerten": "Add missing details yourself and re-evaluate",
+"Dokumente": "Documents",
+"Ausweis und Bestätigungsfoto hinterlegen": "Store ID and confirmation photo",
+"Sicherer Upload-Link – der Partner lädt selbst hoch": "Secure upload link – the partner uploads directly",
+"Handelsregisterauszüge werden ausgelesen": "Commercial register extracts are read automatically",
+"Sanktionslisten": "Sanctions lists",
+"Unternehmen und Personen gegen die EU-Liste": "Companies and persons against the EU list",
+"Auch bei abweichender Schreibweise": "Even with differing spellings",
+"Listenstand im Bericht dokumentiert": "List version documented in the report",
+"Endverbleibserklärung": "End-use declaration",
+"Für den Fahrzeughandel": "For vehicle dealers",
+"Vorausgefüllt mit Käufer, Ort und Datum": "Pre-filled with buyer, place and date",
+"Unterschriebene Fassung direkt in der Akte": "Signed version stored in the file",
+"Abschluss": "Completion",
+"Vollständigkeit mit Datum und Namen bestätigen": "Confirm completeness with date and name",
+"Abgeschlossene Akten auf einen Blick erkennbar": "Closed files recognisable at a glance",
+"Jederzeit wieder öffnen": "Reopen at any time",
+"Als PDF": "As PDF",
+"Gesamte Akte als ein Dokument": "The whole file as one document",
+"Oder einzelne Bereiche separat": "Or individual sections separately",
 "PEP-Prüfung der verantwortlichen Personen": "PEP check of responsible persons",
 "K.O.-Kriterien klar gekennzeichnet": "Knock-out criteria clearly flagged",
 "Nachweise für die Akte": "Evidence for your files",
 "PDF-Bericht mit Quellenangaben": "PDF report with source references",
 "Manipulationssichere Prüf-ID": "Tamper-proof check ID",
-"Abgleich mit EU-Sanktionslisten": "Matched against EU sanctions lists",
 "International einsetzbar": "Works internationally",
 "56 Länder im Detail, weltweit nutzbar": "56 countries in detail, usable worldwide",
 "Suche in Landessprache (KRS, EGRUL & Co.)": "Searches in local language (KRS, EGRUL & more)",
@@ -5921,7 +6077,6 @@ const LP_EN = {
 "Für dein ganzes Team": "For your whole team",
 "Geteiltes Kontingent für alle Mitarbeiter": "Shared quota for all staff",
 "Ordner für Kunden & Vorgänge": "Folders for clients & cases",
-"Rollen: Host & Mitglieder": "Roles: admins & members",
 "Fair & planbar": "Fair & predictable",
 "Fester Monatspreis, klare Pakete": "Fixed monthly price, clear packages",
 "3 Gratis-Analysen zum Start": "3 free analyses to start",
@@ -6772,10 +6927,15 @@ async function doAuth() {
   }
 }
 
+let ABMELDEN_LAEUFT = false;
 async function doLogout() {
+  if (ABMELDEN_LAEUFT) return;
+  ABMELDEN_LAEUFT = true;          // "abgemeldet"-Ereignis ignorieren - der Neustart uebernimmt
   RANG_GELADEN = false;
-  showBoot();                      // deckt alles ab -> kein Aufblitzen der Anmeldeseite
+  CHAT_DS_OK = null; CHAT_UID = null;
+  showBoot();                      // deckt alles ab -> kein Aufblitzen der Startseite
   try { await sb.auth.signOut(); } catch(e) {}
+  try { if ('scrollRestoration' in history) history.scrollRestoration = 'manual'; window.scrollTo(0, 0); } catch(e) {}
   location.reload();
 }
 
@@ -7555,6 +7715,7 @@ async function einladungPruefen() {
 function showApp(session) {
   if (PW_ANSICHT_OFFEN) return;   // Passwort wird gerade neu gesetzt
   SESSION_GEROUTET = true;
+  setTimeout(function(){ try { neuigkeitenPruefen(); } catch(e) {} }, 2400);
   showBoot(); // Splash zeigen, App erst freigeben wenn Firmen-Status geklärt ist (kein Aufblitzen)
   if (session && session.user) { CURRENT_USER_EMAIL = session.user.email || ''; CURRENT_USER_ID = session.user.id || ''; }
   ladeKontingent();
@@ -10160,7 +10321,11 @@ if (sb) {
     if (!initialDone) return;                 // Start übernimmt getSession oben
     // Supabase feuert SIGNED_IN auch bei Tab-Rückkehr erneut -> NICHT neu routen, wenn schon drin
     if (event === 'SIGNED_IN' && session) { if (!SESSION_GEROUTET) showApp(session); }
-    else if (event === 'SIGNED_OUT') { SESSION_GEROUTET = false; showLanding(); }
+    else if (event === 'SIGNED_OUT') {
+      SESSION_GEROUTET = false;
+      if (ABMELDEN_LAEUFT) return;        // Seite wird gleich neu geladen - nichts einblenden
+      showLanding();
+    }
     // TOKEN_REFRESHED / USER_UPDATED / INITIAL_SESSION: NICHT neu routen
   });
 } else {
@@ -10379,7 +10544,7 @@ function druckDateiname() {
   const sauber = roh.replace(/[\\/:*?"<>|]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 70);
   const d = new Date();
   const datum = ('0' + d.getDate()).slice(-2) + '.' + ('0' + (d.getMonth() + 1)).slice(-2) + '.' + d.getFullYear();
-  return sauber + ' - Compliance-Pr\u00fcfung' + (DRUCK_ID ? ' - ' + DRUCK_ID : '') + ' - ' + datum;
+  return sauber + ' - ' + (DRUCK_TEIL || 'Compliance-Pr\u00fcfung') + (DRUCK_ID ? ' - ' + DRUCK_ID : '') + ' - ' + datum;
 }
 
 // Browser erkennen, die auf dem iPhone nicht drucken koennen
@@ -10393,7 +10558,29 @@ function druckenMoeglich() {
   return !fremd;
 }
 
-function druckeJetzt() {
+let DRUCK_TEIL = '';
+const DRUCK_TEIL_NAME = { gesamt: 'Akte', analyse: 'Analyse', sanktion: 'Sanktionsabgleich', dokumente: 'Dokumente', endverbleib: 'Endverbleibserkl\u00e4rung' };
+const DRUCK_KLASSEN = ['druck-analyse','druck-sanktion','druck-dokumente','druck-endverbleib'];
+
+function druckBereichAufraeumen() {
+  document.body.classList.remove.apply(document.body.classList, DRUCK_KLASSEN);
+  document.querySelectorAll('.kyc-print-page.erste').forEach(function(p){ p.classList.remove('erste'); });
+  DRUCK_TEIL = '';
+}
+
+function druckeJetzt(bereich) {
+  bereich = bereich || 'gesamt';
+  druckBereichAufraeumen();
+  if (bereich !== 'gesamt') {
+    document.body.classList.add('druck-' + bereich);
+    // Erste Anlage darf direkt oben beginnen, wenn nur Anlagen gedruckt werden
+    if (bereich === 'dokumente' || bereich === 'endverbleib') {
+      const typen = (bereich === 'dokumente') ? ['ausweis','selfie','standort','beleg'] : ['endverbleib'];
+      const erste = Array.prototype.slice.call(document.querySelectorAll('.kyc-print-page')).find(function(p){ return typen.indexOf(p.getAttribute('data-typ')) >= 0; });
+      if (erste) erste.classList.add('erste');
+    }
+  }
+  DRUCK_TEIL = DRUCK_TEIL_NAME[bereich] || '';
   if (!druckenMoeglich()) { druckAusweg(); return; }
   // Offene Ergaenzungen, die noch nicht neu bewertet wurden? Dann waere der
   // Ausdruck weder Original noch neue Fassung - lieber vorher fragen.
@@ -10419,11 +10606,14 @@ function druckeJetzt() {
   } catch (e) {
     druckHinweis();
   }
-  // Titel wieder herstellen, sobald der Dialog durch ist
+  // Titel und Druckbereich wieder herstellen, sobald der Dialog durch ist
   setTimeout(function(){ document.title = alterTitel; }, 3000);
+  const aufraeumen = setTimeout(druckBereichAufraeumen, 60000);
   try {
     window.addEventListener('afterprint', function zurueck(){
       document.title = alterTitel;
+      clearTimeout(aufraeumen);
+      druckBereichAufraeumen();
       window.removeEventListener('afterprint', zurueck);
     });
   } catch (e) {}
@@ -11445,6 +11635,104 @@ function evidenceHTML(d) {
   </div>`;
 }
 
+setTimeout(function(){ try { akteVorschauZeichnen(); } catch(e) {} }, 0);
+
+// ============================================================
+// NEUIGKEITEN
+// Erscheint einmal, wenn jemand eine neue Version oeffnet.
+// Bei kuenftigen Updates: NEU_VERSION hochzaehlen und NEUIGKEITEN ersetzen.
+// Kleine Korrekturen ohne neue Funktionen: NEU_VERSION unveraendert lassen.
+// ============================================================
+const NEU_VERSION = 'v11.93';
+const NEUIGKEITEN = [
+  { farbe: '#3F5A4B', ico: '<path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/>',
+    t: 'Akten statt Analysen',
+    d: 'Jedes Unternehmen bekommt eine eigene Akte mit Bereichen: Stammdaten, Analyse, Dokumente, Sanktionslisten und Abschluss. Oben in der Akte wechselst du zwischen den Bereichen.' },
+  { farbe: '#1E4E8C', ico: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="m9 15 2 2 4-4"/>',
+    t: 'Endverbleibserkl\u00e4rung', nurAuto: true,
+    d: 'F\u00fcr den Fahrzeughandel: Der K\u00e4ufer best\u00e4tigt, das Fahrzeug nicht in sanktionierte L\u00e4nder weiterzuverkaufen. Das Tool f\u00fcllt die Erkl\u00e4rung vor \u2013 du tr\u00e4gst Fahrzeug und FIN ein und legst die unterschriebene Fassung in der Akte ab.' },
+  { farbe: '#0F766E', ico: '<circle cx="12" cy="8" r="6"/><path d="M15.48 12.89 17 22l-5-3-5 3 1.52-9.11"/>',
+    t: 'Akte abschlie\u00dfen',
+    d: 'Sind alle Schritte erledigt, best\u00e4tigst du die Vollst\u00e4ndigkeit. Abgeschlossene Akten sind in \u201eAkten & Ordner\u201c mit einem Haken markiert.' },
+  { farbe: '#2E8749', ico: '<polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/>',
+    t: 'Einzeln oder gesamt drucken',
+    d: 'Unter jeder Akte druckst du genau den Bereich, in dem du gerade bist \u2013 oder die gesamte Akte als ein PDF.' },
+  { farbe: '#7C3AED', ico: '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>',
+    t: 'Gruppen & Standorte',
+    d: 'Ordner lassen sich f\u00fcr Gruppen (z.\u2009B. Abteilungen oder Marken) und R\u00e4nge freigeben. Beim Anlegen einer Akte h\u00e4ltst du fest, welcher Standort pr\u00fcft.' },
+  { farbe: '#D97706', ico: '<circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01"/>',
+    t: 'Hilfe-Assistent',
+    d: 'Unten rechts beantwortet der Assistent Fragen zur Bedienung \u2013 Schritt f\u00fcr Schritt, rund um die Uhr.' }
+];
+
+function neuigkeitenPruefen(versuch) {
+  versuch = versuch || 0;
+  let gesehen = '';
+  try { gesehen = localStorage.getItem('cc_neu_gesehen') || ''; } catch(e) {}
+  if (gesehen === NEU_VERSION) return;
+  // Nicht ueber die Startseite, die Anmeldung oder ein anderes offenes Fenster legen
+  const sichtbar = function(id){ const e = document.getElementById(id); return e && e.style.display !== 'none' && !e.classList.contains('hidden') && e.offsetParent !== null; };
+  if (sichtbar('landingGate') || sichtbar('authGate')) return;
+  const blockiert = sichtbar('onboardingGate') || sichtbar('planGate') || sichtbar('bootGate')
+    || document.getElementById('brancheGate') || document.querySelector('.up-warn-back.an') || document.getElementById('neuGate');
+  if (blockiert) { if (versuch < 40) setTimeout(function(){ neuigkeitenPruefen(versuch + 1); }, 1500); return; }
+  neuigkeitenZeigen();
+}
+
+function neuigkeitenZeigen() {
+  if (document.getElementById('neuGate')) return;
+  const liste = NEUIGKEITEN.filter(function(n){ return !n.nurAuto || istAutohandel(); });
+  const box = document.createElement('div');
+  box.id = 'neuGate';
+  box.className = 'up-warn-back';
+  box.onclick = function(ev){ if (ev.target === box) neuigkeitenSchliessen(); };
+  box.innerHTML = '<div class="up-warn-card neu-card" role="dialog" aria-label="Neuigkeiten">'
+    + '<button class="neu-zu" onclick="neuigkeitenSchliessen()" title="Schlie\u00dfen"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>'
+    + '<div class="neu-badge">Neu \u00b7 ' + NEU_VERSION + '</div>'
+    + '<div class="neu-t">Das ist neu im Compliance-Checker</div>'
+    + '<div class="neu-liste">'
+    + liste.map(function(n, i){
+        return '<div class="neu-punkt" style="--nf:' + n.farbe + ';animation-delay:' + (120 + i * 60) + 'ms">'
+          + '<span class="neu-ico"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">' + n.ico + '</svg></span>'
+          + '<span class="neu-txt"><b>' + n.t + '</b><span>' + n.d + '</span></span>'
+          + '</div>';
+      }).join('')
+    + '</div>'
+    + '<div class="neu-support">'
+    + '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><path d="m22 6-10 7L2 6"/></svg>'
+    + '<span>Technische Probleme oder Fragen? Schreib uns an <a href="mailto:support@automatilabs.de">support@automatilabs.de</a> \u2013 wir k\u00fcmmern uns darum.</span>'
+    + '</div>'
+    + '<button class="up-senden neu-ok" onclick="neuigkeitenSchliessen()">Alles klar</button>'
+    + '</div>';
+  document.body.appendChild(box);
+  requestAnimationFrame(function(){ box.classList.add('an'); });
+}
+
+function neuigkeitenSchliessen() {
+  try { localStorage.setItem('cc_neu_gesehen', NEU_VERSION); } catch(e) {}
+  const box = document.getElementById('neuGate');
+  if (!box) return;
+  box.classList.remove('an');
+  setTimeout(function(){ if (box.parentNode) box.remove(); }, 240);
+}
+
+document.addEventListener('keydown', function(ev){
+  if (ev.key === 'Escape' && document.getElementById('neuGate')) neuigkeitenSchliessen();
+});
+
+// Vorschau unter dem Formular: woraus eine Akte besteht (passt sich der Branche an)
+function akteVorschauZeichnen() {
+  const box = document.getElementById('akteVorschau');
+  if (!box) return;
+  const teile = akteSchritteAktiv();
+  box.innerHTML = '<span class="av-label">Jede Akte enth\u00e4lt</span>'
+    + teile.map(function(x){
+        return '<span class="av-chip" style="--farbe:' + (AKTE_FARBE[x.key] || '#2E8749') + '">'
+          + '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + (AKTE_ICO[x.key] || '') + '</svg>'
+          + AKTE_BEREICH_NAME[x.key] + '</span>';
+      }).join('');
+}
+
 // ============================================================
 // BRANCHE
 // Steuert die Version der Akte: Autohandel bekommt die
@@ -11478,6 +11766,7 @@ async function brancheLaden() {
   } catch (e) {}
   BRANCHE_GEPRUEFT = true;
   brancheKontoZeichnen();
+  try { akteVorschauZeichnen(); } catch(e) {}
 }
 
 // Beim ersten Anmelden: einmalig fragen (Leitung oder Einzelkonto)
@@ -11520,6 +11809,7 @@ async function brancheSpeichern(key) {
   if (error || !data || !data.ok) { alert('Branche konnte nicht gespeichert werden: ' + ((error && error.message) || (data && data.grund) || '')); return false; }
   FIRMA_BRANCHE = key;
   brancheKontoZeichnen();
+  try { akteVorschauZeichnen(); } catch(e) {}
   try { if (CURRENT_REPORT) { akteZeichnen(); akteAnsicht(AKTE.ansicht, true); } } catch(e) {}
   zeigeToast('Branche gespeichert', brancheName(key) + (key === 'autohandel' ? ' \u2013 Akten enthalten die Endverbleibserkl\u00e4rung.' : ' \u2013 Akten ohne Endverbleibserkl\u00e4rung.'));
   return true;
@@ -11704,6 +11994,8 @@ const AKTE_ICO = {
   endverbleib: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="m9 15 2 2 4-4"/>',
   abschluss: '<circle cx="12" cy="8" r="6"/><path d="M15.48 12.89 17 22l-5-3-5 3 1.52-9.11"/>'
 };
+// Farbe je Bereich - Stepper, Karten, Vorschau und Neuigkeiten nutzen dieselben Werte
+const AKTE_FARBE = { akte: '#3F5A4B', analyse: '#2E8749', dokumente: '#7C3AED', sanktion: '#D97706', endverbleib: '#1E4E8C', abschluss: '#0F766E' };
 const AKTE_BEREICH_NAME = { akte: 'Stammdaten', analyse: 'Analyse', dokumente: 'Dokumente', sanktion: 'Sanktionslisten', endverbleib: 'Endverbleib', abschluss: 'Best\u00e4tigung' };
 const AKTE_STATUS_ICO = {
   ok: '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>',
@@ -11735,7 +12027,7 @@ function akteStepperZeichnen() {
       + '</div>'
       + '<div class="akte-schritte' + (schritte.length === 5 ? ' fuenf' : '') + '">'
       + schritte.map(function(sch, i){
-          return '<button class="akte-schritt" id="akteKachel_' + sch.key + '" onclick="akteAnsicht(\'' + sch.key + '\')" style="--ad:' + (0.04 + i * 0.045) + 's">'
+          return '<button class="akte-schritt" id="akteKachel_' + sch.key + '" onclick="akteAnsicht(\'' + sch.key + '\')" style="--ad:' + (0.04 + i * 0.045) + 's;--farbe:' + (AKTE_FARBE[sch.key] || '#2E8749') + '">'
             + (zu ? '<span class="akte-bico"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">' + (AKTE_ICO[sch.key] || '') + '</svg></span>'
                   : '<span class="akte-nr"></span>')
             + '<span class="akte-txt"><b>' + (zu ? AKTE_BEREICH_NAME[sch.key] : sch.titel) + '</b><small></small></span>'
@@ -11759,6 +12051,7 @@ function akteStepperZeichnen() {
   }
   box.classList.toggle('alle-fertig', alle);
 
+  try { aktionenZeichnen(); } catch(e) {}
   schritte.forEach(function(sch, i){
     const k = document.getElementById('akteKachel_' + sch.key);
     if (!k) return;
@@ -11774,6 +12067,41 @@ function akteStepperZeichnen() {
       if (nr.getAttribute('data-st') !== soll) { nr.setAttribute('data-st', soll); nr.innerHTML = AKTE_STATUS_ICO[st] || String(i + 1); }
     }
   });
+}
+
+// ===== Aktionsleiste unter der Akte: Drucken passt sich dem offenen Bereich an =====
+const DRUCK_ICO = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>';
+const AKTE_ICO_MAPPE = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/></svg>';
+
+function druckDokAnzahl(typen) {
+  const doks = (typeof KYC !== 'undefined' && KYC.doks) ? KYC.doks : {};
+  return typen.reduce(function(a, t){ return a + ((doks[t] || []).length); }, 0);
+}
+
+function aktionenZeichnen() {
+  const box = document.getElementById('akteAktionen');
+  if (!box) return;
+  const k = AKTE.ansicht || 'akte';
+  let haupt = null;            // [label, onclick, deaktiviert, hinweis]
+  if (k === 'analyse') haupt = ['Analyse drucken / PDF', "druckeJetzt('analyse')"];
+  else if (k === 'sanktion') haupt = ['Sanktionsabgleich drucken / PDF', "druckeJetzt('sanktion')"];
+  else if (k === 'dokumente') {
+    const n = druckDokAnzahl(['ausweis','selfie','standort','beleg']);
+    haupt = [n ? 'Dokumente drucken / PDF (' + n + ')' : 'Keine Dokumente zum Drucken', "druckeJetzt('dokumente')", !n];
+  } else if (k === 'endverbleib') {
+    const n = druckDokAnzahl(['endverbleib']);
+    haupt = n ? ['Unterschriebene Erkl\u00e4rung drucken / PDF', "druckeJetzt('endverbleib')"]
+              : ['Vorausgef\u00fcllt erstellen & drucken', 'endverbleibDrucken()'];
+  }
+  const gesamtLabel = (k === 'abschluss') ? 'Gesamte Akte herunterladen / drucken' : 'Gesamte Akte als PDF';
+  const sig = k + '|' + (haupt ? haupt.join('/') : '') + '|' + gesamtLabel;
+  if (box.getAttribute('data-sig') === sig) return;          // nichts geaendert -> nicht neu bauen
+  box.setAttribute('data-sig', sig);
+  box.innerHTML = (haupt
+      ? '<button class="btn-action primary"' + (haupt[2] ? ' disabled' : '') + ' onclick="' + haupt[1] + '">' + DRUCK_ICO + haupt[0] + '</button>'
+        + '<button class="btn-action" onclick="druckeJetzt(\'gesamt\')">' + AKTE_ICO_MAPPE + gesamtLabel + '</button>'
+      : '<button class="btn-action primary" onclick="druckeJetzt(\'gesamt\')">' + AKTE_ICO_MAPPE + gesamtLabel + '</button>')
+    + '<button class="btn-action" onclick="location.reload()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>Neue Akte</button>';
 }
 
 // Untertitel im Bereichs-Modus (nach Abschluss): beschreibend statt Status
@@ -12615,6 +12943,7 @@ function kycPrintHtml() {
   }
   [['ausweis','Personalausweis'],['selfie','Best\u00e4tigungsfoto'],['standort','Eigene Aufnahme'],['beleg','Nachweis'],['endverbleib','Endverbleibserkl\u00e4rung']].forEach(function(p){
     const typ = p[0], basis = p[1];
+    const vorher = out.length;
     (KYC.doks[typ] || []).forEach(function(d, n){
       const url = (KYC.urls[typ] || [])[n];
       const bez = d.bezeichnung ? ' (' + d.bezeichnung + ')' : ((KYC.doks[typ].length > 1) ? ' (' + (n + 1) + ' von ' + KYC.doks[typ].length + ')' : '');
@@ -12642,6 +12971,8 @@ function kycPrintHtml() {
 
       if (url) out += seite('Anlage ' + (++nr) + ' \u00b7 ' + basis + bez, url, dateiname);
     });
+    // Seiten dieses Typs kennzeichnen (fuer das Drucken einzelner Bereiche)
+    out = out.slice(0, vorher) + out.slice(vorher).split('<div class="kyc-print-page">').join('<div class="kyc-print-page" data-typ="' + typ + '">');
   });
   return out;
 }
@@ -13093,16 +13424,7 @@ function showReport(d, rawName, fromHistory, nichtSpeichern) {
     </div>
     <div class="akte-panel" data-panel="endverbleib" id="panelEndverbleib">${endverbleibCardHTML()}</div>
     <div class="akte-panel" data-panel="abschluss" id="panelAbschluss">${abschlussCardHTML()}</div>
-    <div class="actions reveal">
-      <button class="btn-action primary" onclick="druckeJetzt()">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-        Drucken / PDF
-      </button>
-      <button class="btn-action" onclick="location.reload()">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
-        Neue Akte
-      </button>
-    </div>`;
+    <div class="actions akte-aktionen" id="akteAktionen"></div>`;
 
   document.getElementById('report').classList.add('active');
   NW.modus = false; NW.gesamt = 0; NW.laeuft = 0;
