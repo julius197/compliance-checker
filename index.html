@@ -2773,6 +2773,108 @@
     .audit-ic.share { background:#EEF4FF; color:#1E4E8C; }
     .audit-ic.group { background:#F3EEFF; color:#7C3AED; }
     .audit-detail { font-size:11px; color:var(--gray,#5A6670); margin-top:2px; }
+
+    /* ============================================================
+       AKTE: Stepper, Endverbleibserklaerung, Abschluss
+       ============================================================ */
+    .akte-stepper { background:#fff; border:1.5px solid var(--border,#DCE5E0); border-radius:16px; padding:16px 18px; margin-bottom:14px; }
+    .akte-stepper.alle-fertig { border-color:rgba(46,135,73,.5); background:linear-gradient(180deg,#fff,#F4FAF6); }
+    .akte-kopf { display:flex; align-items:center; gap:16px; margin-bottom:12px; }
+    .akte-titel { display:flex; flex-direction:column; gap:1px; min-width:0; }
+    .akte-eyebrow { font-size:10px; letter-spacing:.08em; text-transform:uppercase; color:#2E8749; font-weight:800; }
+    .akte-h { font-size:14px; font-weight:800; color:var(--ink,#111827); white-space:nowrap; }
+    .akte-balken { flex:1; height:6px; border-radius:99px; background:var(--border2,#EDF0F2); overflow:hidden; }
+    .akte-balken i { display:block; height:100%; border-radius:99px; background:linear-gradient(90deg,#3FA45C,#2E8749); transition:width .6s cubic-bezier(.2,.8,.3,1); }
+    .akte-schritte { display:grid; grid-template-columns:repeat(6,1fr); gap:6px; }
+    .akte-schritt { display:flex; align-items:center; gap:8px; padding:8px 9px; border-radius:11px; border:1.5px solid var(--border2,#EDF0F2);
+      background:#fff; cursor:pointer; text-align:left; font-family:inherit; min-width:0; opacity:0;
+      animation:nwIn .4s cubic-bezier(.2,.8,.3,1) var(--ad,0s) both; transition:border-color .16s, transform .16s, box-shadow .16s; }
+    .akte-schritt:hover { border-color:rgba(46,135,73,.45); transform:translateY(-1px); box-shadow:0 8px 18px -12px rgba(10,22,17,.4); }
+    .akte-nr { width:24px; height:24px; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center;
+      font-size:11px; font-weight:800; background:var(--neutral,#F6F8F9); color:var(--gray,#5A6670); border:1.5px solid var(--border,#E2E6E9); }
+    .akte-schritt.st-ok .akte-nr { background:#2E8749; border-color:#2E8749; color:#fff; }
+    .akte-schritt.st-uebersprungen .akte-nr { background:#E4EBE7; border-color:#E4EBE7; color:#5A6B62; }
+    .akte-schritt.st-teil .akte-nr { background:#FFF8EC; border-color:#F0DFBD; color:#B57D16; }
+    .akte-schritt.st-laeuft .akte-nr { border-style:dashed; }
+    .akte-schritt.st-ok { border-color:rgba(46,135,73,.3); }
+    .akte-txt { display:flex; flex-direction:column; min-width:0; }
+    .akte-txt b { font-size:11.5px; color:var(--ink,#111827); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .akte-txt small { font-size:10px; color:var(--gray-l,#8A949D); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .akte-dreh { width:10px; height:10px; border:2px solid rgba(46,135,73,.3); border-top-color:#2E8749; border-radius:50%; animation:bsDreh .8s linear infinite; }
+    .akte-blitz { animation:akteBlitz 1.3s ease; }
+    @keyframes akteBlitz { 0%,100% { box-shadow:none; } 25% { box-shadow:0 0 0 4px rgba(46,135,73,.35); } }
+    @media (max-width:900px) { .akte-schritte { grid-template-columns:repeat(3,1fr); } }
+    @media (max-width:560px) { .akte-schritte { grid-template-columns:repeat(2,1fr); } .akte-kopf { flex-wrap:wrap; } .akte-h { white-space:normal; } }
+
+    /* Endverbleibserklaerung */
+    .ev-head { display:flex; align-items:center; gap:12px; margin-bottom:12px; }
+    .ev-ico { width:42px; height:42px; border-radius:11px; flex-shrink:0; background:linear-gradient(135deg,#1E4E8C,#2E6FBF);
+      display:flex; align-items:center; justify-content:center; box-shadow:0 4px 12px rgba(30,78,140,.3); }
+    .ev-titel { flex:1; min-width:0; }
+    .ev-sub { font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:#1E4E8C; font-weight:700; margin-bottom:2px; }
+    .ev-t { font-size:17px; font-weight:800; color:var(--ink,#111827); letter-spacing:-.01em; }
+    .ev-status { display:inline-flex; align-items:center; gap:5px; padding:6px 11px; border-radius:999px; font-size:11px; font-weight:800; flex-shrink:0; }
+    .ev-status.ok { background:#EDF5F0; color:#2E8749; }
+    .ev-status.gelb { background:#FFF8EC; color:#B57D16; }
+    .ev-status.grau { background:var(--neutral,#F6F8F9); color:var(--gray,#5A6670); }
+    .ev-txt { font-size:12.5px; line-height:1.65; color:var(--gray,#5A6670); margin-bottom:14px; }
+    .ev-form { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px; }
+    .ev-feld label { display:block; font-size:10.5px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; color:var(--gray,#5A6670); margin-bottom:5px; }
+    .ev-feld input { width:100%; box-sizing:border-box; padding:11px 12px; border:1.5px solid var(--border,#E2E6E9); border-radius:10px;
+      font-family:inherit; font-size:13px; outline:none; transition:border-color .18s, box-shadow .18s; }
+    .ev-feld input:focus { border-color:#1E4E8C; box-shadow:0 0 0 3px rgba(30,78,140,.12); }
+    .ev-btns { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+    .ev-link { background:none; border:none; font-family:inherit; font-size:12px; font-weight:700; color:var(--gray,#5A6670); cursor:pointer;
+      text-decoration:underline; padding:8px 4px; margin-left:auto; }
+    .ev-link:hover { color:var(--ink,#111827); }
+    .ev-zeile-grau { padding:12px 14px; border-radius:10px; background:var(--neutral,#F6F8F9); font-size:12px; color:var(--gray,#5A6670); }
+    .ev-zeile-grau a { color:#1E4E8C; font-weight:700; cursor:pointer; text-decoration:underline; }
+    .ev-doks { display:flex; flex-direction:column; gap:7px; margin-top:12px; }
+    .ev-dok { display:flex; align-items:center; gap:11px; padding:10px 12px; border-radius:11px; background:#F4FAF6; border:1px solid rgba(46,135,73,.25); }
+    .ev-dok-txt { flex:1; min-width:0; display:flex; flex-direction:column; gap:2px; }
+    .ev-dok-txt b { font-size:12.5px; color:var(--ink,#111827); }
+    .ev-dok-txt small { font-size:10.5px; color:var(--gray-l,#8A949D); }
+    .ev-fuss { margin-top:12px; font-size:10.5px; line-height:1.55; color:var(--gray-l,#8A949D); }
+    @media (max-width:640px) { .ev-form { grid-template-columns:1fr; } .ev-btns .nw-btn { flex:1; justify-content:center; } .ev-link { margin-left:0; } }
+
+    /* Abschluss */
+    .ab-head { display:flex; align-items:center; gap:12px; margin-bottom:14px; }
+    .ab-ico { width:42px; height:42px; border-radius:11px; flex-shrink:0; background:linear-gradient(135deg,#1B2C23,#2E4A39);
+      display:flex; align-items:center; justify-content:center; }
+    .ab-ico.zu { background:linear-gradient(135deg,#3FA45C,#2E8749); box-shadow:0 4px 12px rgba(46,135,73,.3); }
+    .ab-sub { font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:#2E8749; font-weight:700; margin-bottom:2px; }
+    .ab-t { font-size:17px; font-weight:800; color:var(--ink,#111827); letter-spacing:-.01em; }
+    .ab-liste { display:flex; flex-direction:column; gap:5px; margin-bottom:14px; }
+    .ab-zeile { display:flex; align-items:center; gap:10px; padding:9px 12px; border-radius:9px; background:var(--neutral,#F6F8F9); font-size:12.5px; }
+    .ab-zeile.st-ok { background:#F4FAF6; }
+    .ab-ic { width:20px; height:20px; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:800;
+      background:#fff; color:var(--gray,#5A6670); border:1.5px solid var(--border,#E2E6E9); }
+    .ab-zeile.st-ok .ab-ic { background:#2E8749; border-color:#2E8749; color:#fff; }
+    .ab-name { flex:1; font-weight:700; color:var(--ink,#111827); }
+    .ab-st { font-size:11px; color:var(--gray,#5A6670); }
+    .ab-warn { padding:10px 12px; border-radius:9px; background:#FFF8EC; border:1px solid #F0DFBD; font-size:11.5px; color:#8A6420; line-height:1.5; margin-bottom:12px; }
+    .ab-gut { padding:10px 12px; border-radius:9px; background:#F4FAF6; border:1px solid rgba(46,135,73,.25); font-size:11.5px; color:#2E8749; font-weight:700; margin-bottom:12px; }
+    .ab-check { display:flex; align-items:flex-start; gap:10px; padding:12px; border:1.5px solid var(--border,#E2E6E9); border-radius:11px; cursor:pointer;
+      font-size:12.3px; line-height:1.55; color:#2A3B33; margin-bottom:12px; background:#fff; }
+    .ab-check input { position:absolute; opacity:0; width:0; height:0; }
+    .ab-check .einw-mark { width:20px; height:20px; flex-shrink:0; margin-top:1px; }
+    .ab-check input:checked ~ .einw-mark { background:linear-gradient(135deg,#2E8749,#3FA45C); border-color:#2E8749; }
+    .ab-check input:checked ~ .einw-mark::after { opacity:1; transform:scale(1); }
+    .ab-btn { width:100%; justify-content:center; padding:13px !important; font-size:13.5px !important; }
+    .ab-btn:disabled { background:#E4EBE7 !important; color:#A3B1A9 !important; box-shadow:none !important; cursor:not-allowed; }
+    .ab-fertig { padding:16px; border-radius:12px; background:linear-gradient(135deg,#F4FAF6,#EAF4EE); border:1px solid rgba(46,135,73,.3); }
+    .ab-fertig-t { font-size:15px; font-weight:800; color:#2E8749; margin-bottom:4px; }
+    .ab-fertig-s { font-size:12.3px; line-height:1.6; color:#2A3B33; }
+    .ab-fertig .ev-link { margin-left:0; padding-left:0; margin-top:6px; }
+
+    .hr-akte-ok { display:inline-flex; align-items:center; gap:4px; margin-left:8px; padding:2px 8px; border-radius:999px;
+      background:#EDF5F0; color:#2E8749; font-size:9.5px; font-weight:800; letter-spacing:.04em; text-transform:uppercase; vertical-align:middle; }
+
+    @media print {
+      .akte-stepper, .ev-form, .ev-btns, .ev-link, .ab-form, .ab-check, .ab-btn, .nw-icobtn, .ev-fuss { display:none !important; }
+      .ab-card, .ev-card { break-inside:avoid; page-break-inside:avoid; }
+      .ab-fertig { background:#F4FAF6 !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+    }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -5205,7 +5307,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.87</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.88</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -11179,6 +11281,343 @@ function evidenceHTML(d) {
 }
 
 // ============================================================
+// AKTE: 6-Schritt-Ablauf
+//   1 Akte angelegt  2 Analyse  3 Dokumente  4 Sanktionslisten
+//   5 Endverbleibserklaerung  6 Abschluss (Vollstaendigkeitsbestaetigung)
+// Der Stepper oben im Bericht zeigt den Stand; jeder Schritt springt
+// zu seinem Abschnitt. Sind alle Schritte erledigt, gilt die Akte
+// als vollstaendig abgesichert.
+// ============================================================
+let AKTE = { sankFertig: false };
+
+const AKTE_SCHRITTE = [
+  { n: 1, key: 'akte',     titel: 'Akte angelegt',          ziel: '.report-top' },
+  { n: 2, key: 'analyse',  titel: 'Analyse',                ziel: '.score-card' },
+  { n: 3, key: 'dokumente',titel: 'Dokumente',              ziel: '#nwCard' },
+  { n: 4, key: 'sanktion', titel: 'Sanktionslisten',        ziel: '#sankBereich' },
+  { n: 5, key: 'endverbleib', titel: 'Endverbleibserkl\u00e4rung', ziel: '#endverbleibCard' },
+  { n: 6, key: 'abschluss',titel: 'Abschluss',              ziel: '#abschlussCard' }
+];
+
+function akteStatus(key) {
+  const d = CURRENT_REPORT || {};
+  const doks = (typeof KYC !== 'undefined' && KYC.doks) ? KYC.doks : {};
+  const sch = d._schritte || {};
+  switch (key) {
+    case 'akte':     return d.pruefId ? 'ok' : 'offen';
+    case 'analyse':  return (typeof d.gesamtScore === 'number') ? 'ok' : 'offen';
+    case 'dokumente': {
+      const n = ['ausweis','selfie','standort','beleg'].reduce(function(a, t){ return a + ((doks[t] || []).length); }, 0);
+      if (n > 0) return 'ok';
+      return (sch.dokumente && sch.dokumente.status === 'nicht_erforderlich') ? 'uebersprungen' : 'offen';
+    }
+    case 'sanktion': return (AKTE.sankFertig || (d._sanktionen && d._sanktionen.stand)) ? 'ok' : 'laeuft';
+    case 'endverbleib': {
+      if ((doks.endverbleib || []).length) return 'ok';
+      if (sch.endverbleib && sch.endverbleib.status === 'nicht_erforderlich') return 'uebersprungen';
+      return (sch.endverbleib && sch.endverbleib.erstellt_am) ? 'teil' : 'offen';
+    }
+    case 'abschluss': return d._abgeschlossen_am ? 'ok' : 'offen';
+  }
+  return 'offen';
+}
+
+function akteZaehlung() {
+  let ok = 0;
+  AKTE_SCHRITTE.forEach(function(sch){ const st = akteStatus(sch.key); if (st === 'ok' || st === 'uebersprungen') ok++; });
+  return ok;
+}
+
+function akteStepperHTML() {
+  return '<div class="akte-stepper reveal" id="akteStepper"></div>';
+}
+
+function akteStepperZeichnen() {
+  const box = document.getElementById('akteStepper');
+  if (!box) return;
+  const d = CURRENT_REPORT || {};
+  const fertig = akteZaehlung();
+  const alle = fertig === AKTE_SCHRITTE.length;
+  const ico = {
+    ok: '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>',
+    uebersprungen: '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M5 12h14"/></svg>',
+    laeuft: '<span class="akte-dreh"></span>',
+    teil: '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M12 6v6l4 2"/></svg>'
+  };
+  box.innerHTML = '<div class="akte-kopf">'
+    + '<div class="akte-titel"><span class="akte-eyebrow">Akte \u00b7 Vollst\u00e4ndigkeit</span>'
+    + '<span class="akte-h">' + (alle ? 'Vollst\u00e4ndig abgesichert' : fertig + ' von ' + AKTE_SCHRITTE.length + ' Schritten erledigt') + '</span></div>'
+    + '<div class="akte-balken"><i style="width:' + Math.round(fertig / AKTE_SCHRITTE.length * 100) + '%"></i></div>'
+    + '</div>'
+    + '<div class="akte-schritte">'
+    + AKTE_SCHRITTE.map(function(sch, i){
+        const st = akteStatus(sch.key);
+        return '<button class="akte-schritt st-' + st + '" onclick="akteSpringe(\'' + sch.ziel + '\')" style="--ad:' + (0.05 + i * 0.05) + 's">'
+          + '<span class="akte-nr">' + (ico[st] || sch.n) + '</span>'
+          + '<span class="akte-txt"><b>' + sch.titel + '</b><small>' + akteStatusText(sch.key, st) + '</small></span>'
+          + '</button>';
+      }).join('')
+    + '</div>';
+  box.classList.toggle('alle-fertig', alle);
+}
+
+function akteStatusText(key, st) {
+  if (st === 'ok') {
+    if (key === 'dokumente') { const doks = KYC.doks || {}; const n = ['ausweis','selfie','standort','beleg'].reduce(function(a,t){ return a + ((doks[t]||[]).length); }, 0); return n + ' Datei' + (n === 1 ? '' : 'en'); }
+    if (key === 'abschluss' && CURRENT_REPORT && CURRENT_REPORT._abgeschlossen_am) return new Date(CURRENT_REPORT._abgeschlossen_am).toLocaleDateString('de-DE');
+    if (key === 'endverbleib') return 'unterschrieben';
+    if (key === 'sanktion') return 'gepr\u00fcft';
+    return 'erledigt';
+  }
+  if (st === 'uebersprungen') return 'nicht erforderlich';
+  if (st === 'laeuft') return 'l\u00e4uft \u2026';
+  if (st === 'teil') return 'erstellt, Unterschrift fehlt';
+  return 'offen';
+}
+
+function akteSpringe(sel) {
+  const el = document.querySelector(sel);
+  if (!el) return;
+  el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  el.classList.add('akte-blitz');
+  setTimeout(function(){ el.classList.remove('akte-blitz'); }, 1400);
+}
+
+function akteZeichnen() {
+  akteStepperZeichnen();
+  endverbleibZeichnen();
+  abschlussZeichnen();
+}
+
+async function akteSchrittSetzen(schritt, wert) {
+  const id = await analyseIdErmitteln(CURRENT_REPORT);
+  if (!id || !sb) return false;
+  const { data, error } = await sb.rpc('akte_schritt_setzen', { p_analyse: id, p_schritt: schritt, p_wert: wert });
+  if (error || !data || !data.ok) { alert('Konnte nicht gespeichert werden: ' + ((error && error.message) || (data && data.grund) || '')); return false; }
+  CURRENT_REPORT._schritte = data.schritte || {};
+  try { const row = HISTORY_ROWS.find(function(x){ return x.id === id; }); if (row) row.schritte = CURRENT_REPORT._schritte; } catch(e) {}
+  return true;
+}
+
+// ---------- Schritt 5: Endverbleibserklaerung ----------
+function endverbleibCardHTML() {
+  return '<div class="sec-card ev-card reveal" id="endverbleibCard"></div>';
+}
+
+function endverbleibZeichnen() {
+  const box = document.getElementById('endverbleibCard');
+  if (!box) return;
+  const d = CURRENT_REPORT || {};
+  const st = akteStatus('endverbleib');
+  const doks = (KYC.doks && KYC.doks.endverbleib) || [];
+  const urls = (KYC.urls && KYC.urls.endverbleib) || [];
+  const sch = (d._schritte && d._schritte.endverbleib) || {};
+
+  let status;
+  if (st === 'ok') status = '<span class="ev-status ok"><svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Unterschrieben hinterlegt</span>';
+  else if (st === 'uebersprungen') status = '<span class="ev-status grau">Nicht erforderlich</span>';
+  else if (st === 'teil') status = '<span class="ev-status gelb">Erstellt \u00b7 Unterschrift fehlt</span>';
+  else status = '<span class="ev-status grau">Offen</span>';
+
+  const fahrzeug = escapeHtml(sch.fahrzeug || '');
+  const fin = escapeHtml(sch.fin || '');
+
+  box.innerHTML = '<div class="ev-head">'
+    + '<div class="ev-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="m9 15 2 2 4-4"/></svg></div>'
+    + '<div class="ev-titel"><div class="ev-sub">Schritt 5 \u00b7 Sanktionen &amp; Export</div><div class="ev-t">Endverbleibserkl\u00e4rung</div></div>'
+    + status + '</div>'
+    + '<div class="ev-txt">Der K\u00e4ufer best\u00e4tigt mit seiner Unterschrift, das Fahrzeug nicht in sanktionierte L\u00e4nder weiterzuverkaufen. '
+    + 'Das Tool f\u00fcllt K\u00e4ufer, Verk\u00e4ufer, Ort und Datum vor \u2013 Fahrzeug und FIN tr\u00e4gst du ein. Unterschrieben wird beim Kauf; die unterschriebene Fassung geh\u00f6rt danach in diese Akte.</div>'
+    + (st === 'uebersprungen'
+        ? '<div class="ev-zeile-grau">F\u00fcr diesen Fall als nicht erforderlich markiert. <a onclick="endverbleibErforderlich()">R\u00fcckg\u00e4ngig</a></div>'
+        : '<div class="ev-form">'
+          + '<div class="ev-feld"><label>Fahrzeug (Marke, Modell)</label><input type="text" id="evFahrzeug" maxlength="80" placeholder="z.\u2009B. Porsche 911 Carrera" value="' + fahrzeug + '" /></div>'
+          + '<div class="ev-feld"><label>FIN (Fahrgestellnummer)</label><input type="text" id="evFin" maxlength="17" placeholder="17 Zeichen" value="' + fin + '" style="text-transform:uppercase;letter-spacing:.05em" /></div>'
+          + '</div>'
+          + '<div class="ev-btns">'
+          + '<button class="nw-btn nw-btn-p" onclick="endverbleibDrucken()"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>Vorausgef\u00fcllt erstellen &amp; drucken</button>'
+          + '<label class="nw-btn" for="evUpload"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5M12 3v12"/></svg>Unterschriebene Fassung hochladen</label>'
+          + '<input type="file" id="evUpload" accept="application/pdf,image/jpeg,image/png,image/webp" style="display:none" onchange="endverbleibHochladen(this.files)" />'
+          + (st !== 'ok' ? '<button class="ev-link" onclick="endverbleibNichtErforderlich()">Nicht erforderlich</button>' : '')
+          + '</div>')
+    + (doks.length ? '<div class="ev-doks">' + doks.map(function(x, n){
+        const url = urls[n];
+        return '<div class="ev-dok">'
+          + '<span class="nw-doc-ico pdf">' + ((x.mime_type || '').indexOf('pdf') >= 0 ? 'PDF' : 'IMG') + '</span>'
+          + '<span class="ev-dok-txt"><b>' + escapeHtml(x.bezeichnung || 'Unterschriebene Fassung') + '</b><small>' + escapeHtml(x.datei_name || '') + (x.created_at ? ' \u00b7 ' + new Date(x.created_at).toLocaleDateString('de-DE') : '') + '</small></span>'
+          + (url ? '<a class="nw-icobtn" href="' + url + '" target="_blank" title="\u00d6ffnen"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6M10 14 21 3"/></svg></a>' : '')
+          + '<button class="nw-icobtn nw-weg" onclick="endverbleibLoeschen(' + n + ')" title="Entfernen"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>'
+          + '</div>';
+      }).join('') + '</div>' : '')
+    + '<div class="ev-fuss">Vorlage wie vom Nutzer bereitgestellt \u2013 das Tool f\u00fcllt nur Namen, Ort und Datum ein und pr\u00fcft den Inhalt nicht. Verbindlich ist allein die unterschriebene Fassung.</div>';
+}
+
+function endverbleibWerte() {
+  const f = document.getElementById('evFahrzeug'), n = document.getElementById('evFin');
+  return { fahrzeug: ((f && f.value) || '').trim().slice(0, 80), fin: ((n && n.value) || '').trim().toUpperCase().slice(0, 17) };
+}
+
+// Adresse der geprueften Firma aus dem Bericht ziehen
+function endverbleibKundenAdresse(d) {
+  let adr = '';
+  try {
+    const f = ((d.grunddaten && d.grunddaten.felder) || []).find(function(x){ return /adresse|anschrift|sitz/i.test(x.key || ''); });
+    if (f && f.value && !/^n\/?a$/i.test(f.value)) adr = String(f.value);
+  } catch(e) {}
+  return adr;
+}
+
+async function endverbleibDrucken() {
+  const d = CURRENT_REPORT || {};
+  const w = endverbleibWerte();
+  const kunde = d.firmenname || '';
+  const adresse = endverbleibKundenAdresse(d);
+  const verkaeufer = (CURRENT_FIRMA && CURRENT_FIRMA.firma_name) ? CURRENT_FIRMA.firma_name : (CURRENT_USER_NAME || '');
+  const ort = d._standort || '';
+  const datum = new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  const X = function(v, breite){ return v ? escapeHtml(v) : '<span class="leer">' + '&nbsp;'.repeat(breite || 18) + '</span>'; };
+
+  const html = '<!DOCTYPE html><html lang="de"><head><meta charset="utf-8"><title>Endverbleibserkl\u00e4rung \u2013 ' + escapeHtml(kunde) + '</title>'
+    + '<style>'
+    + '@page{size:A4;margin:22mm 20mm}body{font-family:Calibri,"Segoe UI",Arial,sans-serif;font-size:11.5pt;line-height:1.5;color:#111;margin:0}'
+    + 'h1{font-size:15pt;margin:0 0 18pt}p{margin:0 0 11pt}.k{white-space:pre-line}.leer{display:inline-block;border-bottom:1px solid #111;line-height:1}'
+    + '.sig{margin-top:60pt}.sig .l{border-top:1px solid #111;width:70mm;padding-top:4pt;font-size:10pt}.ort{margin-top:36pt}'
+    + '.hinweis{margin-top:30pt;font-size:8.5pt;color:#666}@media print{.hinweis{display:none}}'
+    + '</style></head><body>'
+    + '<h1>Endverbleibserkl\u00e4rung</h1>'
+    + '<p>Der Kunde:</p>'
+    + '<p class="k"><b>' + X(kunde, 30) + '</b>' + (adresse ? '\n' + escapeHtml(adresse) : '\n' + X('', 30) + '\n' + X('', 30)) + '</p>'
+    + '<p>akzeptiert und best\u00e4tigt Folgendes:</p>'
+    + '<p>1. Das hier vertragsgegenst\u00e4ndliche Fahrzeug ' + X(w.fahrzeug, 22) + ' mit der FIN: ' + X(w.fin, 20) + ' wurde von der ' + X(verkaeufer, 24) + ', gem\u00e4\u00df den europ\u00e4ischen, US-amerikanischen und/oder britischen Exportkontroll- und Sanktionsbestimmungen verkauft.</p>'
+    + '<p>2. Der Kauf ist ausschlie\u00dflich f\u00fcr die Nutzung im Land des endg\u00fcltigen Bestimmungs- und Endverwendungsortes bestimmt.</p>'
+    + '<p>3. Das Fahrzeug kann nicht nach Russland oder an einen anderen in Abschnitt 6 aufgef\u00fchrten Orte re-exportiert werden.</p>'
+    + '<p>4. Eine den jeweiligen Vorschriften widersprechende Umleitung ist untersagt.</p>'
+    + '<p>5. Mit der Annahme der Lieferung des Fahrzeugs verpflichtet sich der Kunde, alle geltenden Export-, Wiederausfuhr-, Transfer- und Umladevorschriften einzuhalten.</p>'
+    + '<p>6. Jede Wiederausfuhr des Fahrzeugs durch den Kunden kann den Exportkontrollvorschriften der EU, der USA und/oder des Vereinigten K\u00f6nigreichs unterliegen. Es liegt in der Verantwortung des Kunden und nicht in der Verantwortung der ' + X(verkaeufer, 24) + ', diese Vorschriften vor einer solchen Wiederausfuhr einzuhalten. Unter keinen Umst\u00e4nden darf der Kunde das Fahrzeug oder Teile davon nach Kuba, Iran, Nordkorea, Sudan/S\u00fcdsudan, Syrien, Russland und bestimmte Regionen der Ukraine: die Krimregion, die s.\u2009g. Volksrepublik Luhansk, die s.\u2009g. Volksrepublik Donezk und die nicht von der Regierung kontrollierten Gebiete der Oblasten Saporischschja und Cherson, re-exportieren.</p>'
+    + '<p class="ort">' + X(ort, 20) + ', ' + datum + '</p>'
+    + '<div class="sig"><div class="l">Unterschrift Kunde</div></div>'
+    + '<div class="hinweis">Vorausgef\u00fcllt \u00fcber den Compliance-Checker \u00b7 Pr\u00fcf-ID ' + escapeHtml(d.pruefId || '') + '</div>'
+    + '</body></html>';
+
+  const win = window.open('', '_blank');
+  if (!win) { alert('Bitte Pop-ups f\u00fcr diese Seite erlauben, um das Dokument zu \u00f6ffnen.'); return; }
+  win.document.open(); win.document.write(html); win.document.close();
+  setTimeout(function(){ try { win.focus(); win.print(); } catch(e) {} }, 400);
+
+  const sch = (CURRENT_REPORT._schritte && CURRENT_REPORT._schritte.endverbleib) || {};
+  await akteSchrittSetzen('endverbleib', { status: 'erstellt', erstellt_am: new Date().toISOString(), fahrzeug: w.fahrzeug, fin: w.fin,
+                                            unterschrieben: sch.unterschrieben || false });
+  akteZeichnen();
+}
+
+async function endverbleibHochladen(files) {
+  if (!files || !files.length) return;
+  const w = endverbleibWerte();
+  const ok = await kycUpload('endverbleib', files[0]);
+  if (ok) {
+    await akteSchrittSetzen('endverbleib', { status: 'unterschrieben', fahrzeug: w.fahrzeug, fin: w.fin, unterschrieben: true, hochgeladen_am: new Date().toISOString() });
+    zeigeToast('Endverbleibserkl\u00e4rung hinterlegt', 'Die unterschriebene Fassung liegt in der Akte und h\u00e4ngt beim Drucken an.');
+  }
+  akteZeichnen();
+}
+
+async function endverbleibLoeschen(n) {
+  const x = (KYC.doks && KYC.doks.endverbleib) ? KYC.doks.endverbleib[n] : null;
+  if (!x) return;
+  if (!confirm('Unterschriebene Endverbleibserkl\u00e4rung wirklich entfernen?')) return;
+  try {
+    try { await sb.storage.from('kyc').remove([x.storage_path]); } catch(e) {}
+    const r = await sb.from('kyc_dokumente').delete().eq('id', x.id);
+    if (r && r.error) throw r.error;
+    await kycLaden();
+  } catch (e) { alert('Entfernen fehlgeschlagen: ' + ((e && e.message) || '')); }
+}
+
+async function endverbleibNichtErforderlich() {
+  if (!confirm('Endverbleibserkl\u00e4rung f\u00fcr diesen Fall als nicht erforderlich markieren?\n\nz.\u2009B. wenn kein Fahrzeugverkauf stattfindet.')) return;
+  await akteSchrittSetzen('endverbleib', { status: 'nicht_erforderlich', am: new Date().toISOString() });
+  akteZeichnen();
+}
+async function endverbleibErforderlich() {
+  await akteSchrittSetzen('endverbleib', { status: 'offen' });
+  akteZeichnen();
+}
+
+// ---------- Schritt 6: Abschluss ----------
+function abschlussCardHTML() {
+  return '<div class="sec-card ab-card reveal" id="abschlussCard"></div>';
+}
+
+function abschlussZeichnen() {
+  const box = document.getElementById('abschlussCard');
+  if (!box) return;
+  const d = CURRENT_REPORT || {};
+  const zu = !!d._abgeschlossen_am;
+  const liste = AKTE_SCHRITTE.slice(0, 5).map(function(sch){
+    const st = akteStatus(sch.key);
+    const ic = (st === 'ok') ? '\u2713' : (st === 'uebersprungen' ? '\u2013' : (st === 'laeuft' ? '\u2026' : '\u25CB'));
+    return '<div class="ab-zeile st-' + st + '"><span class="ab-ic">' + ic + '</span><span class="ab-name">' + sch.n + '. ' + sch.titel + '</span><span class="ab-st">' + akteStatusText(sch.key, st) + '</span></div>';
+  }).join('');
+  const offen = AKTE_SCHRITTE.slice(0, 5).filter(function(sch){ const st = akteStatus(sch.key); return st !== 'ok' && st !== 'uebersprungen'; });
+
+  box.innerHTML = '<div class="ab-head">'
+    + '<div class="ab-ico' + (zu ? ' zu' : '') + '">'
+    + (zu ? '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>'
+          : '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>')
+    + '</div>'
+    + '<div class="ab-titel"><div class="ab-sub">Schritt 6 \u00b7 Vollst\u00e4ndigkeitsbest\u00e4tigung</div><div class="ab-t">' + (zu ? 'Akte abgeschlossen' : 'Akte abschlie\u00dfen') + '</div></div>'
+    + '</div>'
+    + '<div class="ab-liste">' + liste + '</div>'
+    + (zu
+        ? '<div class="ab-fertig">'
+          + '<div class="ab-fertig-t">Vollst\u00e4ndig abgesichert</div>'
+          + '<div class="ab-fertig-s">Best\u00e4tigt am ' + new Date(d._abgeschlossen_am).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' })
+          + ' um ' + new Date(d._abgeschlossen_am).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }) + ' Uhr'
+          + (d._abgeschlossen_von_name ? ' durch ' + escapeHtml(d._abgeschlossen_von_name) : '') + '. Alle erforderlichen Schritte der Sorgfaltspr\u00fcfung wurden durchgef\u00fchrt und dokumentiert.</div>'
+          + '<button class="ev-link" onclick="akteWiederOeffnen()">Wieder \u00f6ffnen</button>'
+          + '</div>'
+        : '<div class="ab-form">'
+          + (offen.length ? '<div class="ab-warn">Noch offen: ' + offen.map(function(x){ return x.titel; }).join(', ') + '. Du kannst trotzdem abschlie\u00dfen \u2013 offene Schritte bleiben im Bericht sichtbar.</div>' : '<div class="ab-gut">Alle Schritte erledigt.</div>')
+          + '<label class="ab-check"><input type="checkbox" id="abBox" onchange="document.getElementById(\'abBtn\').disabled=!this.checked" /><span class="einw-mark"></span>'
+          + '<span>Ich best\u00e4tige, dass die Sorgfaltspr\u00fcfung f\u00fcr <b>' + escapeHtml(d.firmenname || 'dieses Unternehmen') + '</b> nach bestem Wissen vollst\u00e4ndig durchgef\u00fchrt wurde und die hinterlegten Unterlagen zutreffend sind.</span></label>'
+          + '<button class="nw-btn nw-btn-p ab-btn" id="abBtn" disabled onclick="akteAbschliessen()">Akte abschlie\u00dfen</button>'
+          + '</div>')
+    + '<div class="ev-fuss">Der Abschluss dokumentiert, dass der Pr\u00fcfende alle vorgesehenen Schritte durchgef\u00fchrt hat. Er ersetzt weder die gesetzliche Identifizierung noch die eigene Entscheidung \u00fcber die Gesch\u00e4ftsbeziehung.</div>';
+}
+
+async function akteAbschliessen() {
+  const box = document.getElementById('abBox');
+  if (!box || !box.checked) return;
+  const id = await analyseIdErmitteln(CURRENT_REPORT);
+  if (!id) { alert('Die Analyse ist noch nicht gespeichert. Bitte einen Moment warten.'); return; }
+  const btn = document.getElementById('abBtn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Wird abgeschlossen\u2026'; }
+  const { data, error } = await sb.rpc('akte_abschliessen', { p_analyse: id, p_wieder_oeffnen: false });
+  if (error || !data || !data.ok) {
+    alert('Abschluss fehlgeschlagen: ' + ((error && error.message) || (data && data.grund) || ''));
+    if (btn) { btn.disabled = false; btn.textContent = 'Akte abschlie\u00dfen'; }
+    return;
+  }
+  CURRENT_REPORT._abgeschlossen_am = data.am || new Date().toISOString();
+  CURRENT_REPORT._abgeschlossen_von = CURRENT_USER_ID;
+  CURRENT_REPORT._abgeschlossen_von_name = data.von || CURRENT_USER_NAME || '';
+  try { const row = HISTORY_ROWS.find(function(x){ return x.id === id; }); if (row) { row.abgeschlossen_am = CURRENT_REPORT._abgeschlossen_am; row.abgeschlossen_von_name = CURRENT_REPORT._abgeschlossen_von_name; } } catch(e) {}
+  akteZeichnen();
+  zeigeToast('Akte abgeschlossen', 'Vollst\u00e4ndigkeit best\u00e4tigt \u2013 die Akte gilt als abgesichert.');
+}
+
+async function akteWiederOeffnen() {
+  if (!confirm('Abschluss zur\u00fccknehmen und die Akte wieder \u00f6ffnen?')) return;
+  const id = await analyseIdErmitteln(CURRENT_REPORT);
+  if (!id) return;
+  const { data, error } = await sb.rpc('akte_abschliessen', { p_analyse: id, p_wieder_oeffnen: true });
+  if (error || !data || !data.ok) { alert('Konnte nicht ge\u00f6ffnet werden: ' + ((error && error.message) || (data && data.grund) || '')); return; }
+  CURRENT_REPORT._abgeschlossen_am = null; CURRENT_REPORT._abgeschlossen_von = null; CURRENT_REPORT._abgeschlossen_von_name = null;
+  try { const row = HISTORY_ROWS.find(function(x){ return x.id === id; }); if (row) { row.abgeschlossen_am = null; row.abgeschlossen_von_name = null; } } catch(e) {}
+  akteZeichnen();
+}
+
+// ============================================================
 // NACHWEISE & UNTERLAGEN
 // Eigenstaendiger Bereich im Bericht fuer Bilder und Dokumente,
 // mit eigenem Bearbeitungsmodus - unabhaengig vom Ergaenzen der Angaben.
@@ -11650,7 +12089,7 @@ async function kycLaden() {
         return new Date(a.created_at) - new Date(b.created_at);
       });
     });
-    const typen = ['ausweis','selfie','standort','beleg'];
+    const typen = ['ausweis','selfie','standort','beleg','endverbleib'];
     for (const t of typen) {
       const liste = KYC.doks[t] || [];
       KYC.urls[t] = [];
@@ -11669,6 +12108,7 @@ async function kycLaden() {
     } catch(e) { KYC.link = null; }
     kycRender();
     try { nwZeichnen(); } catch(e) {}
+    try { akteZeichnen(); } catch(e) {}
     try { kycPdfVorbereiten(); } catch(e) {}
   } catch (e) { console.warn('KYC laden:', e && e.message); }
 }
@@ -11737,7 +12177,7 @@ function kycPrintHtml() {
       + '<div class="kyc-print-fuss">' + fuss + '</div>'
       + '</div>';
   }
-  [['ausweis','Personalausweis'],['selfie','Best\u00e4tigungsfoto'],['standort','Eigene Aufnahme'],['beleg','Nachweis']].forEach(function(p){
+  [['ausweis','Personalausweis'],['selfie','Best\u00e4tigungsfoto'],['standort','Eigene Aufnahme'],['beleg','Nachweis'],['endverbleib','Endverbleibserkl\u00e4rung']].forEach(function(p){
     const typ = p[0], basis = p[1];
     (KYC.doks[typ] || []).forEach(function(d, n){
       const url = (KYC.urls[typ] || [])[n];
@@ -11950,7 +12390,8 @@ async function kycUpload(typ, file) {
       position: bisher + 1,
       bezeichnung: (typ === 'ausweis') ? (bisher === 0 ? 'Vorderseite' : (bisher === 1 ? 'R\u00fcckseite' : 'Seite ' + (bisher + 1)))
                  : (typ === 'standort' ? ('Aufnahme ' + (bisher + 1))
-                 : (typ === 'beleg' ? (String(file.name || '').replace(/\.[a-z0-9]{2,5}$/i, '').slice(0, 80) || ('Nachweis ' + (bisher + 1))) : null)),
+                 : (typ === 'beleg' ? (String(file.name || '').replace(/\.[a-z0-9]{2,5}$/i, '').slice(0, 80) || ('Nachweis ' + (bisher + 1)))
+                 : (typ === 'endverbleib' ? 'Unterschriebene Fassung' : null))),
       hochgeladen_von: (typeof CURRENT_USER_ID !== 'undefined' ? CURRENT_USER_ID : null)
     });
     if (db && db.error) throw db.error;
@@ -12151,6 +12592,7 @@ function showReport(d, rawName, fromHistory, nichtSpeichern) {
       </div>
       <span class="verdict ${d.verdict}">${vIcon2} ${d.verdictText}</span>
     </div>
+    ${akteStepperHTML()}
     <div class="score-card reveal">
       <div class="gauge-wrap">${gauge(d.gesamtScore)}<div class="gauge-num"><span class="gauge-num-val" style="color:${d.gesamtScore?scC(d.gesamtScore):'var(--gray-l)'}">${d.gesamtScore||'N/A'}</span><span class="gauge-num-label">${d.gesamtScore?'/ 100':''}</span></div></div>
       <div class="score-right">
@@ -12191,6 +12633,7 @@ function showReport(d, rawName, fromHistory, nichtSpeichern) {
     ${AUS_HISTORIE ? '<button class="zurueck-hist" onclick="openHistory()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Zur\u00fcck zu Historie &amp; Ordner</button>' : ''}
     ${evidenceHTML(d)}
     ${nachweisCardHTML()}
+    ${endverbleibCardHTML()}
     ${manuellHinweisHTML(d)}
     <div id="sankBereich" class="sank-bereich"><div class="sank-laedt">Sanktionslisten werden abgeglichen&hellip;</div></div>
     <div class="flags-card reveal">
@@ -12202,6 +12645,7 @@ function showReport(d, rawName, fromHistory, nichtSpeichern) {
       <div class="rec-text">${d.empfehlung}</div>
     </div>
     <div id="kycMount" style="display:none;"></div>
+    ${abschlussCardHTML()}
     <div class="actions reveal">
       <button class="btn-action primary" onclick="druckeJetzt()">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
@@ -12216,6 +12660,7 @@ function showReport(d, rawName, fromHistory, nichtSpeichern) {
   document.getElementById('report').classList.add('active');
   NW.modus = false; NW.gesamt = 0; NW.laeuft = 0;
   try { nwZeichnen(); } catch(e) {}
+  try { akteZeichnen(); } catch(e) {}
   if (d && d.pruefId) initKyc(d.pruefId);
 
   // WASSERZEICHEN für Ausdrucke aufbauen (E-Mail + Zeitstempel + gespeicherte Prüf-ID)
@@ -12399,7 +12844,7 @@ async function _openHistory() {
     await ladeOrdner(); // aktuelle Ordner-Liste für die Filter-Chips
     const { data, error } = await sb
       .from('analysen')
-      .select('id, pruef_id, firmenname, land, ust_id, standort, score, verdict, verdict_text, created_at, report_json, ordner_id')
+      .select('id, pruef_id, firmenname, land, ust_id, standort, score, verdict, verdict_text, created_at, report_json, ordner_id, schritte, abgeschlossen_am, abgeschlossen_von, abgeschlossen_von_name')
       .order('created_at', { ascending: false });
     if (error) throw error;
     HISTORY_ROWS = data || [];
@@ -12642,7 +13087,9 @@ function renderHistoryList() {
       return '<div class="history-row hr-anim" style="animation-delay:' + Math.min(idx * 45, 600) + 'ms">'
         + '<div class="hr-click" onclick="openFromHistory(' + idx + ')">'
         + '<div class="hr-main">'
-        + '<div class="hr-name">' + escapeHtml(r.firmenname || 'Unbekanntes Unternehmen') + '</div>'
+        + '<div class="hr-name">' + escapeHtml(r.firmenname || 'Unbekanntes Unternehmen')
+        + (r.abgeschlossen_am ? ' <span class="hr-akte-ok" title="Akte abgeschlossen \u2013 Vollst\u00e4ndigkeit best\u00e4tigt"><svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Abgeschlossen</span>' : '')
+        + '</div>'
         + '<div class="hr-meta">' + datum + (uhr ? ' · ' + uhr : '') + land + '</div>'
         + autorZeile
         + '<div class="hr-id">' + (r.pruef_id || '') + '</div>'
@@ -13226,6 +13673,10 @@ function _openFromHistory(i) {
   if (!d.pruefId && r.pruef_id) d.pruefId = r.pruef_id;
   if (r.id) d._analyseId = r.id;
   if (r.standort && !d._standort) d._standort = r.standort;
+  d._schritte = r.schritte || {};
+  d._abgeschlossen_am = r.abgeschlossen_am || null;
+  d._abgeschlossen_von = r.abgeschlossen_von || null;
+  d._abgeschlossen_von_name = r.abgeschlossen_von_name || null;
   if (!d._createdAt && r.created_at) d._createdAt = r.created_at;
   const view = document.getElementById('historyView');
   const main = document.getElementById('mainView');
@@ -13335,6 +13786,8 @@ async function sanktionenAbgleichen(d) {
 function sanktionenAnzeigen(erg, anzahlNamen) {
   const ziel = document.getElementById('sankBereich');
   if (!ziel) return;
+  AKTE.sankFertig = !!(erg && erg.stand && erg.stand.eintraege);
+  setTimeout(function(){ try { akteZeichnen(); } catch(e) {} }, 0);
 
   const standTxt = (erg && erg.stand && erg.stand.stand)
     ? new Date(erg.stand.stand).toLocaleDateString('de-DE') : null;
