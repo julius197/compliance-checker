@@ -2922,6 +2922,7 @@
       .akte-panel { display:block !important; animation:none !important; }
       .akte-zurueck, .akte-hub .mon-bereich { display:none !important; }
       .akte-panel .reveal { opacity:1 !important; transform:none !important; filter:none !important; }
+      #panelAkte { display:none !important; }
     }
 
     /* ===== Branche ===== */
@@ -2950,6 +2951,89 @@
     .akte-schritte.fuenf { grid-template-columns:repeat(5,1fr); }
     @media (max-width:900px) { .akte-schritte.fuenf { grid-template-columns:repeat(3,1fr); } }
     @media (max-width:560px) { .br-grid { grid-template-columns:1fr; } .akte-schritte.fuenf { grid-template-columns:repeat(2,1fr); } }
+
+    /* ============================================================
+       AKTE: Ruhe beim Oeffnen und Wechseln
+       ============================================================ */
+    /* In den Bereichen blendet der Bereich als Ganzes ein - nicht jede Karte einzeln */
+    .akte-panel .reveal { opacity:1; transform:none; filter:none; transition:none; }
+    .akte-panel.an { animation:panelIn .26s cubic-bezier(.2,.8,.3,1) both; }
+    /* Einmal gesehene Bereiche: Zeilen nicht erneut einblenden */
+    .akte-panel.gesehen .kv, .akte-panel.gesehen .cc, .akte-panel.gesehen .flag,
+    .akte-panel.gesehen .nw-kachel, .akte-panel.gesehen .nw-zeile, .akte-panel.gesehen .st-zeile {
+      animation:none !important; opacity:1 !important; transform:none !important; }
+    /* Uebersicht: nach dem ersten Aufbau keine Einblendung mehr */
+    .akte-stepper.ruhig .akte-schritt { animation:none !important; opacity:1 !important; }
+    .nw-card.ruhig .nw-kachel, .nw-card.ruhig .nw-zeile { animation:none !important; opacity:1 !important; }
+    .hu-leiste.ruhig { animation:none !important; }
+    .hu-leiste.ruhig .hu-teil { transition:none !important; }
+    .akte-hub .mon-bereich { display:none; }
+    #panelAkte .mon-bereich { margin-top:0; }
+    #panelAkte .mon-bereich:empty { display:none; }
+
+    /* Bereichs-Modus (Akte abgeschlossen) */
+    .akte-stepper.bereiche { border-color:rgba(46,135,73,.4); background:linear-gradient(180deg,#fff,#F7FBF8); }
+    .akte-siegel { display:inline-flex; align-items:center; gap:6px; margin-left:auto; padding:6px 12px; border-radius:999px;
+      background:#2E8749; color:#fff; font-size:11px; font-weight:800; letter-spacing:.02em; white-space:nowrap;
+      box-shadow:0 6px 14px -8px rgba(46,135,73,.8); }
+    .akte-stepper.bereiche .akte-schritt { border-color:var(--border2,#EDF0F2); background:#fff; }
+    .akte-stepper.bereiche .akte-schritt.offen { border-color:#2E8749; background:#F1F8F3; box-shadow:0 0 0 3px rgba(46,135,73,.12); }
+    .akte-bico { width:30px; height:30px; border-radius:9px; flex-shrink:0; display:flex; align-items:center; justify-content:center;
+      background:#EDF5F0; color:#2E8749; transition:background .16s, color .16s; }
+    .akte-stepper.bereiche .akte-schritt.offen .akte-bico { background:#2E8749; color:#fff; }
+
+    /* ============================================================
+       AKTEN & ORDNER: Aktenmappe
+       ============================================================ */
+    .history-list .akte-mappe { position:relative; margin-top:16px; overflow:visible;
+      border-top-left-radius:4px; transform-origin:50% 100%;
+      transition:transform .32s cubic-bezier(.2,.8,.3,1), box-shadow .32s ease, border-color .2s ease; }
+    .history-list .history-row.hr-anim.akte-mappe { opacity:1; animation-fill-mode:backwards; }
+    /* Reiter mit Aktenzeichen */
+    .akte-mappe::before { content:attr(data-reiter); position:absolute; left:-1px; top:-15px; height:15px; max-width:62%;
+      padding:0 14px 0 12px; box-sizing:border-box; border-radius:8px 10px 0 0;
+      background:#EEF6F0; border:1px solid #CFE3D6; color:#2E8749;          /* Ersatz fuer aeltere Browser */
+      background:color-mix(in srgb, var(--mappe) 14%, #fff); border:1px solid color-mix(in srgb, var(--mappe) 32%, #fff); border-bottom:none;
+      font-size:9.5px; font-weight:800; letter-spacing:.06em; line-height:15px; color:color-mix(in srgb, var(--mappe) 80%, #000);
+      white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-family:inherit; }
+    /* Blatt, das oben aus der Mappe schaut */
+    .akte-mappe::after { content:''; position:absolute; right:22px; top:-7px; width:38%; height:9px;
+      border-radius:3px 3px 0 0; background:#FFFDF8; border:1px solid #E7E1D3; border-bottom:none;
+      background-image:repeating-linear-gradient(180deg, transparent 0 3px, rgba(0,0,0,.05) 3px 4px);
+      transform-origin:50% 100%; transition:transform .38s cubic-bezier(.2,.8,.3,1.2), height .38s cubic-bezier(.2,.8,.3,1.2); z-index:0; }
+    .history-list .akte-mappe:hover { transform:perspective(900px) rotateX(5deg) translateY(-3px);
+      box-shadow:0 18px 32px -18px rgba(10,22,17,.45); border-color:#BFDCCB; border-color:color-mix(in srgb, var(--mappe) 40%, #fff); }
+    /* Team-Liste nutzt dieselbe Listenklasse, bleibt aber schlicht */
+    .team-liste .akte-mappe { margin-top:0; }
+    .akte-mappe:hover::after { height:16px; top:-14px; transform:rotate(-1.5deg); }
+    .akte-mappe.versiegelt::before { padding-left:24px;
+      background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%232E8749' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E");
+      background-repeat:no-repeat; background-size:9px 9px; background-position:10px 50%; }
+    @media (max-width:640px) {
+      .akte-mappe::after { width:30%; right:14px; }
+      .history-list .akte-mappe:hover { transform:none; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .history-list .akte-mappe, .akte-mappe::after { transition:none; }
+      .history-list .akte-mappe:hover { transform:none; }
+    }
+
+    /* ============================================================
+       DRUCK: sauber, vollstaendig, ohne Bedienelemente
+       ============================================================ */
+    @media print {
+      /* Keine Animation darf den Ausdruck in einem Zwischenzustand festhalten */
+      #report *, #report *::before, #report *::after { animation:none !important; transition:none !important; }
+      #report .reveal, #report .kv, #report .cc, #report .flag, #report .nw-kachel, #report .nw-zeile,
+      #report .sank-karte, #report .evidence-item { opacity:1 !important; transform:none !important; filter:none !important; }
+      /* Nur Inhalt, keine Werkzeuge der Akte */
+      .akte-hub, #panelAkte, .sk-intro, #nwCard, .ev-card, .ab-card, .mon-bereich, .bearb-leiste,
+      .akte-zurueck, .akte-stepper { display:none !important; }
+      .akte-panel { display:block !important; }
+      #panelSanktion .sank-bereich { margin-top:14px; break-inside:avoid; page-break-inside:avoid; }
+      .grid4 { break-inside:auto; }
+      .grid4 .sec-card { break-inside:avoid; page-break-inside:avoid; }
+    }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -5383,7 +5467,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.90</span>
+      <span style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.91</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -6781,6 +6865,7 @@ let HISTORY_FILTER = 'alle';
 let HISTORY_PRUEFER = '';
 function setPruefer(v) { HISTORY_PRUEFER = v || ''; renderHistoryList(); }
 let HISTORY_STANDORT = '';
+let HU_GEZEIGT = false;   // Kennzahlen nur beim ersten Oeffnen von "Akten & Ordner" einblenden
 function setStandortFilter(v) { HISTORY_STANDORT = v || ''; renderHistoryList(); }
 let HISTORY_SORT = 'neu';
 let FAVORITEN = [];              // Liste der ueberwachten Firmen
@@ -11467,7 +11552,7 @@ function brancheKontoZeichnen() {
 // zu seinem Abschnitt. Sind alle Schritte erledigt, gilt die Akte
 // als vollstaendig abgesichert.
 // ============================================================
-let AKTE = { sankFertig: false, sankFehler: false, ansicht: 'analyse', ansichtStart: null };
+let AKTE = { sankFertig: false, sankFehler: false, ansicht: 'akte', ansichtStart: null, gaugeZiel: null, gaugeLief: false };
 
 const AKTE_SCHRITTE = [
   { n: 1, key: 'akte',     titel: 'Akte angelegt',          ziel: '.report-top' },
@@ -11516,10 +11601,7 @@ function akteZaehlung() {
 }
 
 function akteStepperHTML() {
-  return '<div class="akte-hub" id="akteHub">'
-    + '<div class="akte-stepper" id="akteStepper"></div>'
-    + '<div id="monBereich" class="mon-bereich"></div>'
-    + '</div>';
+  return '<div class="akte-hub" id="akteHub"><div class="akte-stepper" id="akteStepper"></div></div>';
 }
 
 // Stammdaten der Akte (Schritt 1)
@@ -11543,15 +11625,70 @@ function akteStammHTML(d) {
     + '</div>';
 }
 
+// ===== Score-Kreis =====
+function gaugeTeile() {
+  const p = document.getElementById('panelAnalyse') || document;
+  return { num: p.querySelector('.gauge-num-val'), fill: p.querySelector('.gauge-fill'), bar: p.querySelector('.bar-fill') };
+}
+function gaugeSetzen(wert) {
+  if (wert === null || wert === undefined) return;
+  const t = gaugeTeile();
+  if (t.fill) {
+    const r = parseFloat(t.fill.getAttribute('r')) || 44, circ = 2 * Math.PI * r;
+    t.fill.style.transition = 'none';
+    t.fill.setAttribute('stroke-dasharray', (circ * wert / 100) + ' ' + circ);
+  }
+  if (t.bar) { t.bar.style.transition = 'none'; t.bar.style.width = wert + '%'; }
+  if (t.num) t.num.textContent = wert;
+}
+// Einmal je Akte, beim ersten Oeffnen der Analyse
+function gaugeAnimieren() {
+  if (AKTE.gaugeLief || AKTE.gaugeZiel === null) return;
+  AKTE.gaugeLief = true;
+  const ziel = AKTE.gaugeZiel, t = gaugeTeile();
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) { gaugeSetzen(ziel); return; }
+  let circ = 0;
+  if (t.fill) {
+    const r = parseFloat(t.fill.getAttribute('r')) || 44; circ = 2 * Math.PI * r;
+    t.fill.style.transition = 'none'; t.fill.setAttribute('stroke-dasharray', '0 ' + circ);
+  }
+  if (t.bar) { t.bar.style.transition = 'none'; t.bar.style.width = '0%'; }
+  if (t.num) t.num.textContent = '0';
+  setTimeout(function(){
+    if (t.fill) { t.fill.style.transition = 'stroke-dasharray 1.3s cubic-bezier(.16,1,.3,1)'; t.fill.setAttribute('stroke-dasharray', (circ * ziel / 100) + ' ' + circ); }
+    if (t.bar) { t.bar.style.transition = 'width 1.3s cubic-bezier(.16,1,.3,1)'; t.bar.style.width = ziel + '%'; }
+    if (t.num) {
+      const start = performance.now(), dauer = 1300;
+      (function tick(now){
+        const p = Math.min((now - start) / dauer, 1);
+        t.num.textContent = Math.round((1 - Math.pow(1 - p, 3)) * ziel);
+        if (p < 1) requestAnimationFrame(tick); else t.num.textContent = ziel;
+      })(start);
+    }
+  }, 140);
+}
+
 // Welcher Bereich ist gerade offen?
 function akteAnsicht(key, ohneScroll) {
   if (!akteSchritteAktiv().some(function(x){ return x.key === key; })) key = 'analyse';
+  const vorher = AKTE.ansicht;
   AKTE.ansicht = key;
+  // Score-Kreis zuruecksetzen, BEVOR die Analyse sichtbar wird - sonst springt er
+  if (key === 'analyse' && !AKTE.gaugeLief) {
+    const t = gaugeTeile();
+    if (t.fill) { const r = parseFloat(t.fill.getAttribute('r')) || 44; t.fill.style.transition = 'none'; t.fill.setAttribute('stroke-dasharray', '0 ' + (2 * Math.PI * r)); }
+    if (t.bar) { t.bar.style.transition = 'none'; t.bar.style.width = '0%'; }
+    if (t.num) t.num.textContent = '0';
+  }
   document.querySelectorAll('.akte-panel').forEach(function(p){
-    const an = p.getAttribute('data-panel') === key;
-    p.classList.toggle('an', an);
+    const pk = p.getAttribute('data-panel');
+    const an = pk === key;
+    // Ein Bereich, der schon einmal offen war, blendet beim erneuten Oeffnen nichts mehr einzeln ein
+    if (!an && pk === vorher && p.classList.contains('an')) p.classList.add('gesehen');
     if (an) p.querySelectorAll('.reveal').forEach(function(el){ el.classList.add('in-view'); });
+    p.classList.toggle('an', an);
   });
+  if (key === 'analyse') gaugeAnimieren();
   akteStepperZeichnen();
   if (!ohneScroll) {
     const hub = document.getElementById('akteHub');
@@ -11559,35 +11696,96 @@ function akteAnsicht(key, ohneScroll) {
   }
 }
 
+const AKTE_ICO = {
+  akte: '<path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/>',
+  analyse: '<path d="M3 3v18h18"/><path d="m7 15 4-4 3 3 5-6"/>',
+  dokumente: '<path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>',
+  sanktion: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>',
+  endverbleib: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="m9 15 2 2 4-4"/>',
+  abschluss: '<circle cx="12" cy="8" r="6"/><path d="M15.48 12.89 17 22l-5-3-5 3 1.52-9.11"/>'
+};
+const AKTE_BEREICH_NAME = { akte: 'Stammdaten', analyse: 'Analyse', dokumente: 'Dokumente', sanktion: 'Sanktionslisten', endverbleib: 'Endverbleib', abschluss: 'Best\u00e4tigung' };
+const AKTE_STATUS_ICO = {
+  ok: '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>',
+  uebersprungen: '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M5 12h14"/></svg>',
+  laeuft: '<span class="akte-dreh"></span>',
+  teil: '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M12 6v6l4 2"/></svg>'
+};
+
+// Baut die Uebersicht nur neu, wenn sich ihr Aufbau aendert (Branche, Abschluss).
+// Sonst werden nur Texte und Zustaende aktualisiert - so blendet nichts erneut ein.
 function akteStepperZeichnen() {
   const box = document.getElementById('akteStepper');
   if (!box) return;
   const d = CURRENT_REPORT || {};
   const schritte = akteSchritteAktiv();
+  const zu = !!d._abgeschlossen_am;
+  const modus = (zu ? 'bereiche' : 'schritte') + '|' + schritte.map(function(x){ return x.key; }).join(',') + '|' + (AUS_HISTORIE ? 1 : 0);
+  const erstesMal = !box.hasAttribute('data-modus');
+
+  if (box.getAttribute('data-modus') !== modus) {
+    box.setAttribute('data-modus', modus);
+    if (!erstesMal) box.classList.add('ruhig');          // Umbau ohne erneutes Einblenden
+    box.classList.toggle('bereiche', zu);
+    box.innerHTML = '<div class="akte-kopf">'
+      + (AUS_HISTORIE ? '<button class="akte-zurueck" onclick="openHistory()" title="Zur\u00fcck zu Akten &amp; Ordner"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>' : '')
+      + '<div class="akte-titel"><span class="akte-eyebrow" id="akteEyebrow"></span><span class="akte-h" id="akteH"></span></div>'
+      + (zu ? '<span class="akte-siegel"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Vollst\u00e4ndig abgesichert</span>'
+            : '<div class="akte-balken"><i id="akteBalken"></i></div>')
+      + '</div>'
+      + '<div class="akte-schritte' + (schritte.length === 5 ? ' fuenf' : '') + '">'
+      + schritte.map(function(sch, i){
+          return '<button class="akte-schritt" id="akteKachel_' + sch.key + '" onclick="akteAnsicht(\'' + sch.key + '\')" style="--ad:' + (0.04 + i * 0.045) + 's">'
+            + (zu ? '<span class="akte-bico"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">' + (AKTE_ICO[sch.key] || '') + '</svg></span>'
+                  : '<span class="akte-nr"></span>')
+            + '<span class="akte-txt"><b>' + (zu ? AKTE_BEREICH_NAME[sch.key] : sch.titel) + '</b><small></small></span>'
+            + '</button>';
+        }).join('')
+      + '</div>';
+  }
+
+  // ---- nur aktualisieren ----
   const fertig = akteZaehlung();
   const alle = fertig === schritte.length;
-  const ico = {
-    ok: '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>',
-    uebersprungen: '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M5 12h14"/></svg>',
-    laeuft: '<span class="akte-dreh"></span>',
-    teil: '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M12 6v6l4 2"/></svg>'
-  };
-  box.innerHTML = '<div class="akte-kopf">'
-    + (AUS_HISTORIE ? '<button class="akte-zurueck" onclick="openHistory()" title="Zur\u00fcck zu Akten &amp; Ordner"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>' : '')
-    + '<div class="akte-titel"><span class="akte-eyebrow">Akte \u00b7 Vollst\u00e4ndigkeit</span>'
-    + '<span class="akte-h">' + (alle ? 'Vollst\u00e4ndig abgesichert' : fertig + ' von ' + schritte.length + ' Schritten erledigt') + '</span></div>'
-    + '<div class="akte-balken"><i style="width:' + Math.round(fertig / schritte.length * 100) + '%"></i></div>'
-    + '</div>'
-    + '<div class="akte-schritte' + (schritte.length === 5 ? ' fuenf' : '') + '">'
-    + schritte.map(function(sch, i){
-        const st = akteStatus(sch.key);
-        return '<button class="akte-schritt st-' + st + (AKTE.ansicht === sch.key ? ' offen' : '') + '" onclick="akteAnsicht(\'' + sch.key + '\')" style="--ad:' + (0.05 + i * 0.05) + 's">'
-          + '<span class="akte-nr">' + (ico[st] || (i + 1)) + '</span>'
-          + '<span class="akte-txt"><b>' + sch.titel + '</b><small>' + akteStatusText(sch.key, st) + '</small></span>'
-          + '</button>';
-      }).join('')
-    + '</div>';
+  const eb = document.getElementById('akteEyebrow'), h = document.getElementById('akteH');
+  if (zu) {
+    if (eb) eb.textContent = 'Akte \u00b7 abgeschlossen';
+    if (h) h.textContent = 'Abgeschlossen am ' + new Date(d._abgeschlossen_am).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  } else {
+    if (eb) eb.textContent = 'Akte \u00b7 Vollst\u00e4ndigkeit';
+    if (h) h.textContent = alle ? 'Vollst\u00e4ndig abgesichert' : fertig + ' von ' + schritte.length + ' Schritten erledigt';
+    const bal = document.getElementById('akteBalken');
+    if (bal) bal.style.width = Math.round(fertig / schritte.length * 100) + '%';
+  }
   box.classList.toggle('alle-fertig', alle);
+
+  schritte.forEach(function(sch, i){
+    const k = document.getElementById('akteKachel_' + sch.key);
+    if (!k) return;
+    const st = akteStatus(sch.key);
+    const cls = 'akte-schritt st-' + st + (AKTE.ansicht === sch.key ? ' offen' : '');
+    if (k.className !== cls) k.className = cls;
+    const small = k.querySelector('small');
+    const txt = zu ? akteBereichText(sch.key, st) : akteStatusText(sch.key, st);
+    if (small && small.textContent !== txt) small.textContent = txt;
+    const nr = k.querySelector('.akte-nr');
+    if (nr) {
+      const soll = AKTE_STATUS_ICO[st] ? st : 'nr';
+      if (nr.getAttribute('data-st') !== soll) { nr.setAttribute('data-st', soll); nr.innerHTML = AKTE_STATUS_ICO[st] || String(i + 1); }
+    }
+  });
+}
+
+// Untertitel im Bereichs-Modus (nach Abschluss): beschreibend statt Status
+function akteBereichText(key, st) {
+  const d = CURRENT_REPORT || {};
+  if (key === 'akte') return d._standort ? escapeHtml(d._standort) : 'Unternehmen & Pr\u00fcf-ID';
+  if (key === 'analyse') return (typeof d.gesamtScore === 'number') ? 'Score ' + d.gesamtScore : 'Bericht';
+  if (key === 'dokumente') { const doks = KYC.doks || {}; const n = ['ausweis','selfie','standort','beleg'].reduce(function(a,t){ return a + ((doks[t]||[]).length); }, 0); return n ? n + ' Datei' + (n === 1 ? '' : 'en') : 'keine Dateien'; }
+  if (key === 'sanktion') return st === 'ok' ? 'abgeglichen' : 'nicht verf\u00fcgbar';
+  if (key === 'endverbleib') return st === 'ok' ? 'unterschrieben' : 'nicht erforderlich';
+  if (key === 'abschluss') return d._abgeschlossen_von_name ? escapeHtml(d._abgeschlossen_von_name) : 'best\u00e4tigt';
+  return '';
 }
 
 function akteStatusText(key, st) {
@@ -11920,6 +12118,9 @@ function nwZeichnen() {
   const card = document.getElementById('nwCard');
   const box = document.getElementById('nwInhalt');
   if (!card || !box) return;
+  // Bereits gezeigte Eintraege nicht erneut einblenden
+  if (card.getAttribute('data-gezeichnet')) card.classList.add('ruhig');
+  card.setAttribute('data-gezeichnet', '1');
 
   const auf = nwDaten('aufnahmen'), dok = nwDaten('dokumente');
   const zA = document.getElementById('nwZAuf'), zD = document.getElementById('nwZDok');
@@ -12033,7 +12234,12 @@ function nwModus(an) {
   }
 }
 
-function nwTab(t) { NW.tab = t; nwZeichnen(); }
+function nwTab(t) {
+  NW.tab = t;
+  const card = document.getElementById('nwCard');
+  if (card) { card.classList.remove('ruhig'); card.removeAttribute('data-gezeichnet'); }
+  nwZeichnen();
+}
 
 function nwNameTaste(ev) {
   if (ev.key === 'Enter') { ev.preventDefault(); ev.target.blur(); }
@@ -12824,7 +13030,7 @@ function showReport(d, rawName, fromHistory, nichtSpeichern) {
       <span class="verdict ${d.verdict}">${vIcon2} ${d.verdictText}</span>
     </div>
     ${akteStepperHTML()}
-    <div class="akte-panel" data-panel="akte" id="panelAkte">${akteStammHTML(d)}</div>
+    <div class="akte-panel" data-panel="akte" id="panelAkte">${akteStammHTML(d)}<div id="monBereich" class="mon-bereich"></div></div>
     <div class="akte-panel" data-panel="analyse" id="panelAnalyse">
     <div class="score-card reveal">
       <div class="gauge-wrap">${gauge(d.gesamtScore)}<div class="gauge-num"><span class="gauge-num-val" style="color:${d.gesamtScore?scC(d.gesamtScore):'var(--gray-l)'}">${d.gesamtScore||'N/A'}</span><span class="gauge-num-label">${d.gesamtScore?'/ 100':''}</span></div></div>
@@ -12873,10 +13079,6 @@ function showReport(d, rawName, fromHistory, nichtSpeichern) {
     <div id="bearbLeiste" class="bearb-leiste"></div>
     ${manuellHinweisHTML(d)}
     </div>
-    <div class="akte-panel" data-panel="dokumente" id="panelDokumente">
-      <div id="kycMount" style="display:none;"></div>
-      ${nachweisCardHTML()}
-    </div>
     <div class="akte-panel" data-panel="sanktion" id="panelSanktion">
       <div class="sec-card sk-intro reveal">
         <div class="sk-head"><div class="sk-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg></div>
@@ -12884,6 +13086,10 @@ function showReport(d, rawName, fromHistory, nichtSpeichern) {
         <div class="sk-txt">Unternehmen, Gesch\u00e4ftsf\u00fchrung und wirtschaftlich Berechtigte werden gegen die konsolidierte Sanktionsliste der Europ\u00e4ischen Union abgeglichen \u2013 t\u00e4glich gespiegelt, auch mit abweichenden Schreibweisen. Ein Treffer bedeutet Namens\u00e4hnlichkeit, nicht Personenidentit\u00e4t.</div>
       </div>
       <div id="sankBereich" class="sank-bereich"><div class="sank-laedt">Sanktionslisten werden abgeglichen&hellip;</div></div>
+    </div>
+    <div class="akte-panel" data-panel="dokumente" id="panelDokumente">
+      <div id="kycMount" style="display:none;"></div>
+      ${nachweisCardHTML()}
     </div>
     <div class="akte-panel" data-panel="endverbleib" id="panelEndverbleib">${endverbleibCardHTML()}</div>
     <div class="akte-panel" data-panel="abschluss" id="panelAbschluss">${abschlussCardHTML()}</div>
@@ -12901,7 +13107,7 @@ function showReport(d, rawName, fromHistory, nichtSpeichern) {
   document.getElementById('report').classList.add('active');
   NW.modus = false; NW.gesamt = 0; NW.laeuft = 0;
   try { nwZeichnen(); } catch(e) {}
-  try { akteZeichnen(); akteAnsicht(AKTE.ansichtStart || 'analyse', true); AKTE.ansichtStart = null; } catch(e) {}
+  try { akteZeichnen(); akteAnsicht(AKTE.ansichtStart || 'akte', true); AKTE.ansichtStart = null; } catch(e) {}
   if (d && d.pruefId) initKyc(d.pruefId);
 
   // WASSERZEICHEN für Ausdrucke aufbauen (E-Mail + Zeitstempel + gespeicherte Prüf-ID)
@@ -12933,44 +13139,11 @@ function showReport(d, rawName, fromHistory, nichtSpeichern) {
     // Fallback: alle sofort zeigen
     revealEls.forEach(el => el.classList.add('in-view'));
   }
-  if (d.gesamtScore !== null && d.gesamtScore !== undefined && !isNaN(d.gesamtScore)) {
-    const target = parseInt(d.gesamtScore);
-    const numEl = document.querySelector('.gauge-num-val');
-    const fillEl = document.querySelector('.gauge-fill');
-    const barEl = document.querySelector('.bar-fill');
-    // Kreis füllen (Radius 44 wie in gauge())
-    if (fillEl) {
-      const r = parseFloat(fillEl.getAttribute('r')) || 44;
-      const circ = 2 * Math.PI * r;
-      const filled = circ * target / 100;
-      // Start: leer
-      fillEl.style.transition = 'none';
-      fillEl.setAttribute('stroke-dasharray', '0 ' + circ);
-      // dann animiert füllen
-      setTimeout(() => {
-        fillEl.style.transition = 'stroke-dasharray 1.6s cubic-bezier(.16,1,.3,1)';
-        fillEl.setAttribute('stroke-dasharray', filled + ' ' + circ);
-      }, 300);
-    }
-    // Bar füllen
-    if (barEl) {
-      barEl.style.transition = 'none';
-      barEl.style.width = '0%';
-      setTimeout(()=>{ barEl.style.transition='width 1.6s cubic-bezier(.16,1,.3,1)'; barEl.style.width = target + '%'; }, 300);
-    }
-    // Zahl hochzählen
-    if (numEl) {
-      const dur = 1600, start = performance.now();
-      const tick = (now) => {
-        const p = Math.min((now - start) / dur, 1);
-        const eased = 1 - Math.pow(1 - p, 3);
-        numEl.textContent = Math.round(eased * target);
-        if (p < 1) requestAnimationFrame(tick);
-        else numEl.textContent = target;
-      };
-      setTimeout(()=>requestAnimationFrame(tick), 300);
-    }
-  }
+  // Score-Kreis: sofort im Endzustand (richtig fuer Druck und fuer den verdeckten Bereich).
+  // Die Zaehl-Animation laeuft einmal, wenn die Analyse zum ersten Mal geoeffnet wird.
+  AKTE.gaugeLief = false;
+  AKTE.gaugeZiel = (d.gesamtScore !== null && d.gesamtScore !== undefined && !isNaN(d.gesamtScore)) ? parseInt(d.gesamtScore) : null;
+  gaugeSetzen(AKTE.gaugeZiel);
 
   // Frisch erstellte Analyse in der Historie speichern (nicht beim erneuten Öffnen aus der Historie)
   // Nur eine FRISCHE Analyse wird hier eingefuegt. Eine Neubewertung ist bereits
@@ -13081,6 +13254,7 @@ async function _openHistory() {
 
   if (!sb) { renderHistoryError('Keine Verbindung zur Datenbank.'); return; }
   HISTORY_FILTER = 'alle';
+  HU_GEZEIGT = false;
   try {
     await ladeOrdner(); // aktuelle Ordner-Liste für die Filter-Chips
     // Fehlt eine neue Spalte noch (SQL nicht eingespielt), auf die Grundspalten zurueckfallen
@@ -13177,8 +13351,8 @@ function renderHistoryList() {
   function anteil(n) { return gesamtBewertet ? Math.round(n / gesamtBewertet * 100) : 0; }
   const schnittFarbe = schnitt === null ? 'grau' : (schnitt >= 70 ? 'gruen' : (schnitt >= 45 ? 'gelb' : 'rot'));
 
-  const uebersicht = '<div class="hu-leiste">'
-    + '<div class="hu-karte"><div class="hu-wert">' + HISTORY_ROWS.length + '</div><div class="hu-label">Pr\u00fcfungen gesamt</div></div>'
+  const uebersicht = '<div class="hu-leiste' + (HU_GEZEIGT ? ' ruhig' : '') + '">'
+    + '<div class="hu-karte"><div class="hu-wert">' + HISTORY_ROWS.length + '</div><div class="hu-label">Akten gesamt</div></div>'
     + '<div class="hu-karte"><div class="hu-wert">' + nMonat + '</div><div class="hu-label">Diesen Monat</div></div>'
     + '<div class="hu-karte"><div class="hu-wert hu-' + schnittFarbe + '">' + (schnitt === null ? '\u2013' : schnitt) + '</div><div class="hu-label">\u00d8 Vertrauens-Score</div></div>'
     + '<div class="hu-karte hu-weit">'
@@ -13333,7 +13507,8 @@ function renderHistoryList() {
           + '<span class="fdot" style="background:' + (folder.farbe || '#22C55E') + '"></span>' + escapeHtml(folder.name)
           + ((!einzel && folder.sichtbarkeit === 'privat') ? ' · privat' : '') + '</span>'
         : '';
-      return '<div class="history-row hr-anim" style="animation-delay:' + Math.min(idx * 45, 600) + 'ms">'
+      const mappe = (folder && folder.farbe) ? folder.farbe : '#2E8749';
+      return '<div class="history-row hr-anim akte-mappe' + (r.abgeschlossen_am ? ' versiegelt' : '') + '" data-reiter="' + escapeHtml(r.pruef_id || 'Akte') + '" style="--mappe:' + mappe + ';animation-delay:' + Math.min(idx * 45, 600) + 'ms">'
         + '<div class="hr-click" onclick="openFromHistory(' + idx + ')">'
         + '<div class="hr-main">'
         + '<div class="hr-name">' + escapeHtml(r.firmenname || 'Unbekanntes Unternehmen')
@@ -13385,6 +13560,7 @@ function renderHistoryList() {
   const favPanel = (HISTORY_FILTER === '__fav') ? favUebersichtHtml() : '';
 
   view.insertAdjacentHTML('beforeend', '<div id="histBody">' + uebersicht + filterBar + sternHinweis + favPanel + sortLeiste + exportBar + listHtml + '</div>');
+  HU_GEZEIGT = true;
   sichtbarSicherstellen(view);
 }
 
@@ -13998,10 +14174,25 @@ function sanktionenNamen(d) {
 }
 
 async function sanktionenAbgleichen(d) {
-  if (!sb || d._sankGeprueft) return;
+  if (!sb) return;
+  // Schon geprueft (z.B. beim Oeffnen aus "Akten & Ordner"): gespeichertes Ergebnis zeigen.
+  // Der Aufruf kommt vor dem Aufbau des Berichts - deshalb erst im naechsten Takt anzeigen.
+  if (d._sankGeprueft && d._sanktionen && d._sanktionen.stand) {
+    setTimeout(function(){ if (CURRENT_REPORT === d) sanktionenAnzeigen(d._sanktionen, d._sanktionen.geprueft || 0); }, 0);
+    return;
+  }
   d._sankGeprueft = true;
   const namen = sanktionenNamen(d);
-  if (!namen.length) return;
+  if (!namen.length) {
+    // Keine Namen ermittelbar - trotzdem sauber abschliessen statt endlos zu laden
+    if (!SANK_STAND) {
+      try { const { data } = await sb.rpc('sanktionen_stand_info'); SANK_STAND = (data && data[0]) || { quelle: 'EU', stand: null, eintraege: 0 }; }
+      catch (e) { SANK_STAND = { quelle: 'EU', stand: null, eintraege: 0 }; }
+    }
+    d._sanktionen = { treffer: [], geprueft: 0, stand: SANK_STAND };
+    if (CURRENT_REPORT === d) sanktionenAnzeigen(SANK_STAND.eintraege ? d._sanktionen : null, 0);
+    return;
+  }
 
   // Listenstand einmalig laden
   if (!SANK_STAND) {
@@ -14022,7 +14213,7 @@ async function sanktionenAbgleichen(d) {
     } catch (e) {}
   }
   d._sanktionen = { treffer: treffer, geprueft: namen.length, stand: SANK_STAND };
-  sanktionenAnzeigen(d._sanktionen, namen.length);
+  if (CURRENT_REPORT === d) sanktionenAnzeigen(d._sanktionen, namen.length);
   // Befund dauerhaft im Bericht sichern
   try {
     if (d.pruef_id || d.pruefId) {
