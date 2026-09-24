@@ -3164,6 +3164,82 @@
       .kyc-print-page.erste { page-break-before:auto !important; break-before:auto !important; }
       .akte-vorschau, .akte-aktionen, #neuGate { display:none !important; }
     }
+
+    /* ===== Aktenmappe: ruhiges Anheben statt Kippen, Blatt ohne Ueberlappung ===== */
+    .history-list .akte-mappe:hover { transform:translateY(-3px); }
+    .akte-mappe::after { top:-8px; height:8px; right:44px; width:34%; }
+    .akte-mappe:hover::after { top:-15px; height:15px; transform:rotate(-1.2deg); }
+    @media (max-width:640px) { .akte-mappe::after { right:30px; width:26%; } }
+    @media (hover: none) {
+      .history-list .akte-mappe:hover { transform:none; }
+      .akte-mappe:hover::after { top:-8px; height:8px; transform:none; }
+    }
+
+    /* ===== Update-Benachrichtigung ===== */
+    .upd-toast .tr-toast-t { display:flex; align-items:center; gap:8px; }
+    .upd-punkt { width:8px; height:8px; border-radius:50%; background:#2E8749; flex-shrink:0;
+      box-shadow:0 0 0 0 rgba(46,135,73,.5); animation:chatPuls 2.2s ease-in-out infinite; }
+
+    /* ===== Dateien & KI ===== */
+    .dok-info { background:#fff; border:1.5px solid var(--border,#DCE5E0); border-left:3px solid #8B5CF6;
+      border-radius:14px; padding:14px 16px; margin-bottom:14px; }
+    .dok-info-t { display:flex; align-items:center; gap:8px; font-size:12.5px; font-weight:800; color:#5B21B6; margin-bottom:9px; }
+    .dok-info-zeilen { display:flex; flex-direction:column; gap:7px; }
+    .dok-info-z { display:flex; gap:10px; align-items:flex-start; font-size:12px; line-height:1.6; color:var(--gray,#5A6670); }
+    .dok-info-z b { color:var(--ink,#111827); }
+    .dok-punkt { width:8px; height:8px; border-radius:50%; flex-shrink:0; margin-top:6px; background:#C2CEC7; }
+    .dok-punkt.ki { background:#7C3AED; box-shadow:0 0 0 3px rgba(124,58,237,.15); }
+    .dok-hinweis:empty { display:none; }
+    .dok-hinweis-in { display:flex; align-items:center; gap:12px; padding:12px 14px; margin-bottom:14px; border-radius:12px;
+      background:#F6F2FF; border:1px solid #DDD0FB; font-size:12.3px; line-height:1.55; color:#4C3A80; }
+    .dok-hinweis-in > svg { flex-shrink:0; color:#7C3AED; }
+    .dok-hinweis-in span { flex:1; min-width:0; }
+    .dok-hinweis-in b { color:#3B2A6E; }
+    .dok-hinweis-in .nw-btn { flex-shrink:0; white-space:nowrap; }
+    @media (max-width:640px) { .dok-hinweis-in { flex-direction:column; align-items:stretch; } .dok-hinweis-in .nw-btn { justify-content:center; } }
+
+    /* ===== Neue Werbung (nur auf "Neue Akte") ===== */
+    .al-werbung { position:relative; overflow:hidden; display:flex; align-items:center; gap:28px; margin-top:34px;
+      padding:30px 32px; border-radius:22px; background:
+        radial-gradient(520px 220px at 100% 0%, rgba(46,135,73,.10), transparent 70%),
+        linear-gradient(135deg,#FFFFFF 0%,#F4FAF6 100%);
+      border:1px solid #DCE9E1; box-shadow:0 2px 6px rgba(10,22,17,.04), 0 24px 48px -30px rgba(10,22,17,.35); }
+    .report.active ~ .al-werbung, .loading.active ~ .al-werbung { display:none !important; }
+    .alw-deko { position:absolute; right:-40px; bottom:-46px; width:220px; height:180px; pointer-events:none; opacity:.9; }
+    .alw-karte { position:absolute; width:130px; height:86px; border-radius:14px; background:#fff; border:1px solid #DCE9E1;
+      box-shadow:0 10px 24px -14px rgba(10,22,17,.35); }
+    .alw-karte::before { content:''; position:absolute; left:14px; top:16px; width:56%; height:7px; border-radius:4px; background:#E4EFE8; }
+    .alw-karte::after { content:''; position:absolute; left:14px; top:32px; width:38%; height:7px; border-radius:4px; background:#EEF4F0; }
+    .alw-karte.k1 { left:0; top:36px; transform:rotate(-10deg); }
+    .alw-karte.k2 { left:44px; top:14px; transform:rotate(-2deg); }
+    .alw-karte.k3 { left:88px; top:0; transform:rotate(7deg); background:linear-gradient(145deg,#3FA45C,#2E8749); border-color:#2E8749; }
+    .alw-karte.k3::before { background:rgba(255,255,255,.55); }
+    .alw-karte.k3::after { background:rgba(255,255,255,.35); }
+    .alw-links { position:relative; flex:1; min-width:0; }
+    .alw-eyebrow { display:inline-flex; align-items:center; gap:8px; font-size:10.5px; font-weight:800; letter-spacing:.08em;
+      text-transform:uppercase; color:#2E8749; margin-bottom:10px; }
+    .alw-punkt { width:7px; height:7px; border-radius:50%; background:#2E8749; }
+    .alw-t { font-size:24px; font-weight:800; line-height:1.18; letter-spacing:-.02em; color:var(--ink,#111827); margin-bottom:10px; }
+    .alw-t span { color:#2E8749; }
+    .alw-d { font-size:13px; line-height:1.65; color:var(--gray,#5A6670); max-width:560px; margin-bottom:14px; }
+    .alw-chips { display:flex; flex-wrap:wrap; gap:7px; }
+    .alw-chips span { font-size:11.5px; font-weight:700; color:#2A3B33; padding:6px 11px; border-radius:999px;
+      background:#fff; border:1px solid #DCE9E1; }
+    .alw-rechts { position:relative; display:flex; flex-direction:column; align-items:stretch; gap:10px; flex-shrink:0; z-index:1; }
+    .alw-btn { display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:14px 20px; border-radius:13px;
+      font-size:13.5px; font-weight:800; color:#fff; text-decoration:none; background:linear-gradient(145deg,#1F3227,#0E1A14);
+      box-shadow:0 12px 26px -14px rgba(10,22,17,.8); transition:transform .2s cubic-bezier(.2,.8,.3,1.2), box-shadow .2s; }
+    .alw-btn:hover { transform:translateY(-2px); box-shadow:0 18px 32px -16px rgba(10,22,17,.8); }
+    .alw-btn svg { transition:transform .2s; }
+    .alw-btn:hover svg { transform:translateX(3px); }
+    .alw-link { text-align:center; font-size:12px; font-weight:700; color:#2E8749; text-decoration:none; }
+    .alw-link:hover { text-decoration:underline; }
+    @media (max-width:760px) {
+      .al-werbung { flex-direction:column; align-items:stretch; gap:18px; padding:24px 20px; }
+      .alw-t { font-size:20px; }
+      .alw-deko { opacity:.35; right:-70px; bottom:-60px; }
+    }
+    @media print { .al-werbung { display:none !important; } }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -5602,7 +5678,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span class="app-version" onclick="neuigkeitenZeigen()" title="Was ist neu?" style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.93</span>
+      <span class="app-version" onclick="neuigkeitenZeigen()" title="Was ist neu?" style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.94</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -5713,21 +5789,20 @@
     <p>Name des Unternehmens eingeben und Compliance-Prüfung starten</p>
   </div>
 
-  <div class="al-footer">
-    <div class="al-footer-left">
-      <div class="al-footer-badge"><span class="pulse-dot"></span>Automati Labs · KI & Software</div>
-      <div class="al-footer-title">Dieses Tool wurde von Automati Labs gebaut.<br>Was dürfen wir für Sie entwickeln?</div>
-      <div class="al-footer-sub">Maßgeschneiderte KI-Lösungen, intelligente Automatisierungen und Premium-Software – entwickelt für Unternehmen die vorausdenken. Genau wie dieser Compliance-Checker. Kostenlose Erstberatung.</div>
+  <div class="al-werbung">
+    <div class="alw-deko" aria-hidden="true">
+      <span class="alw-karte k1"></span><span class="alw-karte k2"></span><span class="alw-karte k3"></span>
     </div>
-    <div class="al-footer-cta">
-      <a class="al-btn al-btn-primary" href="https://automatilabs.de/kontakt" target="_blank" rel="noopener">
-        Projekt anfragen
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-      </a>
-      <a class="al-btn al-btn-ghost" href="https://automatilabs.de" target="_blank" rel="noopener">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20 15 15 0 0 1 0-20z"/></svg>
-        Website ansehen
-      </a>
+    <div class="alw-links">
+      <div class="alw-eyebrow"><span class="alw-punkt"></span>Von den Machern des Compliance-Checkers</div>
+      <div class="alw-t">Wiederkehrende Arbeit?<br/><span>Die automatisieren wir.</span></div>
+      <div class="alw-d">Automati Labs entwickelt KI-Werkzeuge f&uuml;r Unternehmen &ndash; vom internen Tool &uuml;ber automatisierte Abl&auml;ufe bis zum Assistenten, der E-Mails und Anfragen &uuml;bernimmt. Individuell gebaut, sauber dokumentiert, in Deutschland betreut.</div>
+      <div class="alw-chips"><span>KI-Assistenten</span><span>Prozess-Automatisierung</span><span>Interne Software</span></div>
+    </div>
+    <div class="alw-rechts">
+      <a class="alw-btn" href="https://automatilabs.de/kontakt" target="_blank" rel="noopener">Kostenloses Erstgespr&auml;ch
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+      <a class="alw-link" href="https://automatilabs.de" target="_blank" rel="noopener">automatilabs.de &#8599;</a>
     </div>
   </div>
   </div><!-- /mainView -->
@@ -6036,6 +6111,15 @@ const LP_EN = {
 "Klarer Vertrauens-Score von 0–100": "Clear trust score from 0–100",
 "Sanktions- & PEP-Screening": "Sanctions & PEP screening",
 "Konsolidierte EU-Sanktionsliste, täglich aktuell": "Consolidated EU sanctions list, updated daily",
+"Von den Machern des Compliance-Checkers": "From the makers of the Compliance Checker",
+"Wiederkehrende Arbeit?": "Repetitive work?",
+"Die automatisieren wir.": "We automate it.",
+"Automati Labs entwickelt KI-Werkzeuge für Unternehmen – vom internen Tool über automatisierte Abläufe bis zum Assistenten, der E-Mails und Anfragen übernimmt. Individuell gebaut, sauber dokumentiert, in Deutschland betreut.": "Automati Labs builds AI tools for companies – from internal software and automated workflows to assistants that handle emails and requests. Custom-built, well documented, supported in Germany.",
+"KI-Assistenten": "AI assistants",
+"Prozess-Automatisierung": "Process automation",
+"Interne Software": "Internal software",
+"Kostenloses Erstgespräch": "Free initial consultation",
+"Vorhandene Akte öffnen": "Open existing file",
 "Einzelne Bereiche oder die ganze Akte drucken": "Print single sections or the whole file",
 "Vier Ränge vom President bis zum Member": "Four ranks from President to Member",
 "Ordner gezielt für Gruppen & Standorte freigeben": "Share folders with specific groups & locations",
@@ -6249,12 +6333,15 @@ function lpUebersetzen(nachEn) {
   setTimeout(setzen, 300);
 })();
 
-function applyLang() {
-  // Startseite sofort aus dem Woerterbuch - kein Warten auf den Server
-  try {
-    const lg = document.getElementById('landingGate');
-    if (lg) { lg.classList.add('lp-lang-wechsel'); setTimeout(function(){ lg.classList.remove('lp-lang-wechsel'); }, 380); }
-  } catch(e) {}
+function applyLang(ohneBlende) {
+  // Startseite sofort aus dem Woerterbuch - kein Warten auf den Server.
+  // Die Ueberblendung nur bei einem echten Sprachwechsel, nicht beim ersten Anzeigen.
+  if (!ohneBlende) {
+    try {
+      const lg = document.getElementById('landingGate');
+      if (lg) { lg.classList.add('lp-lang-wechsel'); setTimeout(function(){ lg.classList.remove('lp-lang-wechsel'); }, 380); }
+    } catch(e) {}
+  }
   const lb = document.getElementById('langBtn');
   if (lb) lb.textContent = LANG === 'de' ? '🌐 EN' : '🌐 DE';
   if (LANG === 'en') {
@@ -6379,10 +6466,10 @@ function chatTorZeigen(an) {
 }
 
 const CHAT_VORSCHLAEGE = [
-  'Wie lade ich Kollegen ins Team ein?',
-  'Wie kommt der Vertrauens-Score zustande?',
+  'Wie ist eine Akte aufgebaut?',
   'Wie schicke ich einem Kunden den Upload-Link?',
-  'Wie l\u00f6sche ich mein Konto?'
+  'Wie gebe ich einen Ordner f\u00fcr eine Gruppe frei?',
+  'Wertet die KI meine Dokumente aus?'
 ];
 
 const CHAT_PFEIL = '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>';
@@ -7388,7 +7475,11 @@ async function neuBewerten() {
   Object.keys(ERGAENZUNGEN).forEach(function(k){ erg[k.replace('|', ' > ')] = ERGAENZUNGEN[k]; });
 
   // Hinterlegte Dokumente mitgeben - der Worker holt und liest sie aus
-  const belege = belegeRoh.slice(0, 3).map(function(d){
+  // Noch nicht ausgewertete Dokumente zuerst - je Durchgang liest die KI hoechstens drei
+  const schonGelesen = (CURRENT_REPORT && Array.isArray(CURRENT_REPORT._belegeAusgewertet)) ? CURRENT_REPORT._belegeAusgewertet : [];
+  const belege = belegeRoh.slice().sort(function(x, y){
+    return (schonGelesen.indexOf(x.storage_path) >= 0 ? 1 : 0) - (schonGelesen.indexOf(y.storage_path) >= 0 ? 1 : 0);
+  }).slice(0, 3).map(function(d){
     return { path: d.storage_path, name: d.datei_name || '', mime: d.mime_type || '' };
   });
 
@@ -8989,6 +9080,7 @@ function infoBewertungHtml() {
     + infoKarte('\uD83D\uDCF0', 'Reputation', 'Öffentliche Wahrnehmung, Berichterstattung und Auff\u00e4lligkeiten im Marktumfeld.')
     + infoKarte('\uD83C\uDF10', 'Online-Pr\u00e4senz', 'Erreichbarkeit, Konsistenz der Kontaktdaten und Spuren einer echten Gesch\u00e4ftst\u00e4tigkeit.')
     + '</div>'
+    + '<p class="info-p"><b>Gewichtung im Gesamtwert:</b> Grunddaten 30\u2009% \u00b7 Personen 30\u2009% \u00b7 Kontakt &amp; Online-Pr\u00e4senz 20\u2009% \u00b7 Finanzen 15\u2009% \u00b7 Reputation 5\u2009%. Unter dem Score steht jeweils die kurze Rechnung, wie der Wert zustande kam.</p>'
     + '<p class="info-hint">Bereiche ohne belastbare Datenlage flie\u00dfen <b>nicht</b> in den Gesamtwert ein. So dr\u00fcckt eine fehlende Information den Score nicht k\u00fcnstlich \u2013 sie wird stattdessen als L\u00fccke ausgewiesen.</p></div>'
 
     + '<div class="info-sec"><h3 class="info-h2">2. Vier eigenst\u00e4ndige Warnsignale</h3>'
@@ -9023,6 +9115,25 @@ function infoBewertungHtml() {
     + '<p class="info-p">Bei Unternehmen unter laufender \u00dcberwachung wird die neue Bewertung mit der vorherigen verglichen. Ausgewiesen werden neue Sanktionstreffer, neu aufgetretene Insolvenzhinweise, Wechsel bei Gesch\u00e4ftsf\u00fchrung oder wirtschaftlich Berechtigten sowie deutliche Ver\u00e4nderungen des Scores. Ein Absinken um mehr als 15 Punkte oder ein Wert unter 45 gilt als kritische Ver\u00e4nderung.</p>'
     + '</div>'
 
+    + '<div class="info-sec"><h3 class="info-h2">8. Eigene Erg\u00e4nzungen und Dokumente</h3>'
+    + '<p class="info-p">Findet die Recherche eine Angabe nicht, k\u00f6nnen Sie sie im Bereich <b>Analyse</b> \u00fcber \u201eAngaben erg\u00e4nzen\u201c selbst eintragen oder im Bereich <b>Dokumente</b> einen Nachweis wie einen Handelsregisterauszug hinterlegen. Mit \u201eNeu bewerten\u201c wird die Akte dann gezielt nachrecherchiert:</p>'
+    + '<ul class="info-liste">'
+    + '<li><b>Dokumente werden ausgelesen.</b> Die KI liest hinterlegte PDFs und Bilder und \u00fcbernimmt belegte Angaben \u2013 bis zu drei Dokumente je Durchgang, neue zuerst. Ein Dokument gilt als st\u00e4rkste Quelle; widerspricht ihm eine Internetquelle, wird der Widerspruch ausgewiesen.</li>'
+    + '<li><b>Eine erg\u00e4nzte USt-IdNr. wird amtlich gepr\u00fcft.</b> Sie wird sofort \u00fcber das EU-System VIES best\u00e4tigt.</li>'
+    + '<li><b>Erg\u00e4nzen senkt den Score nicht.</b> Eine Kategorie f\u00e4llt nur unter ihren bisherigen Wert, wenn in diesem Durchgang ein konkret neuer Negativbefund auftaucht \u2013 etwa ein Sanktionstreffer, eine Insolvenz oder ein Widerspruch zu einem Dokument. Dieser Befund wird dann als Risiko-Hinweis benannt.</li>'
+    + '<li><b>Nicht ausgewertet</b> werden eigene Aufnahmen, Ausweis und Best\u00e4tigungsfoto. Sie dienen als Nachweis in der Akte.</li>'
+    + '</ul>'
+    + '<div class="info-warn">Selbst eingetragene Angaben sind im Bericht als \u201eManuell erg\u00e4nzt\u201c gekennzeichnet. F\u00fcr ihre Richtigkeit ist der Nutzer verantwortlich; eine amtliche Verifizierung durch die Automati Labs GmbH findet insoweit nicht statt.</div>'
+    + '</div>'
+
+    + '<div class="info-sec"><h3 class="info-h2">9. Umsatzsteuer-Identifikationsnummer</h3>'
+    + '<p class="info-p">Eine angegebene USt-IdNr. wird \u00fcber das amtliche EU-System <b>VIES</b> gepr\u00fcft \u2013 mit mehreren Versuchen, da einzelne Mitgliedstaaten zeitweise nicht antworten. Unterschieden wird zwischen <b>g\u00fcltig</b>, <b>ung\u00fcltig</b> und <b>vor\u00fcbergehend nicht abrufbar</b>. Ist das System nur nicht erreichbar, ist das kein Mangel des Unternehmens und f\u00fchrt zu keinem Abzug.</p>'
+    + '</div>'
+
+    + '<div class="info-sec"><h3 class="info-h2">10. Die Akte</h3>'
+    + '<p class="info-p">Die Bewertung ist ein Teil der Akte. Daneben stehen die Bereiche Dokumente, Sanktionslisten und \u2013 im Fahrzeughandel \u2013 die Endverbleibserkl\u00e4rung. Mit dem <b>Abschluss</b> best\u00e4tigen Sie, dass die Sorgfaltspr\u00fcfung vollst\u00e4ndig durchgef\u00fchrt wurde. Der Abschluss ver\u00e4ndert den Score nicht.</p>'
+    + '</div>'
+
     + '<div class="info-warnbox"><b>Wichtig zur Einordnung</b><br/>Der Score ist eine Entscheidungshilfe, keine Entscheidung. Er ersetzt weder Ihr eigenes Risikomanagement noch die gesetzlich vorgeschriebene Identifizierung von Vertragspartnern, und er trifft keine Aussage \u00fcber die Rechtm\u00e4\u00dfigkeit einer Gesch\u00e4ftsbeziehung. Die abschlie\u00dfende Bewertung und jede Meldepflicht verbleiben bei Ihnen als verpflichtetem Unternehmen.</div>';
 }
 
@@ -9031,14 +9142,16 @@ function infoQuellenHtml() {
     + '<h2 class="info-h1">Woher die Informationen stammen</h2>'
     + '<p class="info-lead">Jede Analyse st\u00fctzt sich ausschlie\u00dflich auf \u00f6ffentlich zug\u00e4ngliche Informationen. Es werden keine internen Datenbanken Dritter angezapft, keine Ausk\u00fcnfte erschlichen und keine personenbezogenen Daten aus nicht-\u00f6ffentlichen Quellen verarbeitet. Jede Angabe im Bericht ist mit ihrer Herkunft gekennzeichnet.</p>'
 
-    + '<div class="info-sec"><h3 class="info-h2">Die f\u00fcnf Quellenkategorien</h3>'
+    + '<div class="info-sec"><h3 class="info-h2">Die Quellen im \u00dcberblick</h3>'
     + '<div class="info-grid">'
     + infoKarte('\uD83C\uDFDB\uFE0F', 'Amtliche Unternehmensregister', 'Öffentliche Registerdaten zu Existenz, Rechtsform, Vertretungsberechtigten und Sitz \u2013 die formale Grundlage jeder Pr\u00fcfung.')
     + infoKarte('\u2696\uFE0F', 'Steuerliche Identifikationsdaten', 'Amtliche Best\u00e4tigungsverfahren zur Pr\u00fcfung, ob eine angegebene Steuer-Identifikation tats\u00e4chlich existiert und dem Unternehmen zugeordnet ist.')
     + infoKarte('\uD83D\uDEE1\uFE0F', 'Sanktions- und Embargolisten', 'Direkter Abgleich gegen die konsolidierte Sanktionsliste der Europ\u00e4ischen Union. Die Liste wird t\u00e4glich aktualisiert in unsere Datenbank gespiegelt \u2013 gepr\u00fcft wird also gegen die amtliche Liste selbst, nicht \u00fcber eine Internetsuche. Erg\u00e4nzend flie\u00dfen \u00f6ffentlich dokumentierte Informationen zu politisch exponierten Personen ein.')
     + infoKarte('\uD83D\uDCF0', 'Presse und \u00f6ffentliche Berichterstattung', 'Redaktionelle Ver\u00f6ffentlichungen und \u00f6ffentlich verf\u00fcgbare Bekanntmachungen mit Bezug zum Unternehmen oder zu handelnden Personen.')
     + infoKarte('\uD83C\uDF10', 'Öffentliche Online-Pr\u00e4senz', 'Unternehmenseigene Auftritte, \u00f6ffentlich einsehbare Profile in sozialen Netzwerken, Standort- und Kontaktangaben sowie \u00f6ffentliche Bewertungen.')
-    + '</div></div>'
+    + infoKarte('\uD83D\uDCCE', 'Vom Nutzer hinterlegte Unterlagen', 'Dokumente wie ein Handelsregisterauszug, die Sie in der Akte hinterlegen. Sie werden bei der Neubewertung ausgelesen und im Bericht mit dem Dateinamen als Quelle gekennzeichnet.')
+    + '</div>'
+    + '<p class="info-hint">Amtliche Register werden f\u00fcr 56 L\u00e4nder im Detail und in der jeweiligen Landessprache durchsucht (z.\u2009B. Handelsregister, KRS, EGRUL, Companies House); weltweit ist die Pr\u00fcfung einsetzbar.</p></div>'
 
     + '<div class="info-sec"><h3 class="info-h2">Der Sanktionslisten-Abgleich im Detail</h3>'
     + '<p class="info-p">Namen werden unmittelbar gegen die <b>konsolidierte Sanktionsliste der Europ\u00e4ischen Union</b> abgeglichen. Diese Liste stellt die Europ\u00e4ische Kommission \u00f6ffentlich bereit; sie ist dieselbe Grundlage, die auch Kreditinstitute und Beh\u00f6rden verwenden.</p>'
@@ -9056,9 +9169,16 @@ function infoQuellenHtml() {
     + '</div>'
 
     + '<div class="info-sec"><h3 class="info-h2">Hochgeladene Ausweisdokumente</h3>'
-    + '<p class="info-p">\u00dcber einen Einladungslink k\u00f6nnen Gesch\u00e4ftspartner Ausweisdokumente und ein Best\u00e4tigungsfoto selbst hochladen \u2013 auf Servern innerhalb der EU, verschl\u00fcsselt \u00fcbertragen. Je Dokumentart sind mehrere Dateien m\u00f6glich, etwa Vorder- und R\u00fcckseite eines Personalausweises. Alle Dateien werden der Akte zugeordnet und beim Ausdruck als nummerierte Anlagen angeh\u00e4ngt.</p>'
+    + '<p class="info-p">\u00dcber einen sicheren Upload-Link k\u00f6nnen Gesch\u00e4ftspartner Ausweisdokumente und ein Best\u00e4tigungsfoto selbst hochladen \u2013 auf Servern innerhalb der EU, verschl\u00fcsselt \u00fcbertragen. Je Dokumentart sind mehrere Dateien m\u00f6glich, etwa Vorder- und R\u00fcckseite eines Personalausweises. Alle Dateien werden der Akte zugeordnet und beim Ausdruck als nummerierte Anlagen angeh\u00e4ngt.</p>'
     + '<div class="info-warn">Wir \u00fcbernehmen keinerlei Haftung f\u00fcr die Authentizit\u00e4t, die Richtigkeit und/oder Vollst\u00e4ndigkeit der hochgeladenen und/oder erstellten Aufnahmen. Es obliegt einzig und allein in der Verantwortung des Nutzers zu ermitteln, ob die verifizierte Person identisch mit den \u00fcbermittelten Ausweisdokumenten ist. Jedwede Art von Verantwortlichkeit wird unsererseits ausdr\u00fccklich ausgeschlossen.</div>'
     + '</div>'
+
+    + '<div class="info-sec"><h3 class="info-h2">Was die KI auswertet \u2013 und was nicht</h3>'
+    + '<div class="info-liste">'
+    + infoWarn('Ausgewertet', 'Die \u00f6ffentliche Recherche (Register, VIES, Presse, Online-Pr\u00e4senz), vom Nutzer erg\u00e4nzte Angaben sowie hinterlegte Dokumente \u2013 letztere bei der Neubewertung.', 'gruen')
+    + infoWarn('Nur als Nachweis abgelegt', 'Eigene Aufnahmen, Ausweis, Best\u00e4tigungsfoto und die unterschriebene Endverbleibserkl\u00e4rung. Sie werden nicht analysiert und h\u00e4ngen beim Drucken als Anlagen an.', 'gelb')
+    + infoWarn('Endverbleibserkl\u00e4rung (Fahrzeughandel)', 'Die Vorlage stellt der Nutzer bereit; das Tool f\u00fcllt nur K\u00e4ufer, Verk\u00e4ufer, Ort und Datum ein und pr\u00fcft den Inhalt nicht. Verbindlich ist allein die unterschriebene Fassung.', 'gelb')
+    + '</div></div>'
 
     + '<div class="info-sec"><h3 class="info-h2">Wie mit den Daten umgegangen wird</h3>'
     + '<div class="info-liste">'
@@ -9484,7 +9604,7 @@ function showLanding() {
   initLpReveal();
   lpPreiseAufbauen();
   lpCountUp();
-  applyLang();
+  applyLang(true);        // nur Texte setzen - keine Ueberblendung, die mit der Eingangsanimation kollidiert
 }
 // Setzt das Flaschen-Wasserzeichen in den Seitenhintergrund
 function hintergrundFlaschen() {
@@ -10497,7 +10617,7 @@ function zeigeDuplikatHinweis(alt) {
     + '</div>'
     + '<div class="up-warn-btns">'
     + '<button class="kyc-btn" onclick="dupNeuePruefung()">Trotzdem neu pr\u00fcfen</button>'
-    + '<button class="up-senden dup-ok" onclick="dupOeffnen()">Vorhandene Analyse \u00f6ffnen</button>'
+    + '<button class="up-senden dup-ok" onclick="dupOeffnen()">Vorhandene Akte \u00f6ffnen</button>'
     + '</div></div>';
   document.body.appendChild(box);
   DUP_TREFFER = alt;
@@ -11643,7 +11763,8 @@ setTimeout(function(){ try { akteVorschauZeichnen(); } catch(e) {} }, 0);
 // Bei kuenftigen Updates: NEU_VERSION hochzaehlen und NEUIGKEITEN ersetzen.
 // Kleine Korrekturen ohne neue Funktionen: NEU_VERSION unveraendert lassen.
 // ============================================================
-const NEU_VERSION = 'v11.93';
+const NEU_VERSION = 'v11.93';           // Stand der Neuigkeiten - nur erhoehen, wenn es wirklich Neues gibt
+const APP_VERSION = 'v11.94';           // aktuelle Version (Anzeige im Bericht und oben im Kopf)
 const NEUIGKEITEN = [
   { farbe: '#3F5A4B', ico: '<path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/>',
     t: 'Akten statt Analysen',
@@ -11676,7 +11797,30 @@ function neuigkeitenPruefen(versuch) {
   const blockiert = sichtbar('onboardingGate') || sichtbar('planGate') || sichtbar('bootGate')
     || document.getElementById('brancheGate') || document.querySelector('.up-warn-back.an') || document.getElementById('neuGate');
   if (blockiert) { if (versuch < 40) setTimeout(function(){ neuigkeitenPruefen(versuch + 1); }, 1500); return; }
-  neuigkeitenZeigen();
+  updateHinweisZeigen();
+}
+
+// Dezente Benachrichtigung unten rechts - der ausfuehrliche Bericht oeffnet sich per Klick
+function updateHinweisZeigen() {
+  try { localStorage.setItem('cc_neu_gesehen', NEU_VERSION); } catch(e) {}
+  const t = document.createElement('div');
+  t.className = 'tr-toast tr-toast-klick upd-toast';
+  t.innerHTML = '<button class="tr-toast-x" title="Schlie\u00dfen">\u2715</button>'
+    + '<div class="tr-toast-t"><span class="upd-punkt"></span>Neues Update \u00b7 ' + APP_VERSION + '</div>'
+    + '<div class="tr-toast-d">Der Compliance-Checker wurde aktualisiert \u2013 unter anderem mit Akten, Endverbleibserkl\u00e4rung und Drucken je Bereich.</div>'
+    + '<div class="tr-toast-cta">Was ist neu? \u2192</div>';
+  function weg() {
+    if (t.dataset.weg) return;
+    t.dataset.weg = '1'; t.classList.remove('an'); t.classList.add('weg');
+    setTimeout(function(){ if (t.parentNode) t.remove(); }, 340);
+  }
+  t.querySelector('.tr-toast-x').onclick = function(ev){ ev.stopPropagation(); weg(); };
+  t.onclick = function(){ weg(); neuigkeitenZeigen(); };
+  let stapel = document.getElementById('toastStapel');
+  if (!stapel) { stapel = document.createElement('div'); stapel.id = 'toastStapel'; document.body.appendChild(stapel); }
+  stapel.appendChild(t);
+  requestAnimationFrame(function(){ t.classList.add('an'); });
+  setTimeout(weg, 16000);
 }
 
 function neuigkeitenZeigen() {
@@ -11688,7 +11832,7 @@ function neuigkeitenZeigen() {
   box.onclick = function(ev){ if (ev.target === box) neuigkeitenSchliessen(); };
   box.innerHTML = '<div class="up-warn-card neu-card" role="dialog" aria-label="Neuigkeiten">'
     + '<button class="neu-zu" onclick="neuigkeitenSchliessen()" title="Schlie\u00dfen"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>'
-    + '<div class="neu-badge">Neu \u00b7 ' + NEU_VERSION + '</div>'
+    + '<div class="neu-badge">Neu \u00b7 ' + APP_VERSION + '</div>'
     + '<div class="neu-t">Das ist neu im Compliance-Checker</div>'
     + '<div class="neu-liste">'
     + liste.map(function(n, i){
@@ -12052,6 +12196,7 @@ function akteStepperZeichnen() {
   box.classList.toggle('alle-fertig', alle);
 
   try { aktionenZeichnen(); } catch(e) {}
+  try { dokHinweisZeichnen(); } catch(e) {}
   schritte.forEach(function(sch, i){
     const k = document.getElementById('akteKachel_' + sch.key);
     if (!k) return;
@@ -12067,6 +12212,35 @@ function akteStepperZeichnen() {
       if (nr.getAttribute('data-st') !== soll) { nr.setAttribute('data-st', soll); nr.innerHTML = AKTE_STATUS_ICO[st] || String(i + 1); }
     }
   });
+}
+
+// ===== Dateien & KI: was wird ausgewertet? =====
+function dokInfoHTML() {
+  return '<div class="dok-info reveal">'
+    + '<div class="dok-info-t"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>So werden deine Dateien genutzt</div>'
+    + '<div class="dok-info-zeilen">'
+    + '<div class="dok-info-z"><span class="dok-punkt ki"></span><span><b>Dokumente</b> (z.\u2009B. Handelsregisterauszug) liest die KI aus, sobald du \u201eNeu bewerten\u201c klickst. Daraus \u00fcbernommene Angaben stehen mit dem Dateinamen als Quelle im Bericht.</span></div>'
+    + '<div class="dok-info-z"><span class="dok-punkt"></span><span><b>Aufnahmen</b>, <b>Ausweis</b> und <b>Best\u00e4tigungsfoto</b> werden nicht ausgewertet. Sie liegen als Nachweis in der Akte und h\u00e4ngen beim Drucken an.</span></div>'
+    + '</div></div>';
+}
+
+// Zeigt in der Analyse, dass neue Dokumente noch nicht beruecksichtigt sind
+function dokHinweisZeichnen() {
+  const box = document.getElementById('dokHinweis');
+  if (!box) return;
+  const doks = (typeof KYC !== 'undefined' && KYC.doks && KYC.doks.beleg) ? KYC.doks.beleg : [];
+  const gelesen = (CURRENT_REPORT && Array.isArray(CURRENT_REPORT._belegeAusgewertet)) ? CURRENT_REPORT._belegeAusgewertet : [];
+  const neu = doks.filter(function(x){ return gelesen.indexOf(x.storage_path) < 0; }).length;
+  const sig = String(neu);
+  if (box.getAttribute('data-sig') === sig) return;
+  box.setAttribute('data-sig', sig);
+  box.innerHTML = neu
+    ? '<div class="dok-hinweis-in">'
+      + '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>'
+      + '<span><b>' + neu + ' neue' + (neu === 1 ? 's Dokument ist' : ' Dokumente sind') + ' noch nicht in dieser Analyse ber\u00fccksichtigt.</b> Bei der Neubewertung liest die KI ' + (neu === 1 ? 'es' : 'sie') + ' aus und \u00fcbernimmt belegte Angaben.</span>'
+      + '<button class="nw-btn nw-btn-p" onclick="nwNeuBewerten()">' + bearbIcoSvg() + 'Jetzt neu bewerten</button>'
+      + '</div>'
+    : '';
 }
 
 // ===== Aktionsleiste unter der Akte: Drucken passt sich dem offenen Bereich an =====
@@ -12385,10 +12559,10 @@ const NW_MAX_MB = 10;
 const NW_TYPEN = {
   aufnahmen: { typ: 'standort', accept: 'image/jpeg,image/png,image/webp', bilderNur: true,
                titel: 'Aufnahmen', leer: 'Noch keine eigenen Aufnahmen',
-               hinweis: 'Firmenschild, Geb\u00e4ude, Gesch\u00e4ftsr\u00e4ume \u2013 alles, was den Standort belegt.' },
+               hinweis: 'Firmenschild, Geb\u00e4ude, Gesch\u00e4ftsr\u00e4ume. Aufnahmen werden nicht von der KI ausgewertet \u2013 sie dienen als Nachweis und h\u00e4ngen beim Drucken an.' },
   dokumente: { typ: 'beleg', accept: 'application/pdf,image/jpeg,image/png,image/webp', bilderNur: false,
                titel: 'Dokumente', leer: 'Noch keine Dokumente hinterlegt',
-               hinweis: 'Handelsregisterauszug, Gewerbeanmeldung, Gesellschafterliste \u2013 werden bei \u201eNeu bewerten\u201c ausgelesen.' }
+               hinweis: 'Handelsregisterauszug, Gewerbeanmeldung, Gesellschafterliste. Die KI liest sie aus, sobald du \u201eNeu bewerten\u201c klickst \u2013 bis zu drei je Durchgang, neue zuerst.' }
 };
 
 function nachweisCardHTML() {
@@ -13363,6 +13537,7 @@ function showReport(d, rawName, fromHistory, nichtSpeichern) {
     ${akteStepperHTML()}
     <div class="akte-panel" data-panel="akte" id="panelAkte">${akteStammHTML(d)}<div id="monBereich" class="mon-bereich"></div></div>
     <div class="akte-panel" data-panel="analyse" id="panelAnalyse">
+    <div id="dokHinweis" class="dok-hinweis"></div>
     <div class="score-card reveal">
       <div class="gauge-wrap">${gauge(d.gesamtScore)}<div class="gauge-num"><span class="gauge-num-val" style="color:${d.gesamtScore?scC(d.gesamtScore):'var(--gray-l)'}">${d.gesamtScore||'N/A'}</span><span class="gauge-num-label">${d.gesamtScore?'/ 100':''}</span></div></div>
       <div class="score-right">
@@ -13419,6 +13594,7 @@ function showReport(d, rawName, fromHistory, nichtSpeichern) {
       <div id="sankBereich" class="sank-bereich"><div class="sank-laedt">Sanktionslisten werden abgeglichen&hellip;</div></div>
     </div>
     <div class="akte-panel" data-panel="dokumente" id="panelDokumente">
+      ${dokInfoHTML()}
       <div id="kycMount" style="display:none;"></div>
       ${nachweisCardHTML()}
     </div>
