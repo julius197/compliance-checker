@@ -3165,10 +3165,10 @@
       .akte-vorschau, .akte-aktionen, #neuGate { display:none !important; }
     }
 
-    /* ===== Aktenmappe: ruhiges Anheben statt Kippen, Blatt ohne Ueberlappung ===== */
-    .history-list .akte-mappe:hover { transform:translateY(-3px); }
+    /* ===== Aktenmappe: 3D-Oeffnen wie zuvor, Blatt in Ruhe ohne Ueberlappung ===== */
+    .history-list .akte-mappe:hover { transform:perspective(900px) rotateX(5deg) translateY(-3px); }
     .akte-mappe::after { top:-8px; height:8px; right:44px; width:34%; }
-    .akte-mappe:hover::after { top:-15px; height:15px; transform:rotate(-1.2deg); }
+    .akte-mappe:hover::after { top:-14px; height:14px; transform:rotate(-1.5deg); }
     @media (max-width:640px) { .akte-mappe::after { right:30px; width:26%; } }
     @media (hover: none) {
       .history-list .akte-mappe:hover { transform:none; }
@@ -5678,7 +5678,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span class="app-version" onclick="neuigkeitenZeigen()" title="Was ist neu?" style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.94</span>
+      <span class="app-version" onclick="neuigkeitenZeigen()" title="Was ist neu?" style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.95</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -11764,7 +11764,7 @@ setTimeout(function(){ try { akteVorschauZeichnen(); } catch(e) {} }, 0);
 // Kleine Korrekturen ohne neue Funktionen: NEU_VERSION unveraendert lassen.
 // ============================================================
 const NEU_VERSION = 'v11.93';           // Stand der Neuigkeiten - nur erhoehen, wenn es wirklich Neues gibt
-const APP_VERSION = 'v11.94';           // aktuelle Version (Anzeige im Bericht und oben im Kopf)
+const APP_VERSION = 'v11.95';           // aktuelle Version (Anzeige im Bericht und oben im Kopf)
 const NEUIGKEITEN = [
   { farbe: '#3F5A4B', ico: '<path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/>',
     t: 'Akten statt Analysen',
