@@ -3408,6 +3408,37 @@
     /* Neuigkeiten */
     .neu-punkt.frisch { border-color:rgba(30,93,154,.3) !important; background:#F6F9FD !important; }
     .neu-tag { background:#1E5D9A !important; }
+
+    /* ===== Endverbleib: Sprachwahl ===== */
+    .ev-form { grid-template-columns:1fr 1fr 1fr; }
+    .ev-feld-sp { order:3; }
+    .ev-sprachen { display:flex; gap:3px; padding:3px; border-radius:11px; background:var(--neutral,#F6F8F9);
+      border:1.5px solid var(--border,#E2E6E9); }
+    .ev-sp { flex:1; padding:8px 10px; border:none; border-radius:8px; background:transparent; cursor:pointer;
+      font-family:inherit; font-size:12.5px; font-weight:700; color:var(--gray,#5A6670); transition:all .16s; }
+    .ev-sp:hover { color:var(--ink,#111827); }
+    .ev-sp.an { background:#fff; color:#2B79C2; box-shadow:0 1px 3px rgba(10,22,17,.1); }
+    @media (max-width:900px) { .ev-form { grid-template-columns:1fr 1fr; } .ev-feld-sp { grid-column:1 / -1; } }
+    @media (max-width:640px) { .ev-form { grid-template-columns:1fr; } }
+
+    /* ============================================================
+       QA v12.1
+       ============================================================ */
+    /* "Bewegung reduzieren": alles, was per Animation einblendet, muss sichtbar bleiben */
+    @media (prefers-reduced-motion: reduce) {
+      .akte-schritt, .br-wahl, .fg-kachel, .gr-zeile, .up-an1, .up-an2, .up-grid.up-erst .kyc-box,
+      .nw-kachel, .nw-zeile, .neu-punkt, .akte-lock-in, .st-zeile {
+        opacity:1 !important; transform:none !important; animation:none !important; }
+      .asa-ring { display:none !important; }
+    }
+    /* Einheitliche Abstaende in den Bereichen der Akte (ueberall 14 px) */
+    .akte-panel .score-card { margin-bottom:14px; }
+    .akte-panel .rec-card { margin-bottom:14px; }
+    .akte-panel .ab-card, .akte-panel .ab-card:hover { margin-top:0; }
+    /* Druck: Hinweise und Bedienung gehoeren nicht ins PDF */
+    @media print {
+      .dok-info, .dok-hinweis, .akte-lock, .ab-siegel-anim { display:none !important; }
+    }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -5846,7 +5877,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span class="app-version" onclick="neuigkeitenZeigen()" title="Was ist neu?" style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v11.99</span>
+      <span class="app-version" onclick="neuigkeitenZeigen()" title="Was ist neu?" style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v12.1</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -7846,6 +7877,19 @@ let AUDIT_ROWS = [];
 
 // kleine Helfer
 function escapeHtml(s){ return String(s==null?'':s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+// Nur http(s)-Links zulassen (kein javascript:, data: ...). "firma.de" wird zu https://firma.de.
+// Rueckgabe ist bereits fuer HTML-Attribute maskiert; leer = kein Link.
+function sichereUrl(u) {
+  const t = String(u == null ? '' : u).trim();
+  if (!t || /\s/.test(t)) return '';
+  if (/^https?:\/\/[^\s]+$/i.test(t)) return escapeHtml(t);
+  if (/^[a-z0-9][a-z0-9.-]*\.[a-z]{2,}(\/[^\s]*)?$/i.test(t)) return escapeHtml('https://' + t);
+  return '';
+}
+// Farbe aus der Datenbank: nur echte Hex-Werte zulassen (sonst Standardfarbe)
+function sichereFarbe(f, standard) {
+  return /^#[0-9a-f]{3}([0-9a-f]{3})?([0-9a-f]{2})?$/i.test(String(f || '').trim()) ? String(f).trim() : (standard || '#22C55E');
+}
 function hexToRgba(hex, a){ hex=(hex||'#22C55E').replace('#',''); if(hex.length===3) hex=hex.split('').map(function(c){return c+c;}).join(''); var n=parseInt(hex,16); return 'rgba('+((n>>16)&255)+','+((n>>8)&255)+','+(n&255)+','+a+')'; }
 
 function showBoot() { appAus(); const b = document.getElementById('bootGate'); if (b) b.classList.remove('hidden'); }
@@ -9062,7 +9106,7 @@ async function ladeOrdner() {
       .select('id, name, farbe, sichtbarkeit, ersteller_id')
       .order('name', { ascending: true });
     if (error) throw error;
-    ORDNER_LIST = data || [];
+    ORDNER_LIST = (data || []).map(function(o){ o.farbe = sichereFarbe(o.farbe); return o; });
   } catch (e) {
     ORDNER_LIST = [];
     console.warn('Ordner konnten nicht geladen werden:', e && e.message);
@@ -11767,7 +11811,7 @@ function secCard(title, data, weight) {
     // Status bestimmen: ok=grün, warn=orange, bad=rot, neutral/sonst=grau-grün
     let status = na ? 'na' : (f.status || 'neutral');
     const cls = na ? 'na' : (status==='neutral' ? 'neutral' : status);
-    const val = na ? 'N/A' : f.value;
+    const val = na ? 'N/A' : escapeHtml(f.value);
     // Farbiger Status-Punkt links für sofortige visuelle Erkennung
     const dotColor = na ? 'var(--gray-l)' : (status==='ok' ? 'var(--ok)' : status==='warn' ? 'var(--warn)' : status==='bad' ? 'var(--bad)' : 'var(--gray-l)');
     const dot = `<span class="kv-dot" style="background:${dotColor}"></span>`;
@@ -11777,17 +11821,17 @@ function secCard(title, data, weight) {
       if (Array.isArray(f.sources) && f.sources.length > 0) {
         const parts = f.sources
           .filter(s => s && s.name && !isNA(s.name))
-          .map(s => (s.url && s.url.startsWith('http'))
-            ? `<a class="kv-src-link" href="${s.url}" target="_blank" rel="noopener" title="Quelle öffnen: ${s.name}">${s.name} ↗</a>`
-            : `<span class="kv-src-plain">${s.name}</span>`);
+          .map(s => sichereUrl(s.url)
+            ? `<a class="kv-src-link" href="${sichereUrl(s.url)}" target="_blank" rel="noopener" title="Quelle öffnen: ${escapeHtml(s.name)}">${escapeHtml(s.name)} ↗</a>`
+            : `<span class="kv-src-plain">${escapeHtml(s.name)}</span>`);
         if (parts.length) src = `<span class="kv-src">${parts.join('<span class="kv-src-sep"> · </span>')}</span>`;
       }
       // Fallback: altes source-Feld (kommagetrennt) – jede einzeln als Text, ganzes Feld als Link wenn sourceUrl da
       else if (f.source && !isNA(f.source)) {
-        if (f.sourceUrl && f.sourceUrl.startsWith('http')) {
-          src = `<a class="kv-src kv-src-link" href="${f.sourceUrl}" target="_blank" rel="noopener" title="Quelle öffnen: ${f.source}">${f.source} ↗</a>`;
+        if (sichereUrl(f.sourceUrl)) {
+          src = `<a class="kv-src kv-src-link" href="${sichereUrl(f.sourceUrl)}" target="_blank" rel="noopener" title="Quelle öffnen: ${escapeHtml(f.source)}">${escapeHtml(f.source)} ↗</a>`;
         } else {
-          src = `<span class="kv-src">${f.source}</span>`;
+          src = `<span class="kv-src">${escapeHtml(f.source)}</span>`;
         }
       }
     }
@@ -11796,7 +11840,7 @@ function secCard(title, data, weight) {
     // Stift immer erzeugen - sichtbar wird er nur im Bearbeitungsmodus (per CSS)
     const stift = `<button class="kv-stift" onclick="feldBearbeiten('${feldId}', event)" title="Wert ergänzen oder korrigieren" tabindex="-1"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></button>`;
     return `<div class="kv" id="${feldId}" data-kat="${escapeHtml(title)}" data-feld="${escapeHtml(f.key || '')}">
-      <span class="kv-k">${dot}${f.key}</span>
+      <span class="kv-k">${dot}${escapeHtml(f.key)}</span>
       <span class="kv-v ${cls}">${val}${src}</span>
       ${stift}
     </div>`;
@@ -11816,10 +11860,10 @@ function phantomHTML(d) {
   const indizien = (d.phantom.indizien || []).map(ind => {
     const sw = ind.schwere || 'mittel';
     const swCls = sw==='hoch'?'schwere-hoch':sw==='niedrig'?'schwere-niedrig':'schwere-mittel';
-    const src = (ind.source && !isNA(ind.source)) ? `<span class="phantom-indiz-src">${ind.source}</span>` : '';
+    const src = (ind.source && !isNA(ind.source)) ? `<span class="phantom-indiz-src">${escapeHtml(ind.source)}</span>` : '';
     return `<div class="phantom-indiz">
       <span class="phantom-schwere ${swCls}">${sw}</span>
-      <span class="phantom-indiz-text">${ind.text}${src}</span>
+      <span class="phantom-indiz-text">${escapeHtml(ind.text)}${src}</span>
     </div>`;
   }).join('');
   return `<div class="phantom-card reveal">
@@ -11832,7 +11876,7 @@ function phantomHTML(d) {
         <div class="phantom-title">Phantom-/Strohmann-Verdacht erkannt</div>
       </div>
     </div>
-    <div class="phantom-summary">${d.phantom.zusammenfassung || 'Es bestehen Anzeichen für eine Strohmann-Konstruktion. Die offiziell eingetragene Person ist möglicherweise nicht der tatsächliche wirtschaftlich Berechtigte.'}</div>
+    <div class="phantom-summary">${d.phantom.zusammenfassung ? escapeHtml(d.phantom.zusammenfassung) : 'Es bestehen Anzeichen für eine Strohmann-Konstruktion. Die offiziell eingetragene Person ist möglicherweise nicht der tatsächliche wirtschaftlich Berechtigte.'}</div>
     ${indizien}
   </div>`;
 }
@@ -11840,11 +11884,11 @@ function phantomHTML(d) {
 function insolvenzHTML(d) {
   if (!d.insolvenz || d.insolvenz.verdacht !== true) return '';
   const details = (d.insolvenz.details || []).map(det => {
-    const src = (det.source && !isNA(det.source)) ? `<span class="phantom-indiz-src">${det.source}</span>` : '';
+    const src = (det.source && !isNA(det.source)) ? `<span class="phantom-indiz-src">${escapeHtml(det.source)}</span>` : '';
     const txt = typeof det === 'string' ? det : (det.text || '');
     return `<div class="phantom-indiz">
       <span class="phantom-schwere schwere-hoch">Insolvenz</span>
-      <span class="phantom-indiz-text">${txt}${src}</span>
+      <span class="phantom-indiz-text">${escapeHtml(txt)}${src}</span>
     </div>`;
   }).join('');
   return `<div class="insolvenz-card reveal">
@@ -11857,7 +11901,7 @@ function insolvenzHTML(d) {
         <div class="insolvenz-title">Insolvenz-/Insolvenzverfahren erkannt</div>
       </div>
     </div>
-    <div class="phantom-summary">${d.insolvenz.zusammenfassung || 'Es bestehen konkrete Anzeichen f\u00fcr eine Insolvenz oder ein laufendes Insolvenzverfahren. Dies ist ein schwerwiegendes Risikosignal und erfordert besondere Sorgfalt.'}</div>
+    <div class="phantom-summary">${d.insolvenz.zusammenfassung ? escapeHtml(d.insolvenz.zusammenfassung) : 'Es bestehen konkrete Anzeichen f\u00fcr eine Insolvenz oder ein laufendes Insolvenzverfahren. Dies ist ein schwerwiegendes Risikosignal und erfordert besondere Sorgfalt.'}</div>
     ${details}
   </div>`;
 }
@@ -11934,10 +11978,15 @@ setTimeout(function(){ try { akteVorschauZeichnen(); } catch(e) {} }, 0);
 // Bei kuenftigen Updates: NEU_VERSION hochzaehlen und NEUIGKEITEN ersetzen.
 // Kleine Korrekturen ohne neue Funktionen: NEU_VERSION unveraendert lassen.
 // ============================================================
-const NEU_VERSION = 'v11.97';           // Stand der Neuigkeiten - nur erhoehen, wenn es wirklich Neues gibt
-const APP_VERSION = 'v11.99';           // aktuelle Version (Anzeige im Bericht und oben im Kopf)
+const NEU_VERSION = 'v12.0';           // Stand der Neuigkeiten - nur erhoehen, wenn es wirklich Neues gibt
+const APP_VERSION = 'v12.1';           // aktuelle Version (Anzeige im Bericht und oben im Kopf)
 const UPDATE_KURZ = 'Abgeschlossene Akten sind jetzt schreibgesch\u00fctzt \u2013 zum \u00c4ndern werden sie wieder ge\u00f6ffnet.';
 const NEUIGKEITEN = [
+  { farbe: '#2B79C2', v: 'v12.0', nurAuto: true,
+    ico: '<circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20 15 15 0 0 1 0-20z"/>',
+    t: 'Endverbleibserkl\u00e4rung auf Englisch',
+    kurz: 'Die Endverbleibserkl\u00e4rung l\u00e4sst sich jetzt auch auf Englisch erstellen.',
+    d: 'In der Karte \u201eEndverbleibserkl\u00e4rung\u201c w\u00e4hlst du zwischen Deutsch und English. Voreingestellt ist Englisch, wenn der K\u00e4ufer seinen Sitz au\u00dferhalb des deutschsprachigen Raums hat.' },
   { farbe: '#1E5D9A', v: 'v11.97', ico: '<rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
     t: 'Abgeschlossene Akten sind schreibgesch\u00fctzt',
     d: 'Nach dem Abschluss l\u00e4sst sich eine Akte nicht mehr ver\u00e4ndern \u2013 keine Erg\u00e4nzungen, keine Uploads. Zum \u00c4ndern \u00f6ffnest du sie im Bereich \u201eAbschluss\u201c wieder. Drucken und \u00dcberwachung bleiben m\u00f6glich.' },
@@ -11966,6 +12015,13 @@ function neuigkeitenPruefen(versuch) {
   let gesehen = '';
   try { gesehen = localStorage.getItem('cc_neu_gesehen') || ''; } catch(e) {}
   if (gesehen === NEU_VERSION) return;
+  if (typeof BRANCHE_GEPRUEFT !== 'undefined' && !BRANCHE_GEPRUEFT) {       // erst die Branche kennen
+    if (versuch < 40) setTimeout(function(){ neuigkeitenPruefen(versuch + 1); }, 800);
+    return;
+  }
+  // Neuerungen dieser Version, die fuer die eigene Branche gelten - sonst still als gesehen merken
+  const frische = NEUIGKEITEN.filter(function(n){ return n.v === NEU_VERSION && (!n.nurAuto || istAutohandel()); });
+  if (!frische.length) { try { localStorage.setItem('cc_neu_gesehen', NEU_VERSION); } catch(e) {} return; }
   // Nicht ueber die Startseite, die Anmeldung oder ein anderes offenes Fenster legen
   const sichtbar = function(id){ const e = document.getElementById(id); return e && e.style.display !== 'none' && !e.classList.contains('hidden') && e.offsetParent !== null; };
   if (sichtbar('landingGate') || sichtbar('authGate')) return;
@@ -11982,7 +12038,7 @@ function updateHinweisZeigen() {
   t.className = 'tr-toast tr-toast-klick upd-toast';
   t.innerHTML = '<button class="tr-toast-x" title="Schlie\u00dfen">\u2715</button>'
     + '<div class="tr-toast-t"><span class="upd-punkt"></span>Neues Update \u00b7 ' + APP_VERSION + '</div>'
-    + '<div class="tr-toast-d">' + UPDATE_KURZ + '</div>'
+    + '<div class="tr-toast-d">' + ((NEUIGKEITEN.filter(function(n){ return n.v === NEU_VERSION && (!n.nurAuto || istAutohandel()); })[0] || {}).kurz || UPDATE_KURZ) + '</div>'
     + '<div class="tr-toast-cta">Was ist neu? \u2192</div>';
   function weg() {
     if (t.dataset.weg) return;
@@ -12590,6 +12646,10 @@ function endverbleibZeichnen() {
         ? '<div class="ev-zeile-grau">F\u00fcr diesen Fall als nicht erforderlich markiert. <a onclick="endverbleibErforderlich()">R\u00fcckg\u00e4ngig</a></div>'
         : '<div class="ev-form">'
           + '<div class="ev-feld"><label>Fahrzeug (Marke, Modell)</label><input type="text" id="evFahrzeug" maxlength="80" placeholder="z.\u2009B. Porsche 911 Carrera" value="' + fahrzeug + '" /></div>'
+          + '<div class="ev-feld ev-feld-sp"><label>Sprache der Erkl\u00e4rung</label><div class="ev-sprachen">'
+          + '<button type="button" class="ev-sp' + (evSprache() === 'de' ? ' an' : '') + '" data-sp="de" onclick="evSpracheWaehlen(\'de\', this)">Deutsch</button>'
+          + '<button type="button" class="ev-sp' + (evSprache() === 'en' ? ' an' : '') + '" data-sp="en" onclick="evSpracheWaehlen(\'en\', this)">English</button>'
+          + '</div></div>'
           + '<div class="ev-feld"><label>FIN (Fahrgestellnummer)</label><input type="text" id="evFin" maxlength="17" placeholder="17 Zeichen" value="' + fin + '" style="text-transform:uppercase;letter-spacing:.05em" /></div>'
           + '</div>'
           + '<div class="ev-btns">'
@@ -12660,44 +12720,89 @@ function endverbleibImRahmenDrucken(html, titel) {
   }, 250);
 }
 
+// Texte der Endverbleibserklaerung - Deutsch nach Vorlage, Englisch als Uebersetzung
+const EV_TEXT = {
+  de: {
+    lang: 'de', titel: 'Endverbleibserkl\u00e4rung', datei: 'Endverbleibserkl\u00e4rung',
+    kunde: 'Der Kunde:', bestaetigt: 'akzeptiert und best\u00e4tigt Folgendes:',
+    p1: function(fz, fin, vk){ return '1. Das hier vertragsgegenst\u00e4ndliche Fahrzeug ' + fz + ' mit der FIN: ' + fin + ' wurde von der ' + vk + ', gem\u00e4\u00df den europ\u00e4ischen, US-amerikanischen und/oder britischen Exportkontroll- und Sanktionsbestimmungen verkauft.'; },
+    p2: '2. Der Kauf ist ausschlie\u00dflich f\u00fcr die Nutzung im Land des endg\u00fcltigen Bestimmungs- und Endverwendungsortes bestimmt.',
+    p3: '3. Das Fahrzeug kann nicht nach Russland oder an einen anderen in Abschnitt 6 aufgef\u00fchrten Orte re-exportiert werden.',
+    p4: '4. Eine den jeweiligen Vorschriften widersprechende Umleitung ist untersagt.',
+    p5: '5. Mit der Annahme der Lieferung des Fahrzeugs verpflichtet sich der Kunde, alle geltenden Export-, Wiederausfuhr-, Transfer- und Umladevorschriften einzuhalten.',
+    p6: function(vk){ return '6. Jede Wiederausfuhr des Fahrzeugs durch den Kunden kann den Exportkontrollvorschriften der EU, der USA und/oder des Vereinigten K\u00f6nigreichs unterliegen. Es liegt in der Verantwortung des Kunden und nicht in der Verantwortung der ' + vk + ', diese Vorschriften vor einer solchen Wiederausfuhr einzuhalten. Unter keinen Umst\u00e4nden darf der Kunde das Fahrzeug oder Teile davon nach Kuba, Iran, Nordkorea, Sudan/S\u00fcdsudan, Syrien, Russland und bestimmte Regionen der Ukraine: die Krimregion, die s.\u2009g. Volksrepublik Luhansk, die s.\u2009g. Volksrepublik Donezk und die nicht von der Regierung kontrollierten Gebiete der Oblasten Saporischschja und Cherson, re-exportieren.'; },
+    unterschrift: 'Unterschrift Kunde', hinweis: 'Vorausgef\u00fcllt \u00fcber den Compliance-Checker \u00b7 Pr\u00fcf-ID ',
+    datum: function(){ return new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' }); }
+  },
+  en: {
+    lang: 'en', titel: 'End-Use Declaration', datei: 'End-Use Declaration',
+    kunde: 'The customer:', bestaetigt: 'accepts and confirms the following:',
+    p1: function(fz, fin, vk){ return '1. The vehicle subject to this contract, ' + fz + ', with the VIN: ' + fin + ', was sold by ' + vk + ' in accordance with European, US and/or British export control and sanctions regulations.'; },
+    p2: '2. The purchase is intended exclusively for use in the country of final destination and end use.',
+    p3: '3. The vehicle may not be re-exported to Russia or to any other location listed in Section 6.',
+    p4: '4. Any diversion contrary to the applicable regulations is prohibited.',
+    p5: '5. By accepting delivery of the vehicle, the customer undertakes to comply with all applicable export, re-export, transfer and transshipment regulations.',
+    p6: function(vk){ return '6. Any re-export of the vehicle by the customer may be subject to the export control regulations of the EU, the USA and/or the United Kingdom. It is the responsibility of the customer, and not the responsibility of ' + vk + ', to comply with these regulations before any such re-export. Under no circumstances may the customer re-export the vehicle or any parts thereof to Cuba, Iran, North Korea, Sudan/South Sudan, Syria, Russia or certain regions of Ukraine: the Crimea region, the so-called Luhansk People\u2019s Republic, the so-called Donetsk People\u2019s Republic and the areas of the Zaporizhzhia and Kherson oblasts not controlled by the government.'; },
+    unterschrift: 'Customer signature', hinweis: 'Pre-filled via the Compliance Checker \u00b7 Check ID ',
+    datum: function(){ return new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }); }
+  }
+};
+
+// Voreinstellung: deutschsprachige Laender -> Deutsch, sonst Englisch
+function evStandardSprache() {
+  const d = CURRENT_REPORT || {};
+  const sch = (d._schritte && d._schritte.endverbleib) || {};
+  if (sch.sprache === 'de' || sch.sprache === 'en') return sch.sprache;
+  const land = String(d._land || '').toLowerCase();
+  return /deutschland|germany|\u00f6sterreich|oesterreich|austria|schweiz|switzerland|liechtenstein/.test(land) || !land ? 'de' : 'en';
+}
+function evSprache() { return (AKTE.evSprache === 'de' || AKTE.evSprache === 'en') ? AKTE.evSprache : evStandardSprache(); }
+
+function evSpracheWaehlen(sp, btn) {
+  AKTE.evSprache = sp;
+  if (btn && btn.parentNode) btn.parentNode.querySelectorAll('.ev-sp').forEach(function(b){ b.classList.toggle('an', b.getAttribute('data-sp') === sp); });
+}
+
 async function endverbleibDrucken() {
   const d = CURRENT_REPORT || {};
   const w = endverbleibWerte();
+  const sp = evSprache();
+  const T = EV_TEXT[sp];
   const kunde = d.firmenname || '';
   const adresse = endverbleibKundenAdresse(d);
   const verkaeufer = (CURRENT_FIRMA && CURRENT_FIRMA.firma_name) ? CURRENT_FIRMA.firma_name : (CURRENT_USER_NAME || '');
   const ort = d._standort || '';
-  const datum = new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  const datum = T.datum();
   const X = function(v, breite){ return v ? escapeHtml(v) : '<span class="leer">' + '&nbsp;'.repeat(breite || 18) + '</span>'; };
 
-  const html = '<!DOCTYPE html><html lang="de"><head><meta charset="utf-8"><title>Endverbleibserkl\u00e4rung \u2013 ' + escapeHtml(kunde) + '</title>'
+  const html = '<!DOCTYPE html><html lang="' + T.lang + '"><head><meta charset="utf-8"><title>' + T.titel + ' \u2013 ' + escapeHtml(kunde) + '</title>'
     + '<style>'
     + '@page{size:A4;margin:22mm 20mm}body{font-family:Calibri,"Segoe UI",Arial,sans-serif;font-size:11.5pt;line-height:1.5;color:#111;margin:0}'
     + 'h1{font-size:15pt;margin:0 0 18pt}p{margin:0 0 11pt}.k{white-space:pre-line}.leer{display:inline-block;border-bottom:1px solid #111;line-height:1}'
     + '.sig{margin-top:60pt}.sig .l{border-top:1px solid #111;width:70mm;padding-top:4pt;font-size:10pt}.ort{margin-top:36pt}'
     + '.hinweis{margin-top:30pt;font-size:8.5pt;color:#666}@media print{.hinweis{display:none}}'
     + '</style></head><body>'
-    + '<h1>Endverbleibserkl\u00e4rung</h1>'
-    + '<p>Der Kunde:</p>'
+    + '<h1>' + T.titel + '</h1>'
+    + '<p>' + T.kunde + '</p>'
     + '<p class="k"><b>' + X(kunde, 30) + '</b>' + (adresse ? '\n' + escapeHtml(adresse) : '\n' + X('', 30) + '\n' + X('', 30)) + '</p>'
-    + '<p>akzeptiert und best\u00e4tigt Folgendes:</p>'
-    + '<p>1. Das hier vertragsgegenst\u00e4ndliche Fahrzeug ' + X(w.fahrzeug, 22) + ' mit der FIN: ' + X(w.fin, 20) + ' wurde von der ' + X(verkaeufer, 24) + ', gem\u00e4\u00df den europ\u00e4ischen, US-amerikanischen und/oder britischen Exportkontroll- und Sanktionsbestimmungen verkauft.</p>'
-    + '<p>2. Der Kauf ist ausschlie\u00dflich f\u00fcr die Nutzung im Land des endg\u00fcltigen Bestimmungs- und Endverwendungsortes bestimmt.</p>'
-    + '<p>3. Das Fahrzeug kann nicht nach Russland oder an einen anderen in Abschnitt 6 aufgef\u00fchrten Orte re-exportiert werden.</p>'
-    + '<p>4. Eine den jeweiligen Vorschriften widersprechende Umleitung ist untersagt.</p>'
-    + '<p>5. Mit der Annahme der Lieferung des Fahrzeugs verpflichtet sich der Kunde, alle geltenden Export-, Wiederausfuhr-, Transfer- und Umladevorschriften einzuhalten.</p>'
-    + '<p>6. Jede Wiederausfuhr des Fahrzeugs durch den Kunden kann den Exportkontrollvorschriften der EU, der USA und/oder des Vereinigten K\u00f6nigreichs unterliegen. Es liegt in der Verantwortung des Kunden und nicht in der Verantwortung der ' + X(verkaeufer, 24) + ', diese Vorschriften vor einer solchen Wiederausfuhr einzuhalten. Unter keinen Umst\u00e4nden darf der Kunde das Fahrzeug oder Teile davon nach Kuba, Iran, Nordkorea, Sudan/S\u00fcdsudan, Syrien, Russland und bestimmte Regionen der Ukraine: die Krimregion, die s.\u2009g. Volksrepublik Luhansk, die s.\u2009g. Volksrepublik Donezk und die nicht von der Regierung kontrollierten Gebiete der Oblasten Saporischschja und Cherson, re-exportieren.</p>'
+    + '<p>' + T.bestaetigt + '</p>'
+    + '<p>' + T.p1(X(w.fahrzeug, 22), X(w.fin, 20), X(verkaeufer, 24)) + '</p>'
+    + '<p>' + T.p2 + '</p>'
+    + '<p>' + T.p3 + '</p>'
+    + '<p>' + T.p4 + '</p>'
+    + '<p>' + T.p5 + '</p>'
+    + '<p>' + T.p6(X(verkaeufer, 24)) + '</p>'
     + '<p class="ort">' + X(ort, 20) + ', ' + datum + '</p>'
-    + '<div class="sig"><div class="l">Unterschrift Kunde</div></div>'
-    + '<div class="hinweis">Vorausgef\u00fcllt \u00fcber den Compliance-Checker \u00b7 Pr\u00fcf-ID ' + escapeHtml(d.pruefId || '') + '</div>'
+    + '<div class="sig"><div class="l">' + T.unterschrift + '</div></div>'
+    + '<div class="hinweis">' + T.hinweis + escapeHtml(d.pruefId || '') + '</div>'
     + '</body></html>';
 
   // Ueber einen unsichtbaren Rahmen drucken - es oeffnet sich nur der Druckdialog, kein neuer Tab
-  endverbleibImRahmenDrucken(html, 'Endverbleibserkl\u00e4rung - ' + (kunde || 'Kunde') + ' - ' + datum);
+  endverbleibImRahmenDrucken(html, T.datei + ' - ' + (kunde || 'Kunde') + ' - ' + datum);
 
   const sch = (CURRENT_REPORT._schritte && CURRENT_REPORT._schritte.endverbleib) || {};
   await akteSchrittSetzen('endverbleib', { status: 'erstellt', erstellt_am: new Date().toISOString(), fahrzeug: w.fahrzeug, fin: w.fin,
-                                            unterschrieben: sch.unterschrieben || false });
+                                            sprache: sp, unterschrieben: sch.unterschrieben || false });
   akteZeichnen();
 }
 
@@ -12986,7 +13091,7 @@ function nwZeichnen() {
     html += '<div class="nw-liste">' + d.doks.map(function(x, n){
       const url = d.urls[n];
       const pdf = (x.mime_type || '').indexOf('pdf') >= 0;
-      const seiten = (KYC.pdfSeiten && KYC.pdfSeiten['beleg:' + n]) ? KYC.pdfSeiten['beleg:' + n].length : 0;
+      const seiten = (KYC.pdfSeiten && KYC.pdfSeiten[x.storage_path]) ? KYC.pdfSeiten[x.storage_path].length : 0;
       const ausgew = nwAusgewertet(x.storage_path);
       return '<div class="nw-zeile" style="--nd:' + (0.03 + n * 0.05) + 's">'
         + '<span class="nw-doc-ico ' + (pdf ? 'pdf' : 'bild') + '">' + (pdf ? 'PDF' : 'IMG') + '</span>'
@@ -13185,19 +13290,23 @@ async function pdfSeitenAlsBilder(url, maxSeiten) {
 
 // Alle hinterlegten PDFs im Hintergrund vorbereiten
 async function kycPdfVorbereiten() {
-  KYC.pdfSeiten = KYC.pdfSeiten || {};
-  const typen = ['ausweis','selfie','standort','beleg'];
+  // PDF-Seiten je Datei (Schluessel = Speicherpfad, nicht Position) und nur fuer die offene Akte
+  const meinKyc = KYC;
+  meinKyc.pdfSeiten = meinKyc.pdfSeiten || {};
+  const typen = ['ausweis','selfie','standort','beleg','endverbleib'];
   for (const typ of typen) {
-    const doks = KYC.doks[typ] || [];
+    const doks = meinKyc.doks[typ] || [];
     for (let n = 0; n < doks.length; n++) {
       const d = doks[n];
       if ((d.mime_type || '').indexOf('pdf') < 0) continue;
-      const schluessel = typ + ':' + n;
-      if (KYC.pdfSeiten[schluessel]) continue;
-      const url = (KYC.urls[typ] || [])[n];
+      const schluessel = d.storage_path;
+      if (!schluessel || meinKyc.pdfSeiten[schluessel]) continue;
+      const url = (meinKyc.urls[typ] || [])[n];
       if (!url) continue;
       try {
-        KYC.pdfSeiten[schluessel] = await pdfSeitenAlsBilder(url, 15);
+        const seiten = await pdfSeitenAlsBilder(url, 15);
+        if (KYC !== meinKyc) return;                     // andere Akte geoeffnet -> verwerfen
+        meinKyc.pdfSeiten[schluessel] = seiten;
         try { nwZeichnen(); } catch(e) {}
       } catch (e) { console.warn('PDF-Seiten:', e && e.message); }
     }
@@ -13299,53 +13408,79 @@ let KYC = { analyseId: null, doks: {}, urls: {}, pruefId: null, firmenname: '', 
 async function initKyc(pruefId, versuch) {
   const mount = document.getElementById('kycMount');
   if (!mount || !sb || !CURRENT_FIRMA || !pruefId) return;
-  KYC = { analyseId: null, doks: {}, urls: {}, pruefId: pruefId, firmenname: '', link: null };
+  // Wiederholung fuer eine inzwischen verlassene Akte? Dann nichts tun.
+  if (versuch && (!CURRENT_REPORT || CURRENT_REPORT.pruefId !== pruefId)) return;
+  KYC = { analyseId: null, doks: {}, urls: {}, pruefId: pruefId, firmenname: '', link: null, pdfSeiten: {} };
+  const meinKyc = KYC;
   try {
     const { data } = await sb.from('analysen').select('id, firmenname').eq('pruef_id', pruefId).limit(1);
+    if (KYC !== meinKyc) return;                       // inzwischen andere Akte geoeffnet
     if (!data || !data.length) {
-      // Frische Analyse: Speichern läuft evtl. noch -> bis zu 3x nachschauen
+      // Frische Analyse: Speichern laeuft evtl. noch -> bis zu 3x nachschauen
       if ((versuch || 0) < 3) setTimeout(function(){ initKyc(pruefId, (versuch || 0) + 1); }, 1500);
       return;
     }
-    KYC.analyseId = data[0].id;
-    KYC.firmenname = data[0].firmenname || '';
+    meinKyc.analyseId = data[0].id;
+    meinKyc.firmenname = data[0].firmenname || '';
     await kycLaden();
   } catch (e) { console.warn('KYC init:', e && e.message); }
 }
 
 async function kycLaden() {
+  // Alles fuer genau DIESE Akte laden - wechselt der Nutzer zwischendurch die Akte,
+  // wird das Ergebnis verworfen statt in die neue Akte geschrieben.
+  const meinKyc = KYC;
+  const id = meinKyc && meinKyc.analyseId;
+  if (!id) return;
+  const nochAktuell = function(){ return KYC === meinKyc && meinKyc.analyseId === id; };
   try {
-    const { data } = await sb.from('kyc_dokumente').select('*').eq('analyse_id', KYC.analyseId);
-    KYC.doks = {}; KYC.urls = {};
+    const { data } = await sb.from('kyc_dokumente').select('*').eq('analyse_id', id);
+    if (!nochAktuell()) return;
+    const doks = {}, urls = {};
     // Mehrere Dateien je Typ (Ausweis hat Vorder- und Rueckseite)
     (data || []).forEach(function(d){
-      if (!KYC.doks[d.typ]) KYC.doks[d.typ] = [];
-      KYC.doks[d.typ].push(d);
+      if (!doks[d.typ]) doks[d.typ] = [];
+      doks[d.typ].push(d);
     });
-    Object.keys(KYC.doks).forEach(function(t){
-      KYC.doks[t].sort(function(a, b){
+    Object.keys(doks).forEach(function(t){
+      doks[t].sort(function(a, b){
         const pa = a.position || 1, pb = b.position || 1;
         if (pa !== pb) return pa - pb;
         return new Date(a.created_at) - new Date(b.created_at);
       });
     });
     const typen = ['ausweis','selfie','standort','beleg','endverbleib'];
-    for (const t of typen) {
-      const liste = KYC.doks[t] || [];
-      KYC.urls[t] = [];
-      for (const d of liste) {
+    // Alle Signatur-Links in EINEM Aufruf statt einzeln nacheinander
+    const pfade = [];
+    typen.forEach(function(t){ (doks[t] || []).forEach(function(d){ if (d.storage_path) pfade.push(d.storage_path); }); });
+    const linkVon = {};
+    if (pfade.length) {
+      try {
+        const r = await sb.storage.from('kyc').createSignedUrls(pfade, 300);
+        ((r && r.data) || []).forEach(function(x, i){
+          const p = (x && x.path) || pfade[i];
+          if (x && x.signedUrl && p) linkVon[p] = x.signedUrl;
+        });
+      } catch(e) {}
+      for (const p of pfade) {                           // Rueckfall: fehlende einzeln holen
+        if (linkVon[p] || !nochAktuell()) continue;
         try {
-          const r = await sb.storage.from('kyc').createSignedUrl(d.storage_path, 300);
-          KYC.urls[t].push((r && r.data && r.data.signedUrl) ? r.data.signedUrl : null);
-        } catch(e) { KYC.urls[t].push(null); }
+          const r1 = await sb.storage.from('kyc').createSignedUrl(p, 300);
+          if (r1 && r1.data && r1.data.signedUrl) linkVon[p] = r1.data.signedUrl;
+        } catch(e) {}
       }
     }
+    if (!nochAktuell()) return;
+    typen.forEach(function(t){ urls[t] = (doks[t] || []).map(function(d){ return linkVon[d.storage_path] || null; }); });
+    let link = null;
     try {
-      const l = await sb.from('kyc_upload_links').select('*').eq('analyse_id', KYC.analyseId)
+      const l = await sb.from('kyc_upload_links').select('*').eq('analyse_id', id)
         .eq('aktiv', true).gt('ablauf', new Date().toISOString())
         .order('created_at', { ascending: false }).limit(1);
-      KYC.link = (l && l.data && l.data[0]) || null;
-    } catch(e) { KYC.link = null; }
+      link = (l && l.data && l.data[0]) || null;
+    } catch(e) { link = null; }
+    if (!nochAktuell()) return;
+    meinKyc.doks = doks; meinKyc.urls = urls; meinKyc.link = link;
     kycRender();
     try { nwZeichnen(); } catch(e) {}
     try { akteZeichnen(); } catch(e) {}
@@ -13422,13 +13557,13 @@ function kycPrintHtml() {
     const vorher = out.length;
     (KYC.doks[typ] || []).forEach(function(d, n){
       const url = (KYC.urls[typ] || [])[n];
-      const bez = d.bezeichnung ? ' (' + d.bezeichnung + ')' : ((KYC.doks[typ].length > 1) ? ' (' + (n + 1) + ' von ' + KYC.doks[typ].length + ')' : '');
+      const bez = d.bezeichnung ? ' (' + escapeHtml(d.bezeichnung) + ')' : ((KYC.doks[typ].length > 1) ? ' (' + (n + 1) + ' von ' + KYC.doks[typ].length + ')' : '');
       const dateiname = escapeHtml(d.datei_name || '');
       const istPdf = (d.mime_type || '').indexOf('pdf') >= 0;
 
       if (istPdf) {
         // PDF-Seiten wurden vorab in Bilder umgewandelt
-        const seiten = (KYC.pdfSeiten || {})['beleg' === typ ? 'beleg:' + n : typ + ':' + n] || [];
+        const seiten = (KYC.pdfSeiten || {})[d.storage_path] || [];
         if (seiten.length) {
           const anlage = ++nr;
           seiten.forEach(function(bild, si){
@@ -13705,6 +13840,7 @@ function showReport(d, rawName, fromHistory, nichtSpeichern) {
   if (!d._name) d._name = CURRENT_USER_NAME || '';
   CURRENT_REPORT = d;
   AKTE.sankFertig = false; AKTE.sankFehler = false;   // Stand gilt je Bericht
+  AKTE.evSprache = null;                              // Sprache der Endverbleibserklaerung je Akte
   // Sanktionslisten-Abgleich anstossen (laeuft im Hintergrund weiter)
   try { sanktionenAbgleichen(d); } catch(e) {}
   // Ueberwachungs-Kasten im Bericht
@@ -13743,22 +13879,23 @@ function showReport(d, rawName, fromHistory, nichtSpeichern) {
   d.datum = d.datum || new Date().toLocaleDateString('de-DE');
 
   const metaParts = [d.datum];
-  if (d._land) metaParts.push('Land: '+d._land);
-  if (d.ustId && d.ustId!=='null') metaParts.push('USt-ID: '+d.ustId);
+  if (d._land) metaParts.push('Land: '+escapeHtml(d._land));
+  if (d.ustId && d.ustId!=='null') metaParts.push('USt-ID: '+escapeHtml(d.ustId));
   if (d._standort) metaParts.push('Standort: '+escapeHtml(d._standort));
   const vIcon = d.verdict==='ok'?'✓':d.verdict==='bad'?'✕':'⚠';
   // Risiko-Hinweise robust verarbeiten (KI liefert manchmal leicht andere Feldnamen pro Eintrag)
   const flagsHTML = (d.risikoHinweise || []).map(f => {
     if (!f) return '';
     // Falls die KI nur einen String statt Objekt liefert
-    if (typeof f === 'string') return `<div class="flag"><span class="flag-icon warn">⚠</span><span class="flag-text">${f}</span></div>`;
+    if (typeof f === 'string') return `<div class="flag"><span class="flag-icon warn">⚠</span><span class="flag-text">${escapeHtml(f)}</span></div>`;
     const typ = f.typ || f.type || f.status || 'warn';
     const text = f.text || f.hinweis || f.beschreibung || f.value || '';
     if (!text) return '';
     const kat = f.kategorie || f.category || f.kat || '';
     const icon = typ==='ok'?'✓':typ==='warn'?'⚠':typ==='bad'?'✕':'⚠';
-    const katLabel = kat ? `<b>[${kat}]</b> ` : '';
-    return `<div class="flag"><span class="flag-icon ${typ}">${icon}</span><span class="flag-text">${katLabel}${text}</span></div>`;
+    const katLabel = kat ? `<b>[${escapeHtml(kat)}]</b> ` : '';
+    const typSicher = /^(ok|warn|bad|info)$/.test(typ) ? typ : 'warn';
+    return `<div class="flag"><span class="flag-icon ${typSicher}">${icon}</span><span class="flag-text">${katLabel}${escapeHtml(text)}</span></div>`;
   }).filter(Boolean).join('');
 
   // Herkunftszeile: benennt, welche Zusatzquellen angesprungen sind.
@@ -13771,7 +13908,7 @@ function showReport(d, rawName, fromHistory, nichtSpeichern) {
   if (ds.includes('google')) teile.push('Kontakt und Standort \u00fcber Google');
   banner = `<div class="data-banner"><span class="data-banner-dot"></span>${teile.join(' \u00b7 ')}</div>`;
 
-  const na = v => isNA(v)?'<span class="cc-value na">N/A</span>':`<div class="cc-value">${v}</div>`;
+  const na = v => isNA(v)?'<span class="cc-value na">N/A</span>':`<div class="cc-value">${escapeHtml(v)}</div>`;
 
   // Gewichteter Gesamt-Score (Prioritäten von Remax)
   // Grunddaten 30%, Personen 30%, Kontakt 20%, Reputation 15%, Finanzen 5%
@@ -13836,10 +13973,10 @@ function showReport(d, rawName, fromHistory, nichtSpeichern) {
     <div class="report-top">
       <div>
         <div class="report-eyebrow">Compliance-Auswertung · Prüfung gemäß §§ 10–17 GwG</div>
-        <div class="report-name">${d.firmenname}</div>
+        <div class="report-name">${escapeHtml(d.firmenname)}</div>
         <div class="report-meta">${metaParts.join(' · ')}</div>
       </div>
-      <span class="verdict ${d.verdict}">${vIcon2} ${d.verdictText}</span>
+      <span class="verdict ${/^(ok|warn|bad)$/.test(d.verdict) ? d.verdict : 'warn'}">${vIcon2} ${escapeHtml(d.verdictText)}</span>
     </div>
     ${akteStepperHTML()}
     <div class="akte-panel" data-panel="akte" id="panelAkte">${akteStammHTML(d)}<div id="monBereich" class="mon-bereich"></div></div>
@@ -13851,7 +13988,7 @@ function showReport(d, rawName, fromHistory, nichtSpeichern) {
       <div class="score-right">
         <div class="score-title">Gesamt-Vertrauens-Score</div>
         <div class="bar-track"><div class="bar-fill ${barC(d.gesamtScore)}" style="width:${d.gesamtScore||0}%"></div></div>
-        <div class="score-desc">${(d.empfehlung && d.empfehlung.length > 20) ? d.empfehlung.split('.')[0] + '.' : (d.verdictText || 'Prüfung abgeschlossen') + '.'}</div>
+        <div class="score-desc">${escapeHtml((d.empfehlung && d.empfehlung.length > 20) ? d.empfehlung.split('.')[0] + '.' : (d.verdictText || 'Prüfung abgeschlossen') + '.')}</div>
         ${d._score_begruendung ? `<div class="score-rechnung" title="So setzt sich der Wert zusammen"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h3"/></svg>${escapeHtml(d._score_begruendung)}</div>` : ''}
       </div>
     </div>
@@ -13869,17 +14006,17 @@ function showReport(d, rawName, fromHistory, nichtSpeichern) {
         ${miniScore(d.kontakt.score)}
       </div>
       <div class="contact-grid">
-        <div class="cc" id="cc_website" data-kat="Kontakt" data-feld="Website">${ccStift('cc_website')}<div class="cc-label">Website</div><span class="cc-wert">${isNA(d.kontakt.website)?'<span class="cc-value na">N/A</span>':`<a class="maps-link" href="${d.kontakt.website.startsWith('http')?d.kontakt.website:'https://'+d.kontakt.website}" target="_blank">${d.kontakt.website} ↗</a>`}${!isNA(d.kontakt.website)?`<span class="cc-badge ${d.kontakt.httpsOk?'ok':'warn'}" style="margin-left:6px">${d.kontakt.httpsOk?'HTTPS ✓':'Kein HTTPS'}</span>`:''}</span></div>
+        <div class="cc" id="cc_website" data-kat="Kontakt" data-feld="Website">${ccStift('cc_website')}<div class="cc-label">Website</div><span class="cc-wert">${isNA(d.kontakt.website)?'<span class="cc-value na">N/A</span>':(sichereUrl(d.kontakt.website) ? `<a class="maps-link" href="${sichereUrl(d.kontakt.website)}" target="_blank" rel="noopener">${escapeHtml(d.kontakt.website)} ↗</a>` : `<div class="cc-value">${escapeHtml(d.kontakt.website)}</div>`)}${!isNA(d.kontakt.website)?`<span class="cc-badge ${d.kontakt.httpsOk?'ok':'warn'}" style="margin-left:6px">${d.kontakt.httpsOk?'HTTPS ✓':'Kein HTTPS'}</span>`:''}</span></div>
         <div class="cc" id="cc_email" data-kat="Kontakt" data-feld="E-Mail">${ccStift('cc_email')}<div class="cc-label">E-Mail</div><span class="cc-wert">${na(d.kontakt.email)}</span></div>
         <div class="cc" id="cc_telefon" data-kat="Kontakt" data-feld="Telefon">${ccStift('cc_telefon')}<div class="cc-label">Telefon</div><span class="cc-wert">${na(d.kontakt.telefon)}</span></div>
-        <div class="cc" id="cc_linkedin" data-kat="Kontakt" data-feld="LinkedIn">${ccStift('cc_linkedin')}<div class="cc-label">LinkedIn</div><span class="cc-wert">${d.kontakt.linkedinAktiv && d.kontakt.linkedinUrl && !isNA(d.kontakt.linkedinUrl)?`<a class="maps-link" href="${d.kontakt.linkedinUrl}" target="_blank">Profil öffnen ↗</a>`:`<div class="cc-value ${d.kontakt.linkedinAktiv?'':'na'}">${d.kontakt.linkedinAktiv?'Vorhanden':'N/A'}</div>`}</span></div>
+        <div class="cc" id="cc_linkedin" data-kat="Kontakt" data-feld="LinkedIn">${ccStift('cc_linkedin')}<div class="cc-label">LinkedIn</div><span class="cc-wert">${d.kontakt.linkedinAktiv && sichereUrl(d.kontakt.linkedinUrl) && !isNA(d.kontakt.linkedinUrl)?`<a class="maps-link" href="${sichereUrl(d.kontakt.linkedinUrl)}" target="_blank" rel="noopener">Profil öffnen ↗</a>`:`<div class="cc-value ${d.kontakt.linkedinAktiv?'':'na'}">${d.kontakt.linkedinAktiv?'Vorhanden':'N/A'}</div>`}</span></div>
         <div class="cc" id="cc_social" data-kat="Kontakt" data-feld="Social Media">${ccStift('cc_social')}<div class="cc-label">Social Media</div><span class="cc-wert">${(() => {
-          const links = (d.kontakt.socialLinks||[]).filter(s=>s && s.url && !isNA(s.url));
-          if (links.length>0) return links.map(s=>`<a class="maps-link" href="${s.url}" target="_blank" style="display:block;font-size:11px">${s.platform||'Profil'} ↗</a>`).join('');
-          return `<div class="cc-value ${isNA(d.kontakt.socialMedia)?'na':''}" style="font-size:11px">${isNA(d.kontakt.socialMedia)?'N/A':d.kontakt.socialMedia}</div>`;
+          const links = (d.kontakt.socialLinks||[]).filter(s=>s && sichereUrl(s.url) && !isNA(s.url));
+          if (links.length>0) return links.map(s=>`<a class="maps-link" href="${sichereUrl(s.url)}" target="_blank" rel="noopener" style="display:block;font-size:11px">${escapeHtml(s.platform||'Profil')} ↗</a>`).join('');
+          return `<div class="cc-value ${isNA(d.kontakt.socialMedia)?'na':''}" style="font-size:11px">${isNA(d.kontakt.socialMedia)?'N/A':escapeHtml(d.kontakt.socialMedia)}</div>`;
         })()}</span></div>
       </div>
-      ${d.kontakt.source && !isNA(d.kontakt.source) ? `<div style="margin-top:10px;font-size:8px;letter-spacing:.08em;text-transform:uppercase;color:var(--gray-l)">Quelle: ${d.kontakt.source}</div>` : ''}
+      ${d.kontakt.source && !isNA(d.kontakt.source) ? `<div style="margin-top:10px;font-size:8px;letter-spacing:.08em;text-transform:uppercase;color:var(--gray-l)">Quelle: ${escapeHtml(d.kontakt.source)}</div>` : ''}
     </div>
     <div class="flags-card reveal">
       <div class="flags-heading"><span class="sec-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4m0 4h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg></span>Risiko-Hinweise</div>
@@ -13887,7 +14024,7 @@ function showReport(d, rawName, fromHistory, nichtSpeichern) {
     </div>
     <div class="rec-card reveal">
       <div class="rec-label">Compliance-Empfehlung</div>
-      <div class="rec-text">${d.empfehlung}</div>
+      <div class="rec-text">${escapeHtml(d.empfehlung)}</div>
     </div>
     ${evidenceHTML(d)}
     <div id="bearbLeiste" class="bearb-leiste"></div>
@@ -14065,19 +14202,7 @@ async function _openHistory() {
   try {
     await ladeOrdner(); // aktuelle Ordner-Liste für die Filter-Chips
     // Fehlt eine neue Spalte noch (SQL nicht eingespielt), auf die Grundspalten zurueckfallen
-    let { data, error } = await sb
-      .from('analysen')
-      .select('id, pruef_id, firmenname, land, ust_id, standort, score, verdict, verdict_text, created_at, report_json, ordner_id, schritte, abgeschlossen_am, abgeschlossen_von, abgeschlossen_von_name')
-      .order('created_at', { ascending: false });
-    if (error && /column|schema cache|does not exist/i.test(error.message || '')) {
-      console.warn('Historie: neue Spalten fehlen noch, lade Grundspalten. (' + error.message + ')');
-      const r2 = await sb.from('analysen')
-        .select('id, pruef_id, firmenname, land, ust_id, score, verdict, verdict_text, created_at, report_json, ordner_id')
-        .order('created_at', { ascending: false });
-      data = r2.data; error = r2.error;
-    }
-    if (error) throw error;
-    HISTORY_ROWS = data || [];
+    await ladeHistorie();
     try { await ladeFavoriten(); } catch(e) {}
     renderHistoryList();
     if (KYC_ZIEL_NACH_LADEN) {
@@ -14088,6 +14213,26 @@ async function _openHistory() {
   } catch (e) {
     renderHistoryError((e && e.message) || 'Historie konnte nicht geladen werden.');
   }
+}
+
+// Laedt die Akten des Unternehmens in HISTORY_ROWS (ohne Anzeige).
+// Fehlt eine neue Spalte noch (SQL nicht eingespielt), wird auf die Grundspalten zurueckgegriffen.
+async function ladeHistorie() {
+  if (!sb) return [];
+  let { data, error } = await sb
+    .from('analysen')
+    .select('id, pruef_id, firmenname, land, ust_id, standort, score, verdict, verdict_text, created_at, report_json, ordner_id, schritte, abgeschlossen_am, abgeschlossen_von, abgeschlossen_von_name')
+    .order('created_at', { ascending: false });
+  if (error && /column|schema cache|does not exist/i.test(error.message || '')) {
+    console.warn('Historie: neue Spalten fehlen noch, lade Grundspalten. (' + error.message + ')');
+    const r2 = await sb.from('analysen')
+      .select('id, pruef_id, firmenname, land, ust_id, score, verdict, verdict_text, created_at, report_json, ordner_id')
+      .order('created_at', { ascending: false });
+    data = r2.data; error = r2.error;
+  }
+  if (error) throw error;
+  HISTORY_ROWS = data || [];
+  return HISTORY_ROWS;
 }
 
 function renderHistoryError(msg) {
@@ -14302,7 +14447,7 @@ function renderHistoryList() {
       const score = (typeof r.score === 'number') ? r.score : null;
       const scoreCol = score === null ? 'var(--gray-l)' : (score >= 75 ? 'var(--ok-text)' : score >= 50 ? 'var(--warn-text)' : 'var(--bad-text)');
       const vt = r.verdict_text || (score === null ? 'Geprüft' : '');
-      const land = r.land ? ' · ' + r.land : '';
+      const land = r.land ? ' · ' + escapeHtml(r.land) : '';
       // Autor (E-Mail des Prüfers) aus dem gespeicherten Bericht
       const autor = (r.report_json && (r.report_json._name || r.report_json._email)) ? (r.report_json._name || r.report_json._email) : '';
       const einzelPruef = false;
@@ -14477,7 +14622,7 @@ async function gruppenLaden() {
   const { data, error } = await sb.rpc('gruppen_liste');
   if (error) { console.warn('Gruppen:', error.message); return; }
   GRUPPEN = (data || []).map(function(g){
-    return { id: g.id, name: g.name, farbe: g.farbe || '#2E8749',
+    return { id: g.id, name: g.name, farbe: sichereFarbe(g.farbe, '#2E8749'),
              mitglieder: g.mitglieder || [], ordner_anzahl: g.ordner_anzahl || 0 };
   });
 }
@@ -15270,7 +15415,7 @@ async function _akteDrucken(folderId) {
         const pid = dj.pruefId || (r && r.pruef_id) || '';
         const basis = (d.typ === 'ausweis') ? 'Personalausweis'
                     : (d.typ === 'standort') ? 'Eigene Aufnahme' : 'Best\u00e4tigungsfoto';
-        const titel = 'Anlage \u00b7 ' + basis + (d.bezeichnung ? ' (' + d.bezeichnung + ')' : '') + ' \u00b7 ' + fname + ' \u00b7 ' + pid;
+        const titel = 'Anlage \u00b7 ' + basis + (d.bezeichnung ? ' (' + escapeHtml(d.bezeichnung) + ')' : '') + ' \u00b7 ' + fname + ' \u00b7 ' + pid;
         let seite;
         const url = urlMap[d.storage_path];
         if (url) {
