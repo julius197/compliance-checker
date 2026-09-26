@@ -3439,6 +3439,42 @@
     @media print {
       .dok-info, .dok-hinweis, .akte-lock, .ab-siegel-anim { display:none !important; }
     }
+
+    /* ============================================================
+       v12.2: Sitz des Unternehmens, Firmenauswahl, Firmenbilder
+       ============================================================ */
+    .sitz-zeile { margin-bottom:18px; }
+    .sitz-felder { display:grid; grid-template-columns:minmax(0,1fr) 130px; gap:10px; }
+    .fw-sitz { font-size:12.5px; color:var(--ink); margin-top:3px; }
+    .fw-sitz b { font-weight:700; color:var(--gray,#5A6670); }
+    .fw-kopf-hinweis { margin:12px 0 2px; padding:10px 12px; border-radius:10px; background:#FFF7ED; border:1px solid #FED7AA; color:#9A3412; font-size:12.5px; line-height:1.45; }
+    .sitz-karte { background:var(--bad-bg,#FEF1F1); border:1.5px solid rgba(220,38,38,.35); border-radius:16px; padding:16px 18px; margin-bottom:14px; }
+    .sitz-k-kopf { display:flex; align-items:center; gap:10px; }
+    .sitz-k-ico { width:24px; height:24px; flex:0 0 24px; border-radius:50%; background:#DC2626; color:#fff; display:grid; place-items:center; font-weight:800; font-size:14px; }
+    .sitz-k-t { font-weight:800; font-size:15px; color:var(--bad-text,#B91C1C); }
+    .sitz-k-abzug { margin-left:auto; font-size:11px; font-weight:700; color:var(--bad-text,#B91C1C); background:#fff; border:1px solid rgba(220,38,38,.35); border-radius:999px; padding:3px 10px; white-space:nowrap; }
+    .sitz-k-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:12px 0 10px; }
+    .sitz-k-grid > div { background:#fff; border:1px solid rgba(220,38,38,.22); border-radius:10px; padding:9px 12px; font-size:14px; color:var(--ink); }
+    .sitz-k-l { display:block; font-size:10px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--bad-text,#B91C1C); margin-bottom:2px; }
+    .sitz-k-d { font-size:12.5px; line-height:1.5; color:var(--bad-text,#B91C1C); }
+    .sitz-chip, .st-warn { display:inline-block; font-size:10px; font-weight:700; color:var(--bad-text,#B91C1C); background:var(--bad-bg,#FEF1F1); border:1px solid rgba(220,38,38,.3); border-radius:999px; padding:0 7px; margin-left:4px; vertical-align:1px; }
+    .st-hinweis { font-size:10.5px; font-weight:600; color:var(--gray-l); margin-left:4px; }
+    .evidence-quelle { padding:8px 16px; font-size:10.5px; line-height:1.5; color:var(--gray,#5A6670); background:var(--card); border-top:1px solid var(--border2); }
+    .evidence-quelle:empty { display:none; }
+    .evidence-quelle a { color:inherit; text-decoration:underline; }
+    .evidence-mehr { grid-column:1 / -1; justify-self:center; margin:4px 0 2px; padding:8px 16px; border-radius:999px; border:1px solid rgba(255,255,255,.25); background:rgba(255,255,255,.08); color:#fff; font-family:inherit; font-size:12px; font-weight:600; cursor:pointer; }
+    .evidence-mehr:hover { background:rgba(255,255,255,.16); }
+    .evidence-mehr:disabled { opacity:.6; cursor:default; }
+    .evidence-img-detail { font-size:12px; line-height:1.5; margin:6px auto 0; max-width:440px; }
+    @media (max-width:560px) {
+      .sitz-felder { grid-template-columns:minmax(0,1fr) 96px; }
+      .sitz-k-grid { grid-template-columns:1fr; }
+      .sitz-k-abzug { font-size:10px; padding:2px 8px; }
+    }
+    @media print {
+      .evidence-mehr { display:none !important; }
+      .sitz-karte { break-inside:avoid; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+    }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -5877,7 +5913,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span class="app-version" onclick="neuigkeitenZeigen()" title="Was ist neu?" style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v12.1</span>
+      <span class="app-version" onclick="neuigkeitenZeigen()" title="Was ist neu?" style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v12.2</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -5915,7 +5951,7 @@
   <div class="search-card">
     <div class="search-eyebrow">Geldwäscherechtliche Prüfung</div>
     <div class="search-heading">Neue Akte</div>
-    <div class="search-sub">Jedes Unternehmen bekommt eine eigene Akte: Analyse, Dokumente, Sanktionsabgleich und Abschluss an einem Ort. Name und Land wählen – USt-ID empfohlen für präzise Zuordnung.</div>
+    <div class="search-sub">Jedes Unternehmen bekommt eine eigene Akte: Analyse, Dokumente, Sanktionsabgleich und Abschluss an einem Ort. Name und Land wählen – Sitz und USt-ID helfen bei der eindeutigen Zuordnung.</div>
     <div class="fields-row">
       <div>
         <div class="field-label">Name des Unternehmens <span class="req">*</span></div>
@@ -5929,12 +5965,19 @@
         </div>
       </div>
     </div>
+    <div class="sitz-zeile" id="sitzWrap">
+      <div class="field-label">Sitz des geprüften Unternehmens <span class="opt">(optional) – hilft bei gleichnamigen Firmen</span></div>
+      <div class="sitz-felder">
+        <input type="text" id="sitzOrtInput" placeholder="Ort, z.B. Dreieich" maxlength="80" autocomplete="off" />
+        <input type="text" id="sitzPlzInput" placeholder="PLZ" maxlength="10" inputmode="numeric" autocomplete="off" />
+      </div>
+    </div>
     <div style="margin-bottom:18px">
       <div class="field-label">Umsatzsteuer-ID <span class="opt">(optional, empfohlen)</span></div>
       <input type="text" id="ustInput" placeholder="z.B. DE 298 123 456" />
     </div>
     <div style="margin-bottom:18px" id="standortWrap">
-      <div class="field-label">Standort <span class="opt">(optional) – welcher eurer Standorte prüft?</span></div>
+      <div class="field-label">Eigener Standort <span class="opt">(optional) – welcher eurer Standorte prüft?</span></div>
       <input type="text" id="standortInput" list="standortListe" placeholder="z.B. Limburg" maxlength="60" autocomplete="off" />
       <datalist id="standortListe"></datalist>
     </div>
@@ -9297,13 +9340,14 @@ function infoBewertungHtml() {
     + '<p class="info-p"><b>Gewichtung im Gesamtwert:</b> Grunddaten 30\u2009% \u00b7 Personen 30\u2009% \u00b7 Kontakt &amp; Online-Pr\u00e4senz 20\u2009% \u00b7 Finanzen 15\u2009% \u00b7 Reputation 5\u2009%. Unter dem Score steht jeweils die kurze Rechnung, wie der Wert zustande kam.</p>'
     + '<p class="info-hint">Bereiche ohne belastbare Datenlage flie\u00dfen <b>nicht</b> in den Gesamtwert ein. So dr\u00fcckt eine fehlende Information den Score nicht k\u00fcnstlich \u2013 sie wird stattdessen als L\u00fccke ausgewiesen.</p></div>'
 
-    + '<div class="info-sec"><h3 class="info-h2">2. Vier eigenst\u00e4ndige Warnsignale</h3>'
-    + '<p>Unabh\u00e4ngig vom Punktwert pr\u00fcft das System auf vier Sachverhalte, die eine eigene Bedeutung haben und den Gesamtwert begrenzen oder ihn \u00fcberlagern:</p>'
+    + '<div class="info-sec"><h3 class="info-h2">2. F\u00fcnf eigenst\u00e4ndige Warnsignale</h3>'
+    + '<p>Unabh\u00e4ngig vom Punktwert pr\u00fcft das System auf f\u00fcnf Sachverhalte, die eine eigene Bedeutung haben und den Gesamtwert begrenzen oder ihn \u00fcberlagern:</p>'
     + '<div class="info-liste">'
     + infoWarn('Sanktions-Treffer', 'Steht das Unternehmen, seine Leitung oder ein wirtschaftlich Berechtigter auf einer einschl\u00e4gigen Liste, ist das ein Ausschlusskriterium. Der Score wird hart begrenzt und der Befund deutlich hervorgehoben.', 'rot')
     + infoWarn('Politisch exponierte Person', 'Eine Verbindung zu einer politisch exponierten Person ist kein Ausschlussgrund, l\u00f6st aber verst\u00e4rkte Sorgfaltspflichten aus und begrenzt den Score.', 'gelb')
     + infoWarn('Strohmann-Indizien', 'Deuten konkrete Anhaltspunkte darauf hin, dass die formal handelnden Personen nicht die wirtschaftlich Handelnden sind, wird das gesondert ausgewiesen \u2013 nur bei belegbaren Indizien, nicht bei blo\u00dfen Vermutungen.', 'rot')
     + infoWarn('Insolvenzhinweise', 'Anzeichen f\u00fcr ein laufendes oder er\u00f6ffnetes Insolvenzverfahren werden getrennt von der Finanzbewertung ausgewiesen, da sie eine eigene Risikodimension darstellen.', 'gelb')
+    + infoWarn('Abweichender Sitz', 'Wurde der Sitz des Unternehmens angegeben und weicht der eingetragene Sitz laut Quelle davon ab, wird das deutlich markiert und der Score um ' + SITZ_ABZUG + ' Punkte gesenkt \u2013 m\u00f6glicherweise wurde eine gleichnamige Firma an einem anderen Ort gefunden.', 'gelb')
     + '</div></div>'
 
     + '<div class="info-sec"><h3 class="info-h2">3. Was streng bewertet wird</h3>'
@@ -10684,7 +10728,10 @@ let stepIdx = 0, stepTimer = null;
 let FIRMA_BESTAETIGT = false;
 
 // Prueft vor der Analyse, ob der Name eindeutig ist
-async function firmaKlaeren(name, land) {
+async function firmaKlaeren(name, land, sitz) {
+  sitz = sitz || { ort: '', plz: '' };
+  const mitOrt = !!(sitz.ort || sitz.plz);
+  const ortText = [sitz.plz, sitz.ort].filter(Boolean).join(' ');
   const btn = document.getElementById('searchBtn');
   const haupt = btn ? btn.querySelector('.bs-haupt') : null;
   const sub = btn ? btn.querySelector('.bs-sub') : null;
@@ -10692,32 +10739,51 @@ async function firmaKlaeren(name, land) {
   const alterSub = sub ? sub.textContent : '';
   if (btn) btn.disabled = true;
   if (haupt) haupt.textContent = 'Unternehmen wird gesucht\u2026';
-  if (sub) sub.textContent = 'Pr\u00fcfe, ob der Name eindeutig ist';
+  if (sub) sub.textContent = mitOrt ? 'Pr\u00fcfe Name und Sitz' : 'Pr\u00fcfe, ob der Name eindeutig ist';
   let daten = null;
   try {
-    daten = await workerCall('firmen_vorsuche', { name: name, land: land });
+    daten = await workerCall('firmen_vorsuche', { name: name, land: land, ort: sitz.ort || '', plz: sitz.plz || '' });
   } catch (e) { daten = null; }
   if (btn) btn.disabled = false;
   if (haupt) haupt.textContent = alterHaupt;
   if (sub) sub.textContent = alterSub;
 
-  // Bei Problemen oder eindeutigem Ergebnis einfach weitermachen
-  if (!daten || !daten.ok || daten.eindeutig || !daten.treffer || daten.treffer.length < 2) return 'weiter';
+  // Vorsuche nicht moeglich -> wie bisher weitermachen (die Pruefung selbst recherchiert ebenfalls)
+  if (!daten || !daten.ok || !Array.isArray(daten.treffer)) return { art: 'weiter' };
+  let treffer = trefferBereinigen(daten.treffer);
+  if (!treffer.length) return { art: 'weiter' };
+  // Name gilt als eindeutig (z. B. BMW AG) und es gibt keine zwei Firmen mit gleichem Kernnamen
+  if (daten.eindeutig !== false && !gleichnamigeKonkurrenz(treffer)) treffer = [treffer[0]];
 
-  return await firmaAuswahlDialog(name, daten.treffer);
+  if (treffer.length === 1) {
+    const t = treffer[0];
+    // Eindeutig: wie bisher ohne Nachfrage - ausser die einzige Firma sitzt nachweislich woanders
+    if (!mitOrt || !(t.ort || t.plz) || ortPasst(t, sitz)) return { art: 'weiter' };
+    return await firmaAuswahlDialog(name, treffer, { hinweis: 'Gefunden wurde nur ein Unternehmen mit diesem Namen \u2013 mit Sitz au\u00dferhalb von \u201e' + ortText + '\u201c. Bitte pr\u00fcfen.' });
+  }
+  if (mitOrt) {
+    const passend = treffer.filter(function(t){ return ortPasst(t, sitz); });
+    if (passend.length === 1) return { art: 'weiter', auswahl: passend[0], automatisch: true };
+    if (passend.length > 1) return await firmaAuswahlDialog(name, passend, { hinweis: 'In \u201e' + ortText + '\u201c gibt es mehrere Unternehmen mit diesem Namen.' });
+    return await firmaAuswahlDialog(name, treffer, { hinweis: 'Keines der gefundenen Unternehmen hat seinen Sitz in \u201e' + ortText + '\u201c. Bitte Name und Ort pr\u00fcfen oder ein Unternehmen w\u00e4hlen.' });
+  }
+  return await firmaAuswahlDialog(name, treffer);
 }
 
-function firmaAuswahlDialog(suchbegriff, treffer) {
+// Liefert { art: 'weiter', auswahl } | { art: 'weiter' } | { art: 'abbruch' }
+function firmaAuswahlDialog(suchbegriff, treffer, opt) {
+  opt = opt || {};
   return new Promise(function(res){
     const zeilen = treffer.map(function(t, i){
+      const sitzTxt = [t.plz, t.ort].filter(Boolean).join(' ');
       const teile = [];
-      if (t.ort) teile.push(escapeHtml(t.ort));
       if (t.register) teile.push(escapeHtml(t.register));
       if (t.gegruendet) teile.push('gegr. ' + escapeHtml(t.gegruendet));
       if (t.branche) teile.push(escapeHtml(t.branche));
       return '<button class="fw-zeile" style="--fwd:' + (0.06 + i * 0.07) + 's" onclick="firmaGewaehlt(' + i + ')">'
         + '<div class="fw-haupt">'
         + '<div class="fw-name">' + escapeHtml(t.name || suchbegriff) + '</div>'
+        + '<div class="fw-sitz"><b>Sitz:</b> ' + (sitzTxt ? escapeHtml(sitzTxt) : 'nicht ermittelt') + '</div>'
         + (teile.length ? '<div class="fw-meta">' + teile.join(' \u00b7 ') + '</div>' : '')
         + (t.hinweis ? '<div class="fw-hinweis">' + escapeHtml(t.hinweis) + '</div>' : '')
         + '</div>'
@@ -10732,7 +10798,8 @@ function firmaAuswahlDialog(suchbegriff, treffer) {
       + '<div class="fw-ico"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'
       + '<circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg></div>'
       + '<div class="up-warn-t">Mehrere Unternehmen gefunden</div>'
-      + '<div class="up-warn-d">Zu \u201e<b>' + escapeHtml(suchbegriff) + '</b>\u201c gibt es mehrere Eintr\u00e4ge. W\u00e4hle das richtige aus, damit die Pr\u00fcfung dem tats\u00e4chlichen Gesch\u00e4ftspartner gilt.</div>'
+      + '<div class="up-warn-d">Zu \u201e<b>' + escapeHtml(suchbegriff) + '</b>\u201c gibt es mehrere Eintr\u00e4ge. W\u00e4hle das richtige aus, damit die Pr\u00fcfung dem tats\u00e4chlichen Gesch\u00e4ftspartner gilt. Die Auswahl kostet kein Kontingent.</div>'
+      + (opt.hinweis ? '<div class="fw-kopf-hinweis">' + escapeHtml(opt.hinweis) + '</div>' : '')
       + '<div class="fw-liste">' + zeilen + '</div>'
       + '<div class="fw-fuss">'
       + '<button class="fw-eigene" onclick="firmaEigene()">Keines davon \u2013 mit meiner Eingabe suchen</button>'
@@ -10755,39 +10822,29 @@ function fwSchliessen() {
   setTimeout(function(){ if (b.parentNode) b.remove(); }, 280);
 }
 
+// Nur die Auswahl zurueckgeben - die wartende Pruefung laeuft damit weiter.
+// (Frueher startete hier zusaetzlich eine zweite Pruefung, und die Registernummer
+//  landete im USt-Feld und ging als "USt-ID" an die EU-Pruefung - beides behoben.)
 function firmaGewaehlt(i) {
   const t = (window._fwTreffer || [])[i];
   const antwort = window._fwAntwort;
   fwSchliessen();
-  if (t) {
-    const feld = document.getElementById('nameInput');
-    if (feld && t.name) feld.value = t.name;
-    // Registernummer als eindeutiger Anker, falls vorhanden
-    if (t.register) {
-      const ust = document.getElementById('ustInput');
-      if (ust && !ust.value.trim()) ust.value = t.register;
-    }
-  }
-  FIRMA_BESTAETIGT = true;
   window._fwTreffer = null; window._fwAntwort = null;
-  if (antwort) antwort('weiter');
-  setTimeout(function(){ startSearch(true); }, 320);
+  if (antwort) antwort(t ? { art: 'weiter', auswahl: t } : { art: 'weiter' });
 }
 
 function firmaEigene() {
   const antwort = window._fwAntwort;
   fwSchliessen();
-  FIRMA_BESTAETIGT = true;
   window._fwTreffer = null; window._fwAntwort = null;
-  if (antwort) antwort('weiter');
-  setTimeout(function(){ startSearch(true); }, 320);
+  if (antwort) antwort({ art: 'weiter' });
 }
 
 function firmaAbbruch() {
   const antwort = window._fwAntwort;
   fwSchliessen();
   window._fwTreffer = null; window._fwAntwort = null;
-  if (antwort) antwort('abbruch');
+  if (antwort) antwort({ art: 'abbruch' });
 }
 
 function firmenKern(n) {
@@ -11081,7 +11138,8 @@ async function workerCall(action, payload, versuch) {
       // Anmelde-Nachweis NUR bei internen Aktionen mitschicken.
       // Ein zusaetzlicher Header loest eine Vorab-Anfrage aus - waere er
       // serverseitig nicht erlaubt, wuerden sonst ALLE Aufrufe scheitern.
-      if (action === 'sanktionen_laden' || action === 'monitoring_lauf' || action === 'support_aktion') {
+      if (action === 'sanktionen_laden' || action === 'monitoring_lauf' || action === 'support_aktion'
+          || action === 'bilder_nachladen' || action === 'google_diagnose') {
         try {
           const s = (await sb.auth.getSession()).data.session;
           if (s && s.access_token) kopf['Authorization'] = 'Bearer ' + s.access_token;
@@ -11630,38 +11688,189 @@ function ustArtWaehlen(art) {
   }
 }
 
-async function startSearch(ignoriereDuplikat) {
-  const name = document.getElementById('nameInput').value.trim();
-  if (!name) { document.getElementById('nameInput').focus(); return; }
-  const land = document.getElementById('landInput').value;
-  if (!land) { document.getElementById('landInput').focus(); return; }
-  if (!kontingentVerfuegbar()) return;   // Monatslimit voll / Konto inaktiv -> Sperre + Upgrade-Hinweis
-  if (ignoriereDuplikat !== true) {
-    const alt = await findeFruehereAnalyse(name);
-    if (alt) { zeigeDuplikatHinweis(alt); return; }
-  }
+// ============================================================
+// SITZ DES GEPRUEFTEN UNTERNEHMENS (v12.2)
+// Nicht zu verwechseln mit "Eigener Standort" (Filiale des Kunden, die prueft).
+// ============================================================
+const SITZ_ABZUG = 10;      // VORSCHLAG: Score-Abzug, wenn der Sitz laut Quelle vom eingegebenen Ort abweicht (hier anpassbar)
+let FIRMA_AUSWAHL = null;   // im Auswahldialog (oder eindeutig per Ort) gewaehltes Unternehmen
 
-  // Gibt es mehrere Firmen mit diesem Namen? Dann vorher fragen.
-  if (ignoriereDuplikat !== true && !FIRMA_BESTAETIGT) {
-    const wahl = await firmaKlaeren(name, land);
-    if (wahl === 'abbruch') return;
+function sitzEingabe() {
+  const o = document.getElementById('sitzOrtInput'), p = document.getElementById('sitzPlzInput');
+  return {
+    ort: o ? o.value.replace(/\s+/g, ' ').trim().slice(0, 80) : '',
+    plz: p ? p.value.replace(/[^0-9A-Za-z-]/g, '').slice(0, 10) : ''
+  };
+}
+function plzAus(t) { const m = String(t || '').match(/\b\d{4,5}\b/); return m ? m[0] : ''; }
+// Ortsnamen in vergleichbare Woerter zerlegen ("Frankfurt a.M." ~ "Frankfurt am Main")
+function ortWorte(t) {
+  const fuell = { der: 1, die: 1, das: 1, dem: 1, den: 1, bei: 1, vor: 1, und: 1, auf: 1 };
+  return String(t || '').toLowerCase()
+    .replace(/\u00e4/g, 'ae').replace(/\u00f6/g, 'oe').replace(/\u00fc/g, 'ue').replace(/\u00df/g, 'ss')
+    .replace(/[0-9]+/g, ' ')
+    .split(/[^a-z]+/).filter(function(w){ return w.length > 2 && !fuell[w]; });
+}
+function orteGleich(a, b) {
+  const x = ortWorte(a), y = ortWorte(b);
+  if (!x.length || !y.length) return false;
+  const k = x.length <= y.length ? x : y, l = x.length <= y.length ? y : x;
+  return k.every(function(w, i){ return w === l[i]; });
+}
+// Passt der Sitz eines Treffers ({ort, plz}) zum gewuenschten Sitz?
+function ortPasst(t, soll) {
+  if (!t || !soll) return false;
+  const sPlz = plzAus(soll.plz), tPlz = plzAus(t.plz) || plzAus(t.ort);
+  if (sPlz && tPlz && sPlz === tPlz) return true;
+  return !!(soll.ort && t.ort && orteGleich(soll.ort, t.ort));
+}
+// "Hauptstrasse 5, 63303 Dreieich, Deutschland" -> { plz: '63303', ort: 'Dreieich' }
+function googleOrt(adresse) {
+  const teile = String(adresse || '').split(',').map(function(x){ return x.trim(); });
+  for (let i = 0; i < teile.length; i++) {
+    const m = teile[i].match(/^(\d{4,5})\s+(.+)$/);
+    if (m) return { plz: m[1], ort: m[2] };
   }
-  FIRMA_BESTAETIGT = false;
-  const ordnerSel = document.getElementById('ordnerSelect');
-  SELECTED_ORDNER_ID = (ordnerSel && ordnerSel.value) ? ordnerSel.value : null; // gewählter Ordner für diese Analyse
-  let ust = document.getElementById('ustInput').value.trim();
-  if (ust && UST_ART === 'stnr') ust = 'StNr: ' + ust;
-  document.getElementById('emptyState').style.display = 'none';
-  document.getElementById('report').classList.remove('active');
-  document.getElementById('loading').classList.add('active');
-  document.getElementById('searchBtn').disabled = true;
-  stepIdx = 0; setStep(STEPS[0]); fortschrittStart();
-  stepTimer = setInterval(() => { stepIdx = (stepIdx+1)%STEPS.length; setStep(STEPS[stepIdx]); }, 1200);
-  runAnalysis(name, ust, land);
+  return { plz: '', ort: teile.length >= 2 ? teile[teile.length - 2] : '' };
+}
+// Treffer der Vorsuche bereinigen und doppelte zusammenfassen
+function trefferBereinigen(liste) {
+  const gesehen = {}, raus = [];
+  (Array.isArray(liste) ? liste : []).forEach(function(t){
+    if (!t || !t.name) return;
+    const reg = String(t.register || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+    const key = (reg ? 'r:' + reg : 'n:' + firmenKern(t.name)) + '|' + ortWorte(t.ort).join(' ');
+    if (gesehen[key]) return;
+    gesehen[key] = true;
+    raus.push({
+      name: String(t.name).slice(0, 160), ort: String(t.ort || '').slice(0, 80), plz: String(t.plz || '').slice(0, 10),
+      register: String(t.register || '').slice(0, 80), gegruendet: String(t.gegruendet || '').slice(0, 20),
+      branche: String(t.branche || '').slice(0, 60), hinweis: String(t.hinweis || '').slice(0, 160)
+    });
+  });
+  return raus;
+}
+// Gibt es mindestens zwei Firmen mit gleichem Kernnamen (z. B. zweimal "We & We GmbH")?
+function gleichnamigeKonkurrenz(treffer) {
+  const z = {};
+  return treffer.some(function(t){ const k = firmenKern(t.name); z[k] = (z[k] || 0) + 1; return z[k] > 1; });
+}
+// Eingegebenen Sitz mit dem Sitz laut Quelle vergleichen
+function sitzAuswerten(eingabe, auswahl, report, g) {
+  eingabe = eingabe || {};
+  // Massgeblich ist die eigene Eingabe; nur ohne Eingabe gilt der Sitz der gewaehlten Firma
+  const eigene = !!(eingabe.ort || eingabe.plz);
+  const soll = eigene ? { ort: eingabe.ort || '', plz: eingabe.plz || '' }
+                      : { ort: (auswahl && auswahl.ort) || '', plz: (auswahl && auswahl.plz) || '' };
+  const eingegeben = [soll.plz, soll.ort].filter(Boolean).join(' ');
+  let quelle = String((report && report.sitzLautQuelle) || '').replace(/\s+/g, ' ').trim();
+  let quelleName = String((report && report.sitzQuelle) || '').trim();
+  if (!quelle || isNA(quelle) || /nicht (gefunden|ermittelt|belegt)|unbekannt/i.test(quelle)) { quelle = ''; quelleName = ''; }
+  if (!quelle && g && g.formattedAddress) {
+    const go = googleOrt(g.formattedAddress);
+    if (go.ort) { quelle = [go.plz, go.ort].filter(Boolean).join(' '); quelleName = 'Google'; }
+  }
+  if (!eingegeben && !quelle) return null;
+  const vergleichbar = !!(eingegeben && quelle && ((soll.ort && ortWorte(quelle).length) || (soll.plz && plzAus(quelle))));
+  const abweichung = vergleichbar && !ortPasst({ ort: quelle, plz: plzAus(quelle) }, soll);
+  return {
+    eingegeben: eingegeben.slice(0, 100),
+    ausAuswahl: !eigene && !!auswahl,
+    register: String((auswahl && auswahl.register) || '').slice(0, 80),
+    quelle: quelle.slice(0, 120),
+    quelleName: quelleName.slice(0, 60),
+    abweichung: abweichung,
+    abzug: abweichung ? SITZ_ABZUG : 0
+  };
+}
+// Risiko-Hinweis fuer die Liste der Hinweise (Akte und Sammel-PDF)
+function sitzHinweise(d) {
+  const z = d && d._sitz;
+  if (!z || !z.abweichung) return [];
+  return [{ typ: 'bad', kategorie: 'Sitz', text: 'Eingetragener Sitz laut ' + (z.quelleName || 'Quelle') + ' (\u201e' + z.quelle
+    + '\u201c) weicht vom angegebenen Ort (\u201e' + z.eingegeben + '\u201c) ab. M\u00f6glicherweise wurde eine gleichnamige Firma gefunden oder der Sitz wurde verlegt \u2013 Identit\u00e4t bitte pr\u00fcfen. Score \u2212' + (z.abzug || SITZ_ABZUG) + ' Punkte.' }];
+}
+// Deutlicher Hinweis oben in der Analyse (und im Sammel-PDF)
+function sitzKarteHTML(d) {
+  const z = d && d._sitz;
+  if (!z || !z.abweichung) return '';
+  return '<div class="sitz-karte">'
+    + '<div class="sitz-k-kopf"><span class="sitz-k-ico">!</span><span class="sitz-k-t">Sitz weicht ab</span>'
+    + '<span class="sitz-k-abzug">\u2212' + (z.abzug || SITZ_ABZUG) + ' Punkte</span></div>'
+    + '<div class="sitz-k-grid">'
+    + '<div><span class="sitz-k-l">Sitz (eingegeben)</span><b>' + escapeHtml(z.eingegeben) + '</b></div>'
+    + '<div><span class="sitz-k-l">Sitz (laut ' + escapeHtml(z.quelleName || 'Quelle') + ')</span><b>' + escapeHtml(z.quelle) + '</b></div>'
+    + '</div>'
+    + '<div class="sitz-k-d">M\u00f6glicherweise wurde eine gleichnamige Firma an einem anderen Ort gefunden oder der Sitz wurde verlegt. '
+    + 'Bitte Identit\u00e4t und Registereintrag pr\u00fcfen, bevor die Akte abgeschlossen wird.</div>'
+    + '</div>';
+}
+// Kurzform fuer Kopfzeilen: "Sitz: Dreieich" (+ Kennzeichen bei Abweichung)
+function sitzMeta(d) {
+  const z = d && d._sitz;
+  if (!z || !(z.quelle || z.eingegeben)) return '';
+  return 'Sitz: ' + escapeHtml(z.quelle || z.eingegeben) + (z.abweichung ? ' <span class="sitz-chip">weicht ab</span>' : '');
+}
+// Fehlende Datenbank-Spalte aus einer Supabase-Fehlermeldung lesen
+function fehlendeSpalte(err) {
+  const m = String((err && err.message) || '');
+  const x = m.match(/Could not find the '([a-z_]+)' column/i) || m.match(/column "?(?:[a-z_]+\.)?([a-z_]+)"?(?: of relation "?[a-z_]+"?)? does not exist/i);
+  return x ? x[1] : null;
 }
 
-async function runAnalysis(name, ust, land) {
+let START_SPERRE = false;   // verhindert Doppelstarts (Doppelklick, Enter, Auswahldialog)
+async function startSearch(ignoriereDuplikat) {
+  if (START_SPERRE) return;
+  START_SPERRE = true;
+  let gestartet = false;
+  try {
+    const nameEingabe = document.getElementById('nameInput').value.trim();
+    if (!nameEingabe) { document.getElementById('nameInput').focus(); return; }
+    const land = document.getElementById('landInput').value;
+    if (!land) { document.getElementById('landInput').focus(); return; }
+    if (!kontingentVerfuegbar()) return;   // Monatslimit voll / Konto inaktiv -> Sperre + Upgrade-Hinweis
+    if (ignoriereDuplikat !== true) {
+      const alt = await findeFruehereAnalyse(nameEingabe);
+      if (alt) { zeigeDuplikatHinweis(alt); return; }
+    }
+
+    // Gibt es mehrere Firmen mit diesem Namen? Dann VOR der Pruefung fragen (kostet kein Kontingent).
+    const sitz = sitzEingabe();
+    const klaerung = await firmaKlaeren(nameEingabe, land, sitz);
+    if (!klaerung || klaerung.art === 'abbruch') return;
+    const auswahl = klaerung.auswahl || null;
+    FIRMA_AUSWAHL = auswahl;
+    const name = (auswahl && auswahl.name) ? auswahl.name : nameEingabe;
+    if (auswahl && auswahl.name) document.getElementById('nameInput').value = auswahl.name;
+    if (klaerung.automatisch && auswahl) {
+      try { zeigeToast('Firma eindeutig zugeordnet', 'Gepr\u00fcft wird ' + auswahl.name + ' (' + [auswahl.plz, auswahl.ort].filter(Boolean).join(' ')
+        + (auswahl.register ? ', ' + auswahl.register : '') + ').'); } catch (e) {}
+    }
+
+    const ordnerSel = document.getElementById('ordnerSelect');
+    SELECTED_ORDNER_ID = (ordnerSel && ordnerSel.value) ? ordnerSel.value : null; // gewaehlter Ordner fuer diese Analyse
+    let ust = document.getElementById('ustInput').value.trim();
+    if (ust && UST_ART === 'stnr') ust = 'StNr: ' + ust;
+    document.getElementById('emptyState').style.display = 'none';
+    document.getElementById('report').classList.remove('active');
+    document.getElementById('loading').classList.add('active');
+    document.getElementById('searchBtn').disabled = true;
+    stepIdx = 0; setStep(STEPS[0]); fortschrittStart();
+    stepTimer = setInterval(() => { stepIdx = (stepIdx+1)%STEPS.length; setStep(STEPS[stepIdx]); }, 1200);
+    gestartet = true;
+    runAnalysis(name, ust, land, sitz, auswahl).finally(function(){ START_SPERRE = false; });
+  } finally {
+    if (!gestartet) START_SPERRE = false;
+  }
+}
+
+async function runAnalysis(name, ust, land, sitz, auswahl) {
   AUS_HISTORIE = false;
+  sitz = sitz || { ort: '', plz: '' };
+  // Gewuenschter Sitz: Eingabe des Nutzers, sonst Sitz der ausgewaehlten Firma
+  const sollSitz = { ort: sitz.ort || (auswahl && auswahl.ort) || '', plz: sitz.plz || (auswahl && auswahl.plz) || '' };
+  const ortTeil = [sollSitz.plz, sollSitz.ort].filter(Boolean).join(' ');
+  let googleFehlerAnalyse = null;
   try {
     let viesData = null;
     let searchName = name;
@@ -11681,9 +11890,15 @@ async function runAnalysis(name, ust, land) {
 
     // 2. Google Places Suche mit (ggf. VIES-bestätigtem) Namen
     setStep('Firma wird bei Google gesucht…');
-    const placesQuery = land && land !== 'Andere' ? `${searchName}, ${land}` : searchName;
+    // Mit Sitz: Ort in die Suche UND nur einen Treffer an diesem Ort nehmen -
+    // lieber keine Google-Daten als eine gleichnamige Firma an einem anderen Ort.
+    const placesQuery = [searchName, ortTeil, (land && land !== 'Andere') ? land : ''].filter(Boolean).join(', ');
     const placesRes = await workerCall('places_search', { query: placesQuery });
-    const place = (placesRes.places && placesRes.places.length > 0) ? placesRes.places[0] : null;
+    const placesListe = (placesRes && Array.isArray(placesRes.places)) ? placesRes.places : [];
+    if (placesRes && placesRes.googleFehler) googleFehlerAnalyse = placesRes.googleFehler;
+    const place = ortTeil
+      ? (placesListe.find(function(pl){ return ortPasst(googleOrt(pl.formattedAddress), sollSitz); }) || null)
+      : (placesListe[0] || null);
 
     let googleData = null;
     if (place) {
@@ -11693,7 +11908,9 @@ async function runAnalysis(name, ust, land) {
 
     // 2. Claude analysiert mit Google-Daten + Web Search für Socials
     setStep('Firma wird im Internet recherchiert…');
-    const claudeRes = await workerCall('pruefen', { name: name, ust: ust, land: land, googleData: googleData, viesData: viesData, sprache: LANG });
+    const sitzFuerPruefung = (ortTeil || (auswahl && auswahl.register))
+      ? { ort: sollSitz.ort, plz: sollSitz.plz, register: (auswahl && auswahl.register) || '' } : null;
+    const claudeRes = await workerCall('pruefen', { name: name, ust: ust, land: land, googleData: googleData, viesData: viesData, sprache: LANG, sitz: sitzFuerPruefung });
 
     if (claudeRes.error) throw new Error(claudeRes.error.message || 'Claude Fehler');
     // Wenn die Antwort wegen Token-Limit abgeschnitten wurde, ist das JSON unvollständig
@@ -11750,6 +11967,12 @@ async function runAnalysis(name, ust, land) {
       mapsUri: (googleTrefferOk && googleData && googleData.googleMapsUri) ? googleData.googleMapsUri : null,
       placeName: (googleData && googleData.displayName && googleData.displayName.text) ? googleData.displayName.text : name
     };
+    // Die Place-ID darf laut Google dauerhaft gespeichert werden - Fotonamen nicht (sie laufen ab)
+    report._evidence.placeId = (googleTrefferOk && googleData && googleData.id) ? googleData.id : null;
+    // Sitz: eingegeben vs. laut Quelle
+    report._sitz = sitzAuswerten(sitz, auswahl, report, (googleTrefferOk && googleData) ? googleData : null);
+    if (auswahl && auswahl.register) report._registerAuswahl = auswahl.register;
+    if (googleFehlerAnalyse) report._googleFehler = { status: googleFehlerAnalyse.status || 0, grund: googleFehlerAnalyse.grund || 'unbekannt' };
 
     showReport(report, name);
   } catch(err) {
@@ -11965,6 +12188,7 @@ function evidenceHTML(d) {
       <div class="evidence-gallery" id="evidenceGallery">
         <div class="evidence-img-loading">Bilder werden geladen…</div>
       </div>
+      <div class="evidence-quelle" id="evidenceQuelle"></div>
       <div class="evidence-note">Automatisch über Google zugeordnete Bilder zur angegebenen Adresse. Die Zuordnung erfolgt anhand des Namens des Unternehmens und sollte bei Bedarf manuell verifiziert werden.</div>
     </div>
   </div>`;
@@ -11978,10 +12202,18 @@ setTimeout(function(){ try { akteVorschauZeichnen(); } catch(e) {} }, 0);
 // Bei kuenftigen Updates: NEU_VERSION hochzaehlen und NEUIGKEITEN ersetzen.
 // Kleine Korrekturen ohne neue Funktionen: NEU_VERSION unveraendert lassen.
 // ============================================================
-const NEU_VERSION = 'v12.0';           // Stand der Neuigkeiten - nur erhoehen, wenn es wirklich Neues gibt
-const APP_VERSION = 'v12.1';           // aktuelle Version (Anzeige im Bericht und oben im Kopf)
+const NEU_VERSION = 'v12.2';           // Stand der Neuigkeiten - nur erhoehen, wenn es wirklich Neues gibt
+const APP_VERSION = 'v12.2';           // aktuelle Version (Anzeige im Bericht und oben im Kopf)
 const UPDATE_KURZ = 'Abgeschlossene Akten sind jetzt schreibgesch\u00fctzt \u2013 zum \u00c4ndern werden sie wieder ge\u00f6ffnet.';
 const NEUIGKEITEN = [
+  { farbe: '#0C86A3', v: 'v12.2', ico: '<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>',
+    t: 'Sitz des Unternehmens',
+    kurz: 'Gleichnamige Firmen? Gib den Sitz an \u2013 bei mehreren Treffern fragt der Checker vorher nach.',
+    d: 'Neues Feld \u201eSitz des gepr\u00fcften Unternehmens\u201c (Ort, PLZ). Gibt es mehrere Firmen mit gleichem Namen, erscheint vor der Pr\u00fcfung eine Auswahl mit Sitz und Registernummer \u2013 die Auswahl kostet kein Kontingent. Weicht der eingetragene Sitz vom angegebenen Ort ab, zeigt die Akte einen deutlichen Hinweis und der Score sinkt.' },
+  { farbe: '#128F86', v: 'v12.2', ico: '<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/>',
+    t: 'Firmenbilder zuverl\u00e4ssiger',
+    kurz: 'Firmenbilder werden jetzt bei jedem \u00d6ffnen frisch geladen \u2013 auch in \u00e4lteren Akten.',
+    d: 'Die Bilder zum Unternehmen werden bei jedem \u00d6ffnen frisch von Google geladen, auch in \u00e4lteren Akten. Unter den Bildern stehen jetzt Quelle und Urheber. Weitere Bilder l\u00e4dst du per Klick nach.' },
   { farbe: '#2B79C2', v: 'v12.0', nurAuto: true,
     ico: '<circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20 15 15 0 0 1 0-20z"/>',
     t: 'Endverbleibserkl\u00e4rung auf Englisch',
@@ -12279,14 +12511,21 @@ function akteStepperHTML() {
 function akteStammHTML(d) {
   const z = function(k, v){ return v ? '<div class="st-zeile"><span class="st-k">' + k + '</span><span class="st-v">' + v + '</span></div>' : ''; };
   const datum = d._createdAt ? new Date(d._createdAt).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '';
+  const sz = d._sitz || null;
+  const sitzE = (sz && sz.eingegeben) ? escapeHtml(sz.eingegeben) + (sz.ausAuswahl ? ' <span class="st-hinweis">aus Auswahl</span>' : '') : '';
+  const sitzQ = (sz && sz.quelle) ? escapeHtml(sz.quelle) + (sz.quelleName ? ' <span class="st-hinweis">' + escapeHtml(sz.quelleName) + '</span>' : '')
+    + (sz.abweichung ? ' <span class="st-warn">weicht ab</span>' : '') : '';
   return '<div class="sec-card st-card reveal">'
     + '<div class="st-head"><div class="st-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/></svg></div>'
     + '<div><div class="st-sub">Schritt 1 \u00b7 Stammdaten</div><div class="st-t">Akte angelegt</div></div></div>'
     + '<div class="st-grid">'
     + z('Unternehmen', escapeHtml(d.firmenname || ''))
     + z('Land', escapeHtml(d._land || ''))
+    + z('Sitz (eingegeben)', sitzE)
+    + z('Sitz (laut Quelle)', sitzQ)
     + z('USt-IdNr.', (d.ustId && d.ustId !== 'null') ? escapeHtml(d.ustId) : '')
-    + z('Standort', escapeHtml(d._standort || ''))
+    + z('Registernummer (Auswahl)', escapeHtml(d._registerAuswahl || ''))
+    + z('Eigener Standort', escapeHtml(d._standort || ''))
     + z('Pr\u00fcf-ID', escapeHtml(d.pruefId || ''))
     + z('Angelegt am', datum)
     + z('Angelegt von', escapeHtml(d._name || d._email || ''))
@@ -13314,66 +13553,215 @@ async function kycPdfVorbereiten() {
 }
 
 // Lädt ALLE Google-Fotos der Firma als Galerie (Fallback: Street View)
+// ============================================================
+// FIRMENBILDER (v12.2)
+// Google erlaubt nicht, Fotonamen dauerhaft zu speichern - sie laufen ab. Deshalb werden die Fotos
+// bei jedem Oeffnen frisch ueber die gespeicherte Place-ID geholt (alte Akten: ueber Name + Adresse).
+// Geladen wird paarweise (sonst sperrt Google mit Fehler 429), weitere Bilder nur auf Wunsch.
+// ============================================================
+const BILD_CACHE = {};      // Fotoname -> Blob-URL (nur diese Sitzung, spart Google-Abrufe)
+const BILD_START = 3;       // sofort geladen (eine Reihe)
+const BILD_MAX = 6;         // mit "weitere Bilder" hoechstens
+let BILD_STAND = null;      // Galerie der offenen Akte
+const BILD_ICON = '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg>';
+
+function bildGrundText(f) {
+  const g = (f && f.grund) || 'unbekannt';
+  if (/abrechnung|schluessel|api_aus|zugriff/.test(g)) return 'Der Bilddienst von Google lehnt den Zugang gerade ab. Bitte kurz an support@automatilabs.de melden.';
+  if (g === 'kontingent') return 'Google begrenzt gerade die Zahl der Bildabrufe. Bitte die Akte sp\u00e4ter erneut \u00f6ffnen.';
+  if (g === 'verweis_ungueltig') return 'Die gespeicherten Bildverweise sind abgelaufen und konnten nicht erneuert werden.';
+  return 'Google ist gerade nicht erreichbar. Bitte die Akte sp\u00e4ter erneut \u00f6ffnen.';
+}
+
+async function fotoLaden(foto) {
+  if (BILD_CACHE[foto.name]) return { url: BILD_CACHE[foto.name] };
+  try {
+    const res = await fetch(WORKER, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'place_photo', payload: { photoName: foto.name, maxWidth: 800 } })
+    });
+    const typ = (res.headers && res.headers.get('content-type')) || '';
+    if (res.ok && typ.indexOf('image') === 0) {
+      const url = URL.createObjectURL(await res.blob());
+      BILD_CACHE[foto.name] = url;
+      return { url: url };
+    }
+    let j = null;
+    try { j = await res.json(); } catch (e) {}
+    return { fehler: { status: (j && j.status) || res.status, grund: (j && j.grund) || 'unbekannt' } };
+  } catch (e) { return { fehler: { grund: 'netz' } }; }
+}
+
+// Geschaeftsadresse aus der Recherche (Grunddaten -> "Adresse"), nur wenn sie eine PLZ enthaelt
+function kiAdresse(d) {
+  const felder = (d && d.grunddaten && Array.isArray(d.grunddaten.felder)) ? d.grunddaten.felder : [];
+  const f = felder.find(function(x){ return x && /^(adresse|anschrift|gesch(ae|\u00e4)ftsadresse)/i.test(String(x.key || '').trim()); });
+  const v = f ? String(f.value || '').trim() : '';
+  return (/\b\d{4,5}\b/.test(v) && v.length <= 240) ? v : '';
+}
+
+// Alte Akte: gefundene Place-ID einmalig nachtragen (nur die neue Spalte - sonst nichts)
+function placeIdMerken(akte, placeId) {
+  if (!akte || !placeId) return;
+  akte._googlePlaceId = placeId;
+  const pid = akte.pruefId || akte.pruef_id;
+  if (!sb || !pid) return;
+  try { sb.from('analysen').update({ google_place_id: placeId }).eq('pruef_id', pid).then(function(){}, function(){}); } catch (e) {}
+}
+
+// Pflichtangabe nach Google: Quelle und Urheber der Fotos
+function urheberHTML(bilder, quelle) {
+  const gesehen = {}, teile = [];
+  (bilder || []).forEach(function(b){
+    (b.autoren || []).forEach(function(a){
+      if (!a || !a.name || gesehen[a.name]) return;
+      gesehen[a.name] = true;
+      let uri = String(a.uri || '');
+      if (uri.indexOf('//') === 0) uri = 'https:' + uri;
+      const u = sichereUrl(uri);
+      teile.push(u ? '<a href="' + u + '" target="_blank" rel="noopener">' + escapeHtml(a.name) + '</a>' : escapeHtml(a.name));
+    });
+  });
+  return 'Bildquelle: ' + (quelle || 'Google Maps') + (teile.length ? ' \u00b7 Fotos: ' + teile.join(', ') : '');
+}
+
+function galerieZeichnen(stand) {
+  const g = stand.gallery;
+  if (!g || !g.isConnected) return;
+  g.innerHTML = stand.geladen.map(function(b, i){
+    return '<a class="evidence-thumb" href="' + b.url + '" target="_blank" title="Bild ' + (i + 1) + ' in voller Gr\u00f6\u00dfe \u00f6ffnen">'
+      + '<img src="' + b.url + '" alt="Unternehmensbild ' + (i + 1) + '" loading="lazy" /></a>';
+  }).join('')
+    + (stand.rest.length ? '<button type="button" class="evidence-mehr" onclick="weitereBilderLaden()">+ ' + stand.rest.length + ' weitere Bilder laden</button>' : '');
+  const countEl = document.getElementById('evidenceCount');
+  if (countEl) countEl.textContent = stand.geladen.length === 1 ? '1 Bild' : stand.geladen.length + ' Bilder';
+  const q = document.getElementById('evidenceQuelle');
+  if (q) q.innerHTML = urheberHTML(stand.geladen, 'Google Maps');
+}
+
+async function bilderPaarweise(liste, stand) {
+  for (let i = 0; i < liste.length; i += 2) {
+    const paar = liste.slice(i, i + 2);
+    const erg = await Promise.all(paar.map(fotoLaden));
+    erg.forEach(function(x, j){
+      if (x.url) stand.geladen.push({ url: x.url, autoren: paar[j].autoren || [] });
+      else if (x.fehler) stand.fehler = x.fehler;
+    });
+    if (!stand.gallery.isConnected) return;
+  }
+}
+
+async function weitereBilderLaden() {
+  const stand = BILD_STAND;
+  if (!stand || !stand.rest.length || !stand.gallery.isConnected) return;
+  const knopf = stand.gallery.querySelector('.evidence-mehr');
+  if (knopf) { knopf.disabled = true; knopf.textContent = 'Bilder werden geladen\u2026'; }
+  const liste = stand.rest;
+  stand.rest = [];
+  await bilderPaarweise(liste, stand);
+  galerieZeichnen(stand);
+}
+
 async function loadEvidenceImage(ev) {
   const gallery = document.getElementById('evidenceGallery');
   const countEl = document.getElementById('evidenceCount');
+  const quelleEl = document.getElementById('evidenceQuelle');
   if (!gallery) return;
-  const showNone = () => {
-    gallery.innerHTML = `<div class="evidence-img-none">
-      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m3 16 5-5 4 4M14 14l2-2 5 5"/><circle cx="9" cy="9" r="1.5"/><line x1="3" y1="3" x2="21" y2="21"/></svg>
-      <div>Keine Bilder zum Unternehmen gefunden</div>
-    </div>`;
+  ev = ev || {};
+  const akte = CURRENT_REPORT;
+  const stand = { gallery: gallery, geladen: [], rest: [], fehler: null };
+  BILD_STAND = stand;
+  const zeigeText = function(titel, detail){
+    if (!gallery.isConnected) return;
+    gallery.innerHTML = '<div class="evidence-img-none">' + BILD_ICON + '<div>' + titel + '</div>'
+      + (detail ? '<div class="evidence-img-detail">' + escapeHtml(detail) + '</div>' : '') + '</div>';
+    if (countEl) countEl.textContent = '';
+    if (quelleEl) quelleEl.innerHTML = '';
   };
 
-  // Hilfsfunktion: ein Foto über den Worker laden, gibt Blob-URL oder null zurück
-  const fetchPhoto = async (photoName) => {
+  // 1) Frische Fotonamen holen: ueber die Place-ID, bei alten Akten ueber Name + Adresse.
+  //    Ohne Google-Treffer bei der Erstellung (z. B. Google-Stoerung): Adresse aus der Recherche.
+  let fotos = [];
+  const placeId = ev.placeId || (akte && akte._googlePlaceId) || '';
+  const suchAdresse = ev.address || (placeId ? '' : kiAdresse(akte));
+  const suchName = ev.address ? (ev.placeName || '') : ((akte && akte.firmenname) || ev.placeName || '');
+  if (placeId || (suchName && suchAdresse)) {
+    try {
+      const r = await workerCall('place_fotos', { placeId: placeId, name: suchName, adresse: suchAdresse, anzahl: BILD_MAX });
+      if (r && r.ok) {
+        fotos = Array.isArray(r.fotos) ? r.fotos : [];
+        if (r.placeId && r.placeId !== placeId) placeIdMerken(akte, r.placeId);
+      } else if (r && r.googleFehler) stand.fehler = r.googleFehler;
+    } catch (e) {}
+  }
+  if (!gallery.isConnected) return;
+  // 2) Rueckfall: gespeicherte Fotonamen (klappt nur, solange Google sie nicht erneuert hat)
+  if (!fotos.length && !stand.fehler && Array.isArray(ev.photoNames) && ev.photoNames.length) {
+    fotos = ev.photoNames.slice(0, BILD_MAX).map(function(n){ return { name: n, autoren: [] }; });
+  }
+  // 3) Erste Reihe laden, den Rest nur auf Wunsch
+  stand.rest = fotos.slice(BILD_START);
+  await bilderPaarweise(fotos.slice(0, BILD_START), stand);
+  if (!gallery.isConnected) return;
+  if (stand.geladen.length) { galerieZeichnen(stand); return; }
+  stand.rest = [];
+
+  // 4) Ersatz: Street View - nicht, wenn Google den Zugang grundsaetzlich sperrt
+  const gesperrt = !!(stand.fehler && /abrechnung|schluessel|api_aus|zugriff/.test(stand.fehler.grund || ''));
+  if (ev.address && !gesperrt) {
     try {
       const res = await fetch(WORKER, {
-        method: 'POST', headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({ action: 'place_photo', payload: { photoName, maxWidth: 800 } })
-      });
-      if (res.ok && res.headers.get('content-type')?.startsWith('image')) {
-        return URL.createObjectURL(await res.blob());
-      }
-    } catch(e) {}
-    return null;
-  };
-
-  try {
-    const photoNames = Array.isArray(ev.photoNames) ? ev.photoNames : [];
-
-    // 1. Alle Google-Fotos parallel laden
-    if (photoNames.length > 0) {
-      const urls = (await Promise.all(photoNames.map(fetchPhoto))).filter(Boolean);
-      if (urls.length > 0) {
-        gallery.innerHTML = urls.map((url, i) =>
-          `<a class="evidence-thumb" href="${url}" target="_blank" title="Bild ${i+1} in voller Größe öffnen">
-            <img src="${url}" alt="Unternehmensbild ${i+1}" loading="lazy" />
-          </a>`
-        ).join('');
-        if (countEl) countEl.textContent = urls.length === 1 ? '1 Bild' : `${urls.length} Bilder`;
-        return;
-      }
-    }
-
-    // 2. Fallback: Street View (Außenansicht von der Straße)
-    if (ev.address) {
-      const res = await fetch(WORKER, {
-        method: 'POST', headers: {'Content-Type':'application/json'},
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'street_view', payload: { address: ev.address } })
       });
-      if (res.ok && res.headers.get('content-type')?.startsWith('image')) {
+      const typ = (res.headers && res.headers.get('content-type')) || '';
+      if (res.ok && typ.indexOf('image') === 0) {
         const url = URL.createObjectURL(await res.blob());
-        gallery.innerHTML = `<a class="evidence-thumb evidence-thumb-wide" href="${url}" target="_blank" title="Street View in voller Größe öffnen"><img src="${url}" alt="Street View" /></a>`;
+        if (!gallery.isConnected) return;
+        gallery.innerHTML = '<a class="evidence-thumb evidence-thumb-wide" href="' + url + '" target="_blank" title="Street View in voller Gr\u00f6\u00dfe \u00f6ffnen"><img src="' + url + '" alt="Street View" /></a>';
         if (countEl) countEl.textContent = 'Street View';
+        if (quelleEl) quelleEl.innerHTML = 'Bildquelle: Google Street View';
         return;
       }
-    }
-
-    showNone();
-  } catch(e) {
-    showNone();
+    } catch (e) {}
   }
+
+  // 5) Keine Bilder - ehrlich sagen, warum (frueher hiess es immer "keine gefunden")
+  if (stand.fehler && stand.fehler.grund !== 'verweis_ungueltig') zeigeText('Bilder derzeit nicht abrufbar', bildGrundText(stand.fehler));
+  else if (akte && akte._googleFehler && !ev.address) zeigeText('Keine Bilder vorhanden', 'Bei der Erstellung dieser Akte war der Google-Dienst nicht erreichbar.');
+  else zeigeText('Keine Bilder zum Unternehmen gefunden');
+}
+
+// ============================================================
+// WARTUNG (nur Automati-Labs-Konten; in der Browser-Konsole aufrufen)
+//   wartungGoogleDiagnose()                  -> zeigt, ob und warum Google blockiert
+//   wartungBilderNachladen({ probe: true })  -> Probelauf ohne Speichern
+//   wartungBilderNachladen()                 -> traegt alten Akten die Place-ID nach (einmalig)
+// ============================================================
+async function wartungGoogleDiagnose() {
+  const r = await workerCall('google_diagnose', {});
+  if (!r || r.error) { console.error('Diagnose nicht m\u00f6glich:', r && r.error, '(nur mit @automatilabs.de-Konto)'); return r; }
+  console.table((r.pruefungen || []).map(function(p){
+    return { Test: p.test, OK: p.ok ? 'ja' : 'NEIN', Status: p.status || '', Grund: p.grund || '', Erklaerung: p.erklaerung || '', Google: p.meldung || '' };
+  }));
+  console.log(r.fazit);
+  return r;
+}
+
+async function wartungBilderNachladen(opt) {
+  opt = opt || {};
+  const summe = { verarbeitet: 0, gefunden: 0, nicht_gefunden: 0, ohne_google: 0 };
+  for (let runde = 1; runde <= (opt.maxRunden || 50); runde++) {
+    const r = await workerCall('bilder_nachladen', { limit: opt.limit || 20, probe: !!opt.probe });
+    if (!r || r.error) { console.error('Abbruch:', r && r.error); break; }
+    Object.keys(summe).forEach(function(k){ summe[k] += (r[k] || 0); });
+    console.log('Runde ' + runde + ': ' + r.verarbeitet + ' gepr\u00fcft \u00b7 ' + r.gefunden + ' gefunden \u00b7 ' + r.nicht_gefunden
+      + ' nicht gefunden \u00b7 ' + r.ohne_google + ' ohne Google' + (typeof r.offen === 'number' ? ' \u00b7 noch offen: ' + r.offen : ''), r.beispiele || '');
+    if (r.abbruch) { console.error(r.abbruch, r.googleFehler || ''); break; }
+    if (opt.probe || !r.verarbeitet || r.offen === 0) break;
+  }
+  console.log('Fertig:', summe);
+  return summe;
 }
 
 // Erzeugt eine Prüf-ID (Zeitstempel Basis36 + Zufallsanteil). Die echte Einmaligkeit
@@ -13880,11 +14268,12 @@ function showReport(d, rawName, fromHistory, nichtSpeichern) {
 
   const metaParts = [d.datum];
   if (d._land) metaParts.push('Land: '+escapeHtml(d._land));
+  if (sitzMeta(d)) metaParts.push(sitzMeta(d));
   if (d.ustId && d.ustId!=='null') metaParts.push('USt-ID: '+escapeHtml(d.ustId));
-  if (d._standort) metaParts.push('Standort: '+escapeHtml(d._standort));
+  if (d._standort) metaParts.push('Eigener Standort: '+escapeHtml(d._standort));
   const vIcon = d.verdict==='ok'?'✓':d.verdict==='bad'?'✕':'⚠';
   // Risiko-Hinweise robust verarbeiten (KI liefert manchmal leicht andere Feldnamen pro Eintrag)
-  const flagsHTML = (d.risikoHinweise || []).map(f => {
+  const flagsHTML = sitzHinweise(d).concat(d.risikoHinweise || []).map(f => {
     if (!f) return '';
     // Falls die KI nur einen String statt Objekt liefert
     if (typeof f === 'string') return `<div class="flag"><span class="flag-icon warn">⚠</span><span class="flag-text">${escapeHtml(f)}</span></div>`;
@@ -13911,7 +14300,7 @@ function showReport(d, rawName, fromHistory, nichtSpeichern) {
   const na = v => isNA(v)?'<span class="cc-value na">N/A</span>':`<div class="cc-value">${escapeHtml(v)}</div>`;
 
   // Gewichteter Gesamt-Score (Prioritäten von Remax)
-  // Grunddaten 30%, Personen 30%, Kontakt 20%, Reputation 15%, Finanzen 5%
+  // Grunddaten 30%, Personen 30%, Kontakt 20%, Finanzen 15%, Reputation 5%
   const weighted = [
     { score: d.grunddaten && d.grunddaten.score, weight: 0.30 },
     { score: d.personen   && d.personen.score,   weight: 0.30 },
@@ -13929,6 +14318,11 @@ function showReport(d, rawName, fromHistory, nichtSpeichern) {
     computedScore = Math.round(weightedSum / totalWeight);
   }
   d.gesamtScore = computedScore !== null ? computedScore : d.gesamtScore;
+
+  // SITZ-ABWEICHUNG (v12.2): Sitz laut Quelle passt nicht zum eingegebenen Ort -> Abzug (SITZ_ABZUG)
+  if (d._sitz && d._sitz.abweichung && typeof d.gesamtScore === 'number') {
+    d.gesamtScore = Math.max(0, d.gesamtScore - (d._sitz.abzug || SITZ_ABZUG));
+  }
 
   // PHANTOM-DECKELUNG (Option A): Bei Phantom-Verdacht wird der Score hart gedeckelt
   const phantomVerdacht = d.phantom && d.phantom.verdacht === true;
@@ -13983,6 +14377,7 @@ function showReport(d, rawName, fromHistory, nichtSpeichern) {
     <div class="akte-panel" data-panel="analyse" id="panelAnalyse">
     <div class="akte-lock"></div>
     <div id="dokHinweis" class="dok-hinweis"></div>
+    ${sitzKarteHTML(d)}
     <div class="score-card reveal">
       <div class="gauge-wrap">${gauge(d.gesamtScore)}<div class="gauge-num"><span class="gauge-num-val" style="color:${d.gesamtScore?scC(d.gesamtScore):'var(--gray-l)'}">${d.gesamtScore||'N/A'}</span><span class="gauge-num-label">${d.gesamtScore?'/ 100':''}</span></div></div>
       <div class="score-right">
@@ -14120,7 +14515,8 @@ async function saveAnalysisToHistory(d, rawName) {
       } catch (e) { /* still leise weiter - lieber speichern als verlieren */ }
     }
     let attempts = 0;
-    while (attempts < 6) {
+    const ohneSpalten = {};   // Spalten, die in der Datenbank (noch) fehlen -> weglassen statt Akte verlieren
+    while (attempts < 12) {
       const row = {
         user_id: user.id,
         firma_id: firmaId,
@@ -14130,12 +14526,17 @@ async function saveAnalysisToHistory(d, rawName) {
         land: d._land || null,
         ust_id: (d.ustId && d.ustId !== 'null') ? d.ustId : null,
         standort: d._standort || null,
+        sitz_eingegeben: (d._sitz && d._sitz.eingegeben) || null,
+        sitz_quelle: (d._sitz && d._sitz.quelle) || null,
+        sitz_abweichung: d._sitz ? !!d._sitz.abweichung : null,
+        google_place_id: (d._evidence && d._evidence.placeId) || null,
         von_support: (CURRENT_USER_RANG === 'support'),
         score: (typeof d.gesamtScore === 'number' && !isNaN(d.gesamtScore)) ? Math.round(d.gesamtScore) : null,
         verdict: d.verdict || null,
         verdict_text: d.verdictText || null,
         report_json: d
       };
+      Object.keys(ohneSpalten).forEach(function(k){ delete row[k]; });
       const _ins = await sb.from('analysen').insert(row).select('id');
       const error = _ins ? _ins.error : null;
       try { if (_ins && _ins.data && _ins.data[0]) d._analyseId = _ins.data[0].id; } catch(e) {}
@@ -14144,6 +14545,15 @@ async function saveAnalysisToHistory(d, rawName) {
         return; // gespeichert
       }
       // 23505 = unique_violation → Prüf-ID kollidiert: neue ID, Wasserzeichen aktualisieren, erneut versuchen
+      // Neue Spalte fehlt noch (SQL nicht eingespielt): nur diese weglassen und erneut speichern
+      const fehlt = fehlendeSpalte(error);
+      if (fehlt && Object.prototype.hasOwnProperty.call(row, fehlt)
+          && ['standort', 'sitz_eingegeben', 'sitz_quelle', 'sitz_abweichung', 'google_place_id', 'von_support'].indexOf(fehlt) >= 0) {
+        console.warn('Spalte "' + fehlt + '" fehlt noch in der Datenbank - Akte wird ohne sie gespeichert (Daten bleiben im Bericht).');
+        ohneSpalten[fehlt] = true;
+        attempts++;
+        continue;
+      }
       if (error.code === '23505' || /duplicate|unique/i.test(error.message || '')) {
         d.pruefId = generatePruefId();
         buildWatermark(d);
@@ -14217,22 +14627,31 @@ async function _openHistory() {
 
 // Laedt die Akten des Unternehmens in HISTORY_ROWS (ohne Anzeige).
 // Fehlt eine neue Spalte noch (SQL nicht eingespielt), wird auf die Grundspalten zurueckgegriffen.
+const HISTORIE_GRUNDSPALTEN = ['id', 'pruef_id', 'firmenname', 'land', 'ust_id', 'score', 'verdict', 'verdict_text', 'created_at', 'report_json', 'ordner_id'];
+const HISTORIE_ZUSATZSPALTEN = ['standort', 'schritte', 'abgeschlossen_am', 'abgeschlossen_von', 'abgeschlossen_von_name',
+  'sitz_eingegeben', 'sitz_quelle', 'sitz_abweichung', 'google_place_id'];
+const HISTORIE_FEHLEND = {};
 async function ladeHistorie() {
   if (!sb) return [];
-  let { data, error } = await sb
-    .from('analysen')
-    .select('id, pruef_id, firmenname, land, ust_id, standort, score, verdict, verdict_text, created_at, report_json, ordner_id, schritte, abgeschlossen_am, abgeschlossen_von, abgeschlossen_von_name')
-    .order('created_at', { ascending: false });
-  if (error && /column|schema cache|does not exist/i.test(error.message || '')) {
-    console.warn('Historie: neue Spalten fehlen noch, lade Grundspalten. (' + error.message + ')');
-    const r2 = await sb.from('analysen')
-      .select('id, pruef_id, firmenname, land, ust_id, score, verdict, verdict_text, created_at, report_json, ordner_id')
-      .order('created_at', { ascending: false });
-    data = r2.data; error = r2.error;
+  for (let versuch = 0; versuch < 12; versuch++) {
+    const spalten = HISTORIE_GRUNDSPALTEN.concat(HISTORIE_ZUSATZSPALTEN.filter(function(x){ return !HISTORIE_FEHLEND[x]; }));
+    const r = await sb.from('analysen').select(spalten.join(', ')).order('created_at', { ascending: false });
+    if (!r.error) { HISTORY_ROWS = r.data || []; return HISTORY_ROWS; }
+    const fehlt = fehlendeSpalte(r.error);
+    if (fehlt && HISTORIE_ZUSATZSPALTEN.indexOf(fehlt) >= 0 && !HISTORIE_FEHLEND[fehlt]) {
+      console.warn('Historie: Spalte "' + fehlt + '" fehlt noch (SQL einspielen) - wird ausgelassen.');
+      HISTORIE_FEHLEND[fehlt] = true;
+      continue;
+    }
+    if (/column|schema cache|does not exist/i.test(r.error.message || '')
+        && HISTORIE_ZUSATZSPALTEN.some(function(x){ return !HISTORIE_FEHLEND[x]; })) {
+      // Spaltenname nicht erkennbar: auf die Grundspalten zurueckfallen
+      HISTORIE_ZUSATZSPALTEN.forEach(function(x){ HISTORIE_FEHLEND[x] = true; });
+      continue;
+    }
+    throw r.error;
   }
-  if (error) throw error;
-  HISTORY_ROWS = data || [];
-  return HISTORY_ROWS;
+  throw new Error('Akten konnten nicht geladen werden.');
 }
 
 function renderHistoryError(msg) {
@@ -15050,6 +15469,7 @@ function _openFromHistory(i) {
   if (!d.pruefId && r.pruef_id) d.pruefId = r.pruef_id;
   if (r.id) d._analyseId = r.id;
   if (r.standort && !d._standort) d._standort = r.standort;
+  if (r.google_place_id) d._googlePlaceId = r.google_place_id;   // nachgetragen (Nachlade-Skript)
   d._schritte = r.schritte || {};
   d._abgeschlossen_am = r.abgeschlossen_am || null;
   d._abgeschlossen_von = r.abgeschlossen_von || null;
@@ -15284,7 +15704,7 @@ function sankRechtstexte() {
 }
 
 function buildFlagsHTML(d) {
-  const arr = Array.isArray(d.risikoHinweise) ? d.risikoHinweise : [];
+  const arr = sitzHinweise(d).concat(Array.isArray(d.risikoHinweise) ? d.risikoHinweise : []);
   const html = arr.map(function(f){
     if (!f) return '';
     if (typeof f === 'string') return '<div class="flag"><span class="flag-icon warn">⚠</span><span class="flag-text">' + escapeHtml(f) + '</span></div>';
@@ -15319,8 +15739,9 @@ function buildAkteAnalyse(d) {
   const meta = [];
   if (d.datum) meta.push(escapeHtml(d.datum));
   if (d._land) meta.push('Land: ' + escapeHtml(d._land));
+  if (sitzMeta(d)) meta.push(sitzMeta(d));
   if (d.ustId && d.ustId !== 'null') meta.push('USt-ID: ' + escapeHtml(d.ustId));
-  if (d._standort) meta.push('Standort: ' + escapeHtml(d._standort));
+  if (d._standort) meta.push('Eigener Standort: ' + escapeHtml(d._standort));
   if (d.pruefId) meta.push('Prüf-ID: ' + escapeHtml(d.pruefId));
   if (d._email) meta.push('Geprüft von ' + escapeHtml(d._email));
   const score = (typeof d.gesamtScore === 'number') ? d.gesamtScore : null;
@@ -15333,6 +15754,7 @@ function buildAkteAnalyse(d) {
     + '<div class="akte-score-box"><div class="gauge-wrap">' + gauge(score) + '<div class="gauge-num"><span class="gauge-num-val" style="color:' + (score ? scC(score) : 'var(--gray-l)') + '">' + (score == null ? 'N/A' : score) + '</span><span class="gauge-num-label">' + (score != null ? '/ 100' : '') + '</span></div></div>'
     + '<span class="verdict ' + (d.verdict || 'warn') + '">' + vIcon + ' ' + escapeHtml(d.verdictText || '') + '</span></div>'
     + '</div>'
+    + sitzKarteHTML(d)
     + '<div class="grid4">'
     + secCard('Grunddaten', d.grunddaten || { felder: [] }, '30%')
     + secCard('Personen', d.personen || { felder: [] }, '30%')
