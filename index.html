@@ -3504,37 +3504,6 @@
       .history-list .akte-mappe:hover::after { transform:translateY(0); clip-path:inset(0 0 17px 0); }
     }
 
-    /* ============================================================
-       v12.3 Ordnerregal: Ordner als Aktenordner mit Rueckenschild und Griffloch
-       ============================================================ */
-    .ordner-regal { margin:-6px 0 16px; }
-    .or-reihe { display:flex; align-items:flex-end; gap:12px; overflow-x:auto; padding:18px 8px 0; margin:0 -8px; scroll-snap-type:x proximity; perspective:900px; scrollbar-width:thin; }
-    .or-ordner { position:relative; flex:0 0 104px; height:146px; padding:0; border:0; cursor:pointer; scroll-snap-align:start; font:inherit; text-align:left;
-      border-radius:8px 8px 3px 3px;
-      background:
-        linear-gradient(90deg, rgba(0,0,0,.22) 0, rgba(0,0,0,0) 9%, rgba(255,255,255,.18) 40%, rgba(255,255,255,0) 58%, rgba(0,0,0,.16) 100%),
-        linear-gradient(180deg, rgba(255,255,255,.12), rgba(0,0,0,.10)),
-        var(--of, #22C55E);
-      box-shadow:inset 0 0 0 1px rgba(0,0,0,.10), 0 7px 10px -7px rgba(10,22,17,.55);
-      transform-origin:50% 100%;
-      transition:transform .28s cubic-bezier(.2,.8,.3,1), box-shadow .28s ease; }
-    .or-schild { position:absolute; left:10px; right:10px; top:14px; display:flex; flex-direction:column; gap:4px; min-height:64px; padding:9px 8px 8px; border-radius:4px; background:#FBFAF6; box-shadow:inset 0 0 0 1px rgba(0,0,0,.08), 0 1px 1px rgba(0,0,0,.14); }
-    .or-name { font-size:12.5px; font-weight:700; line-height:1.25; color:#1F2A26; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; overflow-wrap:anywhere; }
-    .or-zahl { font-size:10.5px; font-weight:600; color:#5A6670; }
-    .or-sicht { display:inline-flex; align-items:center; gap:4px; font-size:10px; font-weight:600; color:#5A6670; }
-    .or-sicht svg { flex:none; }
-    .or-loch { position:absolute; left:50%; bottom:18px; width:26px; height:26px; margin-left:-13px; border-radius:50%;
-      background:radial-gradient(circle at 50% 42%, rgba(0,0,0,.42) 0 46%, rgba(0,0,0,.18) 62%, rgba(255,255,255,.24) 70%, rgba(0,0,0,0) 74%);
-      box-shadow:inset 0 2px 4px rgba(0,0,0,.35); }
-    .or-ordner:hover { transform:translateY(-5px) rotateX(-8deg); box-shadow:inset 0 0 0 1px rgba(0,0,0,.10), 0 14px 16px -10px rgba(10,22,17,.55); }
-    .or-ordner.an { transform:translateY(-16px); box-shadow:inset 0 0 0 1px rgba(0,0,0,.10), 0 18px 18px -12px rgba(10,22,17,.6); }
-    .or-ordner.an .or-schild { box-shadow:inset 0 0 0 2px var(--of, #22C55E), 0 1px 1px rgba(0,0,0,.14); }
-    .or-ordner:focus-visible { outline:2px solid var(--green, #16A34A); outline-offset:3px; }
-    .or-neu { background:transparent; border:1.5px dashed #C9D3CF; box-shadow:none; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; color:#5A6670; }
-    .or-neu:hover { transform:translateY(-3px); border-color:var(--green, #16A34A); color:var(--green-d, #15803D); box-shadow:none; }
-    .or-neu-plus { font-size:24px; font-weight:300; line-height:1; }
-    .or-neu-t { font-size:11.5px; font-weight:600; }
-    .or-brett { height:12px; margin-top:-1px; border-radius:3px; background:linear-gradient(180deg, #F1F4F2, #DCE3E0); box-shadow:0 10px 14px -10px rgba(10,22,17,.45), inset 0 1px 0 #fff, inset 0 -1px 0 rgba(0,0,0,.06); }
     /* Mini-Ruecken in Ordnerverwaltung und Gruppen-Dialog */
     .of-ruecken { position:relative; flex:none; display:inline-block; width:13px; height:20px; border-radius:3px 3px 1px 1px; vertical-align:middle;
       background:linear-gradient(90deg, rgba(0,0,0,.2), rgba(255,255,255,.18) 45%, rgba(0,0,0,.15)), var(--of-farbe, #22C55E);
@@ -3563,15 +3532,116 @@
     .gm-hinweis { margin-left:auto; font-size:11px; color:var(--gray-l); white-space:nowrap; }
     .fg-zeile.gm-team .fg-mail { color:var(--gray-l); }
     @media (max-width:640px) {
-      .or-ordner { flex-basis:88px; height:124px; }
-      .or-schild { left:8px; right:8px; top:12px; min-height:56px; padding:7px 7px 6px; }
-      .or-name { font-size:11.5px; }
-      .or-loch { width:22px; height:22px; margin-left:-11px; bottom:14px; }
       .gm-hinweis { display:none; }
     }
-    @media (hover:none) { .or-ordner:hover { transform:none; } .or-ordner.an { transform:translateY(-12px); } }
-    @media (prefers-reduced-motion: reduce) { .or-ordner { transition:none; } .or-ordner:hover { transform:none; } }
-    @media print { .ordner-regal { display:none !important; } }
+
+    /* ============================================================
+       v12.5 Wieder oeffnen: das Siegel loest sich (Gegenstueck zum Versiegeln)
+       ============================================================ */
+    .ab-siegel-anim.entsiegeln .asa-siegel { animation:aseLoesen .7s cubic-bezier(.4,0,.2,1) .5s both; }
+    @keyframes aseLoesen { 0% { opacity:1; transform:none; } 100% { opacity:0; transform:translateY(-14px) scale(1.18) rotate(16deg); } }
+    .ab-siegel-anim.entsiegeln .asa-haken { stroke-dashoffset:0; animation:aseHaken .38s cubic-bezier(.4,0,.2,1) .12s forwards; }
+    @keyframes aseHaken { to { stroke-dashoffset:44; } }
+    .ase-schloss { position:absolute; top:0; left:50%; z-index:3; width:92px; height:92px; margin-left:-46px; border-radius:50%;
+      display:flex; align-items:center; justify-content:center; background:#fff; color:#1E5D9A;
+      border:2px solid rgba(30,93,154,.25); box-shadow:0 14px 30px -14px rgba(30,93,154,.55);
+      animation:aseSchlossEin .45s cubic-bezier(.2,.8,.3,1) .85s both; }
+    @keyframes aseSchlossEin { from { opacity:0; transform:scale(.7); } to { opacity:1; transform:none; } }
+    .ase-buegel { transform-box:view-box; transform-origin:21px 14px; animation:aseBuegel .5s cubic-bezier(.3,.8,.3,1) 1.05s both; }
+    @keyframes aseBuegel { from { transform:none; } to { transform:translateY(-2px) rotate(22deg); } }
+    .ab-siegel-anim.entsiegeln .asa-t { animation-delay:.95s; }
+    .ab-siegel-anim.entsiegeln .asa-s { animation-delay:1.08s; }
+    .akte-siegel.weg { animation:asePille .34s cubic-bezier(.4,0,.2,1) both; }
+    @keyframes asePille { to { opacity:0; transform:scale(.6); } }
+    .akte-stepper.entsiegeln .akte-schritt { animation:aseKachel .5s cubic-bezier(.2,.8,.3,1) var(--ad,0s) both; }
+    @keyframes aseKachel { from { opacity:0; transform:translateY(-8px) scale(.96); } to { opacity:1; transform:none; } }
+    .report.entsperrt .bearb-leiste, .report.entsperrt .nw-modus, .report.entsperrt .nw-cta, .report.entsperrt .ev-form,
+    .report.entsperrt .ev-btns, .report.entsperrt .kv-stift, .report.entsperrt .cc-stift, .report.entsperrt .dok-hinweis { animation:nwIn .45s ease both; }
+    /* Animierte Rueckfrage */
+    .frage-card { max-width:420px; text-align:center; }
+    .frage-ico { width:52px; height:52px; margin:0 auto 12px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:#EEF6F1; color:var(--green-d, #15803D); }
+    .frage-gefahr .frage-ico { background:var(--bad-bg, #FEF1F1); color:var(--bad-text, #B91C1C); }
+    .frage-blau .frage-ico { background:#EAF2FB; color:#1E5D9A; }
+    .frage-card .up-warn-btns { justify-content:center; }
+    .frage-rot { background:#DC2626 !important; border-color:#DC2626 !important; color:#fff !important; }
+    .frage-rot:hover { background:#B91C1C !important; border-color:#B91C1C !important; }
+    @media (prefers-reduced-motion: reduce) {
+      .ab-siegel-anim.entsiegeln .asa-siegel, .ab-siegel-anim.entsiegeln .asa-haken, .ase-schloss, .ase-buegel,
+      .akte-siegel.weg, .akte-stepper.entsiegeln .akte-schritt, .report.entsperrt * { animation:none !important; }
+      .ase-schloss, .akte-stepper.entsiegeln .akte-schritt { opacity:1 !important; }
+    }
+
+    /* ============================================================
+       v12.6 Ordner: Mappen mit Reiter im Raster (gleiche Formensprache wie die Akten)
+       ============================================================ */
+    .ordner-nav { margin:2px 0 18px; }
+    .on-kopf { display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:6px; }
+    .on-titel { display:inline-flex; align-items:baseline; gap:6px; font-size:14px; font-weight:700; color:var(--ink); }
+    .on-anzahl { font-size:12px; font-weight:600; color:var(--gray-l); }
+    .on-titel + .on-neu { margin-left:auto; }
+    .on-suche { margin-left:auto; display:flex; align-items:center; gap:7px; height:34px; min-width:210px; padding:0 11px; border-radius:10px;
+      border:1.5px solid var(--border, #E3E8E6); background:#fff; color:var(--gray-l); transition:border-color .2s, box-shadow .2s; }
+    .on-suche:focus-within { border-color:var(--green, #16A34A); box-shadow:0 0 0 3px rgba(34,197,94,.14); }
+    .on-suche input { -webkit-appearance:none; appearance:none; flex:1; min-width:0; height:100%; padding:0; border:0; background:transparent; box-shadow:none; outline:none; font-family:inherit; font-size:13px; color:var(--ink); }
+    .on-neu { border:0; background:transparent; padding:7px 10px; border-radius:9px; font-family:inherit; font-size:12.5px; font-weight:700; color:var(--green-d, #15803D); cursor:pointer; transition:background-color .2s; }
+    .on-neu:hover { background:#EEF6F1; }
+    .on-raster { display:grid; grid-template-columns:repeat(auto-fill, minmax(176px, 1fr)); gap:18px 12px; padding:12px 4px 6px; margin:0 -4px; }
+    .on-raster.zu { max-height:162px; overflow:hidden;
+      -webkit-mask-image:linear-gradient(180deg, #000 72%, transparent); mask-image:linear-gradient(180deg, #000 72%, transparent); }
+    .on-ordner { position:relative; height:62px; display:flex; flex-direction:column; justify-content:center; gap:3px; padding:0 14px; margin:0;
+      text-align:left; cursor:pointer; font-family:inherit; border-radius:3px 12px 12px 12px;
+      background:#fff;
+      border:1px solid #E1E7E4;
+      box-shadow:0 1px 2px rgba(10,22,17,.05);
+      transition:transform .22s cubic-bezier(.2,.8,.3,1), box-shadow .22s ease, background-color .22s ease, border-color .22s ease; }
+    /* Reiter oben links */
+    .on-ordner::before { content:''; position:absolute; left:-1px; top:-8px; width:42%; max-width:86px; height:8px; border-radius:6px 8px 0 0;
+      background:var(--of, #22C55E); background:color-mix(in srgb, var(--of, #22C55E) 78%, #fff);
+      border:1px solid var(--of, #22C55E); border-color:color-mix(in srgb, var(--of, #22C55E) 80%, #000 4%); border-bottom:none;
+      transition:background-color .22s ease, border-color .22s ease; }
+    /* Blatt, das beim Hover/Oeffnen oben herausschaut - bleibt immer an der Kante (clip-path) */
+    .on-blatt { position:absolute; right:14px; top:0; width:36%; height:22px; border-radius:3px 3px 0 0;
+      background:#FFFDF8; border:1px solid #E7E1D3; border-bottom:none;
+      background-image:repeating-linear-gradient(180deg, transparent 0 3px, rgba(0,0,0,.05) 3px 4px);
+      clip-path:inset(0 0 22px 0); transform:translateY(0);
+      transition:transform .26s cubic-bezier(.2,.8,.3,1), clip-path .26s cubic-bezier(.2,.8,.3,1); }
+    .on-name { font-size:13.5px; font-weight:600; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .on-meta { font-size:11.5px; font-weight:500; color:var(--gray, #5A6670); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .on-ordner:hover { transform:translateY(-2px); box-shadow:0 10px 22px -14px rgba(10,22,17,.38); border-color:#C9D4CF; border-color:color-mix(in srgb, var(--of, #22C55E) 40%, #E1E7E4); }
+    .on-ordner:hover .on-blatt { transform:translateY(-5px); clip-path:inset(0 0 17px 0); }
+    .on-ordner.an { background:#F7FAF8; background:color-mix(in srgb, var(--of, #22C55E) 9%, #fff); border-color:var(--of, #22C55E);
+      box-shadow:0 0 0 1px var(--of, #22C55E), 0 10px 22px -14px rgba(10,22,17,.38); }
+    .on-ordner.an::before { background:var(--of, #22C55E); border-color:var(--of, #22C55E); }
+    .on-ordner.an .on-blatt { transform:translateY(-8px); clip-path:inset(0 0 14px 0); }
+    .on-ordner.an .on-name { font-weight:700; }
+    .on-ordner:focus-visible { outline:2px solid var(--green, #16A34A); outline-offset:3px; }
+    .on-ordner.weg { display:none; }
+    .on-ordner.frisch { animation:onEin .38s cubic-bezier(.2,.8,.3,1) var(--od, 0ms) both; }
+    @keyframes onEin { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
+    .on-mehr { display:block; margin:6px auto 0; padding:7px 12px; border:0; border-radius:9px; background:transparent; font-family:inherit; font-size:12.5px; font-weight:700; color:var(--green-d, #15803D); cursor:pointer; transition:background-color .2s; }
+    .on-mehr:hover { background:#EEF6F1; }
+    .on-leer { padding:10px 2px; font-size:13px; color:var(--gray, #5A6670); }
+    .on-mehr[hidden], .on-leer[hidden] { display:none !important; }   /* sonst ueberstimmt display:block das hidden-Attribut */
+    /* Mini-Mappe in Ordnerverwaltung und Gruppen-Dialog (statt Ordnerruecken) */
+    .of-ruecken { width:18px; height:13px; margin-top:3px; border-radius:1px 3px 3px 3px; box-shadow:none;
+      background:var(--of-farbe, #22C55E); background:color-mix(in srgb, var(--of-farbe, #22C55E) 72%, #fff); }
+    .of-ruecken::after { left:0; right:auto; top:-3px; width:8px; height:3px; border-radius:2px 2px 0 0; background:var(--of-farbe, #22C55E); }
+    @media (max-width:640px) {
+      .on-raster { grid-template-columns:repeat(auto-fill, minmax(148px, 1fr)); gap:18px 10px; }
+      .on-suche { margin-left:0; min-width:0; flex:1 1 100%; order:3; }
+      .on-neu { margin-left:auto; }
+    }
+    @media (hover:none) {
+      .on-ordner:hover { transform:none; box-shadow:0 1px 2px rgba(10,22,17,.05); }
+      .on-ordner:hover .on-blatt { transform:translateY(0); clip-path:inset(0 0 22px 0); }
+      .on-ordner.an:hover .on-blatt { transform:translateY(-8px); clip-path:inset(0 0 14px 0); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .on-ordner, .on-blatt, .on-ordner::before { transition:none !important; }
+      .on-ordner.frisch { animation:none !important; opacity:1 !important; }
+      .on-ordner:hover { transform:none; }
+    }
+    @media print { .ordner-nav { display:none !important; } }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -6010,7 +6080,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span class="app-version" onclick="neuigkeitenZeigen()" title="Was ist neu?" style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v12.4</span>
+      <span class="app-version" onclick="neuigkeitenZeigen()" title="Was ist neu?" style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v12.6</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -8748,7 +8818,7 @@ async function supFirmaSpeichern(id) {
   } catch (e) { supMsg('Fehler: ' + ((e && e.message) || ''), 'error'); }
 }
 async function supBeitreten(id) {
-  if (!confirm('Dieser Firma als Support beitreten? Zur\u00fcck \u00fcber \u201eEinsatz beenden\u201c in der Team-Ansicht.')) return;
+  if (!(await frageDialog({ titel: 'Als Support beitreten?', text: 'Zur\u00fcck geht es \u00fcber \u201eEinsatz beenden\u201c in der Team-Ansicht.', ok: 'Beitreten' }))) return;
   const { data } = await sb.rpc('sup_beitreten', { p_firma: id });
   if (data && data.ok) { zeigeToast('Beigetreten', 'Seite wird neu geladen.'); setTimeout(function(){ location.reload(); }, 1000); }
   else alert('Fehler: ' + ((data && data.grund) || ''));
@@ -9208,7 +9278,7 @@ function einlKopieren(btn) {
 }
 
 async function einlWiderrufen(id) {
-  if (!confirm('Diesen Einladungslink wirklich ung\u00fcltig machen?')) return;
+  if (!(await frageDialog({ titel: 'Einladungslink ung\u00fcltig machen?', text: 'Wer den Link schon hat, kann ihn danach nicht mehr nutzen.', ok: 'Ung\u00fcltig machen', gefahr: true }))) return;
   try {
     await sb.from('team_einladungen').update({ aktiv: false }).eq('id', id);
     await ladeEinladungen();
@@ -9222,7 +9292,7 @@ async function teamAktion(aktion, userId) {
   else if (aktion === 'degradieren') { rpc = 'mitglied_degradieren'; frage = 'Diesen Host wirklich zum normalen Mitarbeiter zurückstufen?'; }
   else if (aktion === 'entfernen') { rpc = 'mitglied_entfernen'; frage = 'Dieses Mitglied wirklich aus der Firma entfernen?\n\nSeine bisherigen Prüfungen bleiben erhalten.'; }
   else return;
-  if (frage && !confirm(frage)) return;
+  if (frage && !(await frageDialog({ titel: frage.split('\n')[0], text: frage.split('\n').slice(1).join('\n').trim(), ok: aktion === 'entfernen' ? 'Entfernen' : (aktion === 'befoerdern' ? 'Bef\u00f6rdern' : 'Zur\u00fcckstufen'), gefahr: aktion === 'entfernen' }))) return;
   try {
     const { error } = await sb.rpc(rpc, { p_user: userId });
     if (error) throw error;
@@ -12300,13 +12370,13 @@ setTimeout(function(){ try { akteVorschauZeichnen(); } catch(e) {} }, 0);
 // Kleine Korrekturen ohne neue Funktionen: NEU_VERSION unveraendert lassen.
 // ============================================================
 const NEU_VERSION = 'v12.3';           // Stand der Neuigkeiten - nur erhoehen, wenn es wirklich Neues gibt
-const APP_VERSION = 'v12.4';           // aktuelle Version (Anzeige im Bericht und oben im Kopf)
+const APP_VERSION = 'v12.6';           // aktuelle Version (Anzeige im Bericht und oben im Kopf)
 const UPDATE_KURZ = 'Abgeschlossene Akten sind jetzt schreibgesch\u00fctzt \u2013 zum \u00c4ndern werden sie wieder ge\u00f6ffnet.';
 const NEUIGKEITEN = [
-  { farbe: '#2E8749', v: 'v12.3', ico: '<rect x="4" y="3" width="6" height="18" rx="1"/><rect x="14" y="3" width="6" height="18" rx="1"/><circle cx="7" cy="16" r="1.2"/><circle cx="17" cy="16" r="1.2"/>',
-    t: 'Ordner im Regal',
-    kurz: 'Deine Ordner stehen jetzt als Aktenordner im Regal \u2013 ein Klick zieht den Ordner heraus.',
-    d: 'In \u201eAkten & Ordner\u201c stehen die Ordner als Aktenordner im Regal \u00fcber der Liste. Ein Klick zieht den Ordner heraus und zeigt nur seine Akten, ein zweiter Klick stellt ihn zur\u00fcck.' },
+  { farbe: '#2E8749', v: 'v12.3', ico: '<path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/>',
+    t: 'Ordner auf einen Blick',
+    kurz: 'Deine Ordner stehen jetzt als Mappen \u00fcber der Liste \u2013 mit Suche, ein Klick \u00f6ffnet den Ordner.',
+    d: 'In \u201eAkten & Ordner\u201c stehen die Ordner als Mappen \u00fcber der Liste. Ein Klick \u00f6ffnet den Ordner und zeigt nur seine Akten, ein zweiter Klick zeigt wieder alle. Bei vielen Ordnern hilft die Suche.' },
   { farbe: '#128F86', v: 'v12.3', ico: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/>',
     t: 'Gruppen und Ordner in einem Schritt',
     kurz: 'Beim Anlegen eines Ordners w\u00e4hlst du gleich die Gruppen, die ihn sehen d\u00fcrfen.',
@@ -12750,6 +12820,12 @@ function akteStepperZeichnen() {
         box.classList.remove('ruhig');
         box.classList.add('versiegeln');
         setTimeout(function(){ box.classList.remove('versiegeln'); box.classList.add('ruhig'); }, 1500);
+      } else if (AKTE.oeffnenAnim) {
+        // Nach dem Wiederoeffnen: die Schritte kehren gestaffelt zurueck
+        AKTE.oeffnenAnim = false;
+        box.classList.remove('ruhig');
+        box.classList.add('entsiegeln');
+        setTimeout(function(){ box.classList.remove('entsiegeln'); box.classList.add('ruhig'); }, 1300);
       } else box.classList.add('ruhig');                // Umbau ohne erneutes Einblenden
     }
     box.classList.toggle('bereiche', zu);
@@ -12781,7 +12857,16 @@ function akteStepperZeichnen() {
     if (eb) eb.textContent = 'Akte \u00b7 Vollst\u00e4ndigkeit';
     if (h) h.textContent = alle ? 'Vollst\u00e4ndig abgesichert' : fertig + ' von ' + schritte.length + ' Schritten erledigt';
     const bal = document.getElementById('akteBalken');
-    if (bal) bal.style.width = Math.round(fertig / schritte.length * 100) + '%';
+    if (bal) {
+      const ziel = Math.round(fertig / schritte.length * 100) + '%';
+      // Neuer Balken (erstes Oeffnen, nach dem Wiederoeffnen): sichtbar von 0 an wachsen statt aufploppen
+      if (!bal.getAttribute('data-gewachsen')) {
+        bal.setAttribute('data-gewachsen', '1');
+        bal.style.width = '0%';
+        void bal.offsetWidth;
+      }
+      bal.style.width = ziel;
+    }
   }
   box.classList.toggle('alle-fertig', alle);
 
@@ -13166,7 +13251,7 @@ async function endverbleibLoeschen(n) {
   if (gesperrtMelden()) return;
   const x = (KYC.doks && KYC.doks.endverbleib) ? KYC.doks.endverbleib[n] : null;
   if (!x) return;
-  if (!confirm('Unterschriebene Endverbleibserkl\u00e4rung wirklich entfernen?')) return;
+  if (!(await frageDialog({ titel: 'Unterschriebene Erkl\u00e4rung entfernen?', text: 'Die hochgeladene Endverbleibserkl\u00e4rung wird aus der Akte gel\u00f6scht.', ok: 'Entfernen', gefahr: true }))) return;
   try {
     try { await sb.storage.from('kyc').remove([x.storage_path]); } catch(e) {}
     const r = await sb.from('kyc_dokumente').delete().eq('id', x.id);
@@ -13177,7 +13262,7 @@ async function endverbleibLoeschen(n) {
 
 async function endverbleibNichtErforderlich() {
   if (gesperrtMelden()) return;
-  if (!confirm('Endverbleibserkl\u00e4rung f\u00fcr diesen Fall als nicht erforderlich markieren?\n\nz.\u2009B. wenn kein Fahrzeugverkauf stattfindet.')) return;
+  if (!(await frageDialog({ titel: 'Als nicht erforderlich markieren?', text: 'Zum Beispiel, wenn kein Fahrzeugverkauf stattfindet.', ok: 'Markieren' }))) return;
   await akteSchrittSetzen('endverbleib', { status: 'nicht_erforderlich', am: new Date().toISOString() });
   akteZeichnen();
 }
@@ -13282,15 +13367,80 @@ async function akteAbschliessen() {
   zeigeToast('Akte abgeschlossen', 'Vollst\u00e4ndigkeit best\u00e4tigt \u2013 die Akte ist jetzt schreibgesch\u00fctzt.');
 }
 
+// Gegenstueck zum Siegel: das Siegel loest sich, ein offenes Schloss erscheint
+function entsiegelnStarten() {
+  const card = document.getElementById('abschlussCard');
+  const panel = document.getElementById('panelAbschluss');
+  if (!card || !panel) return null;
+  panel.style.position = 'relative';
+  const ov = document.createElement('div');
+  ov.className = 'ab-siegel-anim entsiegeln';
+  ov.style.top = card.offsetTop + 'px';
+  ov.style.height = card.offsetHeight + 'px';
+  ov.innerHTML = '<div class="asa-mitte">'
+    + '<div class="asa-siegel"><svg viewBox="0 0 64 64" width="64" height="64" fill="none" stroke-linecap="round" stroke-linejoin="round">'
+    + '<circle class="asa-kreis" cx="32" cy="32" r="27"/><path class="asa-haken" d="M20 33.5l8 8 16-17"/></svg></div>'
+    + '<div class="ase-schloss"><svg viewBox="0 0 32 32" width="42" height="42" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">'
+    + '<rect x="7" y="14" width="18" height="13" rx="3"/><path class="ase-buegel" d="M11 14v-4a5 5 0 0 1 10 0v4"/>'
+    + '<circle cx="16" cy="20.5" r="1.5" fill="currentColor" stroke="none"/></svg></div>'
+    + '<div class="asa-t">Akte wieder ge\u00f6ffnet</div>'
+    + '<div class="asa-s">Erg\u00e4nzungen und Uploads sind wieder m\u00f6glich</div>'
+    + '</div>';
+  panel.appendChild(ov);
+  return ov;
+}
+
+// Sperrhinweis im sichtbaren Bereich weich zuklappen (statt schlagartig zu verschwinden)
+function sperrhinweisZuklappen() {
+  const liste = [];
+  document.querySelectorAll('.akte-panel.an .akte-lock').forEach(function(el){
+    if (!el.firstElementChild) return;
+    el.style.overflow = 'hidden';                 // Innenabstand zaehlt jetzt mit - kein Sprung
+    el.style.height = el.offsetHeight + 'px';
+    void el.offsetWidth;
+    el.style.transition = 'height .42s cubic-bezier(.4,0,.2,1), opacity .3s ease';
+    el.style.height = '0px';
+    el.style.opacity = '0';
+    liste.push(el);
+  });
+  return liste;
+}
+
 async function akteWiederOeffnen() {
-  if (!confirm('Abschluss zur\u00fccknehmen und die Akte wieder \u00f6ffnen?')) return;
+  const ja = await frageDialog({
+    titel: 'Akte wieder \u00f6ffnen?',
+    text: 'Der Abschluss wird zur\u00fcckgenommen. Danach sind Erg\u00e4nzungen und Uploads wieder m\u00f6glich \u2013 zum Schluss die Akte erneut abschlie\u00dfen.',
+    ok: 'Wieder \u00f6ffnen', art: 'blau', ico: FRAGE_ICO.offen
+  });
+  if (!ja) return;
   const id = await analyseIdErmitteln(CURRENT_REPORT);
   if (!id) return;
   const { data, error } = await sb.rpc('akte_abschliessen', { p_analyse: id, p_wieder_oeffnen: true });
   if (error || !data || !data.ok) { alert('Konnte nicht ge\u00f6ffnet werden: ' + ((error && error.message) || (data && data.grund) || '')); return; }
+
+  // 1) Siegel loesen - auf der Abschluss-Karte, oben an der Siegel-Pille und am Sperrhinweis
+  const ruhigModus = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let overlay = null, hinweise = [];
+  if (!ruhigModus) {
+    if (AKTE.ansicht === 'abschluss') overlay = entsiegelnStarten();
+    const pille = document.querySelector('#akteStepper .akte-siegel');
+    if (pille) pille.classList.add('weg');
+    hinweise = sperrhinweisZuklappen();
+    await new Promise(function(r){ setTimeout(r, overlay ? 1400 : 480); });
+  }
+
+  // 2) Neuen Zustand darunter aufbauen - die Schritte kehren gestaffelt zurueck
   CURRENT_REPORT._abgeschlossen_am = null; CURRENT_REPORT._abgeschlossen_von = null; CURRENT_REPORT._abgeschlossen_von_name = null;
   try { const row = HISTORY_ROWS.find(function(x){ return x.id === id; }); if (row) { row.abgeschlossen_am = null; row.abgeschlossen_von_name = null; } } catch(e) {}
+  AKTE.oeffnenAnim = !ruhigModus;
   akteZeichnen();
+  hinweise.forEach(function(el){ el.removeAttribute('style'); });
+  if (!ruhigModus) {
+    const rep = document.getElementById('report');
+    if (rep) { rep.classList.add('entsperrt'); setTimeout(function(){ rep.classList.remove('entsperrt'); }, 900); }
+  }
+  if (overlay) { overlay.classList.add('weg'); setTimeout(function(){ if (overlay.parentNode) overlay.remove(); }, 460); }
+  zeigeToast('Akte wieder ge\u00f6ffnet', 'Erg\u00e4nzungen und Uploads sind wieder m\u00f6glich. Zum Schluss erneut abschlie\u00dfen.');
 }
 
 // ============================================================
@@ -13545,7 +13695,7 @@ async function nwLoeschen(typ, n) {
   if (gesperrtMelden()) return;
   const d = (KYC.doks && KYC.doks[typ]) ? KYC.doks[typ][n] : null;
   if (!d) return;
-  if (!confirm('\u201e' + (d.bezeichnung || d.datei_name || 'Datei') + '\u201c wirklich entfernen?')) return;
+  if (!(await frageDialog({ titel: '\u201e' + (d.bezeichnung || d.datei_name || 'Datei') + '\u201c entfernen?', ok: 'Entfernen', gefahr: true }))) return;
   try {
     try { await sb.storage.from('kyc').remove([d.storage_path]); } catch(e) {}
     const r = await sb.from('kyc_dokumente').delete().eq('id', d.id);
@@ -14199,6 +14349,55 @@ function einblenden(el, danach) {
   });
 }
 
+// ============================================================
+// RUECKFRAGE (v12.5): animierter Dialog statt des nackten Browser-Fensters.
+// Liefert ein Promise<boolean>. opt: { titel, text, ok, abbrechen, gefahr, art, ico }
+// Ausnahme: die Rueckfrage in druckeJetzt() bleibt nativ - window.print() muss dort
+// direkt in der Klick-Aktion laufen, sonst blockiert iOS Safari den Druck.
+// ============================================================
+const FRAGE_ICO = {
+  frage: '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.3a2.5 2.5 0 0 1 4.8.9c0 1.7-2.4 2.2-2.4 3.6"/><path d="M12 17h.01"/></svg>',
+  gefahr: '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6M10 11v6M14 11v6"/></svg>',
+  offen: '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 7.8-1.3"/></svg>'
+};
+function frageDialog(opt) {
+  opt = opt || {};
+  return new Promise(function(res){
+    const alt = document.getElementById('frageGate'); if (alt) alt.remove();
+    const box = document.createElement('div');
+    box.id = 'frageGate';
+    box.className = 'up-warn-back';
+    box.setAttribute('role', 'dialog');
+    box.setAttribute('aria-modal', 'true');
+    box.innerHTML = '<div class="up-warn-card frage-card' + (opt.gefahr ? ' frage-gefahr' : '') + (opt.art ? ' frage-' + opt.art : '') + '">'
+      + '<div class="frage-ico">' + (opt.ico || (opt.gefahr ? FRAGE_ICO.gefahr : FRAGE_ICO.frage)) + '</div>'
+      + '<div class="up-warn-t">' + escapeHtml(opt.titel || 'Bist du sicher?') + '</div>'
+      + (opt.text ? '<div class="up-warn-d">' + escapeHtml(opt.text).replace(/\n/g, '<br>') + '</div>' : '')
+      + '<div class="up-warn-btns">'
+      + '<button type="button" class="kyc-btn frage-nein">' + escapeHtml(opt.abbrechen || 'Abbrechen') + '</button>'
+      + '<button type="button" class="up-senden up-warn-ok frage-ja' + (opt.gefahr ? ' frage-rot' : '') + '">' + escapeHtml(opt.ok || 'OK') + '</button>'
+      + '</div></div>';
+    let fertig = false;
+    function schliessen(antwort) {
+      if (fertig) return;
+      fertig = true;
+      document.removeEventListener('keydown', taste, true);
+      box.classList.remove('an');
+      const k = box.querySelector('.up-warn-card'); if (k) k.classList.add('karte-weg');
+      setTimeout(function(){ if (box.parentNode) box.remove(); }, 260);
+      res(antwort);
+    }
+    function taste(e) { if (e.key === 'Escape') { e.preventDefault(); schliessen(false); } }
+    box.querySelector('.frage-nein').onclick = function(){ schliessen(false); };
+    box.querySelector('.frage-ja').onclick = function(){ schliessen(true); };
+    box.addEventListener('mousedown', function(e){ if (e.target === box) schliessen(false); });
+    document.addEventListener('keydown', taste, true);
+    document.body.appendChild(box);
+    // Bei Loeschen & Co. liegt der Fokus auf "Abbrechen" - ein versehentliches Enter loescht nichts
+    einblenden(box, function(){ const f = box.querySelector(opt.gefahr ? '.frage-nein' : '.frage-ja'); if (f) f.focus(); });
+  });
+}
+
 function zeigeToast(titel, text, ziel) {
   const t = document.createElement('div');
   t.className = 'tr-toast' + (ziel ? ' tr-toast-klick' : '');
@@ -14317,7 +14516,7 @@ async function kycLoeschenEin(typ, n) {
   if (gesperrtMelden()) return;
   const d = (KYC.doks[typ] || [])[n];
   if (!d) return;
-  if (!confirm('Diese Datei wirklich l\u00f6schen?')) return;
+  if (!(await frageDialog({ titel: 'Datei l\u00f6schen?', text: 'Die Datei wird aus der Akte entfernt.', ok: 'L\u00f6schen', gefahr: true }))) return;
   try {
     try { await sb.storage.from('kyc').remove([d.storage_path]); } catch(e) {}
     await sb.from('kyc_dokumente').delete().eq('id', d.id);
@@ -14688,6 +14887,7 @@ async function saveAnalysisToHistory(d, rawName) {
 // Historie-Ansicht öffnen und Einträge des angemeldeten Nutzers laden
 function openHistory() { mitAusBlende(_openHistory); }
 async function _openHistory() {
+  ORDNER_NAV_FRISCH = true;           // Ordner beim Oeffnen der Ansicht sanft einblenden
   const main = document.getElementById('mainView');
   const view = document.getElementById('historyView');
   const team = document.getElementById('teamView');
@@ -15047,46 +15247,139 @@ function renderHistoryList() {
 
   view.insertAdjacentHTML('beforeend', '<div id="histBody">' + uebersicht + ordnerRegalHTML(cByFolder) + filterBar + sternHinweis + favPanel + sortLeiste + exportBar + listHtml + '</div>');
   HU_GEZEIGT = true;
+  try { ordnerNavNachZeichnen(); } catch (e) {}
   sichtbarSicherstellen(view);
 }
 
 // ===== ORDNER VERWALTEN (umbenennen, Farbe, löschen) + Analysen verschieben =====
 // ============================================================
-// ORDNERREGAL (v12.3): Ordner als Aktenordner mit Rueckenschild und Griffloch.
-// Ein Klick zieht den Ordner heraus (Filter), ein zweiter stellt ihn zurueck.
+// ORDNER (v12.6): Mappen mit Reiter in einem Raster (ersetzt das Regal).
+// Skaliert von 3 bis 100+ Ordnern: Suche, zunaechst zwei Reihen, Auswahl
+// ohne Zurueckspringen, Wechsel des aktiven Ordners animiert statt aufzuploppen.
 // ============================================================
-const OR_ICO = {
-  privat: '<svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>',
-  team: '<svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>'
-};
+let ORDNER_NAV_OFFEN = false;     // alle Ordner zeigen?
+let ORDNER_NAV_SUCHE = '';        // Suchtext - bleibt beim Neuzeichnen erhalten
+let ORDNER_NAV_GEZEIGT = null;    // zuletzt gezeigter aktiver Ordner (fuer den animierten Wechsel)
+let ORDNER_NAV_FRISCH = true;     // erstes Zeichnen nach dem Oeffnen -> sanft einblenden
+const ORDNER_NAV_ZU_AB = 8;       // ab mehr Ordnern: Suche + zwei Reihen
+const ORDNER_NAV_LUPE = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>';
+
 function ordnerRegalHTML(cByFolder) {
   if (!ORDNER_LIST.length) return '';
   const einzel = !!(CURRENT_FIRMA && CURRENT_FIRMA.typ === 'einzel');
-  const ruecken = ORDNER_LIST.map(function(o){
+  const viele = ORDNER_LIST.length > ORDNER_NAV_ZU_AB;
+  const q = ORDNER_NAV_SUCHE.trim().toLowerCase();
+  const wechsel = ORDNER_NAV_GEZEIGT !== HISTORY_FILTER;
+  let treffer = 0;
+  const kacheln = ORDNER_LIST.map(function(o, i){
     const n = (cByFolder && cByFolder[o.id]) || 0;
     const an = HISTORY_FILTER === o.id;
+    const warAn = wechsel && ORDNER_NAV_GEZEIGT === o.id;
     const team = o.sichtbarkeit === 'oeffentlich';
     const frei = !team && (ORDNER_FREIGABEN[o.id] || []).length > 0;
-    const sicht = einzel ? '' : (team ? OR_ICO.team + 'Team' : (frei ? OR_ICO.team + 'Freigegeben' : OR_ICO.privat + 'Privat'));
-    return '<button type="button" class="or-ordner' + (an ? ' an' : '') + '" style="--of:' + sichereFarbe(o.farbe) + '"'
-      + ' aria-pressed="' + (an ? 'true' : 'false') + '" title="' + escapeHtml(o.name) + (an ? ' zur\u00fcckstellen' : ' \u00f6ffnen') + '"'
-      + ' onclick="setHistoryFilter(\'' + (an ? 'alle' : o.id) + '\')">'
-      + '<span class="or-schild">'
-      + '<span class="or-name">' + escapeHtml(o.name) + '</span>'
-      + '<span class="or-zahl">' + (n === 0 ? 'leer' : n + (n === 1 ? ' Akte' : ' Akten')) + '</span>'
-      + (sicht ? '<span class="or-sicht">' + sicht + '</span>' : '')
-      + '</span>'
-      + '<span class="or-loch" aria-hidden="true"></span>'
+    const sicht = einzel ? '' : (team ? 'Team' : (frei ? 'Freigegeben' : 'Privat'));
+    const sichtbar = !q || String(o.name || '').toLowerCase().indexOf(q) >= 0;
+    if (sichtbar) treffer++;
+    // Wechsel: der neue Ordner startet inaktiv, der alte aktiv - umgeschaltet wird nach dem Einfuegen
+    const klasse = 'on-ordner'
+      + (((an && !wechsel) || warAn) ? ' an' : '')
+      + ((an && wechsel) ? ' wird-an' : '')
+      + (warAn ? ' war-an' : '')
+      + (sichtbar ? '' : ' weg')
+      + (ORDNER_NAV_FRISCH ? ' frisch' : '');
+    return '<button type="button" class="' + klasse + '" style="--of:' + sichereFarbe(o.farbe) + (ORDNER_NAV_FRISCH ? ';--od:' + Math.min(i * 22, 330) + 'ms' : '') + '"'
+      + ' aria-pressed="' + (an ? 'true' : 'false') + '" title="' + escapeHtml(o.name) + '"'
+      + ' onclick="ordnerNavWahl(\'' + o.id + '\')">'
+      + '<span class="on-blatt" aria-hidden="true"></span>'
+      + '<span class="on-name">' + escapeHtml(o.name) + '</span>'
+      + '<span class="on-meta">' + (n === 0 ? 'leer' : n + (n === 1 ? ' Akte' : ' Akten')) + (sicht ? ' \u00b7 ' + sicht : '') + '</span>'
       + '</button>';
   }).join('');
-  return '<div class="ordner-regal">'
-    + '<div class="or-reihe" role="group" aria-label="Ordner">' + ruecken
-    + '<button type="button" class="or-ordner or-neu" onclick="ordnerRegalNeu()" title="Neuen Ordner anlegen">'
-    + '<span class="or-neu-plus" aria-hidden="true">+</span><span class="or-neu-t">Neuer Ordner</span></button>'
+  return '<section class="ordner-nav" aria-label="Ordner">'
+    + '<div class="on-kopf">'
+    + '<span class="on-titel">Ordner<span class="on-anzahl">' + ORDNER_LIST.length + '</span></span>'
+    + (viele ? '<label class="on-suche">' + ORDNER_NAV_LUPE
+        + '<input type="search" id="onSuche" placeholder="Ordner suchen" aria-label="Ordner suchen" value="' + escapeHtml(ORDNER_NAV_SUCHE) + '" oninput="ordnerNavSuche(this.value)" autocomplete="off" /></label>' : '')
+    + '<button type="button" class="on-neu" onclick="ordnerRegalNeu()">+ Neuer Ordner</button>'
     + '</div>'
-    + '<div class="or-brett" aria-hidden="true"></div>'
-    + '</div>';
+    + '<div class="on-raster' + ((viele && !ORDNER_NAV_OFFEN && !q) ? ' zu' : '') + '" id="onRaster">' + kacheln + '</div>'
+    + '<div class="on-leer" id="onLeer"' + ((q && !treffer) ? '' : ' hidden') + '>Kein Ordner gefunden.</div>'
+    + (viele ? '<button type="button" class="on-mehr" id="onMehr" onclick="ordnerNavUmschalten()"' + (q ? ' hidden' : '') + '>'
+        + (ORDNER_NAV_OFFEN ? 'Weniger anzeigen' : 'Alle ' + ORDNER_LIST.length + ' Ordner anzeigen') + '</button>' : '')
+    + '</section>';
 }
+
+// Nach dem Einfuegen: aktiven Ordner animiert umschalten, Einklappen pruefen
+function ordnerNavNachZeichnen() {
+  ORDNER_NAV_FRISCH = false;
+  const raster = document.getElementById('onRaster');
+  if (!raster) { ORDNER_NAV_GEZEIGT = HISTORY_FILTER; return; }
+  const neu = raster.querySelector('.on-ordner.wird-an');
+  const alt = raster.querySelector('.on-ordner.war-an');
+  if (neu || alt) {
+    void raster.offsetWidth;                                   // Ausgangszustand erst berechnen
+    if (neu) { neu.classList.add('an'); neu.classList.remove('wird-an'); }
+    if (alt) { alt.classList.remove('an'); alt.classList.remove('war-an'); }
+  }
+  ORDNER_NAV_GEZEIGT = HISTORY_FILTER;
+  if (raster.classList.contains('zu') && raster.clientHeight > 0) {
+    const aktiv = raster.querySelector('.on-ordner.an');
+    // Position relativ zum Raster (offsetTop bezieht sich auf einen weiter oben liegenden Container)
+    if (aktiv && aktiv.getBoundingClientRect().bottom - raster.getBoundingClientRect().top > raster.clientHeight + 4) {
+      // Aktiver Ordner liegt ausserhalb der zwei Reihen -> alle zeigen
+      ORDNER_NAV_OFFEN = true;
+      raster.classList.remove('zu');
+      const m = document.getElementById('onMehr'); if (m) m.textContent = 'Weniger anzeigen';
+    } else if (raster.scrollHeight <= raster.clientHeight + 4) {
+      // Passt ohnehin alles hinein -> kein "Alle anzeigen"
+      raster.classList.remove('zu');
+      const m = document.getElementById('onMehr'); if (m) m.hidden = true;
+    }
+  }
+}
+
+// Ordner waehlen: die Seite bleibt, wo sie ist (kein Zurueckspringen)
+function ordnerNavWahl(id) {
+  const y = window.scrollY || 0;
+  setHistoryFilter(HISTORY_FILTER === id ? 'alle' : id);
+  try { window.scrollTo(0, y); } catch (e) {}
+}
+
+// Suchen ohne Neuzeichnen - Fokus und Eingabe bleiben erhalten
+function ordnerNavSuche(text) {
+  ORDNER_NAV_SUCHE = String(text || '').slice(0, 60);
+  const q = ORDNER_NAV_SUCHE.trim().toLowerCase();
+  const raster = document.getElementById('onRaster');
+  if (!raster) return;
+  let treffer = 0;
+  raster.querySelectorAll('.on-ordner').forEach(function(k){
+    const ja = !q || (k.getAttribute('title') || '').toLowerCase().indexOf(q) >= 0;
+    k.classList.toggle('weg', !ja);
+    if (ja) treffer++;
+  });
+  raster.classList.toggle('zu', !q && !ORDNER_NAV_OFFEN && ORDNER_LIST.length > ORDNER_NAV_ZU_AB);
+  const leer = document.getElementById('onLeer'); if (leer) leer.hidden = treffer > 0;
+  const mehr = document.getElementById('onMehr'); if (mehr) mehr.hidden = !!q;
+}
+
+// Alle zeigen / weniger zeigen - Hoehe weich animiert statt springend
+function ordnerNavUmschalten() {
+  const raster = document.getElementById('onRaster');
+  if (!raster) return;
+  ORDNER_NAV_OFFEN = !ORDNER_NAV_OFFEN;
+  const von = raster.offsetHeight;
+  raster.classList.toggle('zu', !ORDNER_NAV_OFFEN);
+  const bis = raster.offsetHeight;
+  raster.style.overflow = 'hidden';
+  raster.style.height = von + 'px';
+  void raster.offsetWidth;
+  raster.style.transition = 'height .38s cubic-bezier(.2,.8,.3,1)';
+  raster.style.height = bis + 'px';
+  setTimeout(function(){ raster.style.height = ''; raster.style.transition = ''; raster.style.overflow = ''; }, 420);
+  const m = document.getElementById('onMehr');
+  if (m) m.textContent = ORDNER_NAV_OFFEN ? 'Weniger anzeigen' : 'Alle ' + ORDNER_LIST.length + ' Ordner anzeigen';
+}
+
 function ordnerRegalNeu() {
   const box = document.getElementById('ordnerManage');
   if (box && box.style.display === 'none') toggleOrdnerVerwalten();
@@ -15291,7 +15584,7 @@ async function gruppeUmbenennen(id) {
 async function gruppeLoeschen(id) {
   const g = GRUPPEN.find(function(x){ return x.id === id; });
   if (!g) return;
-  if (!confirm('Gruppe \u201e' + g.name + '\u201c l\u00f6schen?\n\nDie Ordner bleiben erhalten \u2013 die Mitglieder dieser Gruppe verlieren nur die Freigabe, die \u00fcber die Gruppe lief.')) return;
+  if (!(await frageDialog({ titel: 'Gruppe \u201e' + g.name + '\u201c l\u00f6schen?', text: 'Die Ordner bleiben erhalten \u2013 die Mitglieder dieser Gruppe verlieren nur die Freigabe, die \u00fcber die Gruppe lief.', ok: 'L\u00f6schen', gefahr: true }))) return;
   const { data, error } = await sb.rpc('gruppe_loeschen', { p_id: id });
   if (error || !data || !data.ok) { alert('L\u00f6schen fehlgeschlagen: ' + ((error && error.message) || (data && data.grund) || '')); return; }
   await gruppenLaden(); gruppenBlockAuffrischen();
@@ -15700,7 +15993,7 @@ async function ordnerFarbe(id, farbe) {
 async function ordnerLoeschen(id) {
   const o = ORDNER_LIST.find(function(x){ return x.id === id; });
   const name = o ? o.name : 'diesen Ordner';
-  if (!confirm('Ordner „' + name + '“ wirklich löschen?\n\nDie geprüften Analysen darin bleiben erhalten und wandern automatisch zu „Ohne Ordner“.')) return;
+  if (!(await frageDialog({ titel: 'Ordner \u201e' + name + '\u201c l\u00f6schen?', text: 'Die Akten darin bleiben erhalten und wandern automatisch zu \u201eOhne Ordner\u201c.', ok: 'L\u00f6schen', gefahr: true }))) return;
   try {
     const { error } = await sb.from('ordner').delete().eq('id', id);
     if (error) throw error;
