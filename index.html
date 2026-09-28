@@ -3680,6 +3680,31 @@
     /* Sitz-Beschriftung zerfiel auf dem Handy in zwei Spalten -> normaler Textfluss */
     .sitz-zeile .field-label { display:block; }
     .sitz-zeile .field-label .opt { display:inline; margin-left:4px; }
+
+    /* v12.9 Google-Waechter (nur Automati Labs) */
+    .g-leiste { position:relative; display:flex; gap:12px; align-items:flex-start; margin:0 0 18px; padding:14px 44px 14px 16px; border-radius:14px;
+      background:var(--bad-bg, #FEF1F1); border:1.5px solid rgba(220,38,38,.35); color:var(--bad-text, #B91C1C);
+      opacity:0; transform:translateY(-6px); transition:opacity .3s ease, transform .3s ease, background-color .3s ease, border-color .3s ease, color .3s ease; }
+    .g-leiste.an { opacity:1; transform:none; }
+    .g-leiste.gut { background:#EEF8F1; border-color:rgba(46,135,73,.35); color:#1F6B3A; }
+    .g-ico { flex:none; margin-top:1px; }
+    .g-inhalt { flex:1; min-width:0; }
+    .g-t { font-size:14px; font-weight:800; line-height:1.35; }
+    .g-d { margin-top:4px; font-size:12.5px; line-height:1.5; }
+    .g-meldung { margin-top:6px; font-size:11.5px; line-height:1.45; opacity:.8; overflow-wrap:anywhere; }
+    .g-knoepfe { display:flex; flex-wrap:wrap; gap:8px; margin-top:11px; }
+    .g-btn { display:inline-flex; align-items:center; padding:8px 13px; border-radius:9px; border:1.5px solid currentColor; background:#fff; color:inherit;
+      font-family:inherit; font-size:12.5px; font-weight:700; text-decoration:none; cursor:pointer; transition:background-color .2s, color .2s, opacity .2s; }
+    .g-leiste .g-btn.g-haupt, .g-leiste .g-btn.g-haupt:visited { background:#B91C1C; border-color:#B91C1C; color:#fff; }
+    .g-leiste.gut .g-btn.g-haupt, .g-leiste.gut .g-btn.g-haupt:visited { background:#2E8749; border-color:#2E8749; color:#fff; }
+    .g-leiste .g-btn.g-haupt:hover { filter:brightness(1.08); }
+    .g-btn:disabled { opacity:.6; cursor:default; }
+    .g-stand { margin-top:8px; font-size:12px; font-weight:600; }
+    .g-stand:empty { display:none; }
+    .g-nur { margin-top:8px; font-size:10.5px; opacity:.6; }
+    .g-zu { position:absolute; top:8px; right:10px; width:28px; height:28px; border:0; border-radius:8px; background:transparent; color:inherit; font-size:20px; line-height:1; cursor:pointer; opacity:.7; }
+    .g-zu:hover { opacity:1; background:rgba(0,0,0,.05); }
+    @media print { .g-leiste { display:none !important; } }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -6118,7 +6143,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span class="app-version" onclick="neuigkeitenZeigen()" title="Was ist neu?" style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v12.8</span>
+      <span class="app-version" onclick="neuigkeitenZeigen()" title="Was ist neu?" style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v12.9</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -8334,6 +8359,7 @@ function showApp(session) {
   if (PW_ANSICHT_OFFEN) return;   // Passwort wird gerade neu gesetzt
   SESSION_GEROUTET = true;
   setTimeout(function(){ try { neuigkeitenPruefen(); } catch(e) {} }, 2400);
+  setTimeout(function(){ try { googleWaechter(); } catch(e) {} }, 3200);   // nur fuer Automati-Labs-Konten
   showBoot(); // Splash zeigen, App erst freigeben wenn Firmen-Status geklärt ist (kein Aufblitzen)
   if (session && session.user) { CURRENT_USER_EMAIL = session.user.email || ''; CURRENT_USER_ID = session.user.id || ''; }
   ladeKontingent();
@@ -12511,7 +12537,7 @@ setTimeout(function(){ try { akteVorschauZeichnen(); } catch(e) {} }, 0);
 // Kleine Korrekturen ohne neue Funktionen: NEU_VERSION unveraendert lassen.
 // ============================================================
 const NEU_VERSION = 'v12.3';           // Stand der Neuigkeiten - nur erhoehen, wenn es wirklich Neues gibt
-const APP_VERSION = 'v12.8';           // aktuelle Version (Anzeige im Bericht und oben im Kopf)
+const APP_VERSION = 'v12.9';           // aktuelle Version (Anzeige im Bericht und oben im Kopf)
 const UPDATE_KURZ = 'Abgeschlossene Akten sind jetzt schreibgesch\u00fctzt \u2013 zum \u00c4ndern werden sie wieder ge\u00f6ffnet.';
 const NEUIGKEITEN = [
   { farbe: '#2E8749', v: 'v12.3', ico: '<path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/>',
@@ -14149,18 +14175,134 @@ async function wartungBilderNachladen(opt) {
   const summe = { verarbeitet: 0, gefunden: 0, nicht_gefunden: 0, ohne_google: 0 };
   for (let runde = 1; runde <= (opt.maxRunden || 50); runde++) {
     const r = await workerCall('bilder_nachladen', { limit: opt.limit || 20, probe: !!opt.probe });
-    if (!r || r.error) { console.error('Abbruch:', r && r.error); break; }
-    Object.keys(summe).forEach(function(k){ summe[k] += (r[k] || 0); });
+    if (!r || r.error) { console.error('Abbruch:', r && r.error); summe.fehler = (r && r.error) || 'keine Antwort'; break; }
+    Object.keys(summe).forEach(function(k){ if (typeof summe[k] === 'number') summe[k] += (r[k] || 0); });
+    if (typeof r.offen === 'number') summe.offen = r.offen;
+    if (opt.fortschritt) { try { opt.fortschritt(summe); } catch (e) {} }
     console.log('Runde ' + runde + ': ' + r.verarbeitet + ' gepr\u00fcft \u00b7 ' + r.gefunden + ' gefunden \u00b7 ' + r.nicht_gefunden
       + ' nicht gefunden \u00b7 ' + r.ohne_google + ' ohne Google' + (typeof r.offen === 'number' ? ' \u00b7 noch offen: ' + r.offen : ''), r.beispiele || '');
-    if (r.abbruch) { console.error(r.abbruch, r.googleFehler || ''); break; }
+    if (r.abbruch) { console.error(r.abbruch, r.googleFehler || ''); summe.fehler = r.abbruch; break; }
     if (opt.probe || !r.verarbeitet || r.offen === 0) break;
   }
   console.log('Fertig:', summe);
   return summe;
 }
 
-// Erzeugt eine Prüf-ID (Zeitstempel Basis36 + Zufallsanteil). Die echte Einmaligkeit
+// ============================================================
+// GOOGLE-WAECHTER (v12.9, nur fuer Automati-Labs-Konten)
+// Prueft beim Start den Google-Zugang des Workers. Ist er gesperrt, erscheint oben
+// eine Leiste mit Grund und direktem Link zur Loesung. Danach: "Erneut pruefen" und
+// "Aeltere Bilder nachladen" per Klick - keine Konsole noetig. Kunden sehen nichts.
+// ============================================================
+const GOOGLE_LOESUNG = {
+  abrechnung: { t: 'Google-Abrechnung ist nicht aktiv', d: 'Google lehnt alle Anfragen ab, weil das Abrechnungskonto des Google-Cloud-Projekts nicht aktiv ist \u2013 typisch nach Ende des kostenlosen Testzeitraums oder bei abgelaufener Karte. L\u00f6sung: In der Google Cloud unter \u201eAbrechnung\u201c das Konto aktivieren bzw. \u201eVollst\u00e4ndiges Konto aktivieren\u201c.', link: 'https://console.cloud.google.com/billing', knopf: 'Abrechnung \u00f6ffnen' },
+  api_aus: { t: 'Places API (New) ist nicht aktiviert', d: 'Die Schnittstelle f\u00fcr Firmen und Fotos ist im Google-Projekt ausgeschaltet. L\u00f6sung: \u201ePlaces API (New)\u201c aktivieren.', link: 'https://console.cloud.google.com/apis/library/places.googleapis.com', knopf: 'API aktivieren' },
+  schluessel_gesperrt: { t: 'Google-Schl\u00fcssel ist eingeschr\u00e4nkt', d: 'Der Schl\u00fcssel darf diese Schnittstelle oder diesen Aufrufer nicht nutzen. Der Worker ruft ohne Website auf \u2013 eine Einschr\u00e4nkung auf \u201eWebsites\u201c blockiert ihn. L\u00f6sung: Beim Schl\u00fcssel die Anwendungs-Einschr\u00e4nkung auf \u201eKeine\u201c stellen und bei den API-Einschr\u00e4nkungen \u201ePlaces API (New)\u201c und \u201eStreet View Static API\u201c erlauben.', link: 'https://console.cloud.google.com/apis/credentials', knopf: 'Schl\u00fcssel \u00f6ffnen' },
+  schluessel_ungueltig: { t: 'Google-Schl\u00fcssel ist ung\u00fcltig', d: 'Der hinterlegte Schl\u00fcssel wurde gel\u00f6scht oder ist falsch. L\u00f6sung: Neuen Schl\u00fcssel anlegen und in Cloudflare als Secret GOOGLE_API_KEY hinterlegen.', link: 'https://console.cloud.google.com/apis/credentials', knopf: 'Schl\u00fcssel \u00f6ffnen' },
+  kontingent: { t: 'Google-Kontingent ist ausgesch\u00f6pft', d: 'Ein Tages- oder Minutenlimit ist erreicht. L\u00f6sung: Kontingente der Places API (New) pr\u00fcfen bzw. erh\u00f6hen.', link: 'https://console.cloud.google.com/iam-admin/quotas', knopf: 'Kontingente \u00f6ffnen' },
+  kein_schluessel: { t: 'Im Worker fehlt der Google-Schl\u00fcssel', d: 'In Cloudflare ist kein Secret GOOGLE_API_KEY hinterlegt. L\u00f6sung: Workers \u2192 compliance-worker \u2192 Settings \u2192 Variables and Secrets \u2192 GOOGLE_API_KEY anlegen.', link: 'https://dash.cloudflare.com/', knopf: 'Cloudflare \u00f6ffnen' },
+  zugriff_verweigert: { t: 'Google verweigert den Zugriff', d: 'Google antwortet mit \u201eZugriff verweigert\u201c. Bitte Abrechnung, API-Aktivierung und Schl\u00fcssel-Einschr\u00e4nkungen pr\u00fcfen \u2013 in dieser Reihenfolge.', link: 'https://console.cloud.google.com/billing', knopf: 'Google Cloud \u00f6ffnen' },
+  worker_alt: { t: 'Worker ist veraltet', d: 'Der Worker in Cloudflare kennt die Diagnose noch nicht und kann deshalb auch keine Bilder frisch laden. L\u00f6sung: die aktuelle worker_secure.js in Cloudflare einf\u00fcgen und speichern.', link: 'https://dash.cloudflare.com/', knopf: 'Cloudflare \u00f6ffnen' },
+  unbekannt: { t: 'Google-Zugang gest\u00f6rt', d: 'Google antwortet mit einem unerwarteten Fehler. Die Meldung von Google steht unten.', link: 'https://console.cloud.google.com/apis/dashboard', knopf: 'Google Cloud \u00f6ffnen' }
+};
+const GOOGLE_OK_MERKER = 'cc_google_ok_bis';
+
+function googleAdmin() { return /@automatilabs\.de$/i.test(CURRENT_USER_EMAIL || ''); }
+
+async function googleWaechter(erzwingen) {
+  if (!googleAdmin()) return;
+  if (!erzwingen) {
+    try { if (Number(localStorage.getItem(GOOGLE_OK_MERKER) || 0) > Date.now()) return; } catch (e) {}
+  }
+  let r = null;
+  try { r = await workerCall('google_diagnose', {}); } catch (e) { r = null; }
+  if (!r) { if (erzwingen) googleLeisteZeigen({ grund: 'unbekannt', meldung: 'Der Worker hat nicht geantwortet.' }); return; }
+  if (r.error) {
+    if (/unknown action|unbekannte aktion/i.test(String(r.error))) googleLeisteZeigen({ grund: 'worker_alt' });
+    else if (erzwingen) googleLeisteZeigen({ grund: 'unbekannt', meldung: String(r.error) });
+    return;
+  }
+  if (r.ok) {
+    try { localStorage.setItem(GOOGLE_OK_MERKER, String(Date.now() + 6 * 3600 * 1000)); } catch (e) {}
+    console.info('Google-Zugang: in Ordnung');
+    if (erzwingen || document.getElementById('googleLeiste')) googleLeisteZeigen({ gut: true });
+    return;
+  }
+  try { localStorage.removeItem(GOOGLE_OK_MERKER); } catch (e) {}
+  const f = (r.pruefungen || []).filter(function(p){ return !p.ok; })[0] || {};
+  googleLeisteZeigen({ grund: f.grund || 'unbekannt', meldung: f.meldung || '', test: f.test || '' });
+}
+
+function googleLeisteZeigen(z) {
+  let el = document.getElementById('googleLeiste');
+  const neu = !el;
+  if (neu) {
+    el = document.createElement('div');
+    el.id = 'googleLeiste';
+    el.className = 'g-leiste';
+    el.setAttribute('role', 'status');
+    const kopf = document.querySelector('.app header.header');
+    if (kopf) kopf.insertAdjacentElement('afterend', el); else document.body.insertBefore(el, document.body.firstChild);
+  }
+  const ico = z.gut
+    ? '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m8 12.5 2.6 2.6L16 9.5"/></svg>'
+    : '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>';
+  if (z.gut) {
+    el.classList.add('gut');
+    el.innerHTML = '<span class="g-ico">' + ico + '</span><div class="g-inhalt">'
+      + '<div class="g-t">Google-Zugang funktioniert</div>'
+      + '<div class="g-d">Neue Akten bekommen wieder Firmenbilder. \u00c4ltere Akten holst du mit einem Klick zur\u00fcck.</div>'
+      + '<div class="g-knoepfe"><button type="button" class="g-btn g-haupt" onclick="googleBilderNachladen(this)">\u00c4ltere Bilder nachladen</button></div>'
+      + '<div class="g-stand" id="googleStand"></div>'
+      + '<div class="g-nur">Nur f\u00fcr Automati Labs sichtbar</div></div>'
+      + '<button type="button" class="g-zu" onclick="googleLeisteSchliessen()" title="Schlie\u00dfen">\u00d7</button>';
+  } else {
+    const l = GOOGLE_LOESUNG[z.grund] || GOOGLE_LOESUNG.unbekannt;
+    el.classList.remove('gut');
+    el.innerHTML = '<span class="g-ico">' + ico + '</span><div class="g-inhalt">'
+      + '<div class="g-t">Firmenbilder gesperrt: ' + escapeHtml(l.t) + '</div>'
+      + '<div class="g-d">' + escapeHtml(l.d) + '</div>'
+      + (z.meldung ? '<div class="g-meldung">Google meldet' + (z.test ? ' (' + escapeHtml(z.test) + ')' : '') + ': ' + escapeHtml(String(z.meldung).slice(0, 240)) + '</div>' : '')
+      + '<div class="g-knoepfe">'
+      + '<a class="g-btn g-haupt" href="' + sichereUrl(l.link) + '" target="_blank" rel="noopener noreferrer">' + escapeHtml(l.knopf) + ' \u2197</a>'
+      + '<button type="button" class="g-btn" onclick="googleErneutPruefen(this)">Erneut pr\u00fcfen</button>'
+      + '</div>'
+      + '<div class="g-nur">Nur f\u00fcr Automati Labs sichtbar</div></div>'
+      + '<button type="button" class="g-zu" onclick="googleLeisteSchliessen()" title="Schlie\u00dfen">\u00d7</button>';
+  }
+  if (neu) einblenden(el);
+}
+
+function googleLeisteSchliessen() {
+  const el = document.getElementById('googleLeiste');
+  if (!el) return;
+  el.classList.remove('an');
+  setTimeout(function(){ if (el.parentNode) el.remove(); }, 320);
+}
+
+async function googleErneutPruefen(btn) {
+  if (btn) { btn.disabled = true; btn.textContent = 'Wird gepr\u00fcft\u2026'; }
+  await googleWaechter(true);
+}
+
+async function googleBilderNachladen(btn) {
+  const stand = document.getElementById('googleStand');
+  if (btn) { btn.disabled = true; btn.textContent = 'L\u00e4uft\u2026'; }
+  if (stand) stand.textContent = 'Suche \u00e4ltere Akten ohne Bilder\u2026';
+  const summe = await wartungBilderNachladen({ fortschritt: function(x){
+    if (stand) stand.textContent = x.verarbeitet + ' Akten gepr\u00fcft \u00b7 ' + x.gefunden + ' mit Bildern'
+      + (typeof x.offen === 'number' ? ' \u00b7 noch ' + x.offen + ' offen' : '');
+  } });
+  if (stand) {
+    stand.textContent = summe.fehler
+      ? 'Abgebrochen: ' + summe.fehler
+      : 'Fertig: ' + summe.verarbeitet + ' Akten gepr\u00fcft, ' + summe.gefunden + ' haben wieder Bilder'
+        + (summe.ohne_google ? ', ' + summe.ohne_google + ' ohne Adresse (nicht rettbar)' : '') + '.';
+  }
+  if (btn) { btn.disabled = false; btn.textContent = summe.fehler ? 'Erneut versuchen' : 'Nochmal pr\u00fcfen'; }
+}
+
+// Erzeugt eine Pr\u00fcf-ID (Zeitstempel Basis36 + Zufallsanteil). Die echte Einmaligkeit
 // wird zusätzlich über eine Unique-Constraint in der Datenbank garantiert.
 function generatePruefId() {
   return 'AL-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).slice(2,6).toUpperCase();
