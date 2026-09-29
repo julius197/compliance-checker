@@ -3680,6 +3680,76 @@
     /* Sitz-Beschriftung zerfiel auf dem Handy in zwei Spalten -> normaler Textfluss */
     .sitz-zeile .field-label { display:block; }
     .sitz-zeile .field-label .opt { display:inline; margin-left:4px; }
+
+    /* v12.9 Google-Waechter (nur Automati Labs) */
+    .g-leiste { position:relative; display:flex; gap:12px; align-items:flex-start; margin:0 0 18px; padding:14px 44px 14px 16px; border-radius:14px;
+      background:var(--bad-bg, #FEF1F1); border:1.5px solid rgba(220,38,38,.35); color:var(--bad-text, #B91C1C);
+      opacity:0; transform:translateY(-6px); transition:opacity .3s ease, transform .3s ease, background-color .3s ease, border-color .3s ease, color .3s ease; }
+    .g-leiste.an { opacity:1; transform:none; }
+    .g-leiste.gut { background:#EEF8F1; border-color:rgba(46,135,73,.35); color:#1F6B3A; }
+    .g-ico { flex:none; margin-top:1px; }
+    .g-inhalt { flex:1; min-width:0; }
+    .g-t { font-size:14px; font-weight:800; line-height:1.35; }
+    .g-d { margin-top:4px; font-size:12.5px; line-height:1.5; }
+    .g-meldung { margin-top:6px; font-size:11.5px; line-height:1.45; opacity:.8; overflow-wrap:anywhere; }
+    .g-knoepfe { display:flex; flex-wrap:wrap; gap:8px; margin-top:11px; }
+    .g-btn { display:inline-flex; align-items:center; padding:8px 13px; border-radius:9px; border:1.5px solid currentColor; background:#fff; color:inherit;
+      font-family:inherit; font-size:12.5px; font-weight:700; text-decoration:none; cursor:pointer; transition:background-color .2s, color .2s, opacity .2s; }
+    .g-leiste .g-btn.g-haupt, .g-leiste .g-btn.g-haupt:visited { background:#B91C1C; border-color:#B91C1C; color:#fff; }
+    .g-leiste.gut .g-btn.g-haupt, .g-leiste.gut .g-btn.g-haupt:visited { background:#2E8749; border-color:#2E8749; color:#fff; }
+    .g-leiste .g-btn.g-haupt:hover { filter:brightness(1.08); }
+    .g-btn:disabled { opacity:.6; cursor:default; }
+    .g-stand { margin-top:8px; font-size:12px; font-weight:600; }
+    .g-stand:empty { display:none; }
+    .g-nur { margin-top:8px; font-size:10.5px; opacity:.6; }
+    .g-zu { position:absolute; top:8px; right:10px; width:28px; height:28px; border:0; border-radius:8px; background:transparent; color:inherit; font-size:20px; line-height:1; cursor:pointer; opacity:.7; }
+    .g-zu:hover { opacity:1; background:rgba(0,0,0,.05); }
+    @media print { .g-leiste { display:none !important; } }
+
+    /* v12.10 Startseite: schneller einblenden (vorher bis > 2 s bei Preis- und Sanktionskarten) */
+    .lp-reveal { transform:translateY(14px); transition:opacity .35s ease, transform .45s cubic-bezier(.2,.7,.2,1); }
+    .lp-reveal .lp-card, .lp-reveal .lp-step { transform:translateY(14px); transition:all .45s cubic-bezier(.2,.7,.2,1); }
+    .lp-reveal.on .lp-card:nth-child(1), .lp-reveal.on .lp-step:nth-child(1) { transition-delay:.03s; }
+    .lp-reveal.on .lp-card:nth-child(2), .lp-reveal.on .lp-step:nth-child(2) { transition-delay:.08s; }
+    .lp-reveal.on .lp-card:nth-child(3), .lp-reveal.on .lp-step:nth-child(3) { transition-delay:.13s; }
+    .lp-reveal.on .lp-card:nth-child(4), .lp-reveal.on .lp-step:nth-child(4) { transition-delay:.18s; }
+    .lp-reveal.on .lp-card:nth-child(5) { transition-delay:.23s; }
+    .lp-reveal.on .lp-card:nth-child(6) { transition-delay:.28s; }
+    /* Preis- und Sanktionskarten starten mit dem Abschnitt, nicht erst 1,3 s spaeter */
+    .lp-reveal.on .pk-an { opacity:1; transform:none; transition:opacity .4s cubic-bezier(.2,.7,.2,1) var(--pd,0s), transform .4s cubic-bezier(.2,.7,.2,1) var(--pd,0s); }
+    .lp-reveal.on .lp-sank-karte { opacity:1; transform:none; transition:opacity .4s cubic-bezier(.2,.7,.2,1), transform .4s cubic-bezier(.2,.7,.2,1); }
+    .lp-reveal.on .lp-sank-karte:nth-child(1) { transition-delay:.04s; }
+    .lp-reveal.on .lp-sank-karte:nth-child(2) { transition-delay:.10s; }
+    .lp-reveal.on .lp-sank-karte:nth-child(3) { transition-delay:.16s; }
+    /* Demo-Firmenliste: Name und Beschreibung klebten aneinander ("GmbHKfz-Handel") */
+    .dm-firma-n, .dm-firma-s { display:block; }
+    .dm-firma-s { margin-top:3px; }
+
+    /* v12.11 Standort-Karte */
+    .ev-karte-item { margin-top:16px; }
+    .ev-karte-zeit { margin-left:auto; font-weight:600; color:var(--gray-l); text-transform:none; letter-spacing:0; }
+    .evidence-karte { position:relative; display:block; overflow:hidden; background:#EEF2F0; aspect-ratio:16 / 9; text-decoration:none; }   /* randlos wie die Fotogalerie */
+    .evidence-karte .evidence-img-loading { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; }
+    .ev-karte-bild { display:block; width:100%; height:100%; object-fit:cover; opacity:0; transition:opacity .45s ease; }
+    .ev-karte-bild.an { opacity:1; }
+    .evidence-karte.ohne-bild { aspect-ratio:auto; }
+    .ev-karte-leer { padding:18px 16px; font-size:13px; line-height:1.5; color:var(--gray, #5A6670); }
+    .ev-karte-admin { display:block; margin-top:6px; font-size:12px; font-weight:600; color:#B91C1C; }
+    .ev-karte-fuss { display:flex; flex-wrap:wrap; align-items:baseline; gap:6px 14px; padding:11px 16px 13px; font-size:12.5px; }
+    .ev-karte-adr { color:var(--ink); font-weight:600; }
+    .ev-karte-link { margin-left:auto; color:#2E8749; font-weight:700; text-decoration:none; }
+    .ev-karte-link:hover { text-decoration:underline; }
+    @media (max-width:640px) {
+      .ev-karte-item .evidence-item-label { flex-wrap:wrap; row-gap:2px; }
+      .ev-karte-zeit { margin-left:0; flex-basis:100%; font-size:11px; }   /* eigene Zeile statt eingequetscht */
+    }
+    @media (prefers-reduced-motion: reduce) { .ev-karte-bild { transition:none; opacity:1; } }
+    @media print {
+      .ev-karte-bild { opacity:1 !important; }
+      .evidence-karte { break-inside:avoid; border-color:#ccc; }
+      .ev-karte-link { color:#000; }
+      .ev-karte-item .ev-karte-link[href]::after { content:' (' attr(href) ')' !important; font-weight:400; font-size:10px; word-break:break-all; }   /* Beleg auf Papier: Adresse mitdrucken */
+    }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -3925,21 +3995,6 @@
       </div>
     </section>
 
-    <section class="lp-dark lp-reveal" id="lpMonitoring">
-      
-      <h2 class="lp-h2">Nicht nur einmal prüfen – dauerhaft im Blick behalten</h2>
-      <p class="lp-secsub">Eine Prüfung ist eine Momentaufnahme. Bei Geschäftspartnern, mit denen Sie über Jahre arbeiten, kann sich viel ändern – ohne dass Sie davon erfahren. Markieren Sie ein Unternehmen mit dem Stern, und der Compliance-Checker prüft es <b>alle drei Monate automatisch neu</b>.</p>
-      <div class="lp-steps" style="grid-template-columns:repeat(auto-fit,minmax(240px,1fr));">
-        <div class="lp-step"><div class="lp-step-n lp-step-ico lp-ico-stern"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.6l2.9 5.9 6.5.95-4.7 4.6 1.1 6.5L12 17.5 6.2 20.5l1.1-6.5-4.7-4.6 6.5-.95z"/></svg></div><div><div class="lp-step-t">Mit einem Klick markieren</div><div class="lp-step-d">Ein Stern in der Historie genügt. Jederzeit wieder abschaltbar – kein Abo, keine Bindung.</div></div></div>
-        <div class="lp-step"><div class="lp-step-n lp-step-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg></div><div><div class="lp-step-t">Automatisch alle 3 Monate</div><div class="lp-step-d">Die erneute Prüfung läuft im Hintergrund. Der Bericht landet automatisch in der Akte des Unternehmens.</div></div></div>
-        <div class="lp-step"><div class="lp-step-n lp-step-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg></div><div><div class="lp-step-t">Sofort informiert bei Änderungen</div><div class="lp-step-d">Neuer Sanktions-Treffer, Insolvenzhinweis, Wechsel in der Geschäftsführung oder gefallener Score – Sie sehen sofort, was sich verändert hat.</div></div></div>
-      </div>
-      <div class="lp-mon-hinweis">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg>
-        <span><b>Transparent abgerechnet:</b> Jede automatische Prüfung zählt wie eine normale Analyse gegen Ihr Monatskontingent – also vier pro Jahr und Unternehmen. Ist das Kontingent aufgebraucht, wird nicht geprüft. Keine versteckten Kosten, keine Zusatzgebühr.</span>
-      </div>
-    </section>
-
     <section class="lp-sec lp-reveal" id="lpSanktionen">
       <h2 class="lp-h2">Sanktionslisten – direkt abgeglichen, nicht recherchiert</h2>
       <p class="lp-secsub">Jede Prüfung gleicht Namen unmittelbar gegen die <b>konsolidierte Sanktionsliste der Europäischen Union</b> ab. Nicht über eine Internetsuche, sondern gegen die amtliche Liste selbst – täglich aktualisiert und mit dokumentiertem Stand.</p>
@@ -3965,6 +4020,21 @@
       <div class="lp-sank-hinweis">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg>
         <span><b>Was ein Treffer bedeutet:</b> Ein Treffer weist auf eine Namensgleichheit oder Ähnlichkeit hin – nicht darauf, dass es sich um dieselbe Person handelt. Ob tatsächlich Identität vorliegt, muss gesondert ermittelt werden. Der Bericht macht diesen Unterschied ausdrücklich deutlich.</span>
+      </div>
+    </section>
+
+    <section class="lp-dark lp-reveal" id="lpMonitoring">
+      
+      <h2 class="lp-h2">Nicht nur einmal prüfen – dauerhaft im Blick behalten</h2>
+      <p class="lp-secsub">Eine Prüfung ist eine Momentaufnahme. Bei Geschäftspartnern, mit denen Sie über Jahre arbeiten, kann sich viel ändern – ohne dass Sie davon erfahren. Markieren Sie ein Unternehmen mit dem Stern, und der Compliance-Checker prüft es <b>alle drei Monate automatisch neu</b>.</p>
+      <div class="lp-steps" style="grid-template-columns:repeat(auto-fit,minmax(240px,1fr));">
+        <div class="lp-step"><div class="lp-step-n lp-step-ico lp-ico-stern"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.6l2.9 5.9 6.5.95-4.7 4.6 1.1 6.5L12 17.5 6.2 20.5l1.1-6.5-4.7-4.6 6.5-.95z"/></svg></div><div><div class="lp-step-t">Mit einem Klick markieren</div><div class="lp-step-d">Ein Stern in der Historie genügt. Jederzeit wieder abschaltbar – kein Abo, keine Bindung.</div></div></div>
+        <div class="lp-step"><div class="lp-step-n lp-step-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg></div><div><div class="lp-step-t">Automatisch alle 3 Monate</div><div class="lp-step-d">Die erneute Prüfung läuft im Hintergrund. Der Bericht landet automatisch in der Akte des Unternehmens.</div></div></div>
+        <div class="lp-step"><div class="lp-step-n lp-step-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg></div><div><div class="lp-step-t">Sofort informiert bei Änderungen</div><div class="lp-step-d">Neuer Sanktions-Treffer, Insolvenzhinweis, Wechsel in der Geschäftsführung oder gefallener Score – Sie sehen sofort, was sich verändert hat.</div></div></div>
+      </div>
+      <div class="lp-mon-hinweis">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg>
+        <span><b>Transparent abgerechnet:</b> Jede automatische Prüfung zählt wie eine normale Analyse gegen Ihr Monatskontingent – also vier pro Jahr und Unternehmen. Ist das Kontingent aufgebraucht, wird nicht geprüft. Keine versteckten Kosten, keine Zusatzgebühr.</span>
       </div>
     </section>
 
@@ -6118,7 +6188,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span class="app-version" onclick="neuigkeitenZeigen()" title="Was ist neu?" style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v12.8</span>
+      <span class="app-version" onclick="neuigkeitenZeigen()" title="Was ist neu?" style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v12.11</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -8334,6 +8404,7 @@ function showApp(session) {
   if (PW_ANSICHT_OFFEN) return;   // Passwort wird gerade neu gesetzt
   SESSION_GEROUTET = true;
   setTimeout(function(){ try { neuigkeitenPruefen(); } catch(e) {} }, 2400);
+  setTimeout(function(){ try { googleWaechter(); } catch(e) {} }, 3200);   // nur fuer Automati-Labs-Konten
   showBoot(); // Splash zeigen, App erst freigeben wenn Firmen-Status geklärt ist (kein Aufblitzen)
   if (session && session.user) { CURRENT_USER_EMAIL = session.user.email || ''; CURRENT_USER_ID = session.user.id || ''; }
   ladeKontingent();
@@ -10159,7 +10230,7 @@ function lpPreiseAufbauen() {
   if (!grid || typeof PLAENE === 'undefined') return;
   grid.innerHTML = PLAENE.map(function(p, i){
     const proAnalyse = (parseFloat(String(p.preis).replace(/\./g,'').replace(',','.')) / p.limit);
-    return '<div class="lp-preis-karte pk-an' + (p.empfohlen ? ' lp-preis-top' : '') + '" style="--pd:' + (0.06 + i * 0.09) + 's">'
+    return '<div class="lp-preis-karte pk-an' + (p.empfohlen ? ' lp-preis-top' : '') + '" style="--pd:' + (0.04 + i * 0.06) + 's">'
       + (p.empfohlen ? '<div class="lp-preis-badge">Beliebteste Wahl</div>' : '')
       + '<div class="lp-preis-name">' + p.name + '</div>'
       + '<div class="lp-preis-zahl"><b>' + p.limit.toLocaleString('de-DE') + '</b><span>Analysen / Monat</span></div>'
@@ -10386,8 +10457,8 @@ function initLpReveal() {
   if (_lpObs) return;
   try {
     _lpObs = new IntersectionObserver(function(entries){
-      entries.forEach(function(en){ if (en.isIntersecting) { en.target.classList.add('on'); _lpObs.unobserve(en.target); setTimeout(function(){ en.target.classList.add('done'); }, 1300); } });
-    }, { threshold: 0.12 });
+      entries.forEach(function(en){ if (en.isIntersecting) { en.target.classList.add('on'); _lpObs.unobserve(en.target); setTimeout(function(){ en.target.classList.add('done'); }, 900); } });
+    }, { threshold: 0, rootMargin: '0px 0px -6% 0px' });   // ausloesen, sobald die Oberkante ins Bild kommt
     document.querySelectorAll('.lp-reveal').forEach(function(el){ _lpObs.observe(el); });
   } catch(e) {
     document.querySelectorAll('.lp-reveal').forEach(function(el){ el.classList.add('on'); });
@@ -12277,6 +12348,12 @@ async function runAnalysis(name, ust, land, sitz, auswahl) {
     };
     // Die Place-ID darf laut Google dauerhaft gespeichert werden - Fotonamen nicht (sie laufen ab)
     report._evidence.placeId = (googleTrefferOk && googleData && googleData.id) ? googleData.id : null;
+    // Koordinaten fuer den Kartenausschnitt (exakter Pin statt Adress-Suche)
+    const gLoc = (googleTrefferOk && googleData && googleData.location) ? googleData.location : null;
+    if (gLoc && isFinite(Number(gLoc.latitude)) && isFinite(Number(gLoc.longitude))) {
+      report._evidence.lat = Number(gLoc.latitude);
+      report._evidence.lng = Number(gLoc.longitude);
+    }
     // Sitz: eingegeben vs. laut Quelle
     report._sitz = sitzAuswerten(sitz, auswahl, report, (googleTrefferOk && googleData) ? googleData : null);
     if (auswahl && auswahl.register) report._registerAuswahl = auswahl.register;
@@ -12499,7 +12576,85 @@ function evidenceHTML(d) {
       <div class="evidence-quelle" id="evidenceQuelle"></div>
       <div class="evidence-note">Automatisch über Google zugeordnete Bilder zur angegebenen Adresse. Die Zuordnung erfolgt anhand des Namens des Unternehmens und sollte bei Bedarf manuell verifiziert werden.</div>
     </div>
+    ${karteHTML(ev)}
   </div>`;
+}
+
+// ============================================================
+// STANDORT-KARTE (v12.11): Kartenausschnitt von Google Maps mit Pin als Beweis.
+// Das Bild wird NICHT gespeichert, sondern bei jedem Oeffnen frisch geladen
+// (Google-Nutzungsbedingungen) - mit Abrufzeitpunkt, damit es im PDF als Beleg taugt.
+// ============================================================
+function karteHat(ev) {
+  return !!(ev && ((ev.lat != null && ev.lng != null && isFinite(Number(ev.lat)) && isFinite(Number(ev.lng))) || (ev.address && String(ev.address).trim().length >= 5)));
+}
+function karteLink(ev) {
+  const eigen = sichereUrl(ev.mapsUri);
+  if (eigen) return eigen;
+  const q = ((ev.placeName || '') + ' ' + (ev.address || '')).trim();
+  return sichereUrl('https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(q)
+    + (ev.placeId ? '&query_place_id=' + encodeURIComponent(ev.placeId) : ''));
+}
+function karteHTML(ev) {
+  if (!karteHat(ev)) return '';
+  const link = karteLink(ev);
+  return `<div class="evidence-item ev-karte-item">
+      <div class="evidence-item-label">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/></svg>
+        Standort auf der Karte (Google Maps) <span id="evidenceKarteZeit" class="ev-karte-zeit"></span>
+      </div>
+      <a class="evidence-karte" id="evidenceKarte" href="${link}" target="_blank" rel="noopener noreferrer" title="Auf Google Maps öffnen">
+        <div class="evidence-img-loading">Karte wird geladen…</div>
+      </a>
+      <div class="ev-karte-fuss">
+        <span class="ev-karte-adr">${escapeHtml(ev.address || '')}</span>
+        <a class="ev-karte-link" href="${link}" target="_blank" rel="noopener noreferrer">Auf Google Maps öffnen ↗</a>
+      </div>
+    </div>`;
+}
+
+async function karteLaden(ev) {
+  const box = document.getElementById('evidenceKarte');
+  if (!box) return;
+  ev = ev || {};
+  const mitKoord = ev.lat != null && ev.lng != null && isFinite(Number(ev.lat)) && isFinite(Number(ev.lng));
+  const payload = mitKoord ? { lat: Number(ev.lat), lng: Number(ev.lng) } : { adresse: ev.address || '' };
+  let fehler = null;
+  try {
+    const res = await fetch(WORKER, { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'karte', payload: payload }) });
+    const typ = (res.headers && res.headers.get('content-type')) || '';
+    if (res.ok && typ.indexOf('image') === 0) {
+      const url = URL.createObjectURL(await res.blob());
+      if (!box.isConnected) return;
+      const img = new Image();
+      img.className = 'ev-karte-bild';
+      img.alt = 'Kartenausschnitt: Standort des Unternehmens laut Google Maps';
+      img.onload = function(){
+        if (!box.isConnected) return;
+        box.innerHTML = '';
+        box.appendChild(img);
+        einblenden(img);
+        const zeit = document.getElementById('evidenceKarteZeit');
+        if (zeit) zeit.textContent = 'abgerufen am ' + new Date().toLocaleString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) + ' Uhr';
+      };
+      img.onerror = function(){ karteFehler(box, { grund: 'unbekannt' }); };
+      img.src = url;
+      return;
+    }
+    try { fehler = await res.json(); } catch (e) { fehler = { grund: 'unbekannt' }; }
+  } catch (e) { fehler = { grund: 'netz' }; }
+  if (box.isConnected) karteFehler(box, fehler || {});
+}
+
+function karteFehler(box, f) {
+  const gesperrt = /karte_gesperrt|abrechnung|schluessel|api_aus|zugriff|kein_schluessel/.test((f && f.grund) || '');
+  box.classList.add('ohne-bild');
+  box.innerHTML = '<div class="ev-karte-leer">'
+    + (gesperrt ? 'Kartenausschnitt derzeit nicht abrufbar \u2013 der Link zu Google Maps funktioniert trotzdem.'
+                : 'F\u00fcr diesen Standort konnte kein Kartenausschnitt erstellt werden.')
+    + (gesperrt && googleAdmin() ? '<span class="ev-karte-admin">Admin: \u201eMaps Static API\u201c aktivieren und beim Google-Schl\u00fcssel erlauben.</span>' : '')
+    + '</div>';
 }
 
 setTimeout(function(){ try { akteVorschauZeichnen(); } catch(e) {} }, 0);
@@ -12510,10 +12665,14 @@ setTimeout(function(){ try { akteVorschauZeichnen(); } catch(e) {} }, 0);
 // Bei kuenftigen Updates: NEU_VERSION hochzaehlen und NEUIGKEITEN ersetzen.
 // Kleine Korrekturen ohne neue Funktionen: NEU_VERSION unveraendert lassen.
 // ============================================================
-const NEU_VERSION = 'v12.3';           // Stand der Neuigkeiten - nur erhoehen, wenn es wirklich Neues gibt
-const APP_VERSION = 'v12.8';           // aktuelle Version (Anzeige im Bericht und oben im Kopf)
+const NEU_VERSION = 'v12.11';           // Stand der Neuigkeiten - nur erhoehen, wenn es wirklich Neues gibt
+const APP_VERSION = 'v12.11';           // aktuelle Version (Anzeige im Bericht und oben im Kopf)
 const UPDATE_KURZ = 'Abgeschlossene Akten sind jetzt schreibgesch\u00fctzt \u2013 zum \u00c4ndern werden sie wieder ge\u00f6ffnet.';
 const NEUIGKEITEN = [
+  { farbe: '#2E8749', v: 'v12.11', ico: '<path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/>',
+    t: 'Standort auf der Karte',
+    kurz: 'Jede Akte zeigt jetzt einen Kartenausschnitt von Google Maps mit dem Standort des Unternehmens \u2013 auch im PDF.',
+    d: 'Unter \u201eBeweismittel\u201c zeigt jede Akte einen Kartenausschnitt von Google Maps mit Pin am Standort des Unternehmens, dazu Adresse, Abrufzeitpunkt und den Link \u201eAuf Google Maps \u00f6ffnen\u201c. Der Ausschnitt erscheint auch im PDF-Bericht.' },
   { farbe: '#2E8749', v: 'v12.3', ico: '<path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/>',
     t: 'Ordner auf einen Blick',
     kurz: 'Deine Ordner stehen jetzt als Mappen \u00fcber der Liste \u2013 mit Suche, ein Klick \u00f6ffnet den Ordner.',
@@ -14149,18 +14308,137 @@ async function wartungBilderNachladen(opt) {
   const summe = { verarbeitet: 0, gefunden: 0, nicht_gefunden: 0, ohne_google: 0 };
   for (let runde = 1; runde <= (opt.maxRunden || 50); runde++) {
     const r = await workerCall('bilder_nachladen', { limit: opt.limit || 20, probe: !!opt.probe });
-    if (!r || r.error) { console.error('Abbruch:', r && r.error); break; }
-    Object.keys(summe).forEach(function(k){ summe[k] += (r[k] || 0); });
+    if (!r || r.error) { console.error('Abbruch:', r && r.error); summe.fehler = (r && r.error) || 'keine Antwort'; break; }
+    Object.keys(summe).forEach(function(k){ if (typeof summe[k] === 'number') summe[k] += (r[k] || 0); });
+    if (typeof r.offen === 'number') summe.offen = r.offen;
+    if (opt.fortschritt) { try { opt.fortschritt(summe); } catch (e) {} }
     console.log('Runde ' + runde + ': ' + r.verarbeitet + ' gepr\u00fcft \u00b7 ' + r.gefunden + ' gefunden \u00b7 ' + r.nicht_gefunden
       + ' nicht gefunden \u00b7 ' + r.ohne_google + ' ohne Google' + (typeof r.offen === 'number' ? ' \u00b7 noch offen: ' + r.offen : ''), r.beispiele || '');
-    if (r.abbruch) { console.error(r.abbruch, r.googleFehler || ''); break; }
+    if (r.abbruch) { console.error(r.abbruch, r.googleFehler || ''); summe.fehler = r.abbruch; break; }
     if (opt.probe || !r.verarbeitet || r.offen === 0) break;
   }
   console.log('Fertig:', summe);
   return summe;
 }
 
-// Erzeugt eine Prüf-ID (Zeitstempel Basis36 + Zufallsanteil). Die echte Einmaligkeit
+// ============================================================
+// GOOGLE-WAECHTER (v12.9, nur fuer Automati-Labs-Konten)
+// Prueft beim Start den Google-Zugang des Workers. Ist er gesperrt, erscheint oben
+// eine Leiste mit Grund und direktem Link zur Loesung. Danach: "Erneut pruefen" und
+// "Aeltere Bilder nachladen" per Klick - keine Konsole noetig. Kunden sehen nichts.
+// ============================================================
+const GOOGLE_LOESUNG = {
+  abrechnung: { t: 'Google-Abrechnung ist nicht aktiv', d: 'Google lehnt alle Anfragen ab, weil das Abrechnungskonto des Google-Cloud-Projekts nicht aktiv ist \u2013 typisch nach Ende des kostenlosen Testzeitraums oder bei abgelaufener Karte. L\u00f6sung: In der Google Cloud unter \u201eAbrechnung\u201c das Konto aktivieren bzw. \u201eVollst\u00e4ndiges Konto aktivieren\u201c.', link: 'https://console.cloud.google.com/billing', knopf: 'Abrechnung \u00f6ffnen' },
+  api_aus: { t: 'Places API (New) ist nicht aktiviert', d: 'Die Schnittstelle f\u00fcr Firmen und Fotos ist im Google-Projekt ausgeschaltet. L\u00f6sung: \u201ePlaces API (New)\u201c aktivieren.', link: 'https://console.cloud.google.com/apis/library/places.googleapis.com', knopf: 'API aktivieren' },
+  schluessel_gesperrt: { t: 'Google-Schl\u00fcssel ist eingeschr\u00e4nkt', d: 'Der Schl\u00fcssel darf diese Schnittstelle oder diesen Aufrufer nicht nutzen. Der Worker ruft ohne Website auf \u2013 eine Einschr\u00e4nkung auf \u201eWebsites\u201c blockiert ihn. L\u00f6sung: Beim Schl\u00fcssel die Anwendungs-Einschr\u00e4nkung auf \u201eKeine\u201c stellen und bei den API-Einschr\u00e4nkungen \u201ePlaces API (New)\u201c und \u201eStreet View Static API\u201c erlauben.', link: 'https://console.cloud.google.com/apis/credentials', knopf: 'Schl\u00fcssel \u00f6ffnen' },
+  schluessel_ungueltig: { t: 'Google-Schl\u00fcssel ist ung\u00fcltig', d: 'Der hinterlegte Schl\u00fcssel wurde gel\u00f6scht oder ist falsch. L\u00f6sung: Neuen Schl\u00fcssel anlegen und in Cloudflare als Secret GOOGLE_API_KEY hinterlegen.', link: 'https://console.cloud.google.com/apis/credentials', knopf: 'Schl\u00fcssel \u00f6ffnen' },
+  kontingent: { t: 'Google-Kontingent ist ausgesch\u00f6pft', d: 'Ein Tages- oder Minutenlimit ist erreicht. L\u00f6sung: Kontingente der Places API (New) pr\u00fcfen bzw. erh\u00f6hen.', link: 'https://console.cloud.google.com/iam-admin/quotas', knopf: 'Kontingente \u00f6ffnen' },
+  kein_schluessel: { t: 'Im Worker fehlt der Google-Schl\u00fcssel', d: 'In Cloudflare ist kein Secret GOOGLE_API_KEY hinterlegt. L\u00f6sung: Workers \u2192 compliance-worker \u2192 Settings \u2192 Variables and Secrets \u2192 GOOGLE_API_KEY anlegen.', link: 'https://dash.cloudflare.com/', knopf: 'Cloudflare \u00f6ffnen' },
+  zugriff_verweigert: { t: 'Google verweigert den Zugriff', d: 'Google antwortet mit \u201eZugriff verweigert\u201c. Bitte Abrechnung, API-Aktivierung und Schl\u00fcssel-Einschr\u00e4nkungen pr\u00fcfen \u2013 in dieser Reihenfolge.', link: 'https://console.cloud.google.com/billing', knopf: 'Google Cloud \u00f6ffnen' },
+  worker_alt: { t: 'Worker ist veraltet', d: 'Der Worker in Cloudflare kennt die Diagnose noch nicht und kann deshalb auch keine Bilder frisch laden. L\u00f6sung: die aktuelle worker_secure.js in Cloudflare einf\u00fcgen und speichern.', link: 'https://dash.cloudflare.com/', knopf: 'Cloudflare \u00f6ffnen' },
+  karte_gesperrt: { t: 'Maps Static API nicht freigeschaltet', d: 'Der Kartenausschnitt im Bericht braucht die \u201eMaps Static API\u201c. L\u00f6sung: 1. Die API in der Google Cloud aktivieren. 2. Beim Google-Schl\u00fcssel unter \u201eAPI-Einschr\u00e4nkungen\u201c zus\u00e4tzlich \u201eMaps Static API\u201c anhaken und speichern.', link: 'https://console.cloud.google.com/apis/library/static-maps-backend.googleapis.com', knopf: 'API aktivieren' },
+  unbekannt: { t: 'Google-Zugang gest\u00f6rt', d: 'Google antwortet mit einem unerwarteten Fehler. Die Meldung von Google steht unten.', link: 'https://console.cloud.google.com/apis/dashboard', knopf: 'Google Cloud \u00f6ffnen' }
+};
+const GOOGLE_OK_MERKER = 'cc_google_ok_bis2';   // v12.11: neu pruefen (Kartentest dazugekommen)
+
+function googleAdmin() { return /@automatilabs\.de$/i.test(CURRENT_USER_EMAIL || ''); }
+
+async function googleWaechter(erzwingen) {
+  if (!googleAdmin()) return;
+  if (!erzwingen) {
+    try { if (Number(localStorage.getItem(GOOGLE_OK_MERKER) || 0) > Date.now()) return; } catch (e) {}
+  }
+  let r = null;
+  try { r = await workerCall('google_diagnose', {}); } catch (e) { r = null; }
+  if (!r) { if (erzwingen) googleLeisteZeigen({ grund: 'unbekannt', meldung: 'Der Worker hat nicht geantwortet.' }); return; }
+  if (r.error) {
+    if (/unknown action|unbekannte aktion/i.test(String(r.error))) googleLeisteZeigen({ grund: 'worker_alt' });
+    else if (erzwingen) googleLeisteZeigen({ grund: 'unbekannt', meldung: String(r.error) });
+    return;
+  }
+  if (r.ok) {
+    try { localStorage.setItem(GOOGLE_OK_MERKER, String(Date.now() + 6 * 3600 * 1000)); } catch (e) {}
+    console.info('Google-Zugang: in Ordnung');
+    if (erzwingen || document.getElementById('googleLeiste')) googleLeisteZeigen({ gut: true });
+    return;
+  }
+  try { localStorage.removeItem(GOOGLE_OK_MERKER); } catch (e) {}
+  const f = (r.pruefungen || []).filter(function(p){ return !p.ok; })[0] || {};
+  let grund = f.grund || 'unbekannt';
+  if (/Karte/.test(f.test || '') && /api_aus|schluessel_gesperrt|zugriff_verweigert|unbekannt/.test(grund)) grund = 'karte_gesperrt';
+  googleLeisteZeigen({ grund: grund, meldung: f.meldung || '', test: f.test || '' });
+}
+
+function googleLeisteZeigen(z) {
+  let el = document.getElementById('googleLeiste');
+  const neu = !el;
+  if (neu) {
+    el = document.createElement('div');
+    el.id = 'googleLeiste';
+    el.className = 'g-leiste';
+    el.setAttribute('role', 'status');
+    const kopf = document.querySelector('.app header.header');
+    if (kopf) kopf.insertAdjacentElement('afterend', el); else document.body.insertBefore(el, document.body.firstChild);
+  }
+  const ico = z.gut
+    ? '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m8 12.5 2.6 2.6L16 9.5"/></svg>'
+    : '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>';
+  if (z.gut) {
+    el.classList.add('gut');
+    el.innerHTML = '<span class="g-ico">' + ico + '</span><div class="g-inhalt">'
+      + '<div class="g-t">Google-Zugang funktioniert</div>'
+      + '<div class="g-d">Neue Akten bekommen wieder Firmenbilder. \u00c4ltere Akten holst du mit einem Klick zur\u00fcck.</div>'
+      + '<div class="g-knoepfe"><button type="button" class="g-btn g-haupt" onclick="googleBilderNachladen(this)">\u00c4ltere Bilder nachladen</button></div>'
+      + '<div class="g-stand" id="googleStand"></div>'
+      + '<div class="g-nur">Nur f\u00fcr Automati Labs sichtbar</div></div>'
+      + '<button type="button" class="g-zu" onclick="googleLeisteSchliessen()" title="Schlie\u00dfen">\u00d7</button>';
+  } else {
+    const l = GOOGLE_LOESUNG[z.grund] || GOOGLE_LOESUNG.unbekannt;
+    el.classList.remove('gut');
+    el.innerHTML = '<span class="g-ico">' + ico + '</span><div class="g-inhalt">'
+      + '<div class="g-t">' + (z.grund === 'karte_gesperrt' ? 'Kartenausschnitt gesperrt: ' : 'Firmenbilder gesperrt: ') + escapeHtml(l.t) + '</div>'
+      + '<div class="g-d">' + escapeHtml(l.d) + '</div>'
+      + (z.meldung ? '<div class="g-meldung">Google meldet' + (z.test ? ' (' + escapeHtml(z.test) + ')' : '') + ': ' + escapeHtml(String(z.meldung).slice(0, 240)) + '</div>' : '')
+      + '<div class="g-knoepfe">'
+      + '<a class="g-btn g-haupt" href="' + sichereUrl(l.link) + '" target="_blank" rel="noopener noreferrer">' + escapeHtml(l.knopf) + ' \u2197</a>'
+      + '<button type="button" class="g-btn" onclick="googleErneutPruefen(this)">Erneut pr\u00fcfen</button>'
+      + '</div>'
+      + '<div class="g-nur">Nur f\u00fcr Automati Labs sichtbar</div></div>'
+      + '<button type="button" class="g-zu" onclick="googleLeisteSchliessen()" title="Schlie\u00dfen">\u00d7</button>';
+  }
+  if (neu) einblenden(el);
+}
+
+function googleLeisteSchliessen() {
+  const el = document.getElementById('googleLeiste');
+  if (!el) return;
+  el.classList.remove('an');
+  setTimeout(function(){ if (el.parentNode) el.remove(); }, 320);
+}
+
+async function googleErneutPruefen(btn) {
+  if (btn) { btn.disabled = true; btn.textContent = 'Wird gepr\u00fcft\u2026'; }
+  await googleWaechter(true);
+}
+
+async function googleBilderNachladen(btn) {
+  const stand = document.getElementById('googleStand');
+  if (btn) { btn.disabled = true; btn.textContent = 'L\u00e4uft\u2026'; }
+  if (stand) stand.textContent = 'Suche \u00e4ltere Akten ohne Bilder\u2026';
+  const summe = await wartungBilderNachladen({ fortschritt: function(x){
+    if (stand) stand.textContent = x.verarbeitet + ' Akten gepr\u00fcft \u00b7 ' + x.gefunden + ' mit Bildern'
+      + (typeof x.offen === 'number' ? ' \u00b7 noch ' + x.offen + ' offen' : '');
+  } });
+  if (stand) {
+    stand.textContent = summe.fehler
+      ? 'Abgebrochen: ' + summe.fehler
+      : 'Fertig: ' + summe.verarbeitet + ' Akten gepr\u00fcft, ' + summe.gefunden + ' haben wieder Bilder'
+        + (summe.ohne_google ? ', ' + summe.ohne_google + ' ohne Adresse (nicht rettbar)' : '') + '.';
+  }
+  if (btn) { btn.disabled = false; btn.textContent = summe.fehler ? 'Erneut versuchen' : 'Nochmal pr\u00fcfen'; }
+}
+
+// Erzeugt eine Pr\u00fcf-ID (Zeitstempel Basis36 + Zufallsanteil). Die echte Einmaligkeit
 // wird zusätzlich über eine Unique-Constraint in der Datenbank garantiert.
 function generatePruefId() {
   return 'AL-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).slice(2,6).toUpperCase();
@@ -14911,6 +15189,7 @@ function showReport(d, rawName, fromHistory, nichtSpeichern) {
 
   // Standort-Foto asynchron nachladen (Beweismittel-Sektion)
   loadEvidenceImage(d._evidence || {});
+  karteLaden(d._evidence || {});
 
   // Scroll-Reveal: Karten animieren wenn sie ins Sichtfeld kommen
   const revealEls = document.querySelectorAll('.report .reveal');
