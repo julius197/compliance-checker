@@ -3750,6 +3750,48 @@
       .ev-karte-link { color:#000; }
       .ev-karte-item .ev-karte-link[href]::after { content:' (' attr(href) ')' !important; font-weight:400; font-size:10px; word-break:break-all; }   /* Beleg auf Papier: Adresse mitdrucken */
     }
+
+    /* v12.13 KI-Pruefprotokoll */
+    .pp-karte { margin-top:16px; }
+    .pp-kopf { display:flex; align-items:center; gap:12px; margin-bottom:14px; }
+    .pp-ico { width:40px; height:40px; border-radius:12px; display:grid; place-items:center; flex:none; background:#EAF6EE; color:#2E8749; }
+    .pp-sub { font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:#2E8749; }
+    .pp-titel { font-size:16px; font-weight:800; color:var(--ink); margin-top:2px; }
+    .pp-abschnitt { margin:14px 0 8px; font-size:12px; font-weight:700; color:var(--gray, #5A6670); text-transform:uppercase; letter-spacing:.05em; }
+    .pp-liste { border:1px solid var(--border, #E3E8E6); border-radius:12px; overflow:hidden; }
+    .pp-zeile { display:grid; grid-template-columns:minmax(140px, 1fr) auto; gap:4px 12px; align-items:center; padding:11px 14px; border-top:1px solid var(--border, #E3E8E6); }
+    .pp-zeile:first-child { border-top:0; }
+    .pp-feld b { font-size:13.5px; color:var(--ink); }
+    .pp-feld span { display:block; font-size:11.5px; color:var(--gray-l); margin-top:1px; }
+    .pp-detail { grid-column:1 / -1; display:flex; flex-direction:column; gap:2px; font-size:12.5px; line-height:1.45; color:var(--gray, #5A6670); }
+    .pp-detail:empty { display:none; }
+    .pp-quelle { font-size:11.5px; }
+    .pp-quelle a { color:#2E8749; font-weight:600; }
+    .pp-badge { display:inline-flex; align-items:center; white-space:nowrap; padding:3px 9px; border-radius:999px; font-size:11.5px; font-weight:700; border:1px solid transparent; }
+    .pp-badge.ok { background:#EAF6EE; color:#1F6B3A; border-color:rgba(46,135,73,.25); }
+    .pp-badge.neutral { background:#F1F4F2; color:#5A6670; border-color:#E0E6E3; }
+    .pp-badge.warn { background:#FFF6E5; color:#9A5B00; border-color:rgba(217,119,6,.28); }
+    .pp-badge.bad { background:#FEF1F1; color:#B91C1C; border-color:rgba(220,38,38,.28); }
+    .pp-dok { border:1px solid var(--border, #E3E8E6); border-radius:12px; padding:12px 14px; margin-top:10px; }
+    .pp-dok-kopf { display:flex; align-items:flex-start; justify-content:space-between; gap:10px; flex-wrap:wrap; }
+    .pp-dok-kopf b { display:block; font-size:13.5px; color:var(--ink); overflow-wrap:anywhere; }
+    .pp-dok-kopf span:not(.pp-badge) { display:block; font-size:12px; color:var(--gray-l); margin-top:1px; }
+    .pp-gelesen { display:flex; flex-wrap:wrap; gap:6px; margin-top:10px; }
+    .pp-gelesen span { font-size:12px; background:#F6F8F7; border:1px solid #E6ECE9; border-radius:8px; padding:4px 8px; color:var(--ink); overflow-wrap:anywhere; }
+    .pp-gelesen em { font-style:normal; color:var(--gray-l); margin-right:5px; }
+    .pp-abgleich { margin-top:10px; display:flex; flex-direction:column; gap:4px; }
+    .pp-ab { font-size:12.5px; line-height:1.45; color:var(--gray, #5A6670); overflow-wrap:anywhere; }
+    .pp-ab b { color:var(--ink); }
+    .pp-ab-ico { display:inline-block; width:16px; font-weight:800; }
+    .pp-ab.ok .pp-ab-ico { color:#2E8749; }
+    .pp-ab.bad .pp-ab-ico, .pp-ab.bad b { color:#B91C1C; }
+    .pp-ab.neu .pp-ab-ico { color:#0C86A3; }
+    .pp-hinweise { margin-top:10px; padding:8px 10px; border-radius:9px; background:#FFF6E5; color:#8A5200; font-size:12.5px; line-height:1.45; }
+    .pp-hinweise div::before { content:'\26A0\FE0E  '; }
+    .pp-fuss { margin-top:12px; font-size:11.5px; color:var(--gray-l); }
+    .nw-tag.nw-unl { background:#FEF1F1; color:#B91C1C; border-color:rgba(220,38,38,.28); }
+    @media (max-width:640px) { .pp-zeile { grid-template-columns:1fr auto; } }
+    @media print { .pp-karte { break-inside:auto; } .pp-dok, .pp-zeile { break-inside:avoid; } }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -6188,7 +6230,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span class="app-version" onclick="neuigkeitenZeigen()" title="Was ist neu?" style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v12.12</span>
+      <span class="app-version" onclick="neuigkeitenZeigen()" title="Was ist neu?" style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v12.13</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -8049,7 +8091,10 @@ async function analyseIdErmitteln(d) {
 async function neuBewerten() {
   if (gesperrtMelden()) return;
   const n = Object.keys(ERGAENZUNGEN).length;
-  const belegeRoh = (typeof KYC !== 'undefined' && KYC.doks && KYC.doks.beleg) ? KYC.doks.beleg : [];
+  const unlesbarVorher = (CURRENT_REPORT && CURRENT_REPORT._belegeUnlesbar) || {};
+  // Dokumente, die nachweislich nicht lesbar sind (zu gross, Format), belegen keinen der drei Plaetze
+  const belegeRoh = ((typeof KYC !== 'undefined' && KYC.doks && KYC.doks.beleg) ? KYC.doks.beleg : [])
+    .filter(function(x){ return !unlesbarVorher[x.storage_path]; });
   if ((!n && !belegeRoh.length) || !CURRENT_REPORT) return;
   const btn = document.getElementById('neuBewertenBtn');
   if (btn) { btn.disabled = true; btn.classList.add('laedt'); btn.innerHTML = '<span class="bearb-spin"></span><span class="bearb-label">Wird neu bewertet\u2026</span>'; }
@@ -8082,7 +8127,7 @@ async function neuBewerten() {
     // WICHTIG: sb.rpc() wirft keinen Fehler, es gibt ihn zurueck - deshalb
     // wird das Ergebnis hier ausdruecklich geprueft. Ohne Speicherung wuerde
     // beim naechsten Oeffnen aus der Historie die alte Fassung erscheinen.
-    neu._belegeAusgewertet = belege.map(function(b){ return b.path; });
+    belegStatusUebernehmen(neu, r, belege);
     const analyseId = await analyseIdErmitteln(neu);
     let gespeichert = false;
     let speicherFehler = '';
@@ -8102,7 +8147,6 @@ async function neuBewerten() {
       } else {
         gespeichert = true;
         if (r2 && r2.data && r2.data.fassung) neu._fassung = r2.data.fassung;
-        neu._belegeAusgewertet = belege.map(function(b){ return b.path; });
         neu._analyseId = analyseId;
         // Historie im Speicher sofort aktualisieren, damit ein erneutes
         // Oeffnen die neue Fassung zeigt - auch bevor die Liste neu laedt
@@ -8125,6 +8169,7 @@ async function neuBewerten() {
       const diff = (neu.gesamtScore || 0) - (alt || 0);
       if (gespeichert) {
         zeigeToast('Neu bewertet', 'Score: ' + alt + ' \u2192 ' + neu.gesamtScore + (diff ? ' (' + (diff > 0 ? '+' : '') + diff + ')' : '') + '. Fassung ' + neu._fassung + ' gespeichert.');
+        neubewertungHinweise(r);
         try { ladeHistorie(); } catch(e) {}
       } else {
         // Ehrlich bleiben: Bericht ist zu sehen, aber NICHT gesichert
@@ -8137,6 +8182,42 @@ async function neuBewerten() {
     alert('Neubewertung fehlgeschlagen: ' + ((e && e.message) || ''));
     if (btn) { btn.disabled = false; btn.classList.remove('laedt'); btn.innerHTML = bearbIcoSvg() + '<span class="bearb-label">Neu bewerten \u00b7 ' + n + '</span>'; }
   }
+}
+
+// Lesestatus der Dokumente aus der Worker-Antwort uebernehmen (v12.13).
+// Vorher: jede gesendete Datei galt als "ausgewertet" - auch wenn der Worker sie gar nicht
+// lesen konnte - und die Liste wurde bei jedem Durchgang UEBERSCHRIEBEN statt ergaenzt.
+function belegStatusUebernehmen(neu, r, belege) {
+  const gelesen = (CURRENT_REPORT && Array.isArray(CURRENT_REPORT._belegeAusgewertet)) ? CURRENT_REPORT._belegeAusgewertet.slice() : [];
+  const unlesbar = Object.assign({}, (CURRENT_REPORT && CURRENT_REPORT._belegeUnlesbar) || {});
+  const dazu = function(p){ if (p && gelesen.indexOf(p) < 0) gelesen.push(p); delete unlesbar[p]; };
+  if (r && Array.isArray(r.dokStatus)) {
+    r.dokStatus.forEach(function(d){
+      if (!d || !d.path) return;
+      if (d.status === 'gelesen') dazu(d.path);
+      else if (d.status === 'zu_gross' || d.status === 'format') unlesbar[d.path] = d.status;
+      // 'verschoben' / 'nicht_gefunden': bleibt offen fuer den naechsten Durchgang
+    });
+  } else if (!(r && r.teilweise)) {
+    (belege || []).forEach(function(b){ dazu(b.path); });       // alter Worker ohne Rueckmeldung
+  }
+  neu._belegeAusgewertet = gelesen;
+  neu._belegeUnlesbar = unlesbar;
+}
+
+// Nach der Neubewertung ehrlich sagen, was nicht geklappt hat
+function neubewertungHinweise(r) {
+  if (!r) return;
+  const grund = { zu_gross: 'zu gro\u00df', format: 'Format nicht lesbar', verschoben: 'beim n\u00e4chsten Durchgang', nicht_gefunden: 'nicht gefunden' };
+  const offen = (Array.isArray(r.dokStatus) ? r.dokStatus : []).filter(function(d){ return d && d.status !== 'gelesen'; });
+  setTimeout(function(){
+    if (r.teilweise) {
+      zeigeToast('Nachrecherche unvollst\u00e4ndig', 'Die KI-Pr\u00fcfung konnte diesmal nicht abgeschlossen werden. Deine Angaben sind gespeichert \u2013 bitte sp\u00e4ter erneut \u201eNeu bewerten\u201c.');
+    } else if (offen.length) {
+      zeigeToast(offen.length === 1 ? 'Ein Dokument nicht gelesen' : offen.length + ' Dokumente nicht gelesen',
+        offen.slice(0, 3).map(function(d){ return (d.name || 'Dokument') + ' (' + (grund[d.status] || d.status) + ')'; }).join(', ') + '.');
+    }
+  }, 1600);
 }
 
 function sternHinweisZu() {
@@ -10081,8 +10162,9 @@ function dateiAlsB64(file) {
 // Datei nur AUSWAEHLEN (noch nicht senden)
 async function uploadWaehlen(typ, file) {
   const st = document.getElementById('uploadStatus');
+  file = await dateiVorbereiten(file);
   const erlaubt = ['image/jpeg','image/png','image/webp','application/pdf'];
-  if (erlaubt.indexOf(file.type) < 0) { if (st) st.textContent = 'Bitte ein Bild (JPG/PNG/WebP) oder PDF ausw\u00e4hlen.'; return; }
+  if (erlaubt.indexOf(file.type) < 0) { if (st) st.textContent = heicHinweis(file) || 'Bitte ein Bild (JPG/PNG/WebP) oder PDF ausw\u00e4hlen.'; return; }
   if (file.size > 10 * 1024 * 1024) { if (st) st.textContent = 'Datei zu gro\u00df (max. 10 MB).'; return; }
   let vorschau = null;
   if (file.type.indexOf('image/') === 0) {
@@ -12532,6 +12614,74 @@ function manuelleFelder(d) {
   return n;
 }
 
+// ============================================================
+// KI-PRUEFPROTOKOLL (v12.13): zeigt nach einer Neubewertung, ob jede ergaenzte Angabe
+// bestaetigt, nicht bestaetigt oder widerlegt wurde - und was die KI aus jedem Dokument
+// gelesen hat (Art, Stand, Abgleich mit dem Bericht, Hinweise). Erscheint auch im PDF.
+// ============================================================
+const PP_STATUS = {
+  bestaetigt: { t: 'Best\u00e4tigt', k: 'ok' },
+  nicht_bestaetigt: { t: 'Nicht best\u00e4tigt', k: 'neutral' },
+  widerspruch: { t: 'Widerspruch', k: 'bad' }
+};
+function pruefprotokollHTML(d) {
+  const ep = (d && d._ergPruefung && typeof d._ergPruefung === 'object') ? d._ergPruefung : {};
+  const dp = (d && Array.isArray(d._dokPruefung)) ? d._dokPruefung : [];
+  const keys = Object.keys(ep);
+  if (!keys.length && !dp.length) return '';
+  const datum = function(iso){ const t = new Date(iso); return isNaN(t) ? '' : t.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' }); };
+  let h = '<div class="sec-card pp-karte reveal">'
+    + '<div class="pp-kopf"><span class="pp-ico"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg></span>'
+    + '<div><div class="pp-sub">KI-Pr\u00fcfprotokoll</div><div class="pp-titel">So wurden Erg\u00e4nzungen und Dokumente gepr\u00fcft</div></div></div>';
+  if (keys.length) {
+    h += '<div class="pp-abschnitt">Erg\u00e4nzte Angaben</div><div class="pp-liste">' + keys.map(function(k){
+      const e = ep[k] || {};
+      const st = PP_STATUS[e.status] || PP_STATUS.nicht_bestaetigt;
+      const teile = String(k).split('>');
+      const feld = teile.pop().trim();
+      const kat = teile.join('>').trim();
+      const link = sichereUrl(e.url);
+      return '<div class="pp-zeile">'
+        + '<div class="pp-feld"><b>' + escapeHtml(feld) + '</b>' + (kat ? '<span>' + escapeHtml(kat) + '</span>' : '') + '</div>'
+        + '<span class="pp-badge ' + st.k + '">' + st.t + '</span>'
+        + '<div class="pp-detail">' + (e.notiz ? '<span>' + escapeHtml(e.notiz) + '</span>' : '')
+        + (e.quelle ? '<span class="pp-quelle">Quelle: ' + (link ? '<a href="' + link + '" target="_blank" rel="noopener noreferrer">' + escapeHtml(e.quelle) + '</a>' : escapeHtml(e.quelle)) + '</span>' : '')
+        + '</div></div>';
+    }).join('') + '</div>';
+  }
+  if (dp.length) {
+    h += '<div class="pp-abschnitt">Ausgewertete Dokumente</div>' + dp.map(function(x){
+      x = x || {};
+      const ab = (Array.isArray(x.abgleich) ? x.abgleich : []).filter(Boolean);
+      // Stand im Bericht bisher nichts ("N/A")? Dann ist es kein Widerspruch, sondern eine NEUE Angabe
+      const leer = function(v){ return /^\s*(n\/?a|\u2013|-|\u2014|unbekannt|keine angabe|nicht gefunden|nicht angegeben|null)?\s*$/i.test(String(v == null ? '' : v)); };
+      const istNeu = function(a){ return !a.passt && leer(a.bericht); };
+      const vergleich = ab.filter(function(a){ return !istNeu(a); });
+      const neuAnz = ab.length - vergleich.length;
+      const passt = vergleich.filter(function(a){ return a.passt; }).length;
+      const plakette = vergleich.length
+        ? '<span class="pp-badge ' + (passt === vergleich.length ? 'ok' : 'warn') + '">' + passt + ' von ' + vergleich.length + ' Angaben stimmen' + (neuAnz ? ' \u00b7 ' + neuAnz + ' neu' : '') + '</span>'
+        : (neuAnz ? '<span class="pp-badge ok">' + neuAnz + (neuAnz === 1 ? ' neue Angabe' : ' neue Angaben') + '</span>' : '');
+      const gel = Array.isArray(x.gelesen) ? x.gelesen : [];
+      const hin = Array.isArray(x.hinweise) ? x.hinweise.slice() : [];
+      if (x.lesbar === false) hin.push('Das Dokument war nur eingeschr\u00e4nkt lesbar.');
+      return '<div class="pp-dok">'
+        + '<div class="pp-dok-kopf"><div><b>' + escapeHtml(x.datei || 'Dokument') + '</b><span>' + escapeHtml(x.art || 'Dokument') + (x.stand ? ' \u00b7 Stand ' + escapeHtml(x.stand) : '') + '</span></div>'
+        + plakette + '</div>'
+        + (gel.length ? '<div class="pp-gelesen">' + gel.map(function(g){ return '<span><em>' + escapeHtml(g.feld) + '</em>' + escapeHtml(g.wert) + '</span>'; }).join('') + '</div>' : '')
+        + (ab.length ? '<div class="pp-abgleich">' + ab.map(function(a){
+            if (istNeu(a)) return '<div class="pp-ab neu"><span class="pp-ab-ico">+</span><b>' + escapeHtml(a.feld) + '</b><span> \u2013 neu aus dem Dokument: \u201e' + escapeHtml(a.dokument || '\u2013') + '\u201c</span></div>';
+            return '<div class="pp-ab ' + (a.passt ? 'ok' : 'bad') + '"><span class="pp-ab-ico">' + (a.passt ? '\u2713' : '\u2717') + '</span><b>' + escapeHtml(a.feld) + '</b>'
+              + (a.passt ? '' : '<span> \u2013 Dokument: \u201e' + escapeHtml(a.dokument || '\u2013') + '\u201c, Bericht: \u201e' + escapeHtml(a.bericht || '\u2013') + '\u201c</span>') + '</div>';
+          }).join('') + '</div>' : '')
+        + (hin.length ? '<div class="pp-hinweise">' + hin.map(function(t){ return '<div>' + escapeHtml(t) + '</div>'; }).join('') + '</div>' : '')
+        + '</div>';
+    }).join('');
+  }
+  h += '<div class="pp-fuss">Stand der Pr\u00fcfung: ' + (datum(d._pruefprotokollStand) || '\u2013') + ' \u00b7 KI-gest\u00fctzte Auswertung \u2013 bei Widerspr\u00fcchen bitte manuell pr\u00fcfen.</div></div>';
+  return h;
+}
+
 // Hinweisblock fuer den Bericht und den Ausdruck
 function manuellHinweisHTML(d) {
   const n = manuelleFelder(d);
@@ -12668,10 +12818,14 @@ setTimeout(function(){ try { akteVorschauZeichnen(); } catch(e) {} }, 0);
 // Bei kuenftigen Updates: NEU_VERSION hochzaehlen und NEUIGKEITEN ersetzen.
 // Kleine Korrekturen ohne neue Funktionen: NEU_VERSION unveraendert lassen.
 // ============================================================
-const NEU_VERSION = 'v12.11';           // Stand der Neuigkeiten - nur erhoehen, wenn es wirklich Neues gibt
-const APP_VERSION = 'v12.12';           // aktuelle Version (Anzeige im Bericht und oben im Kopf)
+const NEU_VERSION = 'v12.13';           // Stand der Neuigkeiten - nur erhoehen, wenn es wirklich Neues gibt
+const APP_VERSION = 'v12.13';           // aktuelle Version (Anzeige im Bericht und oben im Kopf)
 const UPDATE_KURZ = 'Abgeschlossene Akten sind jetzt schreibgesch\u00fctzt \u2013 zum \u00c4ndern werden sie wieder ge\u00f6ffnet.';
 const NEUIGKEITEN = [
+  { farbe: '#128F86', v: 'v12.13', ico: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/>',
+    t: 'Gr\u00fcndlichere Neubewertung mit Pr\u00fcfprotokoll',
+    kurz: 'Nach Erg\u00e4nzungen und neuen Dokumenten pr\u00fcft die KI gr\u00fcndlicher \u2013 und zeigt im Pr\u00fcfprotokoll, was sie best\u00e4tigt und gelesen hat.',
+    d: 'Die Neubewertung nutzt ein neues KI-Modell, das vor der Antwort gr\u00fcndlich nachdenkt. Jede erg\u00e4nzte Angabe wird gegen unabh\u00e4ngige Quellen gepr\u00fcft (best\u00e4tigt, nicht best\u00e4tigt oder Widerspruch). F\u00fcr jedes Dokument zeigt das KI-Pr\u00fcfprotokoll Art, Stand, gelesene Angaben und den Abgleich mit dem Bericht \u2013 inklusive Hinweis bei veralteten Ausz\u00fcgen. Gro\u00dfe Fotos und iPhone-Fotos werden beim Hochladen automatisch vorbereitet.' },
   { farbe: '#2E8749', v: 'v12.11', ico: '<path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/>',
     t: 'Standort auf der Karte',
     kurz: 'Jede Akte zeigt jetzt einen Kartenausschnitt von Google Maps mit dem Standort des Unternehmens \u2013 auch im PDF.',
@@ -13246,7 +13400,8 @@ function dokHinweisZeichnen() {
   if (!box) return;
   const doks = (typeof KYC !== 'undefined' && KYC.doks && KYC.doks.beleg) ? KYC.doks.beleg : [];
   const gelesen = (CURRENT_REPORT && Array.isArray(CURRENT_REPORT._belegeAusgewertet)) ? CURRENT_REPORT._belegeAusgewertet : [];
-  const neu = doks.filter(function(x){ return gelesen.indexOf(x.storage_path) < 0; }).length;
+  const unl = (CURRENT_REPORT && CURRENT_REPORT._belegeUnlesbar) || {};
+  const neu = doks.filter(function(x){ return gelesen.indexOf(x.storage_path) < 0 && !unl[x.storage_path]; }).length;
   const sig = String(neu);
   if (box.getAttribute('data-sig') === sig) return;
   box.setAttribute('data-sig', sig);
@@ -13804,6 +13959,11 @@ function nwDaten(tab) {
   return { k: k, doks: doks, urls: urls };
 }
 
+function nwUnlesbar(path) {
+  const u = (CURRENT_REPORT && CURRENT_REPORT._belegeUnlesbar) || {};
+  return u[path] === 'zu_gross' ? 'zu gro\u00df' : (u[path] === 'format' ? 'Format' : '');
+}
+
 function nwAusgewertet(path) {
   const liste = (CURRENT_REPORT && Array.isArray(CURRENT_REPORT._belegeAusgewertet)) ? CURRENT_REPORT._belegeAusgewertet : [];
   return liste.indexOf(path) >= 0;
@@ -13890,6 +14050,7 @@ function nwZeichnen() {
       const pdf = (x.mime_type || '').indexOf('pdf') >= 0;
       const seiten = (KYC.pdfSeiten && KYC.pdfSeiten[x.storage_path]) ? KYC.pdfSeiten[x.storage_path].length : 0;
       const ausgew = nwAusgewertet(x.storage_path);
+      const unlesbar = !ausgew && nwUnlesbar(x.storage_path);
       return '<div class="nw-zeile" style="--nd:' + (0.03 + n * 0.05) + 's">'
         + '<span class="nw-doc-ico ' + (pdf ? 'pdf' : 'bild') + '">' + (pdf ? 'PDF' : 'IMG') + '</span>'
         + '<span class="nw-doc-txt">'
@@ -13897,6 +14058,7 @@ function nwZeichnen() {
         + '<span class="nw-doc-sub">' + escapeHtml(x.datei_name || '') + (seiten ? ' \u00b7 ' + seiten + ' Seite' + (seiten > 1 ? 'n' : '') : '') + (x.groesse ? ' \u00b7 ' + nwGroesse(x.groesse) : '') + '</span>'
         + '</span>'
         + (ausgew ? '<span class="nw-tag ok" title="Wurde bei der letzten Neubewertung ausgelesen"><svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Ausgewertet</span>'
+                  : unlesbar ? '<span class="nw-tag nw-unl" title="Die KI konnte dieses Dokument nicht lesen - bitte kleiner bzw. als PDF oder JPG hochladen">Nicht lesbar \u00b7 ' + unlesbar + '</span>'
                   : '<span class="nw-tag neu" title="Noch nicht in eine Neubewertung eingeflossen">Neu</span>')
         + (url ? '<a class="nw-icobtn" href="' + url + '" target="_blank" title="\u00d6ffnen"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6M10 14 21 3"/></svg></a>' : '')
         + (NW.modus ? '<button class="nw-icobtn nw-weg" onclick="nwLoeschen(\'beleg\',' + n + ')" title="Entfernen"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>' : '')
@@ -13904,7 +14066,7 @@ function nwZeichnen() {
     }).join('') + '</div>';
 
     // Aufforderung zur Neubewertung, wenn neue Dokumente vorliegen
-    const neue = d.doks.filter(function(x){ return !nwAusgewertet(x.storage_path); }).length;
+    const neue = d.doks.filter(function(x){ return !nwAusgewertet(x.storage_path) && !nwUnlesbar(x.storage_path); }).length;
     if (neue && !NW.gesamt) {
       html += '<div class="nw-cta">'
         + '<div class="nw-cta-txt"><b>' + neue + ' Dokument' + (neue === 1 ? '' : 'e') + ' noch nicht ausgewertet.</b> '
@@ -13965,16 +14127,59 @@ async function nwUmbenennen(typ, n, el) {
 function nwPruefen(file, k) {
   const mime = (file.type || '').toLowerCase();
   const ok = k.bilderNur ? /^image\/(jpeg|png|webp)$/.test(mime) : (/^image\/(jpeg|png|webp)$/.test(mime) || mime === 'application/pdf');
-  if (!ok) return (file.name || 'Datei') + ': Dateityp nicht unterst\u00fctzt.';
+  if (!ok) return heicHinweis(file) || ((file.name || 'Datei') + ': Dateityp nicht unterst\u00fctzt.');
   if (file.size > NW_MAX_MB * 1024 * 1024) return (file.name || 'Datei') + ': gr\u00f6\u00dfer als ' + NW_MAX_MB + ' MB.';
   return '';
+}
+
+// ============================================================
+// BILDER VORBEREITEN (v12.13): iPhone-Fotos (HEIC) in JPG umwandeln und sehr grosse
+// Fotos verkleinern - die KI liest Bilder nur bis 5 MB. Kleine Bilder und PDFs bleiben
+// unveraendert. Klappt die Umwandlung nicht (z. B. HEIC in Chrome), bleibt die Datei,
+// und die Typpruefung erklaert, was zu tun ist.
+// ============================================================
+const BILD_MAX_BYTES = 4 * 1024 * 1024;
+const BILD_MAX_PX = 3000;
+function istHeic(file) {
+  return /heic|heif/i.test(String((file && file.type) || '')) || /\.(heic|heif)$/i.test(String((file && file.name) || ''));
+}
+function heicHinweis(file) {
+  return istHeic(file)
+    ? (file.name || 'Foto') + ': iPhone-Foto (HEIC) konnte in diesem Browser nicht umgewandelt werden \u2013 bitte in Safari hochladen oder als JPG exportieren.'
+    : '';
+}
+async function dateiVorbereiten(file) {
+  if (!file) return file;
+  const typ = String(file.type || '').toLowerCase();
+  const heic = istHeic(file);
+  if (!heic && !/^image\/(jpeg|png|webp)$/.test(typ)) return file;        // PDFs & Co. unveraendert
+  if (!heic && file.size <= BILD_MAX_BYTES) return file;                   // kleine Bilder unveraendert
+  try {
+    const url = URL.createObjectURL(file);
+    const img = await new Promise(function(ok, fehl){ const i = new Image(); i.onload = function(){ ok(i); }; i.onerror = fehl; i.src = url; });
+    const w0 = img.naturalWidth || img.width, h0 = img.naturalHeight || img.height;
+    if (!w0 || !h0) { URL.revokeObjectURL(url); return file; }
+    const f = Math.min(1, BILD_MAX_PX / Math.max(w0, h0));
+    const c = document.createElement('canvas');
+    c.width = Math.round(w0 * f); c.height = Math.round(h0 * f);
+    const ctx = c.getContext('2d');
+    ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, c.width, c.height);          // Transparenz -> weiss (Dokumente)
+    ctx.drawImage(img, 0, 0, c.width, c.height);
+    URL.revokeObjectURL(url);
+    let q = 0.88;
+    let blob = await new Promise(function(r){ c.toBlob(r, 'image/jpeg', q); });
+    while (blob && blob.size > BILD_MAX_BYTES && q > 0.5) { q -= 0.12; blob = await new Promise(function(r){ c.toBlob(r, 'image/jpeg', q); }); }
+    if (!blob) return file;
+    const name = String(file.name || 'foto').replace(/\.[^.]+$/, '') + '.jpg';
+    return new File([blob], name, { type: 'image/jpeg', lastModified: Date.now() });
+  } catch (e) { return file; }
 }
 
 async function nwWaehlen(files) {
   if (gesperrtMelden()) return;
   if (!files || !files.length || NW.gesamt) return;
   const k = NW_TYPEN[NW.tab];
-  const liste = Array.prototype.slice.call(files);
+  const liste = await Promise.all(Array.prototype.slice.call(files).map(dateiVorbereiten));
   const fehler = [];
   const gut = liste.filter(function(f){ const m = nwPruefen(f, k); if (m) fehler.push(m); return !m; });
   if (fehler.length) alert(fehler.join('\n'));
@@ -14882,8 +15087,9 @@ function kycDrop(ev, typ) {
 async function kycUpload(typ, file) {
   if (gesperrtMelden()) return false;
   if (!KYC.analyseId || !CURRENT_FIRMA) return;
+  file = await dateiVorbereiten(file);
   const erlaubt = ['image/jpeg','image/png','image/webp','application/pdf'];
-  if (erlaubt.indexOf(file.type) < 0) { alert('Bitte ein Bild (JPG/PNG/WebP) oder PDF hochladen.'); return; }
+  if (erlaubt.indexOf(file.type) < 0) { alert(heicHinweis(file) || 'Bitte ein Bild (JPG/PNG/WebP) oder PDF hochladen.'); return; }
   if (file.size > 10 * 1024 * 1024) { alert('Datei zu gro\u00df (max. 10 MB).'); return; }
   try {
     const bisher = (KYC.doks[typ] || []).length;
@@ -15162,6 +15368,7 @@ function showReport(d, rawName, fromHistory, nichtSpeichern) {
     ${evidenceHTML(d)}
     <div id="bearbLeiste" class="bearb-leiste"></div>
     ${manuellHinweisHTML(d)}
+    ${pruefprotokollHTML(d)}
     </div>
     <div class="akte-panel" data-panel="sanktion" id="panelSanktion">
       <div class="sec-card sk-intro reveal">
