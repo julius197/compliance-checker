@@ -3828,6 +3828,57 @@
       .kv-edit-knoepfe .kv-edit-ok, .kv-edit-knoepfe .kv-edit-x { flex:1; }
     }
     @media (prefers-reduced-motion: reduce) { .kv-edit, .kv-edit.zu, .kv-v-neu { animation:none !important; } }
+
+    /* v12.15 Entwurfs-Wasserzeichen: auf dem Bildschirm unsichtbar, im Druck auf jeder Seite */
+    .druck-wz, .druck-entwurf-banner { display:none; }
+    .druck-entwurf-hinweis { flex-basis:100%; display:flex; align-items:flex-start; gap:8px; margin:0 0 4px; padding:9px 12px; border-radius:10px;
+      background:#FFF6E5; border:1px solid rgba(217,119,6,.28); color:#8A5200; font-size:12.5px; line-height:1.45; animation:nwIn .35s ease both; }
+    .druck-entwurf-hinweis svg { flex:none; margin-top:2px; }
+    @media print {
+      body.druck-entwurf .druck-wz { display:block !important; position:fixed; left:0; top:0; right:0; bottom:0; z-index:2147483000; pointer-events:none;
+        -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+      .druck-wz-diag { position:absolute; top:50%; left:50%; transform:translate(-50%, -50%) rotate(-35deg); white-space:nowrap; text-align:center;
+        font:800 44pt/1.08 'Inter', 'Helvetica Neue', Arial, sans-serif; letter-spacing:.03em; text-transform:uppercase; color:rgba(185, 28, 28, .17); }   /* zweizeilig: passt vollstaendig auf jede Seite */
+      .druck-wz-fuss { position:absolute; left:0; right:0; bottom:3mm; text-align:center; font:700 8pt/1.2 'Inter', Arial, sans-serif; letter-spacing:.03em; color:#B91C1C; }
+      body.druck-entwurf .druck-entwurf-banner { display:block !important; margin:0 0 6mm; padding:3mm 4mm; border:1.5pt solid #B91C1C; border-radius:3mm;
+        background:#FEF1F1; color:#7F1D1D; break-inside:avoid; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+      .deb-titel { font:800 12pt/1.3 'Inter', Arial, sans-serif; text-transform:uppercase; letter-spacing:.03em; color:#B91C1C; }
+      .deb-text { margin-top:1mm; font:500 9.5pt/1.4 'Inter', Arial, sans-serif; }
+      .druck-entwurf-hinweis { display:none !important; }
+    }
+
+    /* v12.16 Scroll-Animationen der Startseite */
+    .lp-fortschritt { position:absolute; left:0; right:0; bottom:-1px; height:2px; pointer-events:none; overflow:hidden; }
+    .lp-fortschritt span { display:block; height:100%; transform-origin:0 50%; transform:scaleX(0);
+      background:linear-gradient(90deg, #16A34A, #22C55E 55%, #5EEAD4); box-shadow:0 0 10px rgba(34,197,94,.45); }
+    .lp-hero-inner, .lp-water, .lp-blob, .dm-box { will-change:translate, scale, rotate, opacity; }
+    #lpDemo { perspective:1600px; }
+    #lpDemo .dm-box { transform-origin:50% 0%; }
+    /* Ablauf-Schiene */
+    #lpAblauf .lp-steps.mit-schiene { position:relative; padding-top:30px; }
+    .lp-schiene { position:absolute; inset:0; pointer-events:none; z-index:0; }
+    .lp-schiene-bahn { position:absolute; top:8px; height:2px; border-radius:2px; background:rgba(134,239,172,.16); overflow:hidden; }
+    .lp-schiene-fuell { position:absolute; inset:0; transform-origin:0 50%; transform:scaleX(0);
+      background:linear-gradient(90deg, #16A34A, #22C55E, #86EFAC); box-shadow:0 0 12px rgba(34,197,94,.6); }
+    .lp-schiene-punkt { position:absolute; top:9px; width:12px; height:12px; margin:-6px 0 0 -6px; border-radius:50%;
+      background:#0F1A15; border:2px solid rgba(134,239,172,.35); transition:background-color .35s ease, border-color .35s ease, box-shadow .35s ease, transform .35s cubic-bezier(.2,.8,.3,1); }
+    .lp-schiene-punkt.an { background:#22C55E; border-color:#86EFAC; box-shadow:0 0 0 4px rgba(34,197,94,.18), 0 0 16px rgba(34,197,94,.7); transform:scale(1.15); }
+    #lpAblauf .lp-step { position:relative; z-index:1; }
+    #lpAblauf .lp-step.lp-aktiv { border-color:rgba(34,197,94,.62); background:rgba(34,197,94,.075); }
+    #lpAblauf .lp-step .lp-step-n { transition:transform .28s cubic-bezier(.2,.7,.3,1.4), box-shadow .4s ease, filter .4s ease; filter:saturate(.55) brightness(.85); }
+    #lpAblauf .lp-step.lp-aktiv .lp-step-n { filter:none; box-shadow:0 0 0 4px rgba(34,197,94,.16), 0 8px 24px -6px rgba(34,197,94,.65); }
+    /* Handy: Schiene senkrecht links neben den Schritten */
+    @media (max-width:860px) {
+      #lpAblauf .lp-steps.mit-schiene { padding-top:0; padding-left:26px; }
+      .lp-schiene.senkrecht .lp-schiene-bahn { top:0; left:9px; width:2px; height:0; }
+      .lp-schiene.senkrecht .lp-schiene-fuell { transform-origin:50% 0; transform:scaleY(0); background:linear-gradient(180deg, #16A34A, #22C55E, #86EFAC); }
+      .lp-schiene.senkrecht .lp-schiene-punkt { left:10px !important; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .lp-hero-inner, .lp-water, .lp-blob, .dm-box { translate:none !important; rotate:none !important; scale:none !important; }
+      .lp-hero-inner { opacity:1 !important; }
+      .lp-schiene-punkt { transition:none; }
+    }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -6266,7 +6317,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span class="app-version" onclick="neuigkeitenZeigen()" title="Was ist neu?" style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v12.14</span>
+      <span class="app-version" onclick="neuigkeitenZeigen()" title="Was ist neu?" style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v12.16</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -10339,7 +10390,139 @@ async function uploadAbsenden() {
 }
 
 // ===== LANDING PAGE =====
+// ============================================================
+// SCROLL-ANIMATIONEN DER STARTSEITE (v12.16)
+// Vier ruhige Momente, direkt an die Scroll-Position gekoppelt (auch rueckwaerts fluessig):
+//   1. Fortschrittslinie unter der Kopfzeile
+//   2. Hero gleitet beim Verlassen sanft nach oben, Kolben & Farbflaechen mit Tiefenwirkung
+//   3. Demo-Fenster richtet sich beim Hereinscrollen auf
+//   4. Ablauf: eine Schiene fuellt sich, jeder Schritt leuchtet auf, sobald sie ihn erreicht
+// Technik: ein Scroll-Listener, pro Bild hoechstens eine Berechnung (requestAnimationFrame),
+// nur "translate/rotate/scale/opacity" - die addieren sich zu bestehenden Animationen.
+// "Bewegung reduzieren": keine Bewegung, alles im Endzustand.
+// ============================================================
+const LP_SCROLL = { an: false, raf: 0, schiene: null };
+const lpKlemm = function(v){ return v < 0 ? 0 : (v > 1 ? 1 : v); };
+
+function lpScrollInit() {
+  const g = document.getElementById('landingGate');
+  if (!g) return;
+  if (!LP_SCROLL.an) {
+    LP_SCROLL.an = true;
+    const kopf = g.querySelector('.lp-head');
+    if (kopf && !kopf.querySelector('.lp-fortschritt')) {
+      const f = document.createElement('div');
+      f.className = 'lp-fortschritt'; f.setAttribute('aria-hidden', 'true');
+      f.innerHTML = '<span></span>';
+      kopf.appendChild(f);
+    }
+    const steps = g.querySelector('#lpAblauf .lp-steps');
+    if (steps && !steps.querySelector('.lp-schiene')) {
+      const n = steps.querySelectorAll('.lp-step').length;
+      const sch = document.createElement('div');
+      sch.className = 'lp-schiene'; sch.setAttribute('aria-hidden', 'true');
+      sch.innerHTML = '<span class="lp-schiene-bahn"><span class="lp-schiene-fuell"></span></span>' + new Array(n + 1).join('<i class="lp-schiene-punkt"></i>');
+      steps.appendChild(sch);                     // am Ende: nth-child der Schritte bleibt unveraendert
+      steps.classList.add('mit-schiene');
+    }
+    g.addEventListener('scroll', lpScrollPlanen, { passive: true });
+    window.addEventListener('resize', function(){ LP_SCROLL.schiene = null; lpScrollPlanen(); }, { passive: true });
+  }
+  LP_SCROLL.schiene = null;
+  lpScrollPlanen();
+}
+
+function lpScrollPlanen() {
+  if (LP_SCROLL.raf) return;
+  LP_SCROLL.raf = requestAnimationFrame(function(){ LP_SCROLL.raf = 0; lpScrollRechnen(); });
+}
+
+// Schiene an die Nummern der Schritte anpassen (nur bei Aufbau/Groessenaenderung)
+function lpSchieneVermessen(steps) {
+  const sch = steps.querySelector('.lp-schiene');
+  const nummern = [].slice.call(steps.querySelectorAll('.lp-step .lp-step-n'));
+  if (!sch || !nummern.length) return null;
+  const sb = steps.getBoundingClientRect();
+  const senkrecht = getComputedStyle(steps).gridTemplateColumns.split(' ').length < 2;
+  const mitten = nummern.map(function(nr){
+    const r = nr.getBoundingClientRect();
+    return senkrecht ? (r.top + r.height / 2 - sb.top) : (r.left + r.width / 2 - sb.left);
+  });
+  sch.classList.toggle('senkrecht', senkrecht);
+  const bahn = sch.querySelector('.lp-schiene-bahn');
+  const start = mitten[0], ende = mitten[mitten.length - 1];
+  if (senkrecht) { bahn.style.top = start + 'px'; bahn.style.height = Math.max(0, ende - start) + 'px'; bahn.style.left = ''; bahn.style.width = ''; }
+  else { bahn.style.left = start + 'px'; bahn.style.width = Math.max(0, ende - start) + 'px'; bahn.style.top = ''; bahn.style.height = ''; }
+  const punkte = [].slice.call(sch.querySelectorAll('.lp-schiene-punkt'));
+  punkte.forEach(function(pk, i){
+    if (senkrecht) { pk.style.top = mitten[i] + 'px'; pk.style.left = ''; }
+    else { pk.style.left = mitten[i] + 'px'; pk.style.top = ''; }
+  });
+  return { senkrecht: senkrecht, punkte: punkte, schritte: [].slice.call(steps.querySelectorAll('.lp-step')) };
+}
+
+function lpScrollRechnen() {
+  const g = document.getElementById('landingGate');
+  if (!g || g.style.display === 'none' || !g.getClientRects().length) return;
+  const H = g.clientHeight || window.innerHeight;
+  const ruhig = bewegungReduziert();
+  const schmal = window.innerWidth <= 860;
+
+  // 1. Fortschrittslinie
+  const fort = g.querySelector('.lp-fortschritt span');
+  const max = g.scrollHeight - H;
+  if (fort) fort.style.transform = 'scaleX(' + (max > 0 ? lpKlemm(g.scrollTop / max) : 0).toFixed(4) + ')';
+
+  // 2. Hero-Ausklang
+  const hero = g.querySelector('.lp-hero');
+  const inner = hero && hero.querySelector('.lp-hero-inner');
+  if (inner) {
+    const p = ruhig ? 0 : lpKlemm(g.scrollTop / (H * 0.85));
+    inner.style.translate = '0 ' + (-p * (schmal ? 40 : 70)).toFixed(1) + 'px';
+    inner.style.scale = (1 - p * 0.035).toFixed(4);
+    inner.style.opacity = (1 - p * 0.55).toFixed(3);
+    const wasser = hero.querySelector('.lp-water');
+    if (wasser) { wasser.style.translate = '0 ' + (p * (schmal ? 50 : 90)).toFixed(1) + 'px'; wasser.style.rotate = (p * 7).toFixed(2) + 'deg'; }
+    const ba = hero.querySelector('.lp-blob-a'), bb = hero.querySelector('.lp-blob-b');
+    if (ba) ba.style.translate = '0 ' + (p * 60).toFixed(1) + 'px';
+    if (bb) bb.style.translate = '0 ' + (-p * 40).toFixed(1) + 'px';
+  }
+
+  // 3. Demo-Fenster richtet sich auf
+  const box = g.querySelector('#lpDemo .dm-box');
+  if (box) {
+    const oben = box.getBoundingClientRect().top - g.getBoundingClientRect().top;
+    const p = ruhig ? 1 : lpKlemm((H - oben) / (H * 0.62));
+    const neig = schmal ? 7 : 13;
+    box.style.rotate = 'x ' + ((1 - p) * neig).toFixed(2) + 'deg';
+    box.style.scale = (0.95 + 0.05 * p).toFixed(4);
+    box.style.translate = '0 ' + ((1 - p) * 26).toFixed(1) + 'px';
+  }
+
+  // 4. Ablauf-Schiene
+  const steps = g.querySelector('#lpAblauf .lp-steps.mit-schiene');
+  const sr = steps && steps.getBoundingClientRect();
+  if (steps && sr.top < H * 1.6 && sr.bottom > -H * 0.6) {        // nur in der Naehe rechnen
+    // Jedes Mal neu vermessen: die Schritte blenden selbst noch ein (verschieben sich) - gecachte Werte lagen daneben
+    const sch = lpSchieneVermessen(steps);
+    if (sch) {
+      const r = sr, gr = g.getBoundingClientRect();
+      const oben = r.top - gr.top;
+      const p = ruhig ? 1 : lpKlemm((H * 0.8 - oben) / Math.max(H * 0.5, r.height - H * 0.1));
+      const fuell = steps.querySelector('.lp-schiene-fuell');
+      if (fuell) fuell.style.transform = (sch.senkrecht ? 'scaleY(' : 'scaleX(') + p.toFixed(4) + ')';
+      const n = sch.schritte.length;
+      sch.schritte.forEach(function(st, i){
+        const an = n < 2 ? p > 0 : p >= (i / (n - 1)) - 0.002;
+        st.classList.toggle('lp-aktiv', an && p > 0);
+        if (sch.punkte[i]) sch.punkte[i].classList.toggle('an', an && p > 0);
+      });
+    }
+  }
+}
+
 function showLanding() {
+  setTimeout(function(){ try { lpScrollInit(); } catch (e) {} }, 0);
   if (PW_ANSICHT_OFFEN) return;   // Passwort wird gerade neu gesetzt
   hideBoot();
   const lg = document.getElementById('landingGate');
@@ -11443,8 +11626,63 @@ function druckDateiname() {
   const sauber = roh.replace(/[\\/:*?"<>|]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 70);
   const d = new Date();
   const datum = ('0' + d.getDate()).slice(-2) + '.' + ('0' + (d.getMonth() + 1)).slice(-2) + '.' + d.getFullYear();
-  return sauber + ' - ' + (DRUCK_TEIL || 'Compliance-Pr\u00fcfung') + (DRUCK_ID ? ' - ' + DRUCK_ID : '') + ' - ' + datum;
+  return sauber + ' - ' + (DRUCK_TEIL || 'Compliance-Pr\u00fcfung') + (DRUCK_ID ? ' - ' + DRUCK_ID : '') + ' - ' + datum
+    + (akteEntwurf() ? ' - ENTWURF (nicht abgeschlossen)' : '');
 }
+
+// ============================================================
+// ENTWURFS-WASSERZEICHEN (v12.15)
+// Solange eine Akte NICHT abgeschlossen ist, traegt jeder Ausdruck und jedes PDF auf JEDER
+// Seite "Akte nicht abgeschlossen" - sonst waere der Abschluss wertlos. Greift beim eigenen
+// Druck-Knopf UND beim Browser-Druck (Cmd+P / Strg+P), weil beides "beforeprint" ausloest.
+// Die Elemente haengen direkt am <body>: nur dort wiederholt der Browser ein fixiertes
+// Element auf jeder Druckseite (innerhalb der animierten App klappt das nicht zuverlaessig).
+// ============================================================
+function akteWirdAngezeigt() {
+  const rep = document.getElementById('report');
+  return !!(typeof CURRENT_REPORT !== 'undefined' && CURRENT_REPORT && rep && rep.getClientRects().length);
+}
+function akteEntwurf() {
+  return akteWirdAngezeigt() && !CURRENT_REPORT._abgeschlossen_am;
+}
+function druckEntwurfVorbereiten() {
+  const offen = akteEntwurf();
+  document.body.classList.toggle('druck-entwurf', offen);
+  if (!offen) return false;
+  const jetzt = new Date().toLocaleString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) + ' Uhr';
+  const id = CURRENT_REPORT.pruefId || DRUCK_ID || '';
+  let wz = document.getElementById('druckWz');
+  if (!wz) {
+    wz = document.createElement('div');
+    wz.id = 'druckWz'; wz.className = 'druck-wz'; wz.setAttribute('aria-hidden', 'true');
+    document.body.appendChild(wz);
+  }
+  wz.innerHTML = '<div class="druck-wz-diag">Akte nicht<br>abgeschlossen</div>'
+    + '<div class="druck-wz-fuss">ENTWURF \u00b7 Akte nicht abgeschlossen \u00b7 gedruckt am ' + escapeHtml(jetzt) + '</div>';
+  let ban = document.getElementById('druckEntwurfBanner');
+  if (!ban) {
+    ban = document.createElement('div');
+    ban.id = 'druckEntwurfBanner'; ban.className = 'druck-entwurf-banner';
+    document.body.insertBefore(ban, document.body.firstChild);
+  }
+  ban.innerHTML = '<div class="deb-titel">\u26A0\uFE0E Entwurf \u2013 Akte nicht abgeschlossen</div>'
+    + '<div class="deb-text">Dieser Ausdruck vom ' + escapeHtml(jetzt) + ' zeigt einen vorl\u00e4ufigen Stand'
+    + (id ? ' der Akte ' + escapeHtml(id) : '') + '. Verbindlich ist erst die abgeschlossene Akte.</div>';
+  return true;
+}
+function druckEntwurfAufraeumen() {
+  document.body.classList.remove('druck-entwurf');
+}
+try {
+  window.addEventListener('beforeprint', druckEntwurfVorbereiten);
+  window.addEventListener('afterprint', druckEntwurfAufraeumen);
+  // Rueckfall fuer Browser ohne beforeprint (aeltere Safari-Versionen)
+  if (window.matchMedia) {
+    const mqDruck = window.matchMedia('print');
+    const aufDruck = function(e){ if (e.matches) druckEntwurfVorbereiten(); else druckEntwurfAufraeumen(); };
+    if (mqDruck.addEventListener) mqDruck.addEventListener('change', aufDruck); else if (mqDruck.addListener) mqDruck.addListener(aufDruck);
+  }
+} catch (e) {}
 
 // Browser erkennen, die auf dem iPhone nicht drucken koennen
 function druckenMoeglich() {
@@ -11498,6 +11736,7 @@ function druckeJetzt(bereich) {
   try {
     ['helpPop','trOverlay'].forEach(function(id){ const e = document.getElementById(id); if (e) e.style.display = 'none'; });
     document.querySelectorAll('.tr-toast').forEach(function(t){ t.remove(); });
+    druckEntwurfVorbereiten();                     // iOS feuert "beforeprint" nicht immer
     document.title = druckDateiname();            // legt den Namen der PDF-Datei fest
   } catch (e) {}
   try {
@@ -12902,10 +13141,14 @@ setTimeout(function(){ try { akteVorschauZeichnen(); } catch(e) {} }, 0);
 // Bei kuenftigen Updates: NEU_VERSION hochzaehlen und NEUIGKEITEN ersetzen.
 // Kleine Korrekturen ohne neue Funktionen: NEU_VERSION unveraendert lassen.
 // ============================================================
-const NEU_VERSION = 'v12.13';           // Stand der Neuigkeiten - nur erhoehen, wenn es wirklich Neues gibt
-const APP_VERSION = 'v12.14';           // aktuelle Version (Anzeige im Bericht und oben im Kopf)
+const NEU_VERSION = 'v12.15';           // Stand der Neuigkeiten - nur erhoehen, wenn es wirklich Neues gibt
+const APP_VERSION = 'v12.16';           // aktuelle Version (Anzeige im Bericht und oben im Kopf)
 const UPDATE_KURZ = 'Abgeschlossene Akten sind jetzt schreibgesch\u00fctzt \u2013 zum \u00c4ndern werden sie wieder ge\u00f6ffnet.';
 const NEUIGKEITEN = [
+  { farbe: '#B45309', v: 'v12.15', ico: '<path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/>',
+    t: 'Entw\u00fcrfe klar gekennzeichnet',
+    kurz: 'PDFs von Akten, die noch nicht abgeschlossen sind, tragen jetzt auf jeder Seite das Wasserzeichen \u201eAkte nicht abgeschlossen\u201c.',
+    d: 'Solange eine Akte nicht abgeschlossen ist, tr\u00e4gt jeder Ausdruck und jedes PDF auf jeder Seite das Wasserzeichen \u201eAkte nicht abgeschlossen\u201c, dazu oben einen Entwurfs-Hinweis mit Druckzeitpunkt. So ist jederzeit erkennbar, ob ein Dokument den verbindlichen, abgeschlossenen Stand zeigt. Nach dem Abschluss entf\u00e4llt die Kennzeichnung.' },
   { farbe: '#128F86', v: 'v12.13', ico: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/>',
     t: 'Gr\u00fcndlichere Neubewertung mit Pr\u00fcfprotokoll',
     kurz: 'Nach Erg\u00e4nzungen und neuen Dokumenten pr\u00fcft die KI gr\u00fcndlicher \u2013 und zeigt im Pr\u00fcfprotokoll, was sie best\u00e4tigt und gelesen hat.',
@@ -13523,10 +13766,15 @@ function aktionenZeichnen() {
               : ['Vorausgef\u00fcllt erstellen & drucken', 'endverbleibDrucken()'];
   }
   const gesamtLabel = (k === 'abschluss') ? 'Gesamte Akte herunterladen / drucken' : 'Gesamte Akte als PDF';
-  const sig = k + '|' + (haupt ? haupt.join('/') : '') + '|' + gesamtLabel;
+  const entwurf = !(CURRENT_REPORT && CURRENT_REPORT._abgeschlossen_am);
+  const sig = k + '|' + (haupt ? haupt.join('/') : '') + '|' + gesamtLabel + '|' + (entwurf ? 'offen' : 'zu');
   if (box.getAttribute('data-sig') === sig) return;          // nichts geaendert -> nicht neu bauen
   box.setAttribute('data-sig', sig);
-  box.innerHTML = (haupt
+  box.innerHTML = (entwurf
+      ? '<div class="druck-entwurf-hinweis"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4"/><path d="M12 17h.01"/><circle cx="12" cy="12" r="9"/></svg>'
+        + '<span>Die Akte ist noch nicht abgeschlossen \u2013 Ausdrucke und PDFs tragen das Wasserzeichen <b>\u201eAkte nicht abgeschlossen\u201c</b>.</span></div>'
+      : '')
+    + (haupt
       ? '<button class="btn-action primary"' + (haupt[2] ? ' disabled' : '') + ' onclick="' + haupt[1] + '">' + DRUCK_ICO + haupt[0] + '</button>'
         + '<button class="btn-action" onclick="druckeJetzt(\'gesamt\')">' + AKTE_ICO_MAPPE + gesamtLabel + '</button>'
       : '<button class="btn-action primary" onclick="druckeJetzt(\'gesamt\')">' + AKTE_ICO_MAPPE + gesamtLabel + '</button>')
