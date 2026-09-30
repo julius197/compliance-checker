@@ -3792,6 +3792,42 @@
     .nw-tag.nw-unl { background:#FEF1F1; color:#B91C1C; border-color:rgba(220,38,38,.28); }
     @media (max-width:640px) { .pp-zeile { grid-template-columns:1fr auto; } }
     @media print { .pp-karte { break-inside:auto; } .pp-dok, .pp-zeile { break-inside:avoid; } }
+
+    /* v12.14 Bearbeiten: Wert + optionale Quelle */
+    .kv-edit { display:flex; flex-direction:column; align-items:stretch; gap:8px; width:100%; padding:2px 0;
+      animation:kvEdAuf .26s cubic-bezier(.2,.8,.3,1) both; transform-origin:top center; }
+    .kv-edit.zu { animation:kvEdZu .17s ease forwards; }
+    @keyframes kvEdAuf { from { opacity:0; transform:translateY(-6px) scale(.985); } to { opacity:1; transform:none; } }
+    @keyframes kvEdZu { to { opacity:0; transform:translateY(-4px) scale(.985); } }
+    .kv-edit-feld { display:flex; flex-direction:column; gap:4px; margin:0; width:100%; align-self:stretch; box-sizing:border-box; }
+    .kv-edit-lbl { font-size:10.5px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; color:#1E4E8C; }
+    .kv-edit-lbl em { font-style:normal; font-weight:600; letter-spacing:0; text-transform:none; color:var(--gray-l); margin-left:4px; }
+    .kv-edit .kv-edit-in, .kv-edit .kv-edit-quelle { flex:none; width:100%; box-sizing:border-box; padding:9px 11px; border:1.5px solid #D5DEE8; border-radius:9px;
+      font-family:inherit; font-size:13.5px; color:var(--ink, #111827); background:#fff; outline:none; transition:border-color .18s, box-shadow .18s; }
+    .kv-edit .kv-edit-in:focus, .kv-edit .kv-edit-quelle:focus { border-color:#2E6FBF; box-shadow:0 0 0 3px rgba(46,111,191,.14); }
+    .kv-edit .kv-edit-quelle { font-size:13px; }
+    .kv-edit-knoepfe { display:flex; justify-content:flex-end; gap:8px; margin-top:2px; width:100%; align-self:stretch; box-sizing:border-box; }
+    .kv-edit .kv-edit-ok, .kv-edit .kv-edit-x { width:auto; height:auto; padding:8px 14px; border-radius:9px; font-family:inherit; font-size:12.5px; font-weight:700;
+      display:inline-flex; align-items:center; transition:background-color .18s, color .18s, transform .18s; }
+    .kv-edit .kv-edit-ok:hover { transform:translateY(-1px); }
+    .kv-edit .kv-edit-x:hover { transform:none; }
+    .kv-erg-wert { display:inline; }
+    .kv-erg-quelle { display:block; margin-top:3px; font-size:11.5px; font-weight:600; color:var(--gray, #5A6670); }
+    .kv-erg-quelle a { color:#1E4E8C; text-decoration:none; }
+    .kv-erg-quelle a:hover { text-decoration:underline; }
+    .kv-v-neu { animation:kvWertNeu .3s ease both; }
+    @keyframes kvWertNeu { from { opacity:0; transform:translateY(3px); } to { opacity:1; transform:none; } }
+    /* Beim Bearbeiten nutzt der Editor die volle Zeilenbreite (statt in der schmalen Wertspalte zu klemmen) */
+    .kv.kv-offen { flex-wrap:wrap; align-items:flex-start; }
+    .kv.kv-offen .kv-v { flex:1 1 340px; max-width:none; min-width:0; text-align:left; }
+    .kv-edit, .kv-edit * { text-align:left; }
+    .kv-edit-knoepfe .kv-edit-ok, .kv-edit-knoepfe .kv-edit-x { white-space:nowrap; justify-content:center; }
+    @media (max-width:640px) {
+      .kv.kv-offen .kv-k { max-width:none; flex-basis:100%; }                 /* Bezeichnung oben, Editor darunter */
+      .kv-edit .kv-edit-in, .kv-edit .kv-edit-quelle { font-size:16px; }      /* kein Zoom am iPhone */
+      .kv-edit-knoepfe .kv-edit-ok, .kv-edit-knoepfe .kv-edit-x { flex:1; }
+    }
+    @media (prefers-reduced-motion: reduce) { .kv-edit, .kv-edit.zu, .kv-v-neu { animation:none !important; } }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -6230,7 +6266,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span class="app-version" onclick="neuigkeitenZeigen()" title="Was ist neu?" style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v12.13</span>
+      <span class="app-version" onclick="neuigkeitenZeigen()" title="Was ist neu?" style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v12.14</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -7880,6 +7916,7 @@ function favDlgSchliessen(ja) {
 // ============================================================
 let BEARBEITEN_AN = false;
 let ERGAENZUNGEN = {};        // "Kategorie|Feld" -> neuer Wert
+let ERG_QUELLEN = {};         // "Kategorie|Feld" -> optionale Quelle (Link oder Bezeichnung), v12.14
 
 function bearbIcoSvg() {
   return '<svg class="bearb-refresh" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" '
@@ -7929,7 +7966,7 @@ function bearbLeisteZeichnen() {
 function bearbeitenStart() {
   if (gesperrtMelden()) return;
   BEARBEITEN_AN = true;
-  ERGAENZUNGEN = {};
+  ERGAENZUNGEN = {}; ERG_QUELLEN = {};
   // Nur eine Klasse setzen - der Bericht wird NICHT neu aufgebaut
   const rep = document.getElementById('report') || document.body;
   rep.classList.add('bearb-modus');
@@ -7939,7 +7976,7 @@ function bearbeitenStart() {
 
 function bearbeitenAbbruch() {
   BEARBEITEN_AN = false;
-  ERGAENZUNGEN = {};
+  ERGAENZUNGEN = {}; ERG_QUELLEN = {};
   const rep = document.getElementById('report') || document.body;
   rep.classList.remove('bearb-modus');
   // Alle offenen Eingaben und Markierungen zuruecknehmen
@@ -7981,22 +8018,65 @@ function feldBearbeiten(feldId, ev) {
   // Ursprungs-Inhalt einmalig sichern
   if (zeile.getAttribute('data-orig') === null) zeile.setAttribute('data-orig', v.innerHTML);
 
-  // Vorhandenen Wert als Startwert anbieten (auch den urspruenglichen)
+  // Startwert = der eigentliche WERT - Quellen-Links (.kv-src) gehoeren nicht dazu.
+  // (Vorher wurde der erste Link im Feld genommen - meist die Quelle - und musste geloescht werden.)
   let start = ERGAENZUNGEN[schluessel];
-  if (start === undefined) {
-    const link = v.querySelector ? v.querySelector('a[href]') : null;
-    const roh = link ? link.getAttribute('href') : (v.textContent || '').replace(/\u2197/g, '').trim();
-    start = (/^n\/?a$/i.test(roh) || !roh) ? '' : String(roh).split('\n')[0].trim().slice(0, 200);
-  }
+  if (start === undefined) start = feldWertLesen(v);
+  const quelleStart = ERG_QUELLEN[schluessel] || '';
 
   v.innerHTML = '<div class="kv-edit">'
-    + '<input class="kv-edit-in" type="text" value="' + escapeHtml(start) + '" placeholder="Wert eingeben\u2026" onkeydown="feldTaste(event, \'' + feldId + '\')" />'
-    + '<button class="kv-edit-ok" onclick="feldUebernehmen(\'' + feldId + '\')" title="\u00dcbernehmen">\u2713</button>'
-    + '<button class="kv-edit-x" onclick="feldAbbruch(\'' + feldId + '\')" title="Abbrechen">\u00d7</button>'
-    + '</div>';
+    + '<label class="kv-edit-feld"><span class="kv-edit-lbl">Wert</span>'
+    + '<input class="kv-edit-in" type="text" value="' + escapeHtml(start) + '" placeholder="Wert eingeben\u2026" autocomplete="off" onkeydown="feldTaste(event, \'' + feldId + '\')" /></label>'
+    + '<label class="kv-edit-feld"><span class="kv-edit-lbl">Quelle <em>optional</em></span>'
+    + '<input class="kv-edit-quelle" type="text" value="' + escapeHtml(quelleStart) + '" placeholder="Link oder Bezeichnung" autocomplete="off" onkeydown="feldTaste(event, \'' + feldId + '\')" /></label>'
+    + '<div class="kv-edit-knoepfe">'
+    + '<button type="button" class="kv-edit-x" onclick="feldAbbruch(\'' + feldId + '\')">Abbrechen</button>'
+    + '<button type="button" class="kv-edit-ok" onclick="feldUebernehmen(\'' + feldId + '\')">\u00dcbernehmen</button>'
+    + '</div></div>';
   zeile.classList.add('kv-offen');
-  const inp = v.querySelector('input');
+  const inp = v.querySelector('.kv-edit-in');
   requestAnimationFrame(function(){ if (inp) { inp.focus(); inp.select(); } });
+}
+
+// Den eigentlichen Wert aus der Anzeige lesen - ohne Quellen, Markierungen und Pfeile
+function feldWertLesen(v) {
+  const kopie = v.cloneNode(true);
+  kopie.querySelectorAll('.kv-src, .kv-src-link, .kv-src-plain, .kv-erg-tag, .kv-erg-quelle, .kv-stift').forEach(function(x){ x.remove(); });
+  const link = kopie.querySelector('a[href]');                       // Wert selbst ein Link (z. B. Website)
+  const roh = link ? link.getAttribute('href') : (kopie.textContent || '').replace(/\u2197/g, '').trim();
+  return (/^n\/?a$/i.test(roh) || !roh) ? '' : String(roh).split('\n')[0].trim().slice(0, 200);
+}
+
+// Anzeige einer Ergaenzung: Wert + Markierung + (optional) Quelle
+function feldErgaenztHTML(wert, quelle) {
+  let q = '';
+  const t = String(quelle || '').trim();
+  if (t) {
+    const url = sichereUrl(/^https?:\/\//i.test(t) ? t : '');
+    let name = t;
+    if (url) { try { name = new URL(t).hostname.replace(/^www\./, ''); } catch (e) {} }
+    q = '<span class="kv-erg-quelle">Quelle: ' + (url
+      ? '<a href="' + url + '" target="_blank" rel="noopener noreferrer">' + escapeHtml(name) + ' \u2197</a>'
+      : escapeHtml(name)) + '</span>';
+  }
+  return '<span class="kv-erg-wert">' + escapeHtml(wert) + '<span class="kv-erg-tag">erg\u00e4nzt</span></span>' + q;
+}
+
+// Editor weich schliessen, dann neuen Inhalt weich einblenden (nichts springt)
+function feldEditorZu(zeile, v, html) {
+  const ed = v && v.querySelector('.kv-edit');
+  const fertig = function(){
+    if (!v) return;
+    v.innerHTML = html;
+    v.classList.remove('kv-v-neu'); void v.offsetWidth; v.classList.add('kv-v-neu');
+  };
+  zeile.classList.remove('kv-offen');
+  if (!ed || bewegungReduziert()) { fertig(); return; }
+  ed.classList.add('zu');
+  setTimeout(fertig, 170);
+}
+function bewegungReduziert() {
+  try { return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return false; }
 }
 
 function feldTaste(ev, feldId) {
@@ -8008,20 +8088,23 @@ function feldUebernehmen(feldId) {
   const zeile = document.getElementById(feldId);
   if (!zeile) return;
   const inp = zeile.querySelector('.kv-edit-in');
-  const wert = ((inp && inp.value) || '').trim();
+  const qin = zeile.querySelector('.kv-edit-quelle');
+  const wert = ((inp && inp.value) || '').trim().slice(0, 500);
+  const quelle = ((qin && qin.value) || '').trim().slice(0, 300);
   const schluessel = zeile.getAttribute('data-kat') + '|' + zeile.getAttribute('data-feld');
   const v = zeile.querySelector('.kv-v') || zeile.querySelector('.cc-wert');
-  zeile.classList.remove('kv-offen');
 
   if (wert) {
     ERGAENZUNGEN[schluessel] = wert;
+    if (quelle) ERG_QUELLEN[schluessel] = quelle; else delete ERG_QUELLEN[schluessel];
     zeile.classList.add('kv-ergaenzt');
-    if (v) v.innerHTML = escapeHtml(wert) + '<span class="kv-erg-tag">erg\u00e4nzt</span>';
+    feldEditorZu(zeile, v, feldErgaenztHTML(wert, quelle));
   } else {
     delete ERGAENZUNGEN[schluessel];
+    delete ERG_QUELLEN[schluessel];
     zeile.classList.remove('kv-ergaenzt');
     const orig = zeile.getAttribute('data-orig');
-    if (v && orig !== null) v.innerHTML = orig;
+    feldEditorZu(zeile, v, orig !== null ? orig : (v ? v.innerHTML : ''));
   }
   bearbLeisteZeichnen();
 }
@@ -8031,12 +8114,11 @@ function feldAbbruch(feldId) {
   if (!zeile) return;
   const v = zeile.querySelector('.kv-v') || zeile.querySelector('.cc-wert');
   const schluessel = zeile.getAttribute('data-kat') + '|' + zeile.getAttribute('data-feld');
-  zeile.classList.remove('kv-offen');
   if (ERGAENZUNGEN[schluessel] !== undefined) {
-    if (v) v.innerHTML = escapeHtml(ERGAENZUNGEN[schluessel]) + '<span class="kv-erg-tag">erg\u00e4nzt</span>';
+    feldEditorZu(zeile, v, feldErgaenztHTML(ERGAENZUNGEN[schluessel], ERG_QUELLEN[schluessel]));
   } else {
     const orig = zeile.getAttribute('data-orig');
-    if (v && orig !== null) v.innerHTML = orig;
+    feldEditorZu(zeile, v, orig !== null ? orig : (v ? v.innerHTML : ''));
   }
 }
 
@@ -8113,7 +8195,9 @@ async function neuBewerten() {
   });
 
   try {
-    const r = await workerCall('neu_bewerten', { bericht: CURRENT_REPORT, ergaenzungen: erg, belege: belege });
+    const quellen = {};
+    Object.keys(ERG_QUELLEN).forEach(function(k){ if (ERGAENZUNGEN[k] !== undefined) quellen[k.replace('|', ' > ')] = ERG_QUELLEN[k]; });
+    const r = await workerCall('neu_bewerten', { bericht: CURRENT_REPORT, ergaenzungen: erg, quellen: quellen, belege: belege });
     if (!r || !r.ok || !r.bericht) throw new Error((r && r.error) || 'Neubewertung fehlgeschlagen');
     const neu = r.bericht;
     // Kennzeichen uebernehmen
@@ -8158,7 +8242,7 @@ async function neuBewerten() {
     }
 
     BEARBEITEN_AN = false;
-    ERGAENZUNGEN = {};
+    ERGAENZUNGEN = {}; ERG_QUELLEN = {};
     try { (document.getElementById('report') || document.body).classList.remove('bearb-modus'); } catch(e) {}
     const alt = CURRENT_REPORT.gesamtScore;
     CURRENT_REPORT = neu;
@@ -12819,7 +12903,7 @@ setTimeout(function(){ try { akteVorschauZeichnen(); } catch(e) {} }, 0);
 // Kleine Korrekturen ohne neue Funktionen: NEU_VERSION unveraendert lassen.
 // ============================================================
 const NEU_VERSION = 'v12.13';           // Stand der Neuigkeiten - nur erhoehen, wenn es wirklich Neues gibt
-const APP_VERSION = 'v12.13';           // aktuelle Version (Anzeige im Bericht und oben im Kopf)
+const APP_VERSION = 'v12.14';           // aktuelle Version (Anzeige im Bericht und oben im Kopf)
 const UPDATE_KURZ = 'Abgeschlossene Akten sind jetzt schreibgesch\u00fctzt \u2013 zum \u00c4ndern werden sie wieder ge\u00f6ffnet.';
 const NEUIGKEITEN = [
   { farbe: '#128F86', v: 'v12.13', ico: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/>',
