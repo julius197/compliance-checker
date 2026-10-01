@@ -3884,7 +3884,9 @@
        Druck ignoriert, das Bild wurde dann in voller Groesse gesetzt und abgeschnitten */
     @media print {
       .kyc-print-rahmen { display:flex !important; align-items:center !important; justify-content:center !important; }
-      .kyc-print-img { max-width:100% !important; max-height:19cm !important; width:auto !important; height:auto !important; object-fit:contain !important; }
+      #kycDruck .kyc-print-img, .app .kyc-print-img, .kyc-print-page .kyc-print-img {   /* staerker als ".app * { max-width:none !important }" */
+        max-width:100% !important; max-height:19cm !important; width:auto !important; height:auto !important; object-fit:contain !important; min-width:0 !important; }
+      .ev-karte-item { break-inside:avoid !important; page-break-inside:avoid !important; }   /* Ueberschrift und Karte zusammenhalten */
     }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -6324,7 +6326,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span class="app-version" onclick="neuigkeitenZeigen()" title="Was ist neu?" style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v12.18</span>
+      <span class="app-version" onclick="neuigkeitenZeigen()" title="Was ist neu?" style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v12.19</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -13157,7 +13159,7 @@ setTimeout(function(){ try { akteVorschauZeichnen(); } catch(e) {} }, 0);
 // Kleine Korrekturen ohne neue Funktionen: NEU_VERSION unveraendert lassen.
 // ============================================================
 const NEU_VERSION = 'v12.15';           // Stand der Neuigkeiten - nur erhoehen, wenn es wirklich Neues gibt
-const APP_VERSION = 'v12.18';           // aktuelle Version (Anzeige im Bericht und oben im Kopf)
+const APP_VERSION = 'v12.19';           // aktuelle Version (Anzeige im Bericht und oben im Kopf)
 const UPDATE_KURZ = 'Abgeschlossene Akten sind jetzt schreibgesch\u00fctzt \u2013 zum \u00c4ndern werden sie wieder ge\u00f6ffnet.';
 const NEUIGKEITEN = [
   { farbe: '#B45309', v: 'v12.15', ico: '<path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/>',
@@ -14755,7 +14757,7 @@ function galerieZeichnen(stand) {
   if (!g || !g.isConnected) return;
   g.innerHTML = stand.geladen.map(function(b, i){
     return '<a class="evidence-thumb" href="' + b.url + '" target="_blank" title="Bild ' + (i + 1) + ' in voller Gr\u00f6\u00dfe \u00f6ffnen">'
-      + '<img src="' + b.url + '" alt="Unternehmensbild ' + (i + 1) + '" loading="lazy" /></a>';
+      + '<img src="' + b.url + '" alt="Unternehmensbild ' + (i + 1) + '" /></a>';
   }).join('')
     + (stand.rest.length ? '<button type="button" class="evidence-mehr" onclick="weitereBilderLaden()">+ ' + stand.rest.length + ' weitere Bilder laden</button>' : '');
   const countEl = document.getElementById('evidenceCount');
