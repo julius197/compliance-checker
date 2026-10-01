@@ -374,12 +374,17 @@
 
     /* Wasserzeichen-Element: am Bildschirm versteckt, nur beim Drucken sichtbar */
     #printWatermark { display:none; position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:9999; overflow:hidden; }
-    #printWatermark .wm-row { position:absolute; left:50%; transform:translateX(-50%) rotate(-30deg); white-space:nowrap; font-size:11pt; font-weight:700; color:rgba(22,163,74,0.11); letter-spacing:0.04em; text-align:center; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
-    #printWatermark .wm-row.r1 { top:12%; }
-    #printWatermark .wm-row.r2 { top:30%; }
-    #printWatermark .wm-row.r3 { top:48%; }
-    #printWatermark .wm-row.r4 { top:66%; }
-    #printWatermark .wm-row.r5 { top:84%; }
+    #printWatermark .wm-row { position:absolute; left:50%; width:135mm; transform:translate(-50%,-50%) rotate(-28deg); white-space:normal; overflow-wrap:anywhere; font-size:9pt; line-height:1.35; font-weight:700; color:rgba(20,83,45,0.24); letter-spacing:0.02em; text-align:center; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+    #printWatermark .wm-row.r1 { top:13%; }
+    #printWatermark .wm-row.r2 { top:37%; }
+    #printWatermark .wm-row.r3 { top:61%; }
+    #printWatermark .wm-row.r4 { top:85%; }
+    #printWatermark .wm-kopf { display:block; font-size:10pt; }
+    #printWatermark .wm-rest { display:block; font-size:8pt; font-weight:600; }
+    #printWatermark .wm-fuss { position:absolute; left:0; right:0; bottom:0.6mm; text-align:center; transform:none; }
+    #printWatermark .wm-fuss span { display:inline-block; max-width:96%; padding:0.4mm 2.5mm; border-radius:1.5mm; background:rgba(255,255,255,0.9);
+      font:600 7.5pt/1.3 'Inter', 'Helvetica Neue', Arial, sans-serif; color:#374151; letter-spacing:0.01em; overflow-wrap:anywhere;
+      -webkit-print-color-adjust:exact; print-color-adjust:exact; }
 
 
     /* AUTOMATI LABS FOOTER / CTA */
@@ -3839,7 +3844,7 @@
         -webkit-print-color-adjust:exact; print-color-adjust:exact; }
       .druck-wz-diag { position:absolute; top:50%; left:50%; transform:translate(-50%, -50%) rotate(-35deg); white-space:nowrap; text-align:center;
         font:800 44pt/1.08 'Inter', 'Helvetica Neue', Arial, sans-serif; letter-spacing:.03em; text-transform:uppercase; color:rgba(185, 28, 28, .17); }   /* zweizeilig: passt vollstaendig auf jede Seite */
-      .druck-wz-fuss { position:absolute; left:0; right:0; bottom:3mm; text-align:center; font:700 8pt/1.2 'Inter', Arial, sans-serif; letter-spacing:.03em; color:#B91C1C; }
+      .druck-wz-fuss { position:absolute; left:0; right:0; bottom:6mm; text-align:center; font:700 8pt/1.2 'Inter', Arial, sans-serif; letter-spacing:.03em; color:#B91C1C; }
       body.druck-entwurf .druck-entwurf-banner { display:block !important; margin:0 0 6mm; padding:3mm 4mm; border:1.5pt solid #B91C1C; border-radius:3mm;
         background:#FEF1F1; color:#7F1D1D; break-inside:avoid; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
       .deb-titel { font:800 12pt/1.3 'Inter', Arial, sans-serif; text-transform:uppercase; letter-spacing:.03em; color:#B91C1C; }
@@ -6326,7 +6331,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span class="app-version" onclick="neuigkeitenZeigen()" title="Was ist neu?" style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v12.19</span>
+      <span class="app-version" onclick="neuigkeitenZeigen()" title="Was ist neu?" style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v12.20</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -11655,6 +11660,7 @@ function akteEntwurf() {
   return akteWirdAngezeigt() && !CURRENT_REPORT._abgeschlossen_am;
 }
 function druckEntwurfVorbereiten() {
+  druckWasserzeichenAktualisieren();              // Druckzeitpunkt statt Analysezeitpunkt
   const offen = akteEntwurf();
   document.body.classList.toggle('druck-entwurf', offen);
   if (!offen) return false;
@@ -13159,7 +13165,7 @@ setTimeout(function(){ try { akteVorschauZeichnen(); } catch(e) {} }, 0);
 // Kleine Korrekturen ohne neue Funktionen: NEU_VERSION unveraendert lassen.
 // ============================================================
 const NEU_VERSION = 'v12.15';           // Stand der Neuigkeiten - nur erhoehen, wenn es wirklich Neues gibt
-const APP_VERSION = 'v12.19';           // aktuelle Version (Anzeige im Bericht und oben im Kopf)
+const APP_VERSION = 'v12.20';           // aktuelle Version (Anzeige im Bericht und oben im Kopf)
 const UPDATE_KURZ = 'Abgeschlossene Akten sind jetzt schreibgesch\u00fctzt \u2013 zum \u00c4ndern werden sie wieder ge\u00f6ffnet.';
 const NEUIGKEITEN = [
   { farbe: '#B45309', v: 'v12.15', ico: '<path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/>',
@@ -13922,6 +13928,27 @@ function endverbleibKundenAdresse(d) {
 }
 
 // Druckt fertiges HTML ueber einen unsichtbaren Rahmen: nur der Druckdialog erscheint
+// Wasserzeichen fuer die Endverbleibserklaerung (eigenes Druckfenster). Bewusst OHNE
+// "Akte nicht abgeschlossen": das Formular geht zum Unterschreiben an den Kunden.
+function evWasserzeichenEinfuegen(html) {
+  try {
+    const d = (typeof CURRENT_REPORT !== 'undefined' && CURRENT_REPORT) || {};
+    const kennung = d.pruefId ? 'Pr\u00fcf-ID ' + d.pruefId : 'Endverbleibserkl\u00e4rung';
+    const stil = '<style>'
+      + '.evwm{display:none}'
+      + '@media print{'
+      + '.evwm{display:block;position:fixed;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:9999;overflow:hidden;-webkit-print-color-adjust:exact;print-color-adjust:exact}'
+      + '.evwm .wm-row{position:absolute;left:50%;width:135mm;transform:translate(-50%,-50%) rotate(-28deg);white-space:normal;overflow-wrap:anywhere;text-align:center;line-height:1.35;font-family:Inter,Arial,sans-serif;font-weight:700;color:rgba(20,83,45,0.16);letter-spacing:0.02em}'
+      + '.evwm .r1{top:13%}.evwm .r2{top:37%}.evwm .r3{top:61%}.evwm .r4{top:85%}'
+      + '.evwm .wm-kopf{display:block;font-size:10pt}.evwm .wm-rest{display:block;font-size:8pt;font-weight:600}'
+      + '.evwm .wm-fuss{position:absolute;left:0;right:0;bottom:0.6mm;text-align:center}'
+      + '.evwm .wm-fuss span{display:inline-block;max-width:96%;padding:0.4mm 2.5mm;border-radius:1.5mm;background:rgba(255,255,255,0.9);font:600 7.5pt/1.3 Inter,Arial,sans-serif;color:#374151;overflow-wrap:anywhere}'
+      + '}</style>';
+    const block = stil + '<div class="evwm" aria-hidden="true">' + wasserzeichenHTML(kennung, d._email || CURRENT_USER_EMAIL || '') + '</div>';
+    return html.indexOf('</body>') >= 0 ? html.replace('</body>', block + '</body>') : html + block;
+  } catch (e) { return html; }
+}
+
 function endverbleibImRahmenDrucken(html, titel) {
   const alt = document.getElementById('evDruckRahmen');
   if (alt) alt.remove();
@@ -13933,6 +13960,7 @@ function endverbleibImRahmenDrucken(html, titel) {
   f.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden;';
   document.body.appendChild(f);
   const doc = f.contentWindow.document;
+  html = evWasserzeichenEinfuegen(html);          // Pruef-ID + Druckzeitpunkt auch auf dem Formular
   doc.open(); doc.write(html); doc.close();
   // Dateiname beim Speichern als PDF: Titel von Rahmen und Seite kurz setzen
   const alterTitel = document.title;
@@ -15052,22 +15080,42 @@ function generatePruefId() {
 
 // Baut das diagonale Wasserzeichen für Ausdrucke aus den GESPEICHERTEN Werten des Berichts
 // (Prüf-ID, Erstell-Datum, Ersteller-E-Mail). So zeigen Papier-Ausdruck und Online-Historie IMMER dieselbe ID.
+// ============================================================
+// DRUCK-WASSERZEICHEN (v12.20)
+// - Pruef-ID steht VORN und jede Zeile hat eine feste Breite mit Umbruch:
+//   gedreht passt sie immer vollstaendig auf die Seite (vorher: eine lange Zeile, links/rechts abgeschnitten)
+// - Zeitpunkt = Moment des Drucks (vorher: Zeitpunkt der Analyse)
+// - zusaetzlich auf jeder Seite unten eine waagerechte, gut lesbare Pruefzeile (auch fuer Scans)
+// ============================================================
+function druckZeitText() {
+  const jetzt = new Date();
+  return jetzt.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' })
+    + ', ' + jetzt.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }) + ' Uhr';
+}
+function wasserzeichenHTML(kennung, email) {
+  const zeit = druckZeitText();
+  const kopf = 'Automati Labs \u00b7 ' + escapeHtml(kennung);
+  const rest = 'gedruckt ' + escapeHtml(zeit) + (email ? ' \u00b7 ' + escapeHtml(email) : '');
+  let zeilen = '';
+  for (let i = 1; i <= 4; i++) {
+    zeilen += '<div class="wm-row r' + i + '"><span class="wm-kopf">' + kopf + '</span><span class="wm-rest">' + rest + '</span></div>';
+  }
+  return zeilen + '<div class="wm-fuss"><span>' + kopf + ' \u00b7 ' + rest + '</span></div>';
+}
 function buildWatermark(d) {
   const el = document.getElementById('printWatermark');
   if (!el) return;
-  const when = (d && d._createdAt) ? new Date(d._createdAt) : new Date();
-  const datum = when.toLocaleDateString('de-DE');
-  const uhrzeit = when.toLocaleTimeString('de-DE', {hour:'2-digit', minute:'2-digit'});
   const pruefId = (d && d.pruefId) ? d.pruefId : generatePruefId();
-  const email = (d && d._email) ? d._email : (CURRENT_USER_EMAIL || 'nicht angemeldet');
-  // Kompakter Text, der sicher auf die Seitenbreite passt (kein Abschneiden)
-  const text = `Automati Labs · ${email} · ${datum} ${uhrzeit} · ${pruefId}`;
-  el.innerHTML = `
-    <div class="wm-row r1">${text}</div>
-    <div class="wm-row r2">${text}</div>
-    <div class="wm-row r3">${text}</div>
-    <div class="wm-row r4">${text}</div>
-    <div class="wm-row r5">${text}</div>`;
+  const email = (d && d._email) ? d._email : (CURRENT_USER_EMAIL || '');
+  el.innerHTML = wasserzeichenHTML('Pr\u00fcf-ID ' + pruefId, email);
+}
+// Vor jedem Druck: Wasserzeichen mit dem aktuellen Druckzeitpunkt neu erzeugen
+function druckWasserzeichenAktualisieren() {
+  try {
+    const ordnerDruck = document.getElementById('akteView');
+    if (ordnerDruck && ordnerDruck.getClientRects().length) return;      // Ordner-Druck hat ein eigenes Wasserzeichen
+    if (typeof CURRENT_REPORT !== 'undefined' && CURRENT_REPORT && akteWirdAngezeigt()) buildWatermark(CURRENT_REPORT);
+  } catch (e) {}
 }
 
 // ===== KYC-ABLAGE (Personalausweis + Bestätigungsfoto je Analyse) =====
@@ -17427,9 +17475,7 @@ function buildAkteAnalyse(d) {
 function buildAkteWatermark(folderName) {
   const el = document.getElementById('printWatermark');
   if (!el) return;
-  const now = new Date();
-  const text = 'Automati Labs · ' + escapeHtml(CURRENT_USER_EMAIL || '') + ' · ' + now.toLocaleDateString('de-DE') + ' · Akte: ' + escapeHtml(folderName || '');
-  el.innerHTML = '<div class="wm-row r1">' + text + '</div><div class="wm-row r2">' + text + '</div><div class="wm-row r3">' + text + '</div><div class="wm-row r4">' + text + '</div><div class="wm-row r5">' + text + '</div>';
+  el.innerHTML = wasserzeichenHTML('Ordner: ' + (folderName || ''), CURRENT_USER_EMAIL || '');
 }
 
 // Akte eines Ordners aufbauen und Druck/PDF starten
