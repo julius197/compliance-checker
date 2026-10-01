@@ -3893,6 +3893,29 @@
         max-width:100% !important; max-height:19cm !important; width:auto !important; height:auto !important; object-fit:contain !important; min-width:0 !important; }
       .ev-karte-item { break-inside:avoid !important; page-break-inside:avoid !important; }   /* Ueberschrift und Karte zusammenhalten */
     }
+
+    /* v12.21 Sanktionsabgleich: gepruefte Namen sichtbar */
+    .sank-namen { margin-top:10px; font-size:12.5px; line-height:1.7; color:var(--ink, #1F2937); }
+    .sank-namen-t { font-weight:700; margin-right:4px; }
+    .sank-name { display:inline-block; margin:0 6px 4px 0; padding:2px 9px; border-radius:999px; background:rgba(255,255,255,.75); border:1px solid rgba(0,0,0,.08); }
+    .sank-name em { font-style:normal; color:var(--gray, #5A6670); font-size:11.5px; }
+    .sank-nach { margin-top:8px; font-size:11.5px; color:#8A5200; }
+    @media print { .sank-name { background:#fff !important; border-color:#ccc !important; } }
+
+    /* v12.21 */
+    .akte-txt b { white-space:normal !important; overflow:visible !important; text-overflow:clip !important; overflow-wrap:break-word; hyphens:manual; line-height:1.2; }
+    .ev-best { display:flex; align-items:flex-start; gap:8px; flex-basis:100%; margin:2px 0 4px; font-size:12.5px; line-height:1.45; color:var(--ink, #1F2937); cursor:pointer; }
+    .ev-best input { position:absolute; opacity:0; pointer-events:none; }
+    .ev-best.wackeln { animation:evWackeln .4s ease; }
+    @keyframes evWackeln { 20%,60% { transform:translateX(-4px); } 40%,80% { transform:translateX(4px); } }
+    .nw-btn.ev-hoch-aus { opacity:.45; filter:grayscale(.6); }
+    .ab-verlauf:empty { display:none; }
+    .ab-verlauf { margin:12px 0 4px; padding:10px 12px; border-radius:10px; background:var(--bg-soft, #F6F8F7); border:1px solid var(--border2, #E5E7EB); font-size:12.5px; }
+    .ab-v-t { font-weight:800; font-size:11px; letter-spacing:.05em; text-transform:uppercase; color:var(--gray, #5A6670); margin-bottom:6px; }
+    .ab-v-z { display:flex; align-items:center; gap:7px; padding:3px 0; color:var(--ink, #1F2937); }
+    .ab-v-p { width:8px; height:8px; border-radius:50%; flex:none; background:#16A34A; }
+    .ab-v-z.auf .ab-v-p { background:#D97706; }
+    @media (prefers-reduced-motion: reduce) { .ev-best.wackeln { animation:none; } }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -6331,7 +6354,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span class="app-version" onclick="neuigkeitenZeigen()" title="Was ist neu?" style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v12.20</span>
+      <span class="app-version" onclick="neuigkeitenZeigen()" title="Was ist neu?" style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v12.21</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -10169,8 +10192,14 @@ function uploadRender() {
     + '<rect x="2" y="5" width="20" height="14" rx="2"/><circle cx="8.5" cy="12" r="2.5"/><path d="M14 10h4M14 14h4M4.5 16.5c.9-1.6 2.3-2.4 4-2.4s3.1.8 4 2.4"/></svg></div>'
     + '<div><div class="up-e-t">Identit\u00e4tspr\u00fcfung</div>'
     + '<div class="up-e-d">'
-    + ((UPLOAD_INFO && UPLOAD_INFO.absender) ? '<b>' + escapeHtml(UPLOAD_INFO.absender) + '</b> von <b>' + firma + '</b>' : '<b>' + firma + '</b>')
-    + ' ben\u00f6tigt eine einmalige Best\u00e4tigung deiner Identit\u00e4t. '
+    + (function(){
+        // Absender gehoert zur ANFRAGENDEN Firma - nicht zur gepruefen (v12.21)
+        const abs = (UPLOAD_INFO && UPLOAD_INFO.absender) ? escapeHtml(UPLOAD_INFO.absender) : '';
+        const absFirma = (UPLOAD_INFO && UPLOAD_INFO.absender_firma) ? escapeHtml(UPLOAD_INFO.absender_firma) : '';
+        const wer = abs ? '<b>' + abs + '</b>' + (absFirma ? ' von <b>' + absFirma + '</b>' : '') : (absFirma ? '<b>' + absFirma + '</b>' : 'Dein Gesch\u00e4ftspartner');
+        const fuer = (UPLOAD_INFO && UPLOAD_INFO.firmenname) ? ' im Rahmen der Gesch\u00e4ftsbeziehung mit <b>' + firma + '</b>' : '';
+        return wer + ' ben\u00f6tigt' + fuer + ' eine einmalige Best\u00e4tigung deiner Identit\u00e4t. ';
+      })()
     + 'Unternehmen sind gesetzlich verpflichtet, ihre Gesch\u00e4ftspartner zu identifizieren \u2013 das schreibt das Geldw\u00e4schegesetz vor (\u00a7\u00a7 10\u201317 GwG). '
     + 'Diese Seite ist der sichere Weg daf\u00fcr: Du l\u00e4dst deine Unterlagen direkt hoch, ohne sie per E-Mail oder Messenger zu verschicken.</div></div>'
     + '</div>'
@@ -11659,7 +11688,31 @@ function akteWirdAngezeigt() {
 function akteEntwurf() {
   return akteWirdAngezeigt() && !CURRENT_REPORT._abgeschlossen_am;
 }
+// v12.21: Chrome/Edge druckt Datum, Titel und Adresse in den Seitenrand. Ohne Seitenrand
+// hat es dafuer keinen Platz - den Abstand liefert dann ein Innenabstand, der sich auf jeder
+// Seite wiederholt (box-decoration-break: clone). Nur wo das nachweislich funktioniert.
+function druckOhneBrowserKopf() {
+  try {
+    return !!(window.CSS && CSS.supports && CSS.supports('box-decoration-break', 'clone')
+      && /(Chrome|Chromium|Edg)\//.test(navigator.userAgent) && !/Firefox\//.test(navigator.userAgent));
+  } catch (e) { return false; }
+}
+const DRUCK_OHNE_KOPF_CSS = '@page { margin: 0 !important; }'
+  + '@media print {'
+  + ' html, body { margin: 0 !important; }'
+  + ' body { padding: 1.4cm !important; box-decoration-break: clone; -webkit-box-decoration-break: clone; }'
+  + ' #printWatermark .wm-fuss { bottom: 6mm !important; }'
+  + ' .druck-wz-fuss { bottom: 11mm !important; }'
+  + '}';
+function druckRandSetzen(an) {
+  let st = document.getElementById('druckOhneKopf');
+  if (an && druckOhneBrowserKopf()) {
+    if (!st) { st = document.createElement('style'); st.id = 'druckOhneKopf'; st.textContent = DRUCK_OHNE_KOPF_CSS; document.head.appendChild(st); }
+  } else if (!an && st) { st.remove(); }
+}
+
 function druckEntwurfVorbereiten() {
+  druckRandSetzen(true);                          // keine Browser-Kopfzeile (Chrome/Edge)
   druckWasserzeichenAktualisieren();              // Druckzeitpunkt statt Analysezeitpunkt
   const offen = akteEntwurf();
   document.body.classList.toggle('druck-entwurf', offen);
@@ -11687,6 +11740,7 @@ function druckEntwurfVorbereiten() {
 }
 function druckEntwurfAufraeumen() {
   document.body.classList.remove('druck-entwurf');
+  druckRandSetzen(false);
 }
 try {
   window.addEventListener('beforeprint', druckEntwurfVorbereiten);
@@ -11698,6 +11752,19 @@ try {
     if (mqDruck.addEventListener) mqDruck.addEventListener('change', aufDruck); else if (mqDruck.addListener) mqDruck.addListener(aufDruck);
   }
 } catch (e) {}
+
+// Feldbeschriftung passend zum Inhalt (v12.21): "Handelsregister (HRB)" mit HRA-Nummer -> "(HRA)"
+// Alte Eintraege (bis v12.20 vom Worker gespeichert) ohne Umlaut korrekt anzeigen
+function bezText(b) { return b == null ? '' : String(b).replace(/\bRueckseite\b/g, 'R\u00fcckseite'); }
+
+function feldLabel(key, wert) {
+  const k = String(key || '');
+  if (/^Handelsregister\s*\(HR[AB]\)$/i.test(k)) {
+    const m = String(wert || '').match(/\b(HR[AB]|GnR|PR|VR)\b/);
+    return m ? 'Handelsregister (' + m[1] + ')' : 'Handelsregister';
+  }
+  return k;
+}
 
 // Browser erkennen, die auf dem iPhone nicht drucken koennen
 function druckenMoeglich() {
@@ -12879,7 +12946,7 @@ function secCard(title, data, weight) {
     // Stift immer erzeugen - sichtbar wird er nur im Bearbeitungsmodus (per CSS)
     const stift = `<button class="kv-stift" onclick="feldBearbeiten('${feldId}', event)" title="Wert ergänzen oder korrigieren" tabindex="-1"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></button>`;
     return `<div class="kv" id="${feldId}" data-kat="${escapeHtml(title)}" data-feld="${escapeHtml(f.key || '')}">
-      <span class="kv-k">${dot}${escapeHtml(f.key)}</span>
+      <span class="kv-k">${dot}${escapeHtml(feldLabel(f.key, f.value))}</span>
       <span class="kv-v ${cls}">${val}${src}</span>
       ${stift}
     </div>`;
@@ -13061,7 +13128,7 @@ function evidenceHTML(d) {
       </div>
       <div>
         <div class="evidence-sub">Beweismittel · Bildrecherche</div>
-        <div class="evidence-title">Offizielle Bilder im Zusammenhang zum Unternehmen</div>
+        <div class="evidence-title">${eigeneBilderLesen(ev).length ? 'Bilder zum Unternehmen' : 'Bilder zum Unternehmen (Google Maps)'}</div>
       </div>
     </div>
     <div class="evidence-item">
@@ -13165,7 +13232,7 @@ setTimeout(function(){ try { akteVorschauZeichnen(); } catch(e) {} }, 0);
 // Kleine Korrekturen ohne neue Funktionen: NEU_VERSION unveraendert lassen.
 // ============================================================
 const NEU_VERSION = 'v12.15';           // Stand der Neuigkeiten - nur erhoehen, wenn es wirklich Neues gibt
-const APP_VERSION = 'v12.20';           // aktuelle Version (Anzeige im Bericht und oben im Kopf)
+const APP_VERSION = 'v12.21';           // aktuelle Version (Anzeige im Bericht und oben im Kopf)
 const UPDATE_KURZ = 'Abgeschlossene Akten sind jetzt schreibgesch\u00fctzt \u2013 zum \u00c4ndern werden sie wieder ge\u00f6ffnet.';
 const NEUIGKEITEN = [
   { farbe: '#B45309', v: 'v12.15', ico: '<path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/>',
@@ -13444,7 +13511,7 @@ const AKTE_SCHRITTE = [
   { n: 2, key: 'analyse',  titel: 'Analyse',                ziel: '.score-card' },
   { n: 3, key: 'dokumente',titel: 'Dokumente',              ziel: '#nwCard' },
   { n: 4, key: 'sanktion', titel: 'Sanktionslisten',        ziel: '#sankBereich' },
-  { n: 5, key: 'endverbleib', titel: 'Endverbleibserkl\u00e4rung', ziel: '#endverbleibCard' },
+  { n: 5, key: 'endverbleib', titel: 'Endverbleibs\u00aderkl\u00e4rung', ziel: '#endverbleibCard' },   // weiches Trennzeichen
   { n: 6, key: 'abschluss',titel: 'Abschluss',              ziel: '#abschlussCard' }
 ];
 
@@ -13599,7 +13666,7 @@ const AKTE_ICO = {
 // Farbe je Bereich - Stepper, Karten, Vorschau und Neuigkeiten nutzen dieselben Werte
 // Palette v3: ein Verlauf von Gruen zu Blau - keine fremden Farbtoene
 const AKTE_FARBE = { akte: '#2FA36B', analyse: '#2E8749', dokumente: '#128F86', sanktion: '#0C86A3', endverbleib: '#2B79C2', abschluss: '#1E5D9A' };
-const AKTE_BEREICH_NAME = { akte: 'Stammdaten', analyse: 'Analyse', dokumente: 'Dokumente', sanktion: 'Sanktionslisten', endverbleib: 'Endverbleib', abschluss: 'Best\u00e4tigung' };
+const AKTE_BEREICH_NAME = { akte: 'Stammdaten', analyse: 'Analyse', dokumente: 'Dokumente', sanktion: 'Sanktionslisten', endverbleib: 'Endverbleib', abschluss: 'Abschluss' };
 const AKTE_STATUS_ICO = {
   ok: '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>',
   uebersprungen: '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M5 12h14"/></svg>',
@@ -13880,7 +13947,7 @@ function endverbleibZeichnen() {
 
   box.innerHTML = '<div class="ev-head">'
     + '<div class="ev-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="m9 15 2 2 4-4"/></svg></div>'
-    + '<div class="ev-titel"><div class="ev-sub">Schritt 5 \u00b7 Sanktionen &amp; Export</div><div class="ev-t">Endverbleibserkl\u00e4rung</div></div>'
+    + '<div class="ev-titel"><div class="ev-sub">Schritt 5 \u00b7 Fahrzeughandel</div><div class="ev-t">Endverbleibserkl\u00e4rung</div></div>'
     + status + '</div>'
     + '<div class="ev-txt">Der K\u00e4ufer best\u00e4tigt mit seiner Unterschrift, das Fahrzeug nicht in sanktionierte L\u00e4nder weiterzuverkaufen. '
     + 'Das Tool f\u00fcllt K\u00e4ufer, Verk\u00e4ufer, Ort und Datum vor \u2013 Fahrzeug und FIN tr\u00e4gst du ein. Unterschrieben wird beim Kauf; die unterschriebene Fassung geh\u00f6rt danach in diese Akte.</div>'
@@ -13896,15 +13963,17 @@ function endverbleibZeichnen() {
           + '</div>'
           + '<div class="ev-btns">'
           + '<button class="nw-btn nw-btn-p" onclick="endverbleibDrucken()"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>Vorausgef\u00fcllt erstellen &amp; drucken</button>'
-          + '<label class="nw-btn" for="evUpload"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5M12 3v12"/></svg>Unterschriebene Fassung hochladen</label>'
-          + '<input type="file" id="evUpload" accept="application/pdf,image/jpeg,image/png,image/webp" style="display:none" onchange="endverbleibHochladen(this.files)" />'
+          + '<label class="ev-best"><input type="checkbox" id="evBestaetigt" onchange="evBestaetigtAendern(this)" /><span class="einw-mark"></span>'
+          + '<span>Die Erkl\u00e4rung ist vom K\u00e4ufer mit <b>Ort, Datum und Unterschrift</b> versehen.</span></label>'
+          + '<label class="nw-btn ev-hoch-aus" id="evUploadKnopf" for="evUpload" onclick="return evUploadErlaubt(event)"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5M12 3v12"/></svg>Unterschriebene Fassung hochladen</label>'
+          + '<input type="file" id="evUpload" accept="application/pdf,image/jpeg,image/png,image/webp" style="display:none" onchange="if (evUploadErlaubt()) endverbleibHochladen(this.files); this.value = \'\';" />'
           + (st !== 'ok' ? '<button class="ev-link" onclick="endverbleibNichtErforderlich()">Nicht erforderlich</button>' : '')
           + '</div>')
     + (doks.length ? '<div class="ev-doks">' + doks.map(function(x, n){
         const url = urls[n];
         return '<div class="ev-dok">'
           + '<span class="nw-doc-ico pdf">' + ((x.mime_type || '').indexOf('pdf') >= 0 ? 'PDF' : 'IMG') + '</span>'
-          + '<span class="ev-dok-txt"><b>' + escapeHtml(x.bezeichnung || 'Unterschriebene Fassung') + '</b><small>' + escapeHtml(x.datei_name || '') + (x.created_at ? ' \u00b7 ' + new Date(x.created_at).toLocaleDateString('de-DE') : '') + '</small></span>'
+          + '<span class="ev-dok-txt"><b>' + escapeHtml(bezText(x.bezeichnung) || 'Unterschriebene Fassung') + '</b><small>' + escapeHtml(x.datei_name || '') + (x.created_at ? ' \u00b7 ' + new Date(x.created_at).toLocaleDateString('de-DE') : '') + '</small></span>'
           + (url ? '<a class="nw-icobtn" href="' + url + '" target="_blank" title="\u00d6ffnen"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6M10 14 21 3"/></svg></a>' : '')
           + '<button class="nw-icobtn nw-weg" onclick="endverbleibLoeschen(' + n + ')" title="Entfernen"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>'
           + '</div>';
@@ -13944,9 +14013,25 @@ function evWasserzeichenEinfuegen(html) {
       + '.evwm .wm-fuss{position:absolute;left:0;right:0;bottom:0.6mm;text-align:center}'
       + '.evwm .wm-fuss span{display:inline-block;max-width:96%;padding:0.4mm 2.5mm;border-radius:1.5mm;background:rgba(255,255,255,0.9);font:600 7.5pt/1.3 Inter,Arial,sans-serif;color:#374151;overflow-wrap:anywhere}'
       + '}</style>';
-    const block = stil + '<div class="evwm" aria-hidden="true">' + wasserzeichenHTML(kennung, d._email || CURRENT_USER_EMAIL || '') + '</div>';
+    const ohneKopf = druckOhneBrowserKopf()
+      ? '<style>@page{margin:0 !important}@media print{html,body{margin:0 !important}body{padding:22mm 20mm !important;box-decoration-break:clone;-webkit-box-decoration-break:clone}.evwm .wm-fuss{bottom:6mm}}</style>' : '';
+    const block = stil + ohneKopf + '<div class="evwm" aria-hidden="true">' + wasserzeichenHTML(kennung, d._email || CURRENT_USER_EMAIL || '') + '</div>';
     return html.indexOf('</body>') >= 0 ? html.replace('</body>', block + '</body>') : html + block;
   } catch (e) { return html; }
+}
+
+// v12.21: Die Fassung heisst "unterschrieben" - also muss das vor dem Hochladen bestaetigt werden
+function evBestaetigtAendern(box) {
+  const k = document.getElementById('evUploadKnopf');
+  if (k) k.classList.toggle('ev-hoch-aus', !box.checked);
+}
+function evUploadErlaubt(ev) {
+  const box = document.getElementById('evBestaetigt');
+  if (box && box.checked) return true;
+  if (ev) ev.preventDefault();
+  try { zeigeToast('Bitte zuerst best\u00e4tigen', 'Hochgeladen wird die unterschriebene Fassung \u2013 bitte best\u00e4tige, dass Ort, Datum und Unterschrift vorhanden sind.'); } catch (e) {}
+  if (box) { box.closest('.ev-best').classList.remove('wackeln'); void box.offsetWidth; box.closest('.ev-best').classList.add('wackeln'); }
+  return false;
 }
 
 function endverbleibImRahmenDrucken(html, titel) {
@@ -14130,7 +14215,7 @@ function abschlussZeichnen() {
     + (zu ? '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>'
           : '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>')
     + '</div>'
-    + '<div class="ab-titel"><div class="ab-sub">Schritt ' + akteSchritteAktiv().length + ' \u00b7 Vollst\u00e4ndigkeitsbest\u00e4tigung</div><div class="ab-t">' + (zu ? 'Akte abgeschlossen' : 'Akte abschlie\u00dfen') + '</div></div>'
+    + '<div class="ab-titel"><div class="ab-sub">Schritt ' + akteSchritteAktiv().length + ' \u00b7 Abschluss</div><div class="ab-t">' + (zu ? 'Akte abgeschlossen' : 'Akte abschlie\u00dfen') + '</div></div>'
     + '</div>'
     + '<div class="ab-liste">' + liste + '</div>'
     + (zu
@@ -14147,7 +14232,29 @@ function abschlussZeichnen() {
           + '<span>Ich best\u00e4tige, dass die Sorgfaltspr\u00fcfung f\u00fcr <b>' + escapeHtml(d.firmenname || 'dieses Unternehmen') + '</b> nach bestem Wissen vollst\u00e4ndig durchgef\u00fchrt wurde und die hinterlegten Unterlagen zutreffend sind.</span></label>'
           + '<button class="nw-btn nw-btn-p ab-btn" id="abBtn" disabled onclick="akteAbschliessen()">Akte abschlie\u00dfen</button>'
           + '</div>')
+    + '<div id="abVerlauf" class="ab-verlauf"></div>'
     + '<div class="ev-fuss">Der Abschluss dokumentiert, dass der Pr\u00fcfende alle vorgesehenen Schritte durchgef\u00fchrt hat. Er ersetzt weder die gesetzliche Identifizierung noch die eigene Entscheidung \u00fcber die Gesch\u00e4ftsbeziehung.</div>';
+  setTimeout(abschlussVerlaufLaden, 0);
+}
+
+// Abschluss-Verlauf (v12.21): jedes Abschliessen und Wieder-Oeffnen mit Datum und Person.
+// Spalte kommt aus sql_akte_schreibschutz.sql - fehlt sie, bleibt der Bereich einfach leer.
+async function abschlussVerlaufLaden() {
+  const ziel = document.getElementById('abVerlauf');
+  const id = (typeof KYC !== 'undefined' && KYC && KYC.analyseId) || (CURRENT_REPORT && CURRENT_REPORT._analyseId);
+  if (!ziel || !sb || !id) return;
+  try {
+    const { data, error } = await sb.from('analysen').select('abschluss_verlauf').eq('id', id).limit(1);
+    if (error || !data || !data[0]) return;
+    const v = Array.isArray(data[0].abschluss_verlauf) ? data[0].abschluss_verlauf : [];
+    if (v.length < 2) { ziel.innerHTML = ''; return; }          // ein einzelner Abschluss steht schon oben
+    ziel.innerHTML = '<div class="ab-v-t">Verlauf dieser Akte</div>' + v.map(function(e){
+      const am = e && e.am ? new Date(e.am).toLocaleString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) + ' Uhr' : '';
+      const zu = e && e.art === 'abgeschlossen';
+      return '<div class="ab-v-z ' + (zu ? 'zu' : 'auf') + '"><span class="ab-v-p"></span><b>' + (zu ? 'Abgeschlossen' : 'Wieder ge\u00f6ffnet') + '</b> '
+        + escapeHtml(am) + (e && e.von ? ' \u00b7 ' + escapeHtml(e.von) : '') + '</div>';
+    }).join('');
+  } catch (e) {}
 }
 
 // Legt das Siegel ueber die Abschluss-Karte und spielt die Animation ab
@@ -15213,7 +15320,7 @@ function kycRender() {
       const teile = liste.map(function(d, n){
         const istPdf = (d.mime_type || '').indexOf('pdf') >= 0;
         const url = (KYC.urls[typ] || [])[n];
-        const bez = d.bezeichnung || (typ === 'ausweis' ? (n === 0 ? 'Vorderseite' : (n === 1 ? 'R\u00fcckseite' : 'Seite ' + (n + 1))) : '');
+        const bez = escapeHtml(bezText(d.bezeichnung) || (typ === 'ausweis' ? (n === 0 ? 'Vorderseite' : (n === 1 ? 'R\u00fcckseite' : 'Seite ' + (n + 1))) : ''));
         return '<div class="kyc-datei" style="--kd:' + (0.04 + n * 0.07) + 's">'
           + ((!istPdf && url) ? '<img class="kyc-mini" src="' + url + '" alt="" onclick="kycAnsehenEin(\'' + typ + '\',' + n + ')" />'
                               : '<div class="kyc-mini kyc-mini-pdf" onclick="kycAnsehenEin(\'' + typ + '\',' + n + ')">PDF</div>')
@@ -15297,7 +15404,7 @@ function kycPrintHtml() {
     const vorher = out.length;
     (KYC.doks[typ] || []).forEach(function(d, n){
       const url = (KYC.urls[typ] || [])[n];
-      const bez = d.bezeichnung ? ' (' + escapeHtml(d.bezeichnung) + ')' : ((KYC.doks[typ].length > 1) ? ' (' + (n + 1) + ' von ' + KYC.doks[typ].length + ')' : '');
+      const bez = d.bezeichnung ? ' (' + escapeHtml(bezText(d.bezeichnung)) + ')' : ((KYC.doks[typ].length > 1) ? ' (' + (n + 1) + ' von ' + KYC.doks[typ].length + ')' : '');
       const dateiname = escapeHtml(d.datei_name || '');
       const istPdf = (d.mime_type || '').indexOf('pdf') >= 0;
 
@@ -15815,7 +15922,7 @@ function showReport(d, rawName, fromHistory, nichtSpeichern) {
         ${miniScore(d.kontakt.score)}
       </div>
       <div class="contact-grid">
-        <div class="cc" id="cc_website" data-kat="Kontakt" data-feld="Website">${ccStift('cc_website')}<div class="cc-label">Website</div><span class="cc-wert">${isNA(d.kontakt.website)?'<span class="cc-value na">N/A</span>':(sichereUrl(d.kontakt.website) ? `<a class="maps-link" href="${sichereUrl(d.kontakt.website)}" target="_blank" rel="noopener">${escapeHtml(d.kontakt.website)} ↗</a>` : `<div class="cc-value">${escapeHtml(d.kontakt.website)}</div>`)}${!isNA(d.kontakt.website)?`<span class="cc-badge ${d.kontakt.httpsOk?'ok':'warn'}" style="margin-left:6px">${d.kontakt.httpsOk?'HTTPS ✓':'Kein HTTPS'}</span>`:''}</span></div>
+        <div class="cc" id="cc_website" data-kat="Kontakt" data-feld="Website">${ccStift('cc_website')}<div class="cc-label">Website</div><span class="cc-wert">${isNA(d.kontakt.website)?'<span class="cc-value na">N/A</span>':(sichereUrl(d.kontakt.website) ? `<a class="maps-link" href="${sichereUrl(d.kontakt.website)}" target="_blank" rel="noopener">${escapeHtml(d.kontakt.website)} ↗</a>` : `<div class="cc-value">${escapeHtml(d.kontakt.website)}</div>`)}${!isNA(d.kontakt.website)?`<span class="cc-badge ${d.kontakt.httpsOk?'ok':'warn'}" style="margin-left:6px">${d.kontakt.httpsOk?'HTTPS ✓':(/^https:\/\//i.test(String(d.kontakt.website||'').trim())?'HTTPS nicht best\u00e4tigt':'Kein HTTPS')}</span>`:''}</span></div>
         <div class="cc" id="cc_email" data-kat="Kontakt" data-feld="E-Mail">${ccStift('cc_email')}<div class="cc-label">E-Mail</div><span class="cc-wert">${na(d.kontakt.email)}</span></div>
         <div class="cc" id="cc_telefon" data-kat="Kontakt" data-feld="Telefon">${ccStift('cc_telefon')}<div class="cc-label">Telefon</div><span class="cc-wert">${na(d.kontakt.telefon)}</span></div>
         <div class="cc" id="cc_linkedin" data-kat="Kontakt" data-feld="LinkedIn">${ccStift('cc_linkedin')}<div class="cc-label">LinkedIn</div><span class="cc-wert">${d.kontakt.linkedinAktiv && sichereUrl(d.kontakt.linkedinUrl) && !isNA(d.kontakt.linkedinUrl)?`<a class="maps-link" href="${sichereUrl(d.kontakt.linkedinUrl)}" target="_blank" rel="noopener">Profil öffnen ↗</a>`:`<div class="cc-value ${d.kontakt.linkedinAktiv?'':'na'}">${d.kontakt.linkedinAktiv?'Vorhanden':'N/A'}</div>`}</span></div>
@@ -17207,55 +17314,72 @@ function _backToMain() {
 // ============================================================
 let SANK_STAND = null;
 
-// Sammelt alle Namen, die geprueft werden sollen: Firma + handelnde Personen
+// ============================================================
+// NAMEN FUER DEN SANKTIONSABGLEICH (v12.21)
+// FEHLER BIS v12.20: gesucht wurde in "d.kategorien" - das gibt es in keinem Bericht.
+// Dadurch ging NUR der Firmenname gegen die EU-Liste, Personen nie.
+// Jetzt: Firma + Geschaeftsfuehrung + wirtschaftlich Berechtigte + Gesellschafter
+// aus d.personen.felder (dazu alte Strukturen, falls vorhanden).
+// ============================================================
+const SANK_ROLLEN = [
+  { muster: /gesch(\u00e4|ae|a)ftsf|vertret|vorstand|inhaber|prokur|managing|director|\bceo\b|\bowner\b|legal rep/i, rolle: 'Gesch\u00e4ftsf\u00fchrung' },
+  { muster: /berechtigt|\bubo\b|beneficial|eigent(\u00fc|ue)mer/i,                                                      rolle: 'Wirtschaftlich Berechtigte' },
+  { muster: /gesellschafter|shareholder|anteilseigner|aktion(\u00e4|ae)r|partner/i,                                 rolle: 'Gesellschafter' }
+];
+function sankNameTeile(text) {
+  if (!text || typeof text !== 'string') return [];
+  return text.replace(/\([^)]*\)/g, ' ')                                  // Zusaetze wie (60 %), (seit 2011)
+    .split(/[,;\n\/]|\s+und\s+|\s+and\s+/)
+    .map(function(t){
+      return t.replace(/^\s*[A-Za-z\u00c4\u00d6\u00dc\u00e4\u00f6\u00fc\u00df ]{2,30}:\s*/, '')          // "Geschaeftsfuehrer: ..."
+        .replace(/\b(Herr|Frau|Dr\.|Prof\.|Dipl\.-\w+|Mr\.?|Mrs\.?|Ms\.?)\s*/gi, '')
+        .replace(/\s+/g, ' ').trim();
+    })
+    .filter(function(n){
+      return n.length >= 4 && n.length <= 80 && /[A-Za-z\u00c0-\u024f]/.test(n)
+        && !/\d/.test(n)                                                   // Saetze mit Datum/Zahlen sind keine Namen
+        && n.split(' ').length <= 7
+        && !/nicht|keine|kein |unbekannt|n\/a|verf(\u00fc|ue)gbar|angegeben|wechsel|siehe|not available|unknown|none/i.test(n);
+    });
+}
 function sanktionenNamen(d) {
   const namen = [];
-  if (d.firmenname) namen.push({ name: d.firmenname, rolle: 'Unternehmen' });
-
-  function ausText(t, rolle) {
-    if (!t || typeof t !== 'string') return;
-    // Mehrfachnennungen trennen, Klammerzusaetze entfernen
-    t.split(/[,;]|\ und\ /).forEach(function(teil){
-      const n = teil.replace(/\([^)]*\)/g, '').replace(/\b(Herr|Frau|Dr\.|Prof\.|Dipl\.-\w+)\b/gi, '').trim();
-      if (n.length >= 5 && n.length <= 80 && /[a-zA-Z\u00c0-\u024f]/.test(n)
-          && !/nicht|keine|k\.a\.|unbekannt|n\/a|verf\u00fcgbar/i.test(n)) {
-        namen.push({ name: n, rolle: rolle });
-      }
-    });
-  }
-
-  // Personen aus den Kategorien herausziehen
-  (d.kategorien || []).forEach(function(k){
-    const kn = (k.kategorie || k.name || '').toLowerCase();
-    if (!/person|leitung|gesch|berechtigt/.test(kn)) return;
-    (k.felder || k.eintraege || []).forEach(function(f){
-      const label = (f.label || f.feld || f.name || '').toLowerCase();
-      const wert = f.wert || f.value || f.text || '';
-      if (/gesch\u00e4ftsf|vertretung|vorstand|inhaber/.test(label)) ausText(wert, 'Gesch\u00e4ftsf\u00fchrung');
-      else if (/berechtigt|ubo|eigent/.test(label)) ausText(wert, 'Wirtschaftlich Berechtigte');
+  if (d.firmenname) namen.push({ name: String(d.firmenname).trim(), rolle: 'Unternehmen' });
+  const felder = [];
+  if (d.personen && Array.isArray(d.personen.felder)) felder.push.apply(felder, d.personen.felder);
+  (d.kategorien || []).forEach(function(k){ (k.felder || k.eintraege || []).forEach(function(f){ felder.push(f); }); });   // alte Struktur
+  // Reihenfolge: erst Geschaeftsfuehrung, dann wirtschaftlich Berechtigte, dann Gesellschafter
+  SANK_ROLLEN.forEach(function(r){
+    felder.forEach(function(f){
+      const label = String(f.key || f.label || f.feld || f.name || '');
+      if (/weitere firmen|beteiligung/i.test(label) || !r.muster.test(label)) return;
+      sankNameTeile(String(f.value || f.wert || f.text || '')).forEach(function(n){ namen.push({ name: n, rolle: r.rolle }); });
     });
   });
-
-  // Doppelte entfernen
   const gesehen = {};
   return namen.filter(function(n){
-    const s = n.name.toLowerCase();
-    if (gesehen[s]) return false;
-    gesehen[s] = true;
+    const k = n.name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    if (gesehen[k]) return false;
+    gesehen[k] = true;
     return true;
-  }).slice(0, 12);
+  }).slice(0, 15);
 }
 
 async function sanktionenAbgleichen(d) {
   if (!sb) return;
   // Schon geprueft (z.B. beim Oeffnen aus "Akten & Ordner"): gespeichertes Ergebnis zeigen.
   // Der Aufruf kommt vor dem Aufbau des Berichts - deshalb erst im naechsten Takt anzeigen.
-  if (d._sankGeprueft && d._sanktionen && d._sanktionen.stand) {
+  const namen = sanktionenNamen(d);
+  // Vollstaendig geprueft (alle heute ermittelbaren Namen)? Dann gespeichertes Ergebnis zeigen.
+  // Aeltere Pruefungen (bis v12.20 nur der Firmenname) werden automatisch nachgeholt.
+  const vollstaendig = d._sankGeprueft && d._sanktionen && d._sanktionen.stand
+    && Array.isArray(d._sanktionen.namen) && (d._sanktionen.geprueft || 0) >= namen.length;
+  if (vollstaendig) {
     setTimeout(function(){ if (CURRENT_REPORT === d) sanktionenAnzeigen(d._sanktionen, d._sanktionen.geprueft || 0); }, 0);
     return;
   }
+  const nachpruefung = !!(d._sankGeprueft && d._sanktionen && d._sanktionen.stand);
   d._sankGeprueft = true;
-  const namen = sanktionenNamen(d);
   if (!namen.length) {
     // Keine Namen ermittelbar - trotzdem sauber abschliessen statt endlos zu laden
     if (!SANK_STAND) {
@@ -17285,8 +17409,13 @@ async function sanktionenAbgleichen(d) {
       });
     } catch (e) {}
   }
-  d._sanktionen = { treffer: treffer, geprueft: namen.length, stand: SANK_STAND };
+  d._sanktionen = { treffer: treffer, geprueft: namen.length, stand: SANK_STAND, namen: namen,
+                    am: new Date().toISOString(), nachpruefung: nachpruefung || undefined };
+  // Abgeschlossene Akte: Ergebnis zeigen, aber NICHT in den abgeschlossenen Stand schreiben (Schreibschutz)
+  const zu = !!d._abgeschlossen_am;
+  if (zu) d._sanktionen.nichtGespeichert = true;
   if (CURRENT_REPORT === d) sanktionenAnzeigen(d._sanktionen, namen.length);
+  if (zu) return;
   // Befund dauerhaft im Bericht sichern
   try {
     if (d.pruef_id || d.pruefId) {
@@ -17316,13 +17445,21 @@ function sanktionenAnzeigen(erg, anzahlNamen) {
   }
 
   const t = erg.treffer || [];
+  const geprueftListe = Array.isArray(erg.namen) && erg.namen.length
+    ? '<div class="sank-namen"><span class="sank-namen-t">Gepr\u00fcft:</span> ' + erg.namen.map(function(n){
+        return '<span class="sank-name">' + escapeHtml(n.name) + ' <em>(' + escapeHtml(n.rolle) + ')</em></span>'; }).join('') + '</div>'
+    : '';
+  const nachHinweis = erg.nichtGespeichert
+    ? '<div class="sank-nach">Nachpr\u00fcfung beim \u00d6ffnen am ' + new Date(erg.am).toLocaleDateString('de-DE') + ' \u2013 nicht Teil des Abschlussstands dieser Akte. Zum dauerhaften Festhalten die Akte wieder \u00f6ffnen.</div>'
+    : (erg.nachpruefung ? '<div class="sank-nach">Personen nachtr\u00e4glich abgeglichen am ' + new Date(erg.am).toLocaleDateString('de-DE') + '.</div>' : '');
   if (!t.length) {
     ziel.innerHTML = '<div class="sank-karte sank-k-gruen">'
       + '<div class="sank-k-kopf"><span class="sank-k-ico">\u2713</span>'
       + '<span class="sank-k-t">Kein Treffer in der EU-Sanktionsliste</span></div>'
-      + '<div class="sank-k-d">' + anzahlNamen + ' Name' + (anzahlNamen === 1 ? '' : 'n') + ' abgeglichen \u2013 Unternehmen und, soweit ermittelbar, handelnde Personen. '
+      + '<div class="sank-k-d">' + anzahlNamen + ' Name' + (anzahlNamen === 1 ? '' : 'n') + ' abgeglichen \u2013 das Unternehmen sowie alle im Bericht genannten Gesch\u00e4ftsf\u00fchrer, wirtschaftlich Berechtigten und Gesellschafter. '
       + 'Gepr\u00fcft gegen die konsolidierte Sanktionsliste der Europ\u00e4ischen Union'
       + (standTxt ? ', Listenstand ' + standTxt : '') + ' (' + (erg.stand.eintraege || 0).toLocaleString('de-DE') + ' Eintr\u00e4ge).</div>'
+      + geprueftListe + nachHinweis
       + sankRechtstexte()
       + '</div>';
     return;
@@ -17349,9 +17486,10 @@ function sanktionenAnzeigen(erg, anzahlNamen) {
 
   ziel.innerHTML = '<div class="sank-karte sank-k-rot">'
     + '<div class="sank-k-kopf"><span class="sank-k-ico">\u26A0</span>'
-    + '<span class="sank-k-t">' + t.length + ' m\u00f6gliche\u0072 Treffer in der EU-Sanktionsliste</span></div>'
+    + '<span class="sank-k-t">' + t.length + (t.length === 1 ? ' m\u00f6glicher Treffer' : ' m\u00f6gliche Treffer') + ' in der EU-Sanktionsliste</span></div>'
     + '<div class="sank-k-d">Beim Abgleich von ' + anzahlNamen + ' Namen wurden Namensgleichheiten oder \u00c4hnlichkeiten festgestellt. '
     + 'Listenstand ' + (standTxt || 'unbekannt') + '.</div>'
+    + geprueftListe + nachHinweis
     + '<div class="sank-treffer-liste">' + zeilen + '</div>'
     + sankRechtstexte()
     + '</div>';
