@@ -6317,7 +6317,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span class="app-version" onclick="neuigkeitenZeigen()" title="Was ist neu?" style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v12.16</span>
+      <span class="app-version" onclick="neuigkeitenZeigen()" title="Was ist neu?" style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v12.17</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -13044,13 +13044,13 @@ function evidenceHTML(d) {
     <div class="evidence-item">
       <div class="evidence-item-label">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-        Standort &amp; Umgebung (Google) <span id="evidenceCount" style="margin-left:auto;font-weight:600;color:var(--gray-l);text-transform:none;letter-spacing:0"></span>
+        Standort &amp; Umgebung${eigeneBilderLesen(ev).length ? '' : ' (Google)'} <span id="evidenceCount" style="margin-left:auto;font-weight:600;color:var(--gray-l);text-transform:none;letter-spacing:0"></span>
       </div>
       <div class="evidence-gallery" id="evidenceGallery">
         <div class="evidence-img-loading">Bilder werden geladen…</div>
       </div>
       <div class="evidence-quelle" id="evidenceQuelle"></div>
-      <div class="evidence-note">Automatisch über Google zugeordnete Bilder zur angegebenen Adresse. Die Zuordnung erfolgt anhand des Namens des Unternehmens und sollte bei Bedarf manuell verifiziert werden.</div>
+      <div class="evidence-note">${eigeneBilderLesen(ev).length ? 'Hinterlegte Bilder zum Unternehmen. Herkunft und Urheber stehen direkt unter den Bildern.' : 'Automatisch über Google zugeordnete Bilder zur angegebenen Adresse. Die Zuordnung erfolgt anhand des Namens des Unternehmens und sollte bei Bedarf manuell verifiziert werden.'}</div>
     </div>
     ${karteHTML(ev)}
   </div>`;
@@ -13142,7 +13142,7 @@ setTimeout(function(){ try { akteVorschauZeichnen(); } catch(e) {} }, 0);
 // Kleine Korrekturen ohne neue Funktionen: NEU_VERSION unveraendert lassen.
 // ============================================================
 const NEU_VERSION = 'v12.15';           // Stand der Neuigkeiten - nur erhoehen, wenn es wirklich Neues gibt
-const APP_VERSION = 'v12.16';           // aktuelle Version (Anzeige im Bericht und oben im Kopf)
+const APP_VERSION = 'v12.17';           // aktuelle Version (Anzeige im Bericht und oben im Kopf)
 const UPDATE_KURZ = 'Abgeschlossene Akten sind jetzt schreibgesch\u00fctzt \u2013 zum \u00c4ndern werden sie wieder ge\u00f6ffnet.';
 const NEUIGKEITEN = [
   { farbe: '#B45309', v: 'v12.15', ico: '<path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/>',
@@ -14731,7 +14731,29 @@ function galerieZeichnen(stand) {
   const countEl = document.getElementById('evidenceCount');
   if (countEl) countEl.textContent = stand.geladen.length === 1 ? '1 Bild' : stand.geladen.length + ' Bilder';
   const q = document.getElementById('evidenceQuelle');
-  if (q) q.innerHTML = urheberHTML(stand.geladen, 'Google Maps');
+  if (q) q.innerHTML = urheberHTML(stand.geladen, stand.quelle || 'Google Maps');
+}
+
+// ============================================================
+// EIGENE BILDER (v12.17): In der Akte hinterlegte Fotos (z. B. lizenzfreie Bilder fuer
+// Demo-Akten) werden OHNE Google-Abfrage gezeigt. Nur echte Rasterbilder (JPG/PNG/WebP)
+// als eingebettete Daten - keine SVG (koennten Skripte enthalten), keine fremden Adressen.
+// ============================================================
+const EIGENE_BILD_MUSTER = /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+\/=]+$/;
+function eigeneBilderLesen(ev) {
+  const liste = (ev && Array.isArray(ev.eigeneBilder)) ? ev.eigeneBilder : [];
+  return liste.filter(function(b){ return b && typeof b.src === 'string' && b.src.length < 1500000 && EIGENE_BILD_MUSTER.test(b.src); }).slice(0, 8);
+}
+// Eingebettete Bilder als Blob-Adresse: Browser blockieren das Oeffnen von "data:"-Adressen in neuen Tabs
+function eigenesBildUrl(src) {
+  try {
+    const teile = src.split(',');
+    const typ = teile[0].slice(5, teile[0].indexOf(';'));
+    const roh = atob(teile[1]);
+    const bytes = new Uint8Array(roh.length);
+    for (let i = 0; i < roh.length; i++) bytes[i] = roh.charCodeAt(i);
+    return URL.createObjectURL(new Blob([bytes], { type: typ }));
+  } catch (e) { return src; }
 }
 
 async function bilderPaarweise(liste, stand) {
@@ -14773,6 +14795,18 @@ async function loadEvidenceImage(ev) {
     if (countEl) countEl.textContent = '';
     if (quelleEl) quelleEl.innerHTML = '';
   };
+
+  // 0) Eigene Bilder hinterlegt? Dann diese zeigen - ohne Google-Abfrage
+  const eigene = eigeneBilderLesen(ev);
+  if (eigene.length) {
+    stand.geladen = eigene.map(function(b){
+      return { url: eigenesBildUrl(b.src),
+               autoren: b.autor ? [{ name: String(b.autor).slice(0, 80), uri: String(b.autorUrl || '') }] : [] };
+    });
+    stand.quelle = String(eigene[0].quelle || 'Eigene Aufnahmen').slice(0, 60);
+    galerieZeichnen(stand);
+    return;
+  }
 
   // 1) Frische Fotonamen holen: ueber die Place-ID, bei alten Akten ueber Name + Adresse.
   //    Ohne Google-Treffer bei der Erstellung (z. B. Google-Stoerung): Adresse aus der Recherche.
