@@ -3916,6 +3916,19 @@
     .ab-v-p { width:8px; height:8px; border-radius:50%; flex:none; background:#16A34A; }
     .ab-v-z.auf .ab-v-p { background:#D97706; }
     @media (prefers-reduced-motion: reduce) { .ev-best.wackeln { animation:none; } }
+
+    /* v12.22 */
+    .ev-best input:checked ~ .einw-mark { background:linear-gradient(135deg,#16A34A,#22C55E); border-color:#16A34A; box-shadow:0 6px 16px -6px rgba(34,197,94,.8); }
+    .ev-best input:checked ~ .einw-mark::after { opacity:1; transform:scale(1); }
+    .ev-best:hover .einw-mark { border-color:var(--green,#22C55E); }
+    .ev-best input:focus-visible ~ .einw-mark { outline:2px solid #2E6FBF; outline-offset:2px; }
+    .nw-btn.ev-hoch-aus { opacity:.45 !important; filter:grayscale(.6); transition:opacity .25s ease, filter .25s ease; }   /* !important: sonst ueberschreibt die Einblend-Animation */
+    .nw-btn#evUploadKnopf { transition:opacity .25s ease, filter .25s ease; }
+    /* Upload: nach dem ersten Aufbau nicht alles neu animieren - nur Neues */
+    .up-steht .up-erklaerung, .up-steht .up-e-ico, .up-steht .up-schritt, .up-steht .up-e-fuss span,
+    .up-steht .up-senden, .up-steht .up-an1, .up-steht .up-an2, .up-steht .up-an3 { animation:none !important; }
+    .up-steht .ds-hinweis, .einw-box.up-alt { animation:none !important; }
+    .up-s-alt .up-s-nr, .up-datei.up-alt, .kyc-datei.kyc-alt { animation:none !important; }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -6354,7 +6367,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span class="app-version" onclick="neuigkeitenZeigen()" title="Was ist neu?" style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v12.21</span>
+      <span class="app-version" onclick="neuigkeitenZeigen()" title="Was ist neu?" style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v12.22</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -10110,6 +10123,9 @@ let UPLOAD_GEWAEHLT = {};      // typ -> [ { file, vorschau }, ... ]
 let UPLOAD_ABGESCHLOSSEN = false;
 let UPLOAD_GEZEICHNET = false;   // Eingangs-Animation nur beim ersten Zeichnen
 
+const UPLOAD_S_FERTIG = {};      // v12.22: bereits erledigte Schritte (kein erneutes Animieren)
+const UPLOAD_D_GESEHEN = {};     // v12.22: bereits angezeigte Dateien
+let UPLOAD_EINW_GEZEIGT = false;  // v12.22: Einwilligungs-Kasten schon gezeigt
 function uploadRender() {
   const body = document.getElementById('uploadBody');
   if (!body || !UPLOAD_INFO) return;
@@ -10131,7 +10147,10 @@ function uploadRender() {
         const vor = g.vorschau
           ? '<img class="up-mini" src="' + g.vorschau + '" alt="" />'
           : '<div class="up-mini up-mini-pdf">PDF</div>';
-        return '<div class="up-datei" style="--ud:' + (0.04 + n * 0.07) + 's">' + vor
+        const dKey = typ + '|' + g.file.name + '|' + g.file.size + '|' + g.file.lastModified;
+        const dAlt = !!UPLOAD_D_GESEHEN[dKey];
+        UPLOAD_D_GESEHEN[dKey] = true;
+        return '<div class="up-datei' + (dAlt ? ' up-alt' : '') + '" style="--ud:' + (dAlt ? 0 : 0.04) + 's">' + vor
           + '<div class="up-datei-info">'
           + (bez ? '<div class="up-datei-b">' + bez + '</div>' : '')
           + '<div class="up-datei-n">' + escapeHtml(g.file.name) + '</div></div>'
@@ -10180,7 +10199,10 @@ function uploadRender() {
   const fertigS = !!(UPLOAD_INFO.vorhanden && UPLOAD_INFO.vorhanden.selfie) || !!UPLOAD_GEWAEHLT.selfie;
 
   function schritt(nr, titel, text, erledigt, verzoeg) {
-    return '<div class="up-schritt' + (erledigt ? ' up-s-fertig' : '') + '" style="--sd:' + verzoeg + 's">'
+    // v12.22: Haken nur animieren, wenn der Schritt GERADE erledigt wurde (nicht bei jedem Neuzeichnen)
+    const schonFertig = !!(erledigt && UPLOAD_S_FERTIG[nr]);
+    UPLOAD_S_FERTIG[nr] = !!erledigt;
+    return '<div class="up-schritt' + (erledigt ? ' up-s-fertig' : '') + (schonFertig ? ' up-s-alt' : '') + '" style="--sd:' + verzoeg + 's">'
       + '<div class="up-s-nr">' + (erledigt ? '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>' : nr) + '</div>'
       + '<div class="up-s-inhalt"><div class="up-s-t">' + titel + '</div><div class="up-s-d">' + text + '</div></div>'
       + '</div>';
@@ -10227,6 +10249,7 @@ function uploadRender() {
     ? '<div class="ref-box ref-box-up"><div class="ref-label">Best\u00e4tigungscode</div><div class="ref-code">' + escapeHtml(UPLOAD_INFO.ref_code) + '</div>'
       + '<div class="ref-hint">Gleiche diesen Code mit der Person ab, die dir den Link geschickt hat. Stimmt er nicht \u00fcberein, lade nichts hoch.</div></div>'
     : '';
+  body.classList.toggle('up-steht', !erst);      // v12.22: nach dem ersten Aufbau steht die Seite still
   body.innerHTML = erklaerung + refHtml + dsHtml + '<div class="kyc-grid up-grid' + (erst ? ' up-erst' : '') + '" style="margin-top:6px;">'
     + box('ausweis', 'Personalausweis', 'Bild oder PDF hierher ziehen \u2013 oder unten w\u00e4hlen', 'environment')
     + box('selfie', 'Best\u00e4tigungsfoto (Selfie)', 'Ein Foto von dir mit Bezug zum Ausweis', 'user')
@@ -10245,7 +10268,8 @@ const EINWILLIGUNG_VERSION = 'v2-2026-08';   // Fassung nach anwaltlicher Vorgab
 let EINWILLIGUNG_OK = false;
 
 function einwilligungHtml(firma) {
-  return '<div class="einw-box">'
+  const einwAlt = UPLOAD_EINW_GEZEIGT; UPLOAD_EINW_GEZEIGT = true;     // v12.22: nur beim ersten Erscheinen animieren
+  return '<div class="einw-box' + (einwAlt ? ' up-alt' : '') + '">'
     + '<label class="einw-zeile">'
     + '<input type="checkbox" id="einwCheck" onchange="einwilligungGeaendert()" />'
     + '<span class="einw-mark"></span>'
@@ -13232,7 +13256,7 @@ setTimeout(function(){ try { akteVorschauZeichnen(); } catch(e) {} }, 0);
 // Kleine Korrekturen ohne neue Funktionen: NEU_VERSION unveraendert lassen.
 // ============================================================
 const NEU_VERSION = 'v12.15';           // Stand der Neuigkeiten - nur erhoehen, wenn es wirklich Neues gibt
-const APP_VERSION = 'v12.21';           // aktuelle Version (Anzeige im Bericht und oben im Kopf)
+const APP_VERSION = 'v12.22';           // aktuelle Version (Anzeige im Bericht und oben im Kopf)
 const UPDATE_KURZ = 'Abgeschlossene Akten sind jetzt schreibgesch\u00fctzt \u2013 zum \u00c4ndern werden sie wieder ge\u00f6ffnet.';
 const NEUIGKEITEN = [
   { farbe: '#B45309', v: 'v12.15', ico: '<path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/>',
@@ -15321,7 +15345,10 @@ function kycRender() {
         const istPdf = (d.mime_type || '').indexOf('pdf') >= 0;
         const url = (KYC.urls[typ] || [])[n];
         const bez = escapeHtml(bezText(d.bezeichnung) || (typ === 'ausweis' ? (n === 0 ? 'Vorderseite' : (n === 1 ? 'R\u00fcckseite' : 'Seite ' + (n + 1))) : ''));
-        return '<div class="kyc-datei" style="--kd:' + (0.04 + n * 0.07) + 's">'
+        KYC.gesehen = KYC.gesehen || {};
+        const kAlt = !!(d.storage_path && KYC.gesehen[d.storage_path]);      // v12.22: schon gezeigt -> nicht erneut animieren
+        if (d.storage_path) KYC.gesehen[d.storage_path] = true;
+        return '<div class="kyc-datei' + (kAlt ? ' kyc-alt' : '') + '" style="--kd:' + (kAlt ? 0 : 0.04 + n * 0.07) + 's">'
           + ((!istPdf && url) ? '<img class="kyc-mini" src="' + url + '" alt="" onclick="kycAnsehenEin(\'' + typ + '\',' + n + ')" />'
                               : '<div class="kyc-mini kyc-mini-pdf" onclick="kycAnsehenEin(\'' + typ + '\',' + n + ')">PDF</div>')
           + '<div class="kyc-datei-info">'
