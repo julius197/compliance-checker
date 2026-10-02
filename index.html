@@ -3929,6 +3929,77 @@
     .up-steht .up-senden, .up-steht .up-an1, .up-steht .up-an2, .up-steht .up-an3 { animation:none !important; }
     .up-steht .ds-hinweis, .einw-box.up-alt { animation:none !important; }
     .up-s-alt .up-s-nr, .up-datei.up-alt, .kyc-datei.kyc-alt { animation:none !important; }
+
+    /* ===== v12.23 ===== */
+    /* A1: nichts abschneiden */
+    .nw-bild img { object-fit:contain !important; }
+    .kyc-mini, .up-mini { object-fit:contain !important; background:#EEF2F4; }
+    .dreh-90 { rotate:90deg; scale:.74; }
+    .dreh-180 { rotate:180deg; }
+    .dreh-270 { rotate:270deg; scale:.74; }
+    .kyc-mini, .nw-bild img { transition:rotate .3s cubic-bezier(.2,.8,.3,1), scale .3s ease, transform .3s; }
+    .dok-dreh { flex-shrink:0; width:28px; height:28px; display:inline-flex; align-items:center; justify-content:center; border-radius:8px; border:1px solid var(--border2,#E5E7EB);
+      background:#fff; color:var(--gray,#5A6670); cursor:pointer; transition:background-color .18s, color .18s, transform .3s; }
+    .dok-dreh:hover { background:#EEF4FF; color:#2E6FBF; }
+    .dok-dreh:active svg { transform:rotate(90deg); transition:transform .25s; }
+    .nw-kachel { position:relative; }
+    .dok-dreh-kachel { position:absolute; left:8px; top:8px; z-index:2; box-shadow:0 2px 8px rgba(0,0,0,.18); opacity:.92; }
+    @media print { .dok-dreh, .dok-viewer, .neu-status { display:none !important; } }
+    /* A1: Grossansicht */
+    .dok-viewer { position:fixed; inset:0; z-index:10050; display:flex; flex-direction:column; background:rgba(10,18,15,.88); backdrop-filter:blur(4px);
+      animation:dvIn .22s ease both; }
+    @keyframes dvIn { from { opacity:0; } to { opacity:1; } }
+    .dv-leiste { display:flex; align-items:center; gap:8px; padding:12px 16px; padding-top:calc(12px + env(safe-area-inset-top, 0px)); color:#fff; }
+    .dv-titel { flex:1; min-width:0; font-weight:700; font-size:14px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .dv-btn { display:inline-flex; align-items:center; gap:6px; padding:8px 12px; border-radius:9px; border:1px solid rgba(255,255,255,.22); background:rgba(255,255,255,.08);
+      color:#fff; font:600 13px/1 inherit; font-family:inherit; text-decoration:none; cursor:pointer; transition:background-color .18s; }
+    .dv-btn:hover { background:rgba(255,255,255,.18); }
+    .dv-zu { padding:8px 11px; }
+    .dv-buehne { flex:1; overflow:auto; display:flex; flex-direction:column; align-items:center; gap:22px; padding:8px 16px 16px; }
+    .dv-seite { position:relative; flex:none; }
+    .dv-seite img { position:absolute; left:50%; top:50%; transform-origin:center center; background:#fff; box-shadow:0 10px 40px -10px rgba(0,0,0,.6); border-radius:4px;
+      transition:transform .3s cubic-bezier(.2,.8,.3,1); }
+    .dv-nr { position:absolute; left:50%; bottom:-19px; transform:translateX(-50%); color:rgba(255,255,255,.7); font-size:11.5px; white-space:nowrap; }
+    .dv-laedt { margin:auto; color:#fff; font-size:14px; display:flex; align-items:center; gap:10px; text-align:center; }
+    .dv-fuss { text-align:center; color:rgba(255,255,255,.6); font-size:11.5px; padding:8px 16px calc(10px + env(safe-area-inset-bottom, 0px)); }
+    @media (max-width:640px) { .dv-btn span { display:none; } }
+    /* A2: Ladezustand */
+    .neu-status { position:fixed; left:50%; top:calc(14px + env(safe-area-inset-top, 0px)); transform:translateX(-50%); z-index:10040; display:flex; align-items:center; gap:12px;
+      max-width:min(560px, calc(100vw - 24px)); padding:12px 16px; border-radius:14px; background:#fff; border:1px solid var(--border2,#E5E7EB);
+      box-shadow:0 18px 50px -14px rgba(15,23,42,.35); animation:neuIn .3s cubic-bezier(.2,.8,.3,1) both; }
+    .neu-status.weg { animation:neuWeg .3s ease forwards; }
+    @keyframes neuIn { from { opacity:0; transform:translate(-50%, -12px); } to { opacity:1; transform:translate(-50%, 0); } }
+    @keyframes neuWeg { to { opacity:0; transform:translate(-50%, -12px); } }
+    .neu-txt { display:flex; flex-direction:column; gap:2px; min-width:0; }
+    .neu-txt b { font-size:14px; color:var(--ink,#1F2937); }
+    .neu-txt small { font-size:12px; color:var(--gray,#5A6670); line-height:1.4; }
+    .neu-spin { flex:none; width:22px; height:22px; border-radius:50%; border:2.5px solid rgba(46,111,191,.2); border-top-color:#2E6FBF; animation:neuDreh .8s linear infinite; }
+    @keyframes neuDreh { to { transform:rotate(360deg); } }
+    .neu-ico { flex:none; width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:800; font-size:13px; background:#16A34A; }
+    .neu-status.fehler { border-color:rgba(185,28,28,.35); background:#FEF3F2; }
+    .neu-status.fehler .neu-ico { background:#B91C1C; }
+    .neu-x { margin-left:4px; border:none; background:none; font-size:15px; color:var(--gray,#5A6670); cursor:pointer; padding:4px 6px; border-radius:6px; }
+    .neu-x:hover { background:rgba(0,0,0,.06); }
+    .nw-btn.laedt { opacity:.85; cursor:progress; }
+    .kyc-laedt { display:flex; align-items:center; gap:8px; margin-top:8px; padding:8px 10px; border-radius:9px; background:#EEF4FF; color:#1E4E8C; font-size:12.5px; font-weight:600; }
+    @media (prefers-reduced-motion: reduce) { .neu-status, .dok-viewer { animation:none !important; } .neu-spin { animation-duration:2s; } }
+    /* B1: Risk-Score oben in der Akte */
+    .akte-score { display:flex; align-items:center; gap:18px; width:100%; margin:0 0 14px; padding:16px 20px; border-radius:16px; border:1px solid var(--border2,#E5E7EB);
+      border-left:5px solid #16A34A; background:#fff; text-align:left; font-family:inherit; cursor:pointer; box-shadow:0 6px 22px -14px rgba(15,23,42,.25);
+      transition:transform .2s ease, box-shadow .2s ease; }
+    .akte-score:hover { transform:translateY(-2px); box-shadow:0 14px 30px -16px rgba(15,23,42,.35); }
+    .akte-score-warn { border-left-color:#D97706; } .akte-score-bad { border-left-color:#DC2626; }
+    .akte-score .gauge-wrap { position:relative; width:92px; height:92px; flex:none; margin:0; }
+    .akte-score .gauge-wrap svg { width:92px !important; height:92px !important; }
+    .akte-score .gauge-num { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+    .akte-score .gauge-num-val { font-size:28px; font-weight:800; line-height:1; }
+    .akte-score-max { font-size:10.5px; color:var(--gray-l,#9AA5AE); margin-top:2px; }
+    .akte-score-info { flex:1; min-width:0; display:flex; flex-direction:column; align-items:flex-start; gap:6px; }
+    .akte-score-t { font-size:10.5px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:var(--gray,#5A6670); }
+    .akte-score-meta { font-size:12px; color:var(--gray,#5A6670); line-height:1.5; }
+    .akte-score-pfeil { flex:none; font-size:12.5px; font-weight:700; color:#2E6FBF; white-space:nowrap; }
+    @media (max-width:640px) { .akte-score { gap:12px; padding:14px; } .akte-score-pfeil { display:none; } .akte-score .gauge-wrap, .akte-score .gauge-wrap svg { width:76px !important; height:76px !important; } .akte-score .gauge-num-val { font-size:23px; } }
+    @media print { .akte-score { box-shadow:none !important; } }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -6367,7 +6438,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span class="app-version" onclick="neuigkeitenZeigen()" title="Was ist neu?" style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v12.22</span>
+      <span class="app-version" onclick="neuigkeitenZeigen()" title="Was ist neu?" style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v12.23</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -8271,14 +8342,14 @@ async function analyseIdErmitteln(d) {
   return null;
 }
 
-async function neuBewerten() {
-  if (gesperrtMelden()) return;
+async function neuBewertenKern() {
+  if (gesperrtMelden()) return false;
   const n = Object.keys(ERGAENZUNGEN).length;
   const unlesbarVorher = (CURRENT_REPORT && CURRENT_REPORT._belegeUnlesbar) || {};
   // Dokumente, die nachweislich nicht lesbar sind (zu gross, Format), belegen keinen der drei Plaetze
   const belegeRoh = ((typeof KYC !== 'undefined' && KYC.doks && KYC.doks.beleg) ? KYC.doks.beleg : [])
     .filter(function(x){ return !unlesbarVorher[x.storage_path]; });
-  if ((!n && !belegeRoh.length) || !CURRENT_REPORT) return;
+  if ((!n && !belegeRoh.length) || !CURRENT_REPORT) return false;
   const btn = document.getElementById('neuBewertenBtn');
   if (btn) { btn.disabled = true; btn.classList.add('laedt'); btn.innerHTML = '<span class="bearb-spin"></span><span class="bearb-label">Wird neu bewertet\u2026</span>'; }
 
@@ -8358,13 +8429,13 @@ async function neuBewerten() {
         try { ladeHistorie(); } catch(e) {}
       } else {
         // Ehrlich bleiben: Bericht ist zu sehen, aber NICHT gesichert
-        alert('Der Bericht wurde neu bewertet und wird angezeigt \u2013 konnte aber NICHT gespeichert werden:\n\n'
+        NEU_FEHLER = ('Der Bericht wurde neu bewertet und wird angezeigt \u2013 konnte aber NICHT gespeichert werden:\n\n'
           + speicherFehler + '\n\nBitte drucke ihn jetzt, falls du ihn brauchst, und versuche die Neubewertung sp\u00e4ter erneut. '
           + 'Bleibt der Fehler, schreib an support@automatilabs.de.');
       }
     }, 80);
   } catch (e) {
-    alert('Neubewertung fehlgeschlagen: ' + ((e && e.message) || ''));
+    NEU_FEHLER = 'Die Neubewertung ist fehlgeschlagen: ' + ((e && e.message) || 'unbekannter Fehler') + '. Bitte erneut versuchen.';
     if (btn) { btn.disabled = false; btn.classList.remove('laedt'); btn.innerHTML = bearbIcoSvg() + '<span class="bearb-label">Neu bewerten \u00b7 ' + n + '</span>'; }
   }
 }
@@ -12609,6 +12680,7 @@ function ortWorte(t) {
   const fuell = { der: 1, die: 1, das: 1, dem: 1, den: 1, bei: 1, vor: 1, und: 1, auf: 1 };
   return String(t || '').toLowerCase()
     .replace(/\u00e4/g, 'ae').replace(/\u00f6/g, 'oe').replace(/\u00fc/g, 'ue').replace(/\u00df/g, 'ss')
+    .replace(/\u00f8/g, 'o').replace(/\u0142/g, 'l').normalize('NFKD').replace(/[\u0300-\u036f]/g, '')   // v12.23: Plzeň = Plzen
     .replace(/[0-9]+/g, ' ')
     .split(/[^a-z]+/).filter(function(w){ return w.length > 2 && !fuell[w]; });
 }
@@ -12861,6 +12933,14 @@ async function runAnalysis(name, ust, land, sitz, auswahl) {
     // Standort-Beweismittel: ALLE Google-Fotos (falls vorhanden) + Adresse für Street View
     // Bilder nur verwenden, wenn die Analyse den Google-Treffer ZWEIFELSFREI als die gesuchte Firma bestätigt hat.
     // Sonst (falscher/unsicherer Treffer) lieber KEINE Bilder als fremde/zufällige.
+    // v12.23: Google-Treffer nicht verwerfen, wenn sich der Name nur in Akzenten/Schreibweise unterscheidet
+    // und der Ort zum angegebenen Sitz passt
+    if ((report.googleTrefferKorrekt === false || report.googleTrefferKorrekt === 'false') && googleData && googleData.displayName
+        && namenGleich(googleData.displayName.text, name) && sitz && (sitz.ort || sitz.plz)
+        && ortPasst(googleOrt(googleData.formattedAddress), sitz)) {
+      report.googleTrefferKorrekt = true;
+      report._googleNameNormalisiert = true;
+    }
     const googleTrefferOk = report.googleTrefferKorrekt !== false && report.googleTrefferKorrekt !== 'false';
     report._evidence = {
       photoNames: (googleTrefferOk && googleData && Array.isArray(googleData.photos)) ? googleData.photos.map(p => p.name).filter(Boolean) : [],
@@ -13256,7 +13336,7 @@ setTimeout(function(){ try { akteVorschauZeichnen(); } catch(e) {} }, 0);
 // Kleine Korrekturen ohne neue Funktionen: NEU_VERSION unveraendert lassen.
 // ============================================================
 const NEU_VERSION = 'v12.15';           // Stand der Neuigkeiten - nur erhoehen, wenn es wirklich Neues gibt
-const APP_VERSION = 'v12.22';           // aktuelle Version (Anzeige im Bericht und oben im Kopf)
+const APP_VERSION = 'v12.23';           // aktuelle Version (Anzeige im Bericht und oben im Kopf)
 const UPDATE_KURZ = 'Abgeschlossene Akten sind jetzt schreibgesch\u00fctzt \u2013 zum \u00c4ndern werden sie wieder ge\u00f6ffnet.';
 const NEUIGKEITEN = [
   { farbe: '#B45309', v: 'v12.15', ico: '<path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/>',
@@ -13998,7 +14078,8 @@ function endverbleibZeichnen() {
         return '<div class="ev-dok">'
           + '<span class="nw-doc-ico pdf">' + ((x.mime_type || '').indexOf('pdf') >= 0 ? 'PDF' : 'IMG') + '</span>'
           + '<span class="ev-dok-txt"><b>' + escapeHtml(bezText(x.bezeichnung) || 'Unterschriebene Fassung') + '</b><small>' + escapeHtml(x.datei_name || '') + (x.created_at ? ' \u00b7 ' + new Date(x.created_at).toLocaleDateString('de-DE') : '') + '</small></span>'
-          + (url ? '<a class="nw-icobtn" href="' + url + '" target="_blank" title="\u00d6ffnen"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6M10 14 21 3"/></svg></a>' : '')
+          + (url ? '<button type="button" class="nw-icobtn" onclick="dokDrehenTyp(\'endverbleib\',' + n + ', event)" title="Drehen 90\u00b0 (nur Anzeige)" aria-label="Drehen 90 Grad">' + DREH_SVG + '</button>' : '')
+        + (url ? '<a class="nw-icobtn" href="' + url + '" target="_blank" title="Ansehen" onclick="return dokAnsehenTyp(\'endverbleib\',' + n + ', event)"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6M10 14 21 3"/></svg></a>' : '')
           + '<button class="nw-icobtn nw-weg" onclick="endverbleibLoeschen(' + n + ')" title="Entfernen"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>'
           + '</div>';
       }).join('') + '</div>' : '')
@@ -14544,7 +14625,8 @@ function nwZeichnen() {
     html += '<div class="nw-galerie">' + d.doks.map(function(x, n){
       const url = d.urls[n];
       return '<div class="nw-kachel" style="--nd:' + (0.03 + n * 0.05) + 's">'
-        + (url ? '<a class="nw-bild" href="' + url + '" target="_blank" title="In voller Gr\u00f6\u00dfe \u00f6ffnen"><img src="' + url + '" alt="' + escapeHtml(x.bezeichnung || 'Aufnahme') + '" loading="lazy" /></a>'
+        + (url ? '<a class="nw-bild" href="' + url + '" target="_blank" title="In voller Gr\u00f6\u00dfe ansehen" onclick="return dokAnsehenTyp(\'' + d.k.typ + '\',' + n + ', event)"><img class="' + drehKlasse(x.storage_path).trim() + '" data-dreh="' + escapeHtml(x.storage_path || '') + '" src="' + url + '" alt="' + escapeHtml(x.bezeichnung || 'Aufnahme') + '" loading="lazy" /></a>'
+               + '<button type="button" class="dok-dreh dok-dreh-kachel" onclick="dokDrehenTyp(\'' + d.k.typ + '\',' + n + ', event)" title="Drehen 90\u00b0 (nur Anzeige)" aria-label="Drehen 90 Grad">' + DREH_SVG + '</button>'
                : '<div class="nw-bild nw-bild-leer"></div>')
         + '<div class="nw-kachel-fuss">'
         + '<span class="nw-nr">' + (n + 1) + '</span>'
@@ -14568,7 +14650,8 @@ function nwZeichnen() {
         + (ausgew ? '<span class="nw-tag ok" title="Wurde bei der letzten Neubewertung ausgelesen"><svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Ausgewertet</span>'
                   : unlesbar ? '<span class="nw-tag nw-unl" title="Die KI konnte dieses Dokument nicht lesen - bitte kleiner bzw. als PDF oder JPG hochladen">Nicht lesbar \u00b7 ' + unlesbar + '</span>'
                   : '<span class="nw-tag neu" title="Noch nicht in eine Neubewertung eingeflossen">Neu</span>')
-        + (url ? '<a class="nw-icobtn" href="' + url + '" target="_blank" title="\u00d6ffnen"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6M10 14 21 3"/></svg></a>' : '')
+        + (url ? '<button type="button" class="nw-icobtn" onclick="dokDrehenTyp(\'' + d.k.typ + '\',' + n + ', event)" title="Drehen 90\u00b0 (nur Anzeige)" aria-label="Drehen 90 Grad">' + DREH_SVG + '</button>' : '')
+        + (url ? '<a class="nw-icobtn" href="' + url + '" target="_blank" title="Ansehen" onclick="return dokAnsehenTyp(\'' + d.k.typ + '\',' + n + ', event)"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6M10 14 21 3"/></svg></a>' : '')
         + (NW.modus ? '<button class="nw-icobtn nw-weg" onclick="nwLoeschen(\'beleg\',' + n + ')" title="Entfernen"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>' : '')
         + '</div>';
     }).join('') + '</div>';
@@ -14579,7 +14662,7 @@ function nwZeichnen() {
       html += '<div class="nw-cta">'
         + '<div class="nw-cta-txt"><b>' + neue + ' Dokument' + (neue === 1 ? '' : 'e') + ' noch nicht ausgewertet.</b> '
         + 'Bei der Neubewertung liest die Pr\u00fcfung die Unterlagen und \u00fcbernimmt Registernummer, Gesch\u00e4ftsf\u00fchrung und Co. in den Bericht.</div>'
-        + '<button class="nw-btn nw-btn-p" onclick="nwNeuBewerten()">' + bearbIcoSvg() + 'Mit Dokumenten neu bewerten</button>'
+        + (NEU_LAEUFT ? '<button class="nw-btn nw-btn-p laedt" id="nwNeuBtn" disabled><span class="bearb-spin"></span>Neue Bewertung l\u00e4uft \u2026</button>' : '<button class="nw-btn nw-btn-p" id="nwNeuBtn" onclick="nwNeuBewerten()">' + bearbIcoSvg() + 'Mit Dokumenten neu bewerten</button>')
         + '</div>';
     }
   }
@@ -14661,7 +14744,9 @@ async function dateiVorbereiten(file) {
   const typ = String(file.type || '').toLowerCase();
   const heic = istHeic(file);
   if (!heic && !/^image\/(jpeg|png|webp)$/.test(typ)) return file;        // PDFs & Co. unveraendert
-  if (!heic && file.size <= BILD_MAX_BYTES) return file;                   // kleine Bilder unveraendert
+  // v12.23: Fotos mit EXIF-Drehung immer neu zeichnen - sonst sieht die KI rohe, seitliche Pixel
+  const exifDreh = (!heic && typ === 'image/jpeg') ? await exifDrehungDatei(file) : 0;
+  if (!heic && !exifDreh && file.size <= BILD_MAX_BYTES) return file;      // kleine, gerade Bilder unveraendert
   try {
     const url = URL.createObjectURL(file);
     const img = await new Promise(function(ok, fehl){ const i = new Image(); i.onload = function(){ ok(i); }; i.onerror = fehl; i.src = url; });
@@ -15338,7 +15423,15 @@ async function kycLaden() {
 function kycRender() {
   const mount = document.getElementById('kycMount');
   if (!mount) return;
+  // v12.23: laufender Upload wird in der jeweiligen Box angezeigt
   function box(typ, titel, hinweis) {
+    const h = box0(typ, titel, hinweis);
+    const u = KYC.hochladen;
+    if (!u || u.typ !== typ) return h;
+    return h.replace(/<\/div>\s*$/, '<div class="kyc-laedt"><span class="ev-eigen-spin"></span> Wird hochgeladen \u2026 '
+      + Math.min(u.fertig + 1, u.gesamt) + ' von ' + u.gesamt + '</div></div>');
+  }
+  function box0(typ, titel, hinweis) {
     const liste = KYC.doks[typ] || [];
     if (liste.length) {
       const teile = liste.map(function(d, n){
@@ -15349,12 +15442,13 @@ function kycRender() {
         const kAlt = !!(d.storage_path && KYC.gesehen[d.storage_path]);      // v12.22: schon gezeigt -> nicht erneut animieren
         if (d.storage_path) KYC.gesehen[d.storage_path] = true;
         return '<div class="kyc-datei' + (kAlt ? ' kyc-alt' : '') + '" style="--kd:' + (kAlt ? 0 : 0.04 + n * 0.07) + 's">'
-          + ((!istPdf && url) ? '<img class="kyc-mini" src="' + url + '" alt="" onclick="kycAnsehenEin(\'' + typ + '\',' + n + ')" />'
+          + ((!istPdf && url) ? '<img class="kyc-mini' + drehKlasse(d.storage_path) + '" data-dreh="' + escapeHtml(d.storage_path || '') + '" src="' + url + '" alt="" onclick="kycAnsehenEin(\'' + typ + '\',' + n + ')" />'
                               : '<div class="kyc-mini kyc-mini-pdf" onclick="kycAnsehenEin(\'' + typ + '\',' + n + ')">PDF</div>')
           + '<div class="kyc-datei-info">'
           + (bez ? '<div class="kyc-datei-b">' + bez + '</div>' : '')
           + '<div class="kyc-datei-n">' + escapeHtml(d.datei_name || 'Dokument') + '</div>'
           + '</div>'
+          + '<button type="button" class="dok-dreh" onclick="dokDrehenTyp(\'' + typ + '\',' + n + ', event)" title="Drehen 90\u00b0 (nur Anzeige)" aria-label="Drehen 90 Grad">' + DREH_SVG + '</button>'
           + '<button class="kyc-datei-x" onclick="kycLoeschenEin(\'' + typ + '\',' + n + ')" title="Entfernen">'
           + '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>'
           + '</div>';
@@ -15728,18 +15822,257 @@ async function kycUpload(typ, file) {
 
 function kycAnsehen(typ) { kycAnsehenEin(typ, 0); }
 
-function kycAnsehenEin(typ, n) {
-  const u = (KYC.urls[typ] || [])[n];
-  if (u) window.open(u, '_blank');
+// ============================================================
+// v12.23 - DOKUMENTE VOLLSTAENDIG ANZEIGEN, DREHEN, GROSSANSICHT
+// Ursache (A1): Kacheln (fester 4:3-Rahmen) und Mini-Vorschauen nutzten object-fit:cover -
+// alles ausserhalb des Rahmens wurde abgeschnitten. Eine Grossansicht gab es nicht.
+// Jetzt: contain (nichts abgeschnitten), Grossansicht mit allen PDF-Seiten, "Drehen 90°".
+// Drehen aendert NUR die Anzeige (gespeichert in diesem Browser) - die Datei bleibt unveraendert.
+// ============================================================
+const DREH_KEY = 'cc_dok_drehung';
+const DREH_SVG = '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 3v6h-6"/></svg>';
+function drehungVon(pfad) {
+  if (!pfad) return 0;
+  try { const m = JSON.parse(localStorage.getItem(DREH_KEY) || '{}'); return [90, 180, 270].indexOf(m[pfad]) >= 0 ? m[pfad] : 0; } catch (e) { return 0; }
 }
+function drehungSetzen(pfad, grad) {
+  try { const m = JSON.parse(localStorage.getItem(DREH_KEY) || '{}'); if (grad) m[pfad] = grad; else delete m[pfad]; localStorage.setItem(DREH_KEY, JSON.stringify(m)); } catch (e) {}
+}
+function drehKlasse(pfad) { const g = drehungVon(pfad); return g ? ' dreh-' + g : ''; }
+function dokDrehen(pfad) {
+  if (!pfad) return;
+  const g = (drehungVon(pfad) + 90) % 360;
+  drehungSetzen(pfad, g);
+  document.querySelectorAll('[data-dreh]').forEach(function(el){
+    if (el.getAttribute('data-dreh') !== pfad) return;
+    el.classList.remove('dreh-90', 'dreh-180', 'dreh-270');
+    if (g) el.classList.add('dreh-' + g);
+  });
+  if (DOK_VIEWER && DOK_VIEWER.pfad === pfad) dokViewerLayout();
+}
+function dokDrehenTyp(typ, n, ev) {
+  if (ev) { ev.preventDefault(); ev.stopPropagation(); }
+  const d = (typeof KYC !== 'undefined' && KYC.doks && KYC.doks[typ] || [])[n];
+  if (d && d.storage_path) dokDrehen(d.storage_path);
+  return false;
+}
+let DOK_VIEWER = null;
+function dokAnsehenTyp(typ, n, ev) {
+  if (ev) { ev.preventDefault(); ev.stopPropagation(); }
+  const d = (KYC.doks[typ] || [])[n], url = (KYC.urls[typ] || [])[n];
+  if (d && url) dokAnsehen(url, d.mime_type || '', d.storage_path || '', bezText(d.bezeichnung) || d.datei_name || 'Dokument');
+  return false;
+}
+async function dokAnsehen(url, mime, pfad, titel) {
+  dokViewerZu();
+  const ov = document.createElement('div');
+  ov.className = 'dok-viewer'; ov.id = 'dokViewer';
+  ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-modal', 'true'); ov.setAttribute('aria-label', 'Dokument ansehen');
+  ov.innerHTML = '<div class="dv-leiste"><div class="dv-titel">' + escapeHtml(titel) + '</div>'
+    + '<button type="button" class="dv-btn" onclick="dokDrehen(DOK_VIEWER && DOK_VIEWER.pfad)">' + DREH_SVG + '<span>Drehen 90\u00b0</span></button>'
+    + '<a class="dv-btn" href="' + escapeHtml(url) + '" target="_blank" rel="noopener">Original \u00f6ffnen \u2197</a>'
+    + '<button type="button" class="dv-btn dv-zu" onclick="dokViewerZu()" aria-label="Schlie\u00dfen">\u2715</button></div>'
+    + '<div class="dv-buehne" id="dvBuehne"><div class="dv-laedt"><span class="neu-spin"></span> Wird geladen \u2026</div></div>'
+    + '<div class="dv-fuss">\u201eDrehen\u201c \u00e4ndert nur die Anzeige \u2013 die Originaldatei bleibt unver\u00e4ndert.</div>';
+  ov.addEventListener('click', function(e){ if (e.target === ov) dokViewerZu(); });
+  document.body.appendChild(ov);
+  DOK_VIEWER = { pfad: pfad };
+  document.addEventListener('keydown', dokViewerTaste);
+  window.addEventListener('resize', dokViewerLayout);
+  let bilder = [];
+  if (String(mime).indexOf('pdf') >= 0) {
+    bilder = (KYC.pdfSeiten && KYC.pdfSeiten[pfad]) || [];
+    if (!bilder.length) { try { bilder = await pdfSeitenAlsBilder(url, 30); } catch (e) { bilder = []; } }
+  } else {
+    bilder = [url];
+  }
+  const b = document.getElementById('dvBuehne');
+  if (!b || !DOK_VIEWER || DOK_VIEWER.pfad !== pfad) return;
+  if (!bilder.length) { b.innerHTML = '<div class="dv-laedt">Die Datei kann hier nicht angezeigt werden \u2013 bitte \u201eOriginal \u00f6ffnen\u201c.</div>'; return; }
+  b.innerHTML = bilder.map(function(src, i){
+    return '<div class="dv-seite"><img src="' + escapeHtml(src) + '" alt="Seite ' + (i + 1) + '" onload="dokViewerLayout()" />'
+      + (bilder.length > 1 ? '<span class="dv-nr">Seite ' + (i + 1) + ' von ' + bilder.length + '</span>' : '') + '</div>';
+  }).join('');
+  dokViewerLayout();
+}
+// Seiten so einpassen, dass sie auch gedreht vollstaendig sichtbar sind
+function dokViewerLayout() {
+  const b = document.getElementById('dvBuehne');
+  if (!b || !DOK_VIEWER) return;
+  const grad = drehungVon(DOK_VIEWER.pfad);
+  const breit = Math.max(160, b.clientWidth - 32), hoch = Math.max(160, window.innerHeight - 190);
+  b.querySelectorAll('.dv-seite').forEach(function(seite){
+    const img = seite.querySelector('img');
+    if (!img || !img.naturalWidth) return;
+    const w = img.naturalWidth, h = img.naturalHeight, quer = grad % 180 !== 0;
+    const rw = quer ? h : w, rh = quer ? w : h;
+    const f = Math.min(breit / rw, hoch / rh, 2);
+    img.style.width = Math.round(w * f) + 'px'; img.style.height = Math.round(h * f) + 'px';
+    img.style.transform = 'translate(-50%, -50%) rotate(' + grad + 'deg)';
+    seite.style.width = Math.round(rw * f) + 'px'; seite.style.height = Math.round(rh * f) + 'px';
+  });
+}
+function dokViewerTaste(e) { if (e.key === 'Escape') dokViewerZu(); }
+function dokViewerZu() {
+  const v = document.getElementById('dokViewer');
+  if (v) v.remove();
+  DOK_VIEWER = null;
+  document.removeEventListener('keydown', dokViewerTaste);
+  window.removeEventListener('resize', dokViewerLayout);
+}
+// EXIF-Drehung einer Bilddatei (0/90/180/270) - liest nur den Dateianfang
+async function exifDrehungDatei(file) {
+  try { return exifDrehungPuffer(await file.slice(0, 262144).arrayBuffer()); } catch (e) { return 0; }
+}
+function exifDrehungPuffer(buf) {
+  try {
+    const v = new DataView(buf instanceof ArrayBuffer ? buf : buf.buffer);
+    if (v.getUint16(0) !== 0xFFD8) return 0;
+    let o = 2;
+    while (o + 4 < v.byteLength && o < 262144) {
+      const marker = v.getUint16(o), laenge = v.getUint16(o + 2);
+      if (marker === 0xFFE1 && v.getUint32(o + 4) === 0x45786966) {          // "Exif"
+        const t = o + 10, le = v.getUint16(t) === 0x4949;
+        const ifd = t + v.getUint32(t + 4, le), n = v.getUint16(ifd, le);
+        for (let i = 0; i < n; i++) {
+          const e = ifd + 2 + i * 12;
+          if (v.getUint16(e, le) === 0x0112) {
+            const w = v.getUint16(e + 8, le);
+            return w === 3 ? 180 : w === 6 ? 90 : w === 8 ? 270 : 0;
+          }
+        }
+        return 0;
+      }
+      if ((marker & 0xFF00) !== 0xFF00) return 0;
+      o += 2 + laenge;
+    }
+  } catch (e) {}
+  return 0;
+}
+
+// ============================================================
+// v12.23 - LADEZUSTAND DER NEUBEWERTUNG (A2)
+// Ursache: Der Ladezustand hing nur am Knopf der Bearbeiten-Leiste. Ueber
+// "Mit Dokumenten neu bewerten" gab es diesen Knopf nicht - sichtbar passierte nichts,
+// Doppelklicks waren moeglich, Fehler kamen als nacktes alert().
+// ============================================================
+let NEU_LAEUFT = false, NEU_FEHLER = '', NEU_UHR = null;
+function neuStatus(art, text) {
+  let el = document.getElementById('neuStatus');
+  clearInterval(NEU_UHR); NEU_UHR = null;
+  if (!art) {
+    if (el) { el.classList.add('weg'); setTimeout(function(){ const x = document.getElementById('neuStatus'); if (x && x.classList.contains('weg')) x.remove(); }, 320); }
+    return;
+  }
+  if (!el) {
+    el = document.createElement('div'); el.id = 'neuStatus';
+    el.setAttribute('role', 'status'); el.setAttribute('aria-live', 'polite');
+    document.body.appendChild(el);
+  }
+  el.className = 'neu-status ' + art;
+  if (art === 'laeuft') {
+    const start = Date.now();
+    const zeichne = function(){
+      const sek = Math.round((Date.now() - start) / 1000);
+      el.innerHTML = '<span class="neu-spin"></span><div class="neu-txt"><b>Neue Bewertung l\u00e4uft \u2026</b>'
+        + '<small>Dokumente und Erg\u00e4nzungen werden gegen unabh\u00e4ngige Quellen gepr\u00fcft \u00b7 meist 1\u20133 Minuten \u00b7 '
+        + Math.floor(sek / 60) + ':' + String(sek % 60).padStart(2, '0') + '</small></div>';
+    };
+    zeichne(); NEU_UHR = setInterval(zeichne, 1000);
+  } else {
+    el.innerHTML = '<span class="neu-ico">' + (art === 'fehler' ? '!' : '\u2713') + '</span><div class="neu-txt"><b>'
+      + (art === 'fehler' ? 'Neubewertung nicht abgeschlossen' : 'Neue Bewertung abgeschlossen') + '</b><small>' + escapeHtml(text || '') + '</small></div>'
+      + '<button type="button" class="neu-x" onclick="neuStatus(null)" aria-label="Schlie\u00dfen">\u2715</button>';
+    if (art === 'fertig') setTimeout(function(){ const x = document.getElementById('neuStatus'); if (x && x.classList.contains('fertig')) neuStatus(null); }, 6000);
+  }
+}
+async function neuBewerten() {
+  if (NEU_LAEUFT) { try { zeigeToast('Neubewertung l\u00e4uft bereits', 'Bitte warten, bis die laufende Bewertung fertig ist.'); } catch (e) {} return; }
+  if (gesperrtMelden()) return;
+  const vorher = CURRENT_REPORT && typeof CURRENT_REPORT.gesamtScore === 'number' ? CURRENT_REPORT.gesamtScore : null;
+  NEU_LAEUFT = true; NEU_FEHLER = '';
+  neuStatus('laeuft');
+  try { nwZeichnen(); } catch (e) {}
+  let gestartet = true;
+  try { gestartet = (await neuBewertenKern()) !== false; }
+  catch (e) { NEU_FEHLER = 'Die Neubewertung ist fehlgeschlagen: ' + ((e && e.message) || 'unbekannter Fehler') + '. Bitte erneut versuchen.'; }
+  NEU_LAEUFT = false;
+  try { nwZeichnen(); } catch (e) {}
+  if (NEU_FEHLER) neuStatus('fehler', NEU_FEHLER);
+  else if (!gestartet) neuStatus(null);
+  else neuStatus('fertig', 'Score ' + (vorher != null ? vorher + ' \u2192 ' : '') + (CURRENT_REPORT && CURRENT_REPORT.gesamtScore != null ? CURRENT_REPORT.gesamtScore : '\u2013') + ' \u00b7 Das Ergebnis wird angezeigt.');
+}
+
+// ============================================================
+// v12.23 - RISK-SCORE AUF DER ERSTEN SEITE DER AKTE (B1)
+// Gleiche Werte und Farben wie in der Analyse: gesamtScore, gauge(), scC(), verdict - keine zweite Berechnung.
+// ============================================================
+function akteScoreHTML(d) {
+  const sc = (typeof d.gesamtScore === 'number') ? d.gesamtScore : null;
+  const v = /^(ok|warn|bad)$/.test(d.verdict) ? d.verdict : 'warn';
+  const ico = v === 'ok' ? '\u2713' : v === 'bad' ? '\u2715' : '\u26A0';
+  const roh = d._bewertetAm || d._createdAt || null;
+  const datum = roh ? new Date(roh).toLocaleString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) + ' Uhr' : escapeHtml(d.datum || '');
+  return '<button type="button" class="akte-score akte-score-' + v + '" onclick="akteAnsicht(\'analyse\')" title="Zur vollst\u00e4ndigen Analyse">'
+    + '<div class="gauge-wrap akte-gauge">' + gauge(sc) + '<div class="gauge-num"><span class="gauge-num-val" style="color:' + (sc != null ? scC(sc) : 'var(--gray-l)') + '">' + (sc != null ? sc : 'N/A') + '</span><span class="akte-score-max">/ 100</span></div></div>'
+    + '<div class="akte-score-info"><div class="akte-score-t">Risk-Score</div>'
+    + '<span class="verdict ' + v + '">' + ico + ' ' + escapeHtml(d.verdictText || '') + '</span>'
+    + '<div class="akte-score-meta">Letzte Bewertung: ' + datum + (d._fassung > 1 ? ' \u00b7 Fassung ' + d._fassung : '') + '<br>Pr\u00fcf-ID ' + escapeHtml(d.pruefId || '\u2013') + '</div></div>'
+    + '<span class="akte-score-pfeil">Zur Analyse \u2192</span></button>';
+}
+
+// ============================================================
+// v12.23 - NAMEN OHNE AKZENT-ABZUG (B2) - gleiche Normalisierung wie im Worker
+// ============================================================
+const RECHTSFORM_TOKEN = { sro:1, spzoo:1, gmbh:1, mbh:1, ag:1, kg:1, ohg:1, ug:1, gbr:1, ek:1, se:1, as:1, sa:1, sarl:1, srl:1, spa:1,
+  bv:1, nv:1, ltd:1, limited:1, llc:1, inc:1, corp:1, plc:1, oy:1, ab:1, aps:1, kft:1, doo:1, sl:1, eood:1, ood:1, ou:1, uab:1, sia:1, co:1, kgaa:1, haftungsbeschrankt:1 };
+function nameNormalisiert(s, umlautAe) {
+  let t = String(s == null ? '' : s);
+  if (umlautAe) t = t.replace(/[Ää]/g, 'ae').replace(/[Öö]/g, 'oe').replace(/[Üü]/g, 'ue');
+  t = t.replace(/ß/g, 'ss').replace(/[Øø]/g, 'o').replace(/[Ææ]/g, 'ae').replace(/[Œœ]/g, 'oe')
+       .replace(/[Łł]/g, 'l').replace(/[Đđ]/g, 'd').replace(/[Þþ]/g, 'th').replace(/ı/g, 'i');
+  t = t.normalize('NFKD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  // Rechtsformen vereinheitlichen, bevor Satzzeichen wegfallen
+  t = t.replace(/\bspol(ecnost)?\.?\s*s\s*\.?\s*r\.?\s*o\.?(?![a-z])/g, ' sro ')
+       .replace(/\bs\.\s*r\.\s*o\.?(?![a-z])/g, ' sro ')
+       .replace(/\bsp\.?\s*z\s*\.?\s*o\.?\s*o\.?(?![a-z])/g, ' spzoo ')
+       .replace(/\bspolka z ograniczona odpowiedzialnoscia\b/g, ' spzoo ')
+       .replace(/\bgesellschaft mit beschrankter haftung\b/g, ' gmbh ')
+       .replace(/\ba\.\s*s\.(?![a-z])/g, ' as ')
+       .replace(/\bd\.\s*o\.\s*o\.?(?![a-z])/g, ' doo ');
+  return t.replace(/[^a-z0-9]+/g, ' ').replace(/\s+/g, ' ').trim();
+}
+function nameOhneRechtsform(n) {
+  return n.split(' ').filter(function(w){ return w && !RECHTSFORM_TOKEN[w]; }).join(' ');
+}
+function hatRechtsform(n) { return n.split(' ').some(function(w){ return RECHTSFORM_TOKEN[w]; }); }
+function namenGleich(a, b) {
+  if (!a || !b) return false;
+  for (const ae of [false, true]) {
+    const x = nameNormalisiert(a, ae), y = nameNormalisiert(b, ae);
+    if (!x || !y) continue;
+    if (x === y) return true;
+    const kx = nameOhneRechtsform(x), ky = nameOhneRechtsform(y);
+    // Kern gleich und hoechstens eine Seite nennt eine Rechtsform -> gleich ("Pavel Cerny" ~ "Pavel Černý s.r.o.")
+    if (kx && kx === ky && (!hatRechtsform(x) || !hatRechtsform(y))) return true;
+  }
+  return false;
+}
+
+function kycAnsehenEin(typ, n) { return dokAnsehenTyp(typ, n); }   // v12.23: Grossansicht statt Rohdatei im neuen Tab
 
 // Mehrere Dateien nacheinander hochladen
 async function kycDateienWaehlen(typ, files) {
   if (gesperrtMelden()) return;
   if (!files || !files.length) return;
-  for (let i = 0; i < files.length; i++) {
-    await kycUpload(typ, files[i]);
-  }
+  KYC.hochladen = { typ: typ, gesamt: files.length, fertig: 0 };       // v12.23: sichtbarer Ladezustand
+  kycRender();
+  try {
+    for (let i = 0; i < files.length; i++) {
+      await kycUpload(typ, files[i]);
+      if (KYC.hochladen) { KYC.hochladen.fertig = i + 1; kycRender(); }
+    }
+  } finally { KYC.hochladen = null; kycRender(); }
 }
 
 async function kycLoeschen(typ) { return kycLoeschenEin(typ, 0); }
@@ -15921,7 +16254,7 @@ function showReport(d, rawName, fromHistory, nichtSpeichern) {
       <span class="verdict ${/^(ok|warn|bad)$/.test(d.verdict) ? d.verdict : 'warn'}">${vIcon2} ${escapeHtml(d.verdictText)}</span>
     </div>
     ${akteStepperHTML()}
-    <div class="akte-panel" data-panel="akte" id="panelAkte">${akteStammHTML(d)}<div id="monBereich" class="mon-bereich"></div></div>
+    <div class="akte-panel" data-panel="akte" id="panelAkte">${akteScoreHTML(d)}${akteStammHTML(d)}<div id="monBereich" class="mon-bereich"></div></div>
     <div class="akte-panel" data-panel="analyse" id="panelAnalyse">
     <div class="akte-lock"></div>
     <div id="dokHinweis" class="dok-hinweis"></div>
