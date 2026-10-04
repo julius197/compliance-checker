@@ -4000,6 +4000,16 @@
     .akte-score-pfeil { flex:none; font-size:12.5px; font-weight:700; color:#2E6FBF; white-space:nowrap; }
     @media (max-width:640px) { .akte-score { gap:12px; padding:14px; } .akte-score-pfeil { display:none; } .akte-score .gauge-wrap, .akte-score .gauge-wrap svg { width:76px !important; height:76px !important; } .akte-score .gauge-num-val { font-size:23px; } }
     @media print { .akte-score { box-shadow:none !important; } }
+
+    /* v12.24 Produktvideo */
+    .lp-video-sec { padding-top:8px !important; padding-bottom:28px !important; }
+    .lp-video-rahmen { max-width:1040px; margin:0 auto; aspect-ratio:16 / 9; border-radius:20px; overflow:hidden; background:#F3F6F4;
+      border:1px solid rgba(15,23,42,.08); box-shadow:0 30px 70px -36px rgba(15,23,42,.45), 0 10px 26px -18px rgba(22,163,74,.35); isolation:isolate; }
+    .lp-video { display:block; width:100%; height:100%; object-fit:cover; border-radius:inherit; background:transparent; }
+    @media (max-width:760px) {
+      .lp-video-sec { padding:4px 16px 18px !important; }
+      .lp-video-rahmen { border-radius:14px; box-shadow:0 18px 40px -26px rgba(15,23,42,.45); }
+    }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -4131,6 +4141,17 @@
           <div class="lp-stat"><b>4</b><span>Sanktionslisten</span></div>
           <div class="lp-stat"><b>PDF</b><span>Nachweis je Prüfung</span></div>
         </div>
+      </div>
+    </section>
+
+    <!-- v12.24: Produktvideo (ohne Ton) zwischen Kopfbereich und Demo -->
+    <section class="lp-sec lp-reveal lp-video-sec" id="lpVideo" aria-label="Video: So funktioniert der Compliance-Checker">
+      <div class="lp-video-rahmen">
+        <video class="lp-video" id="lpVideoEl" muted loop playsinline preload="none" disablepictureinpicture
+               poster="compliance-checker-video.jpg" aria-label="Produktvideo Automati Compliance-Checker (ohne Ton)">
+          <source src="compliance-checker-video.mp4" type="video/mp4" />
+          <source src="compliance-checker-video.webm" type="video/webm" />   <!-- Ausweichfassung fuer Browser ohne H.264 -->
+        </video>
       </div>
     </section>
 
@@ -6438,7 +6459,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span class="app-version" onclick="neuigkeitenZeigen()" title="Was ist neu?" style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v12.23</span>
+      <span class="app-version" onclick="neuigkeitenZeigen()" title="Was ist neu?" style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v12.24</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -10659,8 +10680,28 @@ function lpScrollRechnen() {
   }
 }
 
+// v12.24: Produktvideo - spielt nur, solange es sichtbar ist (spart Daten und Akku), immer ohne Ton
+let LP_VIDEO_AN = false;
+function lpVideoInit() {
+  const v = document.getElementById('lpVideoEl');
+  if (!v || LP_VIDEO_AN) return;
+  LP_VIDEO_AN = true;
+  v.muted = true; v.defaultMuted = true;
+  const ruhig = bewegungReduziert();
+  if (ruhig) { v.setAttribute('controls', ''); v.preload = 'metadata'; return; }   // Bewegung reduzieren: nur auf Klick
+  const spielen = function(){
+    const p = v.play();
+    if (p && p.catch) p.catch(function(){ v.setAttribute('controls', ''); });      // z. B. Stromsparmodus: Knopf statt Autoplay
+  };
+  if (!('IntersectionObserver' in window)) { v.preload = 'auto'; spielen(); return; }
+  // frueh vorladen (kurz bevor es ins Bild kommt), abspielen nur sichtbar
+  new IntersectionObserver(function(e, o){ if (e[0].isIntersecting) { v.preload = 'auto'; o.disconnect(); } }, { rootMargin: '600px 0px' }).observe(v);
+  new IntersectionObserver(function(e){ if (e[0].isIntersecting) spielen(); else v.pause(); }, { threshold: 0.35 }).observe(v);
+}
+
 function showLanding() {
   setTimeout(function(){ try { lpScrollInit(); } catch (e) {} }, 0);
+  setTimeout(function(){ try { lpVideoInit(); } catch (e) {} }, 0);
   if (PW_ANSICHT_OFFEN) return;   // Passwort wird gerade neu gesetzt
   hideBoot();
   const lg = document.getElementById('landingGate');
@@ -13336,7 +13377,7 @@ setTimeout(function(){ try { akteVorschauZeichnen(); } catch(e) {} }, 0);
 // Kleine Korrekturen ohne neue Funktionen: NEU_VERSION unveraendert lassen.
 // ============================================================
 const NEU_VERSION = 'v12.15';           // Stand der Neuigkeiten - nur erhoehen, wenn es wirklich Neues gibt
-const APP_VERSION = 'v12.23';           // aktuelle Version (Anzeige im Bericht und oben im Kopf)
+const APP_VERSION = 'v12.24';           // aktuelle Version (Anzeige im Bericht und oben im Kopf)
 const UPDATE_KURZ = 'Abgeschlossene Akten sind jetzt schreibgesch\u00fctzt \u2013 zum \u00c4ndern werden sie wieder ge\u00f6ffnet.';
 const NEUIGKEITEN = [
   { farbe: '#B45309', v: 'v12.15', ico: '<path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/>',
