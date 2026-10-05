@@ -4012,6 +4012,17 @@
       .lp-video-kopf { margin-bottom:20px; }
       .lp-video-rahmen { border-radius:14px; box-shadow:0 18px 40px -26px rgba(15,23,42,.45); }
     }
+
+    /* v12.26 */
+    .pflicht-fehler { border-color:#DC2626 !important; box-shadow:0 0 0 3px rgba(220,38,38,.14) !important; animation:pflichtWackeln .35s ease; }
+    @keyframes pflichtWackeln { 20%,60% { transform:translateX(-4px); } 40%,80% { transform:translateX(4px); } }
+    .pflicht-hinweis { margin-top:6px; font-size:12.5px; font-weight:600; color:#B91C1C; animation:nwIn .25s ease both; }
+    @media (max-width:640px) {      /* groessere Tippflaechen auf dem Handy */
+      .hist-nav-btn { min-height:36px; }
+      .mehr-analysen-btn { min-height:32px; }
+      .lang-btn { min-height:36px; padding-top:8px !important; padding-bottom:8px !important; }
+    }
+    @media (prefers-reduced-motion: reduce) { .pflicht-fehler { animation:none; } }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -6319,15 +6330,19 @@
   </div>
 </div>
 <div id="legalImpressumHtml" style="display:none;"><h3>Impressum</h3>
-<h3>Angaben gemäß § 5 TMG</h3>
+<h3>Angaben gemäß § 5 DDG</h3>
 <p>Automati Labs GmbH<br>vertreten durch den Geschäftsführer Maik Sperlich<br>Volbehrstraße 11d<br>90491 Nürnberg<br>Deutschland</p>
 <h3>Kontakt</h3>
 <p>Telefon: +49 151 74419096<br>E-Mail: info@automatilabs.de</p>
+<h3>Registereintrag</h3>
+<p>Eintragung im Handelsregister<br>Registergericht: Amtsgericht Nürnberg<br>Registernummer: HRB 46292</p>
+<h3>Umsatzsteuer-ID</h3>
+<p>Umsatzsteuer-Identifikationsnummer gemäß § 27 a Umsatzsteuergesetz:<br>DE463922741</p>
 <h3>Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV</h3>
 <p>Maik Sperlich<br>Volbehrstraße 11d<br>90491 Nürnberg</p>
 <h3>Haftungsausschluss</h3>
 <h3>Haftung für Inhalte</h3>
-<p>Die Inhalte unserer Seiten wurden mit größter Sorgfalt erstellt. Für die Richtigkeit, Vollständigkeit und Aktualität der Inhalte können wir jedoch keine Gewähr übernehmen. Als Diensteanbieter sind wir gemäß § 7 Abs. 1 TMG für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich. Nach §§ 8 bis 10 TMG sind wir als Diensteanbieter jedoch nicht verpflichtet, übermittelte oder gespeicherte fremde Informationen zu überwachen oder nach Umständen zu forschen, die auf eine rechtswidrige Tätigkeit hinweisen.</p>
+<p>Die Inhalte unserer Seiten wurden mit größter Sorgfalt erstellt. Für die Richtigkeit, Vollständigkeit und Aktualität der Inhalte können wir jedoch keine Gewähr übernehmen. Als Diensteanbieter sind wir gemäß § 7 Abs. 1 DDG für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich. Nach §§ 8 bis 10 DDG sind wir als Diensteanbieter jedoch nicht verpflichtet, übermittelte oder gespeicherte fremde Informationen zu überwachen oder nach Umständen zu forschen, die auf eine rechtswidrige Tätigkeit hinweisen.</p>
 <h3>Haftung für Links</h3>
 <p>Unser Angebot enthält Links zu externen Webseiten Dritter, auf deren Inhalte wir keinen Einfluss haben. Deshalb können wir für diese fremden Inhalte auch keine Gewähr übernehmen. Für die Inhalte der verlinkten Seiten ist stets der jeweilige Anbieter oder Betreiber der Seiten verantwortlich.</p>
 <h3>Urheberrecht</h3>
@@ -6466,7 +6481,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span class="app-version" onclick="neuigkeitenZeigen()" title="Was ist neu?" style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v12.25</span>
+      <span class="app-version" onclick="neuigkeitenZeigen()" title="Was ist neu?" style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v12.26</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -12843,15 +12858,32 @@ function fehlendeSpalte(err) {
 }
 
 let START_SPERRE = false;   // verhindert Doppelstarts (Doppelklick, Enter, Auswahldialog)
+// v12.26: Pflichtfeld sichtbar markieren (vorher nur Cursor ins Feld - auf dem Desktop kaum zu sehen)
+function pflichtHinweis(id, text) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.classList.remove('pflicht-fehler'); void el.offsetWidth; el.classList.add('pflicht-fehler');
+  let h = document.getElementById(id + 'Hinweis');
+  if (!h) { h = document.createElement('div'); h.id = id + 'Hinweis'; h.className = 'pflicht-hinweis'; h.setAttribute('role', 'alert'); el.insertAdjacentElement('afterend', h); }
+  h.textContent = text;
+  try { el.focus({ preventScroll: false }); } catch (e) {}
+  const weg = function(){
+    el.classList.remove('pflicht-fehler');
+    const x = document.getElementById(id + 'Hinweis'); if (x) x.remove();
+    el.removeEventListener('input', weg); el.removeEventListener('change', weg);
+  };
+  el.addEventListener('input', weg); el.addEventListener('change', weg);
+}
+
 async function startSearch(ignoriereDuplikat) {
   if (START_SPERRE) return;
   START_SPERRE = true;
   let gestartet = false;
   try {
     const nameEingabe = document.getElementById('nameInput').value.trim();
-    if (!nameEingabe) { document.getElementById('nameInput').focus(); return; }
+    if (!nameEingabe) { pflichtHinweis('nameInput', LANG === 'en' ? 'Please enter the company name.' : 'Bitte den Namen des Unternehmens eingeben.'); return; }
     const land = document.getElementById('landInput').value;
-    if (!land) { document.getElementById('landInput').focus(); return; }
+    if (!land) { pflichtHinweis('landInput', LANG === 'en' ? 'Please select the country.' : 'Bitte das Land ausw\u00e4hlen.'); return; }
     if (!kontingentVerfuegbar()) return;   // Monatslimit voll / Konto inaktiv -> Sperre + Upgrade-Hinweis
     if (ignoriereDuplikat !== true) {
       const alt = await findeFruehereAnalyse(nameEingabe);
@@ -13387,7 +13419,7 @@ setTimeout(function(){ try { akteVorschauZeichnen(); } catch(e) {} }, 0);
 // Kleine Korrekturen ohne neue Funktionen: NEU_VERSION unveraendert lassen.
 // ============================================================
 const NEU_VERSION = 'v12.15';           // Stand der Neuigkeiten - nur erhoehen, wenn es wirklich Neues gibt
-const APP_VERSION = 'v12.25';           // aktuelle Version (Anzeige im Bericht und oben im Kopf)
+const APP_VERSION = 'v12.26';           // aktuelle Version (Anzeige im Bericht und oben im Kopf)
 const UPDATE_KURZ = 'Abgeschlossene Akten sind jetzt schreibgesch\u00fctzt \u2013 zum \u00c4ndern werden sie wieder ge\u00f6ffnet.';
 const NEUIGKEITEN = [
   { farbe: '#B45309', v: 'v12.15', ico: '<path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/>',
