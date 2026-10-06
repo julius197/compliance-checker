@@ -4026,6 +4026,27 @@
 
     /* v12.29: beim Druck einer einzelnen Akte nie andere Bereiche mitdrucken */
     @media print { body.druck-einzelakte #akteView, body.druck-einzelakte #historyView, body.druck-einzelakte #teamView, body.druck-einzelakte #supportView { display:none !important; } }
+
+    /* v12.30 Ordner als PDF: echte Akten */
+    .ordner-akte { break-before:page; page-break-before:always; margin-top:28px; }
+    .ordner-akte, .ordner-akte * { animation:none !important; transition:none !important; }
+    .ordner-akte .report { display:block !important; opacity:1 !important; }
+    .ordner-entwurf { margin:0 0 14px; padding:10px 14px; border:2px solid #DC2626; border-radius:10px; background:#FEF2F2; color:#991B1B; font-size:12.5px; line-height:1.5;
+      -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+    .ordner-hinweis { margin:0 0 14px; padding:10px 14px; border-radius:10px; background:#FFF7ED; border:1px solid #FDBA74; color:#9A3412; font-size:12.5px; }
+    .akte-toc-st { font-style:normal; font-size:10.5px; font-weight:700; margin-left:6px; padding:1px 7px; border-radius:999px; }
+    .akte-toc-st.zu { background:#ECFDF3; color:#15803D; } .akte-toc-st.offen { background:#FEF2F2; color:#B91C1C; }
+    .od-status { position:fixed; inset:0; z-index:10060; display:flex; align-items:center; justify-content:center; padding:20px; background:rgba(246,249,247,.88); backdrop-filter:blur(3px); }
+    .od-status-karte { display:flex; align-items:flex-start; gap:14px; width:min(520px, 100%); padding:20px 22px; border-radius:16px; background:#fff; border:1px solid var(--border2,#E5E7EB);
+      box-shadow:0 24px 60px -24px rgba(15,23,42,.4); }
+    .od-status-txt { flex:1; min-width:0; display:flex; flex-direction:column; gap:6px; }
+    .od-status-txt b { font-size:15px; color:var(--ink,#1F2937); }
+    .od-status-txt small { font-size:12.5px; color:var(--gray,#5A6670); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .od-status-txt .od-status-info { white-space:normal; font-size:11.5px; }
+    .od-status-balken { height:6px; border-radius:6px; background:#E8EEF0; overflow:hidden; }
+    .od-status-balken i { display:block; height:100%; width:0; background:linear-gradient(90deg,#16A34A,#22C55E); transition:width .4s ease; }
+    .od-status-x { flex:none; border:1px solid var(--border2,#E5E7EB); background:#fff; border-radius:9px; padding:7px 12px; font:600 12.5px inherit; font-family:inherit; cursor:pointer; color:var(--gray,#5A6670); }
+    @media print { .od-status { display:none !important; } .ordner-akte .akte-stepper, .ordner-akte .akte-zurueck { display:none !important; } }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -6479,7 +6500,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span class="app-version" onclick="neuigkeitenZeigen()" title="Was ist neu?" style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v12.29</span>
+      <span class="app-version" onclick="neuigkeitenZeigen()" title="Was ist neu?" style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v12.30</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -13422,7 +13443,7 @@ setTimeout(function(){ try { akteVorschauZeichnen(); } catch(e) {} }, 0);
 // Kleine Korrekturen ohne neue Funktionen: NEU_VERSION unveraendert lassen.
 // ============================================================
 const NEU_VERSION = 'v12.15';           // Stand der Neuigkeiten - nur erhoehen, wenn es wirklich Neues gibt
-const APP_VERSION = 'v12.29';           // aktuelle Version (Anzeige im Bericht und oben im Kopf)
+const APP_VERSION = 'v12.30';           // aktuelle Version (Anzeige im Bericht und oben im Kopf)
 const UPDATE_KURZ = 'Abgeschlossene Akten sind jetzt schreibgesch\u00fctzt \u2013 zum \u00c4ndern werden sie wieder ge\u00f6ffnet.';
 const NEUIGKEITEN = [
   { farbe: '#B45309', v: 'v12.15', ico: '<path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/>',
@@ -18072,84 +18093,144 @@ function buildAkteWatermark(folderName) {
 
 // Akte eines Ordners aufbauen und Druck/PDF starten
 function akteDrucken(folderId) { mitAusBlende(function () { _akteDrucken(folderId); }); }
+// ============================================================
+// ORDNER ALS PDF (v12.30)
+// Vorher: vereinfachte Alt-Darstellung (buildAkteAnalyse) - ohne Fotos, Karte, Sanktionen,
+// Endverbleib, Abschluss; PDF-Anlagen nur als Platzhalter.
+// Jetzt: Jede Akte wird genau wie per Klick geoeffnet, vollstaendig geladen und uebernommen.
+// Das Ordner-PDF entspricht damit Seite fuer Seite "Gesamte Akte als PDF" jeder einzelnen Akte.
+// ============================================================
+let ORDNER_DRUCK_ABBRUCH = false;
+function ordnerWarte(ms) { return new Promise(function(r){ setTimeout(r, ms); }); }
+// Wartet, bis die geoeffnete Akte vollstaendig aufgebaut ist (Fotos, Karte, Sanktionen, Dokumente, PDF-Anlagen)
+async function akteDruckBereit(analyseId, maxMs) {
+  const start = Date.now();
+  let letzte = '', stabilSeit = Date.now();
+  await ordnerWarte(1200);
+  while (Date.now() - start < maxMs) {
+    if (ORDNER_DRUCK_ABBRUCH) return false;
+    const rep = document.getElementById('report');
+    const bilder = rep ? Array.prototype.slice.call(rep.querySelectorAll('img')) : [];
+    const offen = bilder.filter(function(i){ return !i.complete; }).length;
+    let pdfOffen = 0;
+    try { pdfOffen = pdfAnlagenOffen('gesamt') || 0; } catch (e) {}
+    const kycDa = typeof KYC !== 'undefined' && KYC;
+    // Dokumente gehoeren zur richtigen Akte - oder: nach 8 s ohne Akten-ID gilt die Akte als ohne Dokumente
+    const kycPasst = !analyseId || (kycDa && KYC.analyseId === analyseId) || (Date.now() - start > 8000 && (!kycDa || !KYC.analyseId));
+    const sig = (rep ? rep.innerHTML.length : 0) + '|' + bilder.length;
+    if (sig !== letzte) { letzte = sig; stabilSeit = Date.now(); }
+    if (!offen && !pdfOffen && kycPasst && Date.now() - stabilSeit > 1500) return true;
+    await ordnerWarte(300);
+  }
+  return false;
+}
+// Die fertig aufgebaute Akte als Abschnitt des Ordner-PDFs uebernehmen
+function ordnerAkteAbschnitt(r, vollstaendig) {
+  const d = r.report_json || {};
+  const rep = document.getElementById('report');
+  const sec = document.createElement('section');
+  sec.className = 'ordner-akte';
+  const name = d.firmenname || r.firmenname || '';
+  const pid = d.pruefId || r.pruef_id || '';
+  let kopf = '';
+  if (!r.abgeschlossen_am) {
+    kopf += '<div class="ordner-entwurf"><b>\u26A0 ENTWURF \u2013 AKTE NICHT ABGESCHLOSSEN</b> \u00b7 ' + escapeHtml(name) + (pid ? ' \u00b7 ' + escapeHtml(pid) : '')
+      + '<br/>Dieser Ausdruck zeigt einen vorl\u00e4ufigen Stand. Verbindlich ist erst die abgeschlossene Akte.</div>';
+  }
+  if (!vollstaendig) {
+    kopf += '<div class="ordner-hinweis">Hinweis: Einzelne Inhalte dieser Akte (z. B. Bilder oder Anlagen) konnten nicht rechtzeitig geladen werden. '
+      + 'Bitte die Akte einzeln \u00fcber \u201eGesamte Akte als PDF\u201c drucken.</div>';
+  }
+  if (kopf) sec.insertAdjacentHTML('beforeend', kopf);
+  if (rep) {
+    const kopie = rep.cloneNode(true);
+    // Zeichenflaechen (Canvas) behalten ihren Inhalt beim Kopieren nicht -> als Bild uebernehmen
+    const orig = rep.querySelectorAll('canvas'), ziel = kopie.querySelectorAll('canvas');
+    Array.prototype.forEach.call(orig, function(c, i){
+      try { const img = document.createElement('img'); img.src = c.toDataURL('image/png'); img.className = c.className; img.style.cssText = c.style.cssText; ziel[i].replaceWith(img); } catch (e) {}
+    });
+    sec.appendChild(kopie);
+  }
+  return sec;
+}
+function ordnerDruckStatus(gesamt) {
+  const alt = document.getElementById('ordnerDruckStatus');
+  if (alt) alt.remove();
+  const el = document.createElement('div');
+  el.id = 'ordnerDruckStatus'; el.className = 'od-status';
+  el.setAttribute('role', 'status'); el.setAttribute('aria-live', 'polite');
+  el.innerHTML = '<div class="od-status-karte"><span class="neu-spin"></span><div class="od-status-txt">'
+    + '<b>Ordner wird als PDF vorbereitet \u2026</b><small id="odStatusText">Akte 1 von ' + gesamt + '</small>'
+    + '<div class="od-status-balken"><i id="odStatusBalken"></i></div>'
+    + '<small class="od-status-info">Jede Akte wird vollst\u00e4ndig aufgebaut \u2013 mit Fotos, Dokumenten und Sanktionsabgleich. Das dauert einige Sekunden pro Akte.</small></div>'
+    + '<button type="button" class="od-status-x" onclick="ORDNER_DRUCK_ABBRUCH = true; this.disabled = true; this.textContent = \'Wird abgebrochen \u2026\';">Abbrechen</button></div>';
+  document.body.appendChild(el);
+  return {
+    setze: function(i, n, name){
+      const t = document.getElementById('odStatusText'), b = document.getElementById('odStatusBalken');
+      if (t) t.textContent = 'Akte ' + (i + 1) + ' von ' + n + (name ? ': ' + name : '');
+      if (b) b.style.width = Math.round(i / n * 100) + '%';
+    },
+    weg: function(){ const x = document.getElementById('ordnerDruckStatus'); if (x) x.remove(); }
+  };
+}
+
 async function _akteDrucken(folderId) {
   const folder = ORDNER_LIST.find(function(o){ return o.id === folderId; });
   if (!folder) { alert('Ordner nicht gefunden.'); return; }
   const rows = HISTORY_ROWS.filter(function(r){ return r.ordner_id === folderId && r.report_json; });
-  if (!rows.length) { alert('Dieser Ordner enthält keine Prüfungen zum Exportieren.'); return; }
-
+  if (!rows.length) { alert('Dieser Ordner enth\u00e4lt keine Pr\u00fcfungen zum Exportieren.'); return; }
   const av = document.getElementById('akteView');
   const main = document.getElementById('mainView'), hv = document.getElementById('historyView'), tv = document.getElementById('teamView');
-  if (main) main.style.display = 'none';
-  if (hv) hv.style.display = 'none';
-  if (tv) tv.style.display = 'none';
-
+  ORDNER_DRUCK_ABBRUCH = false;
+  const status = ordnerDruckStatus(rows.length);
+  const abschnitte = [];
+  for (let i = 0; i < rows.length; i++) {
+    if (ORDNER_DRUCK_ABBRUCH) break;
+    const r = rows[i];
+    status.setze(i, rows.length, (r.report_json && r.report_json.firmenname) || r.firmenname || '');
+    try {
+      _openFromHistory(HISTORY_ROWS.indexOf(r));       // genau wie ein Klick in der Aktenliste
+      const fertig = await akteDruckBereit(r.id, 30000);
+      if (ORDNER_DRUCK_ABBRUCH) break;
+      abschnitte.push(ordnerAkteAbschnitt(r, fertig));
+    } catch (e) {
+      console.warn('Ordner-PDF:', e && e.message);
+      const sec = document.createElement('section'); sec.className = 'ordner-akte';
+      sec.innerHTML = '<div class="ordner-hinweis">Die Akte \u201e' + escapeHtml((r.report_json && r.report_json.firmenname) || r.firmenname || '') + '\u201c konnte nicht aufgebaut werden. Bitte einzeln drucken.</div>';
+      abschnitte.push(sec);
+    }
+  }
+  status.weg();
+  if (ORDNER_DRUCK_ABBRUCH) { try { openHistory(); } catch (e) {} return; }
   const heute = new Date().toLocaleDateString('de-DE', { day:'2-digit', month:'2-digit', year:'numeric' });
   const firma = (CURRENT_FIRMA && CURRENT_FIRMA.firma_name) ? CURRENT_FIRMA.firma_name : '';
-
   const toc = rows.map(function(r, i){
     const d = r.report_json || {};
     const sc = (typeof d.gesamtScore === 'number') ? d.gesamtScore : (typeof r.score === 'number' ? r.score : null);
-    return '<div class="akte-toc-row"><span>' + (i+1) + '. ' + escapeHtml(d.firmenname || r.firmenname || '—') + '</span>'
+    return '<div class="akte-toc-row"><span>' + (i+1) + '. ' + escapeHtml(d.firmenname || r.firmenname || '\u2014')
+      + ' <em class="akte-toc-st ' + (r.abgeschlossen_am ? 'zu' : 'offen') + '">' + (r.abgeschlossen_am ? 'abgeschlossen' : 'offen') + '</em></span>'
       + '<span class="akte-toc-id">' + escapeHtml(d.pruefId || r.pruef_id || '') + '</span>'
       + '<span class="akte-toc-score" style="color:' + (sc ? scC(sc) : 'var(--gray-l)') + '">' + (sc == null ? 'N/A' : sc) + '</span></div>';
   }).join('');
-
   const cover = '<div class="akte-cover">'
-    + '<div class="akte-cover-eyebrow">Compliance-Akte · §§ 10–17 GwG</div>'
+    + '<div class="akte-cover-eyebrow">Compliance-Akten \u00b7 \u00a7\u00a7 10\u201317 GwG</div>'
     + '<div class="akte-cover-title">' + escapeHtml(folder.name) + '</div>'
-    + '<div class="akte-cover-meta">' + (firma ? ('Unternehmen: ' + escapeHtml(firma) + ' · ') : '') + 'Erstellt am ' + heute + (CURRENT_USER_EMAIL ? (' von ' + escapeHtml(CURRENT_USER_EMAIL)) : '') + '</div>'
-    + '<div class="akte-cover-count">' + rows.length + ' ' + (rows.length === 1 ? 'Prüfung' : 'Prüfungen') + ' in dieser Akte</div>'
+    + '<div class="akte-cover-meta">' + (firma ? ('Unternehmen: ' + escapeHtml(firma) + ' \u00b7 ') : '') + 'Erstellt am ' + heute + (CURRENT_USER_EMAIL ? (' von ' + escapeHtml(CURRENT_USER_EMAIL)) : '') + '</div>'
+    + '<div class="akte-cover-count">' + rows.length + ' ' + (rows.length === 1 ? 'Akte' : 'Akten') + ' in diesem Ordner</div>'
     + '<div class="akte-toc"><div class="akte-toc-head">Inhalt</div>' + toc + '</div>'
     + '</div>';
-
   const actions = '<div class="akte-actions">'
     + '<button class="btn-action primary" onclick="druckeJetzt()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>Drucken / Als PDF speichern</button>'
     + '<button class="btn-action" onclick="backToMain()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>Zurück</button>'
     + '</div>';
-
-  // KYC-Dokumente aller Analysen dieses Ordners holen -> Druck-Anlagen
-  let anhaenge = {};
-  try {
-    const ids = rows.map(function(r){ return r.id; }).filter(Boolean);
-    if (ids.length && sb) {
-      const dk = await sb.from('kyc_dokumente').select('*').in('analyse_id', ids);
-      const doks = (dk && dk.data) || [];
-      const bildDoks = doks.filter(function(d){ return (d.mime_type || '').indexOf('pdf') < 0; });
-      let urlMap = {};
-      if (bildDoks.length) {
-        const su = await sb.storage.from('kyc').createSignedUrls(bildDoks.map(function(d){ return d.storage_path; }), 900);
-        ((su && su.data) || []).forEach(function(s){ if (s && s.signedUrl) urlMap[s.path] = s.signedUrl; });
-      }
-      doks.forEach(function(d){
-        const r = rows.find(function(x){ return x.id === d.analyse_id; });
-        const dj = (r && r.report_json) || {};
-        const fname = dj.firmenname || (r && r.firmenname) || '';
-        const pid = dj.pruefId || (r && r.pruef_id) || '';
-        const basis = (d.typ === 'ausweis') ? 'Personalausweis'
-                    : (d.typ === 'standort') ? 'Eigene Aufnahme' : 'Best\u00e4tigungsfoto';
-        const titel = 'Anlage \u00b7 ' + basis + (d.bezeichnung ? ' (' + escapeHtml(d.bezeichnung) + ')' : '') + ' \u00b7 ' + fname + ' \u00b7 ' + pid;
-        let seite;
-        const url = urlMap[d.storage_path];
-        if (url) {
-          seite = '<div class="kyc-print-page"><div class="kyc-print-t">' + escapeHtml(titel) + '</div>'
-            + '<div class="kyc-print-rahmen"><img class="kyc-print-img" src="' + url + '" alt="" /></div>'
-            + '<div class="kyc-print-haft">Haftungsausschluss: Die Automati Labs GmbH \u00fcbernimmt keinerlei Haftung f\u00fcr die Authentizit\u00e4t, die Richtigkeit und/oder Vollst\u00e4ndigkeit der hochgeladenen und/oder erstellten Aufnahmen. Es obliegt einzig und allein in der Verantwortung des Nutzers zu ermitteln, ob die verifizierte Person identisch mit den \u00fcbermittelten Ausweisdokumenten ist. Jedwede Art von Verantwortlichkeit wird ausdr\u00fccklich ausgeschlossen.</div></div>';
-        } else {
-          seite = '<div class="kyc-print-page"><div class="kyc-print-t">' + escapeHtml(titel) + '</div>'
-            + '<div class="kyc-print-fehlt">Dieses Dokument liegt als PDF-Datei in der digitalen Akte vor'
-            + (d.datei_name ? '<br/>(' + escapeHtml(d.datei_name) + ')' : '') + '</div></div>';
-        }
-        anhaenge[d.analyse_id] = (anhaenge[d.analyse_id] || '') + seite;
-      });
-    }
-  } catch (e) { console.warn('Akte-Anh\u00e4nge:', e && e.message); }
-
-  DRUCK_NAME = ((folder && folder.name) ? folder.name : 'Akte');   // Dateiname des Sammel-PDFs
+  if (main) main.style.display = 'none';
+  if (hv) hv.style.display = 'none';
+  if (tv) tv.style.display = 'none';
+  DRUCK_NAME = ((folder && folder.name) ? folder.name : 'Ordner');   // Dateiname des Sammel-PDFs
   DRUCK_ID = '';
-  const body = rows.map(function(r){ return buildAkteAnalyse(r.report_json || {}) + (anhaenge[r.id] || ''); }).join('');
-
-  av.innerHTML = actions + cover + body;
+  av.innerHTML = actions.replace('onclick="backToMain()"', 'onclick="openHistory()"') + cover;   // Zurueck = zu Akten & Ordner
+  abschnitte.forEach(function(sec){ av.appendChild(sec); });
   av.style.display = 'block';
   fadeInView(av);
   buildAkteWatermark(folder.name);
