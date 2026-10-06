@@ -4029,8 +4029,18 @@
 
     /* v12.30 Ordner als PDF: echte Akten */
     .ordner-akte { break-before:page; page-break-before:always; margin-top:28px; }
-    .ordner-akte, .ordner-akte * { animation:none !important; transition:none !important; }
+    /* Animationen sofort ans Ende springen lassen (abschalten liess Elemente unsichtbar) */
+    .ordner-akte, .ordner-akte * { animation-duration:0s !important; animation-delay:0s !important; animation-iteration-count:1 !important; transition:none !important; }
     .ordner-akte .report { display:block !important; opacity:1 !important; }
+    /* Vorschau = wie der Druck: alle Bereiche offen, keine Bedienelemente */
+    .ordner-akte .akte-panel { display:block !important; }
+    .ordner-akte .reveal { opacity:1 !important; transform:none !important; filter:none !important; }
+    .ordner-akte .akte-stepper, .ordner-akte .akte-zurueck, .ordner-akte .mon-bereich, .ordner-akte .ev-form, .ordner-akte .ev-btns, .ordner-akte .ev-link,
+    .ordner-akte .ab-form, .ordner-akte .ab-check, .ordner-akte .ab-btn, .ordner-akte .nw-icobtn, .ordner-akte .ev-fuss, .ordner-akte .akte-vorschau,
+    .ordner-akte .akte-aktionen, .ordner-akte .dok-info, .ordner-akte .dok-hinweis, .ordner-akte .akte-lock, .ordner-akte .ab-siegel-anim,
+    .ordner-akte .bearb-leiste, .ordner-akte .kv-stift, .ordner-akte .cc-stift, .ordner-akte .dok-dreh, .ordner-akte .akte-score-pfeil,
+    .ordner-akte .nw-cta, .ordner-akte .nw-modus, .ordner-akte .kyc-btn, .ordner-akte .kyc-datei-x, .ordner-akte .mehr-btn { display:none !important; }
+    .ordner-akte[inert] { cursor:default; }
     .ordner-entwurf { margin:0 0 14px; padding:10px 14px; border:2px solid #DC2626; border-radius:10px; background:#FEF2F2; color:#991B1B; font-size:12.5px; line-height:1.5;
       -webkit-print-color-adjust:exact; print-color-adjust:exact; }
     .ordner-hinweis { margin:0 0 14px; padding:10px 14px; border-radius:10px; background:#FFF7ED; border:1px solid #FDBA74; color:#9A3412; font-size:12.5px; }
@@ -6500,7 +6510,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span class="app-version" onclick="neuigkeitenZeigen()" title="Was ist neu?" style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v12.30</span>
+      <span class="app-version" onclick="neuigkeitenZeigen()" title="Was ist neu?" style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v12.31</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -13443,7 +13453,7 @@ setTimeout(function(){ try { akteVorschauZeichnen(); } catch(e) {} }, 0);
 // Kleine Korrekturen ohne neue Funktionen: NEU_VERSION unveraendert lassen.
 // ============================================================
 const NEU_VERSION = 'v12.15';           // Stand der Neuigkeiten - nur erhoehen, wenn es wirklich Neues gibt
-const APP_VERSION = 'v12.30';           // aktuelle Version (Anzeige im Bericht und oben im Kopf)
+const APP_VERSION = 'v12.31';           // aktuelle Version (Anzeige im Bericht und oben im Kopf)
 const UPDATE_KURZ = 'Abgeschlossene Akten sind jetzt schreibgesch\u00fctzt \u2013 zum \u00c4ndern werden sie wieder ge\u00f6ffnet.';
 const NEUIGKEITEN = [
   { farbe: '#B45309', v: 'v12.15', ico: '<path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/>',
@@ -18149,7 +18159,14 @@ function ordnerAkteAbschnitt(r, vollstaendig) {
     Array.prototype.forEach.call(orig, function(c, i){
       try { const img = document.createElement('img'); img.src = c.toDataURL('image/png'); img.className = c.className; img.style.cssText = c.style.cssText; ziel[i].replaceWith(img); } catch (e) {}
     });
+    // Vorschau ist ein reines Dokument: keine Klick-Befehle (sie wuerden die im Hintergrund
+    // geoeffnete Akte steuern), nicht fokussier- oder anklickbar
+    Array.prototype.forEach.call(kopie.querySelectorAll('*'), function(el){
+      Array.prototype.slice.call(el.attributes).forEach(function(a){ if (/^on/i.test(a.name)) el.removeAttribute(a.name); });
+    });
     sec.appendChild(kopie);
+    sec.inert = true;
+    sec.setAttribute('inert', '');
   }
   return sec;
 }
