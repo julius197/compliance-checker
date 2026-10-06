@@ -4057,6 +4057,49 @@
     .od-status-balken i { display:block; height:100%; width:0; background:linear-gradient(90deg,#16A34A,#22C55E); transition:width .4s ease; }
     .od-status-x { flex:none; border:1px solid var(--border2,#E5E7EB); background:#fff; border-radius:9px; padding:7px 12px; font:600 12.5px inherit; font-family:inherit; cursor:pointer; color:var(--gray,#5A6670); }
     @media print { .od-status { display:none !important; } .ordner-akte .akte-stepper, .ordner-akte .akte-zurueck { display:none !important; } }
+
+    /* ===== v12.32 Sprache des PDFs ===== */
+    .dsw { position:fixed; inset:0; z-index:10070; display:flex; align-items:center; justify-content:center; padding:20px; background:rgba(15,23,42,.38);
+      backdrop-filter:blur(2px); animation:dswIn .18s ease both; }
+    .dsw.weg { animation:dswWeg .16s ease forwards; }
+    @keyframes dswIn { from { opacity:0; } to { opacity:1; } }
+    @keyframes dswWeg { to { opacity:0; } }
+    .dsw-karte { width:min(420px, 100%); padding:22px; border-radius:16px; background:#fff; border:1px solid var(--border2,#E5E7EB);
+      box-shadow:0 30px 70px -28px rgba(15,23,42,.5); animation:dswKarte .18s cubic-bezier(.2,.8,.3,1) both; }
+    @keyframes dswKarte { from { opacity:0; transform:translateY(8px) scale(.98); } to { opacity:1; transform:none; } }
+    .dsw-t { font-size:16px; font-weight:800; color:var(--ink,#1F2937); }
+    .dsw-d { margin-top:4px; font-size:12.5px; color:var(--gray,#5A6670); }
+    .dsw-opts { display:grid; gap:10px; margin-top:16px; }
+    .dsw-opt { display:flex; align-items:center; gap:12px; width:100%; padding:12px 14px; border-radius:12px; border:1.5px solid var(--border2,#E5E7EB); background:#fff;
+      text-align:left; font-family:inherit; cursor:pointer; transition:border-color .15s ease, background-color .15s ease, box-shadow .15s ease; }
+    .dsw-opt:hover { border-color:#9FD5B2; background:#F7FCF9; }
+    .dsw-opt:focus-visible { outline:none; box-shadow:0 0 0 3px rgba(46,111,191,.3); }
+    .dsw-opt.an { border-color:#16A34A; background:#F0FBF4; }
+    .dsw-flag { flex:none; width:34px; height:34px; border-radius:9px; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:800; letter-spacing:.04em;
+      background:#EEF2F4; color:var(--ink,#1F2937); transition:background-color .15s ease, color .15s ease; }
+    .dsw-opt.an .dsw-flag { background:#16A34A; color:#fff; }
+    .dsw-name { flex:1; min-width:0; display:flex; flex-direction:column; gap:1px; }
+    .dsw-name b { font-size:14px; color:var(--ink,#1F2937); } .dsw-name small { font-size:11.5px; color:var(--gray,#5A6670); }
+    .dsw-haken { flex:none; width:20px; height:20px; border-radius:50%; border:2px solid #CBD5D0; transition:all .15s ease; }
+    .dsw-opt.an .dsw-haken { border-color:#16A34A; background:#16A34A; box-shadow:inset 0 0 0 3px #fff; }
+    .dsw-btns { display:flex; justify-content:flex-end; gap:10px; margin-top:18px; }
+    .dsw-btns button, .ds-btn { padding:9px 16px; border-radius:10px; font:700 13px/1 inherit; font-family:inherit; cursor:pointer; transition:filter .15s ease, background-color .15s ease; }
+    .dsw-ab, .ds-btn-2 { border:1px solid var(--border2,#E5E7EB); background:#fff; color:var(--gray,#5A6670); }
+    .dsw-ab:hover, .ds-btn-2:hover { background:#F4F6F5; }
+    .dsw-ok, .ds-btn { border:none; background:linear-gradient(135deg,#16A34A,#22C55E); color:#fff; }
+    .dsw-ok:hover, .ds-btn:hover { filter:brightness(1.05); }
+    .dsw-btns button:focus-visible, .ds-btn:focus-visible { outline:none; box-shadow:0 0 0 3px rgba(46,111,191,.3); }
+    .ds-status { position:fixed; inset:0; z-index:10065; display:flex; align-items:center; justify-content:center; padding:20px; background:rgba(246,249,247,.86);
+      backdrop-filter:blur(3px); animation:dswIn .18s ease both; }
+    .ds-status.weg { animation:dswWeg .16s ease forwards; }
+    .ds-karte { display:flex; align-items:center; gap:14px; width:min(440px, 100%); padding:18px 20px; border-radius:16px; background:#fff; border:1px solid var(--border2,#E5E7EB);
+      box-shadow:0 24px 60px -24px rgba(15,23,42,.4); }
+    .ds-txt { flex:1; min-width:0; display:flex; flex-direction:column; gap:3px; }
+    .ds-txt b { font-size:14.5px; color:var(--ink,#1F2937); } .ds-txt small { font-size:12px; color:var(--gray,#5A6670); }
+    .ds-x { background:#B91C1C !important; }
+    @media (max-width:520px) { .dsw-karte, .ds-karte { padding:18px; } .dsw-btns button { flex:1; } }
+    @media (prefers-reduced-motion: reduce) { .dsw, .dsw-karte, .ds-status { animation:none !important; } }
+    @media print { .dsw, .ds-status { display:none !important; } }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -6510,7 +6553,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span class="app-version" onclick="neuigkeitenZeigen()" title="Was ist neu?" style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v12.31</span>
+      <span class="app-version" onclick="neuigkeitenZeigen()" title="Was ist neu?" style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v12.32</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -6709,6 +6752,49 @@ function _trUebersetzbar(s) {
 }
 
 // Sammelt alle Textknoten unter root (ausser Code + Rechtstexte)
+// ============================================================
+// v12.32 ZENTRALE SPRACH-LOGIK
+// Grundsatz: Das deutsche Original eines Textes wird nie veraendert. Jede Sprache entsteht aus
+// Original + gespeicherter Uebersetzung (_TR_CACHE, je Akte zusaetzlich in der Datenbank).
+// FEHLER BIS v12.31: Das Original wurde pro Textknoten beim ersten Kontakt gemerkt. Kopien
+// (z. B. die Akten der Ordner-PDF-Seite) uebernahmen bereits uebersetzten Text ohne Original -
+// beim Rueckweg auf DE wurde dann Englisch "wiederhergestellt".
+// ============================================================
+let _TR_RUECK = null, _TR_RUECK_N = -1;
+// Ist ein Text bereits eine bekannte Uebersetzung? Dann das deutsche Original zurueckgeben.
+function _trOriginalFuer(wert) {
+  try {
+    const roh = String(wert == null ? '' : wert), s = roh.trim();
+    if (!s) return roh;
+    const anzahl = Object.keys(_TR_CACHE).length;
+    if (!_TR_RUECK || _TR_RUECK_N !== anzahl) {
+      _TR_RUECK = {};
+      Object.keys(_TR_CACHE).forEach(function(de){
+        const en = _TR_CACHE[de];
+        if (typeof en === 'string' && en && en !== de && _TR_RUECK[en] === undefined) _TR_RUECK[en] = de;
+      });
+      _TR_RUECK_N = anzahl;
+    }
+    const de = _TR_RUECK[s];
+    return de !== undefined ? roh.replace(s, de) : roh;
+  } catch (e) { return wert; }
+}
+// Kopie eines Bereichs, die das deutsche Original jedes Textes erbt (statt des gerade angezeigten Texts)
+function kloneMitOriginal(quelle) {
+  const kopie = quelle.cloneNode(true);
+  try {
+    const wq = document.createTreeWalker(quelle, NodeFilter.SHOW_TEXT), wk = document.createTreeWalker(kopie, NodeFilter.SHOW_TEXT);
+    let q, k;
+    while ((q = wq.nextNode()) && (k = wk.nextNode())) {
+      const orig = _LANG_DE.has(q) ? _LANG_DE.get(q) : _trOriginalFuer(q.nodeValue);
+      if (orig === undefined || orig === null) continue;
+      _LANG_DE.set(k, orig);
+      _trAnwenden(k);                                    // aktuelle Oberflaechensprache anwenden
+    }
+  } catch (e) {}
+  return kopie;
+}
+
 function _trKnoten(root) {
   const raus = [];
   let w;
@@ -6719,8 +6805,8 @@ function _trKnoten(root) {
     const p = n.parentNode;
     if (!p) continue;
     if (/^(SCRIPT|STYLE|NOSCRIPT|TEXTAREA)$/i.test(p.nodeName)) continue;
-    try { if (p.closest && p.closest('[id^="legal"]')) continue; } catch(e) {}
-    if (!_LANG_DE.has(n)) _LANG_DE.set(n, n.nodeValue);
+    try { if (p.closest && p.closest('[id^="legal"], [data-tr="aus"]')) continue; } catch(e) {}
+    if (!_LANG_DE.has(n)) _LANG_DE.set(n, _trOriginalFuer(n.nodeValue));   // v12.32: nie eine Uebersetzung als Original merken
     raus.push(n);
   }
   return raus;
@@ -11856,13 +11942,13 @@ let DRUCK_ID = '';
 // Baut den Dateinamen fuer das PDF: Firmenname zuerst
 function druckDateiname() {
   const roh = (DRUCK_NAME || '').trim();
-  if (!roh) return 'Compliance-Pr\u00fcfung - ' + new Date().toLocaleDateString('de-DE');
+  if (!roh) return DT().pruefung + ' - ' + new Date().toLocaleDateString(druckSprache() === 'en' ? 'en-GB' : 'de-DE');
   // Zeichen entfernen, die in Dateinamen Probleme machen
   const sauber = roh.replace(/[\\/:*?"<>|]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 70);
   const d = new Date();
   const datum = ('0' + d.getDate()).slice(-2) + '.' + ('0' + (d.getMonth() + 1)).slice(-2) + '.' + d.getFullYear();
-  return sauber + ' - ' + (DRUCK_TEIL || 'Compliance-Pr\u00fcfung') + (DRUCK_ID ? ' - ' + DRUCK_ID : '') + ' - ' + datum
-    + (akteEntwurf() ? ' - ENTWURF (nicht abgeschlossen)' : '');
+  return sauber + ' - ' + (DRUCK_TEIL || DT().pruefung) + (DRUCK_ID ? ' - ' + DRUCK_ID : '') + ' - ' + datum
+    + (akteEntwurf() ? DT().dateiEntwurf : '');
 }
 
 // ============================================================
@@ -11911,7 +11997,7 @@ function druckEntwurfVorbereiten() {
   const offen = akteEntwurf();
   document.body.classList.toggle('druck-entwurf', offen);
   if (!offen) return false;
-  const jetzt = new Date().toLocaleString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) + ' Uhr';
+  const jetzt = druckZeitText();
   const id = CURRENT_REPORT.pruefId || DRUCK_ID || '';
   let wz = document.getElementById('druckWz');
   if (!wz) {
@@ -11919,17 +12005,17 @@ function druckEntwurfVorbereiten() {
     wz.id = 'druckWz'; wz.className = 'druck-wz'; wz.setAttribute('aria-hidden', 'true');
     document.body.appendChild(wz);
   }
-  wz.innerHTML = '<div class="druck-wz-diag">Akte nicht<br>abgeschlossen</div>'
-    + '<div class="druck-wz-fuss">ENTWURF \u00b7 Akte nicht abgeschlossen \u00b7 gedruckt am ' + escapeHtml(jetzt) + '</div>';
+  wz.innerHTML = '<div class="druck-wz-diag">' + DT().wzDiag + '</div>'
+    + '<div class="druck-wz-fuss">' + DT().wzFuss + escapeHtml(jetzt) + '</div>';
   let ban = document.getElementById('druckEntwurfBanner');
   if (!ban) {
     ban = document.createElement('div');
     ban.id = 'druckEntwurfBanner'; ban.className = 'druck-entwurf-banner';
     document.body.insertBefore(ban, document.body.firstChild);
   }
-  ban.innerHTML = '<div class="deb-titel">\u26A0\uFE0E Entwurf \u2013 Akte nicht abgeschlossen</div>'
-    + '<div class="deb-text">Dieser Ausdruck vom ' + escapeHtml(jetzt) + ' zeigt einen vorl\u00e4ufigen Stand'
-    + (id ? ' der Akte ' + escapeHtml(id) : '') + '. Verbindlich ist erst die abgeschlossene Akte.</div>';
+  ban.innerHTML = '<div class="deb-titel">\u26A0\uFE0E ' + DT().banTitel + '</div>'
+    + '<div class="deb-text">' + DT().banText1 + escapeHtml(jetzt) + DT().banText2
+    + (id ? DT().banAkte + escapeHtml(id) : '') + DT().banText3 + '</div>';
   return true;
 }
 function druckEntwurfAufraeumen() {
@@ -11982,7 +12068,234 @@ function druckBereichAufraeumen() {
   DRUCK_TEIL = '';
 }
 
-function druckeJetzt(bereich) {
+// ============================================================
+// v12.32 PDF AUF DEUTSCH ODER ENGLISCH
+// Das PDF entsteht aus den deutschen Originalen + der Uebersetzung der gewaehlten Sprache.
+// Die Oberflaeche bleibt in ihrer Sprache. Uebersetzungen werden pro Akte gespeichert
+// (Spalte analysen.uebersetzungen) - ein zweiter Export braucht keinen KI-Aufruf.
+// ============================================================
+let DRUCK_LAEUFT = false;
+const MONATE_EN = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+function datumEN(t) {
+  return String(t).replace(/\b(\d{1,2})\.(\d{1,2})\.(\d{4})\b/g, function(m, d, mo, y){
+    const i = parseInt(mo, 10) - 1; return (i >= 0 && i < 12) ? parseInt(d, 10) + ' ' + MONATE_EN[i] + ' ' + y : m;
+  }).replace(/(\d{1,2}:\d{2}) Uhr\b/g, '$1');
+}
+function druckWurzeln() {
+  const av = document.getElementById('akteView');
+  const ordner = !!(av && av.getClientRects().length && av.querySelector('.ordner-akte, .akte-cover'));
+  if (ordner) return { ordner: true, wurzeln: [av] };
+  const rep = document.getElementById('report');
+  return { ordner: false, wurzeln: rep ? [rep] : [] };
+}
+function druckAnalyseIds(w) {
+  if (w.ordner) return Array.prototype.map.call(w.wurzeln[0].querySelectorAll('section.ordner-akte[data-analyse-id]'), function(s){ return s.getAttribute('data-analyse-id'); });
+  const id = (typeof KYC !== 'undefined' && KYC && KYC.analyseId) || (CURRENT_REPORT && CURRENT_REPORT._analyseId);
+  return id ? [id] : [];
+}
+// Deutsche Originaltexte eines Bereichs, fuer die noch keine englische Uebersetzung vorliegt
+function druckFehlendeTexte(wurzeln) {
+  const offen = [];
+  wurzeln.forEach(function(r){
+    _trKnoten(r).forEach(function(n){
+      const de = (_LANG_DE.get(n) || '').trim();
+      if (de && _trUebersetzbar(de) && _TR_CACHE[de] === undefined && offen.indexOf(de) < 0) offen.push(de);
+    });
+  });
+  return offen;
+}
+function druckSpracheSetzen(wurzeln, sprache) {
+  wurzeln.forEach(function(r){
+    _trKnoten(r).forEach(function(n){
+      const orig = _LANG_DE.get(n);
+      if (orig === undefined) return;
+      if (sprache !== 'en') { n.nodeValue = orig; return; }
+      const de = orig.trim(), en = _TR_CACHE[de];
+      n.nodeValue = datumEN(en !== undefined && en !== null ? orig.replace(de, en) : orig);
+    });
+  });
+}
+// Zurueck zur Sprache der Oberflaeche - immer aus dem Original
+function druckSpracheZurueck(wurzeln) {
+  wurzeln.forEach(function(r){
+    _trKnoten(r).forEach(function(n){
+      const orig = _LANG_DE.get(n);
+      if (orig === undefined) return;
+      if (LANG !== 'en') { n.nodeValue = orig; return; }
+      const de = orig.trim(), en = _TR_CACHE[de];
+      n.nodeValue = (en !== undefined && en !== null) ? orig.replace(de, en) : orig;
+    });
+  });
+}
+async function druckUebersetzungenSicherstellen(w) {
+  const ids = druckAnalyseIds(w), gespeichert = {};
+  // 1. gespeicherte Uebersetzungen der Akten laden (kein KI-Aufruf noetig)
+  try {
+    if (ids.length && sb) {
+      const { data, error } = await sb.from('analysen').select('id, uebersetzungen').in('id', ids);
+      if (!error) (data || []).forEach(function(r){
+        gespeichert[r.id] = (r && r.uebersetzungen) || {};
+        const en = gespeichert[r.id].en;
+        if (en && typeof en === 'object') Object.keys(en).forEach(function(de){ if (_TR_CACHE[de] === undefined && typeof en[de] === 'string') _TR_CACHE[de] = en[de]; });
+      });
+    }
+  } catch (e) {}
+  // 2. nur den Rest einmalig uebersetzen
+  const offen = druckFehlendeTexte(w.wurzeln);
+  if (!offen.length) return;
+  const pakete = []; let akt = [], zeichen = 0;
+  offen.forEach(function(t){
+    if (akt.length >= 25 || zeichen + t.length > 6000) { if (akt.length) pakete.push(akt); akt = []; zeichen = 0; }
+    akt.push(t); zeichen += t.length;
+  });
+  if (akt.length) pakete.push(akt);
+  for (let i = 0; i < pakete.length; i++) {
+    druckStatusText((LANG === 'en' ? 'Translating \u2026 ' : '\u00dcbersetzung \u2026 ') + Math.round((i + 1) / pakete.length * 100) + ' %');
+    await _trPaket(pakete[i], 0);
+  }
+  try { _trSpeichern(); } catch (e) {}
+  if (druckFehlendeTexte(w.wurzeln).length >= offen.length) throw new Error(LANG === 'en' ? 'The translation service is not reachable.' : 'Der \u00dcbersetzungsdienst ist nicht erreichbar.');
+  // 3. pro Akte speichern
+  for (const id of ids) {
+    try {
+      const bereich = w.ordner ? w.wurzeln[0].querySelector('section.ordner-akte[data-analyse-id="' + id + '"]') : w.wurzeln[0];
+      if (!bereich) continue;
+      const alt = gespeichert[id] || {}, en = Object.assign({}, alt.en || {});
+      let neu = 0;
+      _trKnoten(bereich).forEach(function(n){
+        const de = (_LANG_DE.get(n) || '').trim(), t = _TR_CACHE[de];
+        if (de && typeof t === 'string' && t !== de && en[de] !== t && Object.keys(en).length < 3000) { en[de] = t; neu++; }
+      });
+      if (neu) await sb.from('analysen').update({ uebersetzungen: Object.assign({}, alt, { en: en }) }).eq('id', id);
+    } catch (e) {}
+  }
+}
+function exportProtokollieren(bereich, sprache, ordner) {
+  try {
+    if (!sb) return;
+    const ids = druckAnalyseIds({ ordner: false, wurzeln: [] });
+    sb.rpc('export_protokollieren', { p_analyse: ordner ? null : (ids[0] || null), p_ordner: ordner ? ORDNER_DRUCK_ID : null, p_bereich: bereich || 'gesamt', p_sprache: sprache })
+      .then(function(){}, function(){});
+  } catch (e) {}
+}
+// Lade-/Fehleranzeige waehrend PDF und Uebersetzung (nur am Bildschirm, nie im PDF)
+function druckStatus(art, fehlertext, weiter) {
+  let el = document.getElementById('druckStatus');
+  if (!art) { if (el) { el.classList.add('weg'); setTimeout(function(){ const x = document.getElementById('druckStatus'); if (x && x.classList.contains('weg')) x.remove(); }, 200); } return; }
+  if (!el) { el = document.createElement('div'); el.id = 'druckStatus'; el.setAttribute('data-tr', 'aus'); el.setAttribute('role', 'status'); el.setAttribute('aria-live', 'polite'); document.body.appendChild(el); }
+  el.className = 'ds-status ' + art;
+  const en = LANG === 'en';
+  if (art === 'laeuft') {
+    el.innerHTML = '<div class="ds-karte"><span class="neu-spin"></span><div class="ds-txt"><b>' + (en ? 'Generating PDF \u2026' : 'PDF wird erstellt \u2026') + '</b><small id="druckStatusText">'
+      + (en ? 'Preparing all pages and texts' : 'Alle Seiten und Texte werden vorbereitet') + '</small></div></div>';
+  } else if (art === 'bereit') {
+    el.innerHTML = '<div class="ds-karte"><span class="neu-ico">\u2713</span><div class="ds-txt"><b>' + (en ? 'PDF is ready' : 'PDF ist bereit') + '</b><small>'
+      + (en ? 'Click to open the print dialog.' : 'Zum \u00d6ffnen des Druckdialogs klicken.') + '</small></div><button type="button" class="ds-btn" id="druckStatusOk">' + (en ? 'Open PDF' : 'PDF \u00f6ffnen') + '</button></div>';
+    const b = document.getElementById('druckStatusOk'); if (b) { b.onclick = weiter; b.focus(); }
+  } else {
+    el.innerHTML = '<div class="ds-karte"><span class="neu-ico ds-x">!</span><div class="ds-txt"><b>' + (en ? 'PDF could not be created' : 'PDF konnte nicht erstellt werden') + '</b><small>'
+      + escapeHtml(fehlertext || '') + '</small></div><button type="button" class="ds-btn ds-btn-2" onclick="druckStatus(null)">' + (en ? 'Close' : 'Schlie\u00dfen') + '</button></div>';
+  }
+}
+function druckStatusText(t) { const x = document.getElementById('druckStatusText'); if (x) x.textContent = t; }
+function druckFertig(w) {
+  const zurueck = function(){ try { druckSpracheZurueck(w.wurzeln); } catch (e) {} DRUCK_SPRACHE = null; try { if (w.ordner) buildAkteWatermark(DRUCK_NAME); } catch (e) {} };
+  let erledigt = false;
+  const einmal = function(){ if (erledigt) return; erledigt = true; window.removeEventListener('afterprint', einmal); zurueck(); };
+  return einmal;
+}
+function druckAusloesen(w, bereich) {
+  const fertig = druckFertig(w);
+  window.addEventListener('afterprint', fertig);
+  try { druckeJetztKern(bereich); } finally { setTimeout(fertig, 400); }
+}
+async function druckeInSprache(bereich, sprache) {
+  if (DRUCK_LAEUFT) return;
+  const w = druckWurzeln();
+  DRUCK_SPRACHE = sprache;
+  // Alles schon da? Dann sofort drucken - noch innerhalb des Klicks (wichtig fuer iPhone/Safari)
+  if ((sprache !== 'en' || !druckFehlendeTexte(w.wurzeln).length) && !pdfAnlagenOffen(bereich)) {
+    druckSpracheSetzen(w.wurzeln, sprache);
+    if (w.ordner) buildAkteWatermark(DRUCK_NAME);
+    exportProtokollieren(bereich, sprache, w.ordner);
+    druckAusloesen(w, bereich);
+    return;
+  }
+  DRUCK_LAEUFT = true;
+  druckStatus('laeuft');
+  try {
+    const t0 = Date.now();
+    while (pdfAnlagenOffen(bereich) && Date.now() - t0 < 60000) { try { kycPdfVorbereiten(); } catch (e) {} await ordnerWarte(400); }
+    if (sprache === 'en') await druckUebersetzungenSicherstellen(w);
+    druckSpracheSetzen(w.wurzeln, sprache);
+    if (w.ordner) buildAkteWatermark(DRUCK_NAME);
+    exportProtokollieren(bereich, sprache, w.ordner);
+    const safari = /^((?!chrome|chromium|android|crios|fxios|edg).)*safari/i.test(navigator.userAgent);
+    const aktiv = !(navigator.userActivation) || navigator.userActivation.isActive;
+    if (safari && !aktiv) druckStatus('bereit', '', function(){ druckStatus(null); druckAusloesen(w, bereich); });
+    else { druckStatus(null); druckAusloesen(w, bereich); }
+  } catch (e) {
+    try { druckSpracheZurueck(w.wurzeln); } catch (x) {}
+    DRUCK_SPRACHE = null;
+    druckStatus('fehler', (e && e.message) || '');
+  } finally { DRUCK_LAEUFT = false; }
+}
+// Auswahl Deutsch / English - vorausgewaehlt ist die Sprache der Oberflaeche
+function druckSpracheWaehlen(bereich) {
+  const alt = document.getElementById('druckSprachWahl'); if (alt) alt.remove();
+  const en = LANG === 'en';
+  let wahl = en ? 'en' : 'de';
+  const vorher = document.activeElement;
+  const el = document.createElement('div');
+  el.id = 'druckSprachWahl'; el.className = 'dsw'; el.setAttribute('data-tr', 'aus');
+  el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true'); el.setAttribute('aria-labelledby', 'dswT');
+  const opt = function(code, name, unter){ return '<button type="button" class="dsw-opt" role="radio" data-l="' + code + '"><span class="dsw-flag">' + code.toUpperCase() + '</span><span class="dsw-name"><b>' + name + '</b><small>' + unter + '</small></span><span class="dsw-haken" aria-hidden="true"></span></button>'; };
+  el.innerHTML = '<div class="dsw-karte">'
+    + '<div class="dsw-t" id="dswT">' + (en ? 'Language of the PDF' : 'Sprache des PDFs') + '</div>'
+    + '<div class="dsw-d">' + (en ? 'The interface stays in its current language.' : 'Die Oberfl\u00e4che bleibt in ihrer Sprache.') + '</div>'
+    + '<div class="dsw-opts" role="radiogroup" aria-labelledby="dswT">'
+    + opt('de', 'Deutsch', en ? 'German' : 'Originalsprache der Akte') + opt('en', 'English', en ? 'Translated where needed' : 'Wird bei Bedarf \u00fcbersetzt')
+    + '</div><div class="dsw-btns"><button type="button" class="dsw-ab">' + (en ? 'Cancel' : 'Abbrechen') + '</button>'
+    + '<button type="button" class="dsw-ok">' + (en ? 'Create PDF' : 'PDF erstellen') + '</button></div></div>';
+  document.body.appendChild(el);
+  const opts = el.querySelectorAll('.dsw-opt');
+  const zeigen = function(){ Array.prototype.forEach.call(opts, function(o){ const an = o.getAttribute('data-l') === wahl; o.classList.toggle('an', an); o.setAttribute('aria-checked', an ? 'true' : 'false'); o.tabIndex = an ? 0 : -1; }); };
+  const zu = function(){ document.removeEventListener('keydown', taste, true); el.classList.add('weg'); setTimeout(function(){ el.remove(); }, 170); try { if (vorher && vorher.focus) vorher.focus(); } catch (e) {} };
+  const los = function(){ document.removeEventListener('keydown', taste, true); el.remove(); druckeInSprache(bereich, wahl); };
+  const taste = function(e){
+    if (e.key === 'Escape') { e.preventDefault(); zu(); }
+    else if (e.key === 'Enter' && !(e.target && e.target.classList && e.target.classList.contains('dsw-ab'))) { e.preventDefault(); los(); }
+    else if (/^Arrow(Left|Right|Up|Down)$/.test(e.key)) { e.preventDefault(); wahl = wahl === 'de' ? 'en' : 'de'; zeigen(); const o = el.querySelector('.dsw-opt.an'); if (o) o.focus(); }
+  };
+  Array.prototype.forEach.call(opts, function(o){ o.onclick = function(){ wahl = o.getAttribute('data-l'); zeigen(); }; o.ondblclick = los; });
+  el.querySelector('.dsw-ab').onclick = zu;
+  el.querySelector('.dsw-ok').onclick = los;
+  el.addEventListener('click', function(e){ if (e.target === el) zu(); });
+  document.addEventListener('keydown', taste, true);
+  zeigen();
+  const ok = el.querySelector('.dsw-ok'); if (ok) ok.focus();
+}
+
+// v12.32: Hinweisfenster der App (alert/confirm) in der Sprache der Oberflaeche
+(function(){
+  const a0 = window.alert, c0 = window.confirm;
+  function sofort(m) {
+    if (LANG !== 'en' || m == null) return m;
+    return String(m).split('\n').map(function(z){
+      const s = z.trim(); if (!s) return z;
+      const en = _TR_CACHE[s];
+      if (en === undefined && _trUebersetzbar(s)) { try { _trPaket([s], 0).then(_trSpeichern, function(){}); } catch (e) {} }
+      return (en !== undefined && en !== null) ? z.replace(s, en) : z;
+    }).join('\n');
+  }
+  window.alert = function(m){ return a0.call(window, sofort(m)); };
+  window.confirm = function(m){ return c0.call(window, sofort(m)); };
+})();
+
+// v12.32: Jeder Druck-/PDF-Knopf fragt zuerst nach der Sprache des PDFs
+function druckeJetzt(bereich) { druckSpracheWaehlen(bereich || 'gesamt'); }
+
+function druckeJetztKern(bereich) {
   bereich = bereich || 'gesamt';
   druckBereichAufraeumen();
   if (bereich !== 'gesamt') {
@@ -11994,7 +12307,7 @@ function druckeJetzt(bereich) {
       if (erste) erste.classList.add('erste');
     }
   }
-  DRUCK_TEIL = DRUCK_TEIL_NAME[bereich] || '';
+  DRUCK_TEIL = DT().teile[bereich] || DRUCK_TEIL_NAME[bereich] || '';
   if (!druckenMoeglich()) { druckAusweg(); return; }
   // PDF-Anlagen noch nicht aufbereitet? Dann nicht unvollstaendig drucken, sondern Bescheid geben
   if (pdfAnlagenOffen(bereich)) {
@@ -13453,7 +13766,7 @@ setTimeout(function(){ try { akteVorschauZeichnen(); } catch(e) {} }, 0);
 // Kleine Korrekturen ohne neue Funktionen: NEU_VERSION unveraendert lassen.
 // ============================================================
 const NEU_VERSION = 'v12.15';           // Stand der Neuigkeiten - nur erhoehen, wenn es wirklich Neues gibt
-const APP_VERSION = 'v12.31';           // aktuelle Version (Anzeige im Bericht und oben im Kopf)
+const APP_VERSION = 'v12.32';           // aktuelle Version (Anzeige im Bericht und oben im Kopf)
 const UPDATE_KURZ = 'Abgeschlossene Akten sind jetzt schreibgesch\u00fctzt \u2013 zum \u00c4ndern werden sie wieder ge\u00f6ffnet.';
 const NEUIGKEITEN = [
   { farbe: '#B45309', v: 'v12.15', ico: '<path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/>',
@@ -15422,13 +15735,33 @@ function generatePruefId() {
 // ============================================================
 function druckZeitText() {
   const jetzt = new Date();
+  if (druckSprache() === 'en') {
+    return jetzt.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+      + ', ' + jetzt.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+  }
   return jetzt.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' })
     + ', ' + jetzt.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }) + ' Uhr';
 }
+// ---------- v12.32: Sprache des Ausdrucks (unabhaengig von der Oberflaeche) ----------
+let DRUCK_SPRACHE = null;
+function druckSprache() { return DRUCK_SPRACHE || LANG; }
+const DRUCK_TXT = {
+  de: { pruefId: 'Pr\u00fcf-ID', gedruckt: 'gedruckt', ordner: 'Ordner', wzDiag: 'Akte nicht<br>abgeschlossen',
+        wzFuss: 'ENTWURF \u00b7 Akte nicht abgeschlossen \u00b7 gedruckt am ', banTitel: 'Entwurf \u2013 Akte nicht abgeschlossen',
+        banText1: 'Dieser Ausdruck vom ', banText2: ' zeigt einen vorl\u00e4ufigen Stand', banAkte: ' der Akte ', banText3: '. Verbindlich ist erst die abgeschlossene Akte.',
+        dateiEntwurf: ' - ENTWURF (nicht abgeschlossen)', pruefung: 'Compliance-Pr\u00fcfung',
+        teile: { gesamt: 'Akte', analyse: 'Analyse', sanktion: 'Sanktionsabgleich', dokumente: 'Dokumente', endverbleib: 'Endverbleibserkl\u00e4rung' } },
+  en: { pruefId: 'Check ID', gedruckt: 'printed', ordner: 'Folder', wzDiag: 'File not<br>finalised',
+        wzFuss: 'DRAFT \u00b7 File not finalised \u00b7 printed on ', banTitel: 'Draft \u2013 file not finalised',
+        banText1: 'This printout of ', banText2: ' shows a preliminary state', banAkte: ' of file ', banText3: '. Only the finalised file is binding.',
+        dateiEntwurf: ' - DRAFT (not finalised)', pruefung: 'Compliance check',
+        teile: { gesamt: 'File', analyse: 'Analysis', sanktion: 'Sanctions check', dokumente: 'Documents', endverbleib: 'End-use declaration' } }
+};
+function DT() { return DRUCK_TXT[druckSprache() === 'en' ? 'en' : 'de']; }
 function wasserzeichenHTML(kennung, email) {
   const zeit = druckZeitText();
   const kopf = 'Automati Labs \u00b7 ' + escapeHtml(kennung);
-  const rest = 'gedruckt ' + escapeHtml(zeit) + (email ? ' \u00b7 ' + escapeHtml(email) : '');
+  const rest = DT().gedruckt + ' ' + escapeHtml(zeit) + (email ? ' \u00b7 ' + escapeHtml(email) : '');
   let zeilen = '';
   for (let i = 1; i <= 4; i++) {
     zeilen += '<div class="wm-row r' + i + '"><span class="wm-kopf">' + kopf + '</span><span class="wm-rest">' + rest + '</span></div>';
@@ -15440,7 +15773,7 @@ function buildWatermark(d) {
   if (!el) return;
   const pruefId = (d && d.pruefId) ? d.pruefId : generatePruefId();
   const email = (d && d._email) ? d._email : (CURRENT_USER_EMAIL || '');
-  el.innerHTML = wasserzeichenHTML('Pr\u00fcf-ID ' + pruefId, email);
+  el.innerHTML = wasserzeichenHTML(DT().pruefId + ' ' + pruefId, email);
 }
 // Vor jedem Druck: Wasserzeichen mit dem aktuellen Druckzeitpunkt neu erzeugen
 function druckWasserzeichenAktualisieren() {
@@ -18098,7 +18431,7 @@ function buildAkteAnalyse(d) {
 function buildAkteWatermark(folderName) {
   const el = document.getElementById('printWatermark');
   if (!el) return;
-  el.innerHTML = wasserzeichenHTML('Ordner: ' + (folderName || ''), CURRENT_USER_EMAIL || '');
+  el.innerHTML = wasserzeichenHTML(DT().ordner + ': ' + (folderName || ''), CURRENT_USER_EMAIL || '');
 }
 
 // Akte eines Ordners aufbauen und Druck/PDF starten
@@ -18111,6 +18444,7 @@ function akteDrucken(folderId) { mitAusBlende(function () { _akteDrucken(folderI
 // Das Ordner-PDF entspricht damit Seite fuer Seite "Gesamte Akte als PDF" jeder einzelnen Akte.
 // ============================================================
 let ORDNER_DRUCK_ABBRUCH = false;
+let ORDNER_DRUCK_ID = null;
 function ordnerWarte(ms) { return new Promise(function(r){ setTimeout(r, ms); }); }
 // Wartet, bis die geoeffnete Akte vollstaendig aufgebaut ist (Fotos, Karte, Sanktionen, Dokumente, PDF-Anlagen)
 async function akteDruckBereit(analyseId, maxMs) {
@@ -18140,6 +18474,7 @@ function ordnerAkteAbschnitt(r, vollstaendig) {
   const rep = document.getElementById('report');
   const sec = document.createElement('section');
   sec.className = 'ordner-akte';
+  if (r.id) sec.setAttribute('data-analyse-id', r.id);
   const name = d.firmenname || r.firmenname || '';
   const pid = d.pruefId || r.pruef_id || '';
   let kopf = '';
@@ -18153,7 +18488,7 @@ function ordnerAkteAbschnitt(r, vollstaendig) {
   }
   if (kopf) sec.insertAdjacentHTML('beforeend', kopf);
   if (rep) {
-    const kopie = rep.cloneNode(true);
+    const kopie = kloneMitOriginal(rep);             // v12.32: Kopie erbt die deutschen Originale
     // Zeichenflaechen (Canvas) behalten ihren Inhalt beim Kopieren nicht -> als Bild uebernehmen
     const orig = rep.querySelectorAll('canvas'), ziel = kopie.querySelectorAll('canvas');
     Array.prototype.forEach.call(orig, function(c, i){
@@ -18200,6 +18535,7 @@ async function _akteDrucken(folderId) {
   const av = document.getElementById('akteView');
   const main = document.getElementById('mainView'), hv = document.getElementById('historyView'), tv = document.getElementById('teamView');
   ORDNER_DRUCK_ABBRUCH = false;
+  ORDNER_DRUCK_ID = folderId;
   const status = ordnerDruckStatus(rows.length);
   const abschnitte = [];
   for (let i = 0; i < rows.length; i++) {
