@@ -4124,6 +4124,11 @@
     body.api-pdf-modus #landingGate, body.api-pdf-modus #authGate, body.api-pdf-modus #planGate, body.api-pdf-modus #uploadGate,
     body.api-pdf-modus #helpBtn, body.api-pdf-modus #helpPop, body.api-pdf-modus #langBtn { display:none !important; }
     body.api-pdf-modus .app, body.api-pdf-modus #mainView { display:block !important; }
+
+    /* v12.34: Hinweis im PDF, wenn KI-Texte in der Originalsprache bleiben */
+    .druck-orig-hinweis { display:none; }
+    @media print { .druck-orig-hinweis { display:block !important; margin:0 0 10px; padding:8px 12px; border:1px solid #F59E0B; border-radius:8px; background:#FFFBEB !important;
+      color:#92400E; font-size:11px; line-height:1.45; -webkit-print-color-adjust:exact; print-color-adjust:exact; } }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -6589,7 +6594,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span class="app-version" onclick="neuigkeitenZeigen()" title="Was ist neu?" style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v12.33</span>
+      <span class="app-version" onclick="neuigkeitenZeigen()" title="Was ist neu?" style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v12.34</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -6773,7 +6778,11 @@ const _LANG_DE = new WeakMap();
 
 let _TR_CACHE = {};                 // deutsch -> englisch (dauerhaft gemerkt)
 try { _TR_CACHE = JSON.parse(localStorage.getItem('cc_tr_en') || '{}'); } catch(e) { _TR_CACHE = {}; }
-function _trSpeichern() { try { localStorage.setItem('cc_tr_en', JSON.stringify(_TR_CACHE)); } catch(e) {} }
+// v12.34: zweite Richtung englisch -> deutsch (fuer PDFs englisch gepruefter Akten) - dieselbe Logik
+let _TR_CACHE_DE = {};
+try { _TR_CACHE_DE = JSON.parse(localStorage.getItem('cc_tr_de') || '{}'); } catch(e) { _TR_CACHE_DE = {}; }
+function _trCache(ziel) { return ziel === 'de' ? _TR_CACHE_DE : _TR_CACHE; }
+function _trSpeichern() { try { localStorage.setItem('cc_tr_en', JSON.stringify(_TR_CACHE)); localStorage.setItem('cc_tr_de', JSON.stringify(_TR_CACHE_DE)); } catch(e) {} }
 
 const _TR_SKIP = /^[\s\d.,:;!?()\[\]{}\/\\|+\-*=<>%&#@~^"'`\u00b7\u2013\u2014\u2026\u2192\u2713\u2605\u20ac$]*$/;  // Zahlen/Symbole: nie uebersetzen
 function _trUebersetzbar(s) {
@@ -6915,12 +6924,16 @@ async function uebersetzeBaum(root, sofortFertig) {
 }
 
 // Ein Paket uebersetzen; bei Fehler halbieren und erneut versuchen
-async function _trPaket(teil, tiefe) {
+// Ein Paket uebersetzen (Ziel 'en' oder 'de'); bei Fehler halbieren und erneut versuchen.
+// streng = true (PDF): einen Fehler melden, statt das Original als "Uebersetzung" zu merken.
+async function _trPaket(teil, tiefe, ziel, streng) {
   if (!teil.length) return;
+  ziel = ziel === 'de' ? 'de' : 'en';
+  const cache = _trCache(ziel);
   try {
-    const res = await workerCall('texte_uebersetzen', { texte: teil, ziel: 'en' });
+    const res = await workerCall('texte_uebersetzen', { texte: teil, ziel: ziel });
     if (res && res.ok && Array.isArray(res.texte) && res.texte.length === teil.length) {
-      teil.forEach(function(de, k){ if (typeof res.texte[k] === 'string') _TR_CACHE[de] = res.texte[k]; });
+      teil.forEach(function(q, k){ if (typeof res.texte[k] === 'string') cache[q] = res.texte[k]; });
       _trSpeichern();
       return;
     }
@@ -6928,11 +6941,13 @@ async function _trPaket(teil, tiefe) {
   } catch(e) {
     if (teil.length > 1 && tiefe < 4) {           // aufteilen und nochmal
       const m = Math.ceil(teil.length / 2);
-      await _trPaket(teil.slice(0, m), tiefe + 1);
-      await _trPaket(teil.slice(m), tiefe + 1);
+      await _trPaket(teil.slice(0, m), tiefe + 1, ziel, streng);
+      await _trPaket(teil.slice(m), tiefe + 1, ziel, streng);
+    } else if (streng) {
+      throw e;
     } else {
       // Nicht uebersetzbar -> Original merken, sonst wird es endlos erneut versucht
-      teil.forEach(function(de){ if (_TR_CACHE[de] === undefined) _TR_CACHE[de] = de; });
+      teil.forEach(function(q){ if (cache[q] === undefined) cache[q] = q; });
       _trSpeichern();
       console.warn('Uebersetzung fehlgeschlagen:', (e && e.message) || '', teil[0] && teil[0].slice(0, 40));
     }
@@ -10353,14 +10368,24 @@ async function apiPdfRender() {
     const d = r.report;
     d._analyseId = r.analyse_id || d._analyseId;
     if (r.abgeschlossen_am) d._abgeschlossen_am = r.abgeschlossen_am;
-    if (r.uebersetzungen) Object.keys(r.uebersetzungen).forEach(function(de){ if (_TR_CACHE[de] === undefined) _TR_CACHE[de] = r.uebersetzungen[de]; });
+    if (r.uebersetzungen) {                                   // gespeicherte Uebersetzungen beider Richtungen
+      const u = (r.uebersetzungen.en || r.uebersetzungen.de) ? r.uebersetzungen : { en: r.uebersetzungen };
+      ['en', 'de'].forEach(function(z){ const m = u[z], c = _trCache(z); if (m && typeof m === 'object') Object.keys(m).forEach(function(q){ if (c[q] === undefined && typeof m[q] === 'string') c[q] = m[q]; }); });
+    }
     CURRENT_USER_EMAIL = d._email || '';
     showReport(d, d.firmenname, true, true);
     await akteDruckBereit(null, 60000);                       // Bilder, Karte, Sanktionen fertig
     const w = { ordner: false, wurzeln: [document.getElementById('report')] };
     DRUCK_SPRACHE = r.lang === 'en' ? 'en' : 'de';           // zentrale Sprach-Logik aus v12.32
-    if (DRUCK_SPRACHE === 'en') { try { await druckUebersetzungenSicherstellen(w); } catch (e) {} }
+    let erg = { fehler: false };
+    try { erg = await druckUebersetzungenSicherstellen(w, DRUCK_SPRACHE); } catch (e) { erg = { fehler: true }; }   // beide Richtungen
     druckSpracheSetzen(w.wurzeln, DRUCK_SPRACHE);
+    if (erg.fehler) druckHinweisSetzen(w, DRUCK_SPRACHE);
+    try {                                                     // neue Uebersetzungen serverseitig zur Akte speichern
+      const neu = {}, cache = _trCache(DRUCK_SPRACHE);
+      _trKnoten(w.wurzeln[0]).forEach(function(n){ const q = (_LANG_DE.get(n) || '').trim(); if (q && typeof cache[q] === 'string' && _druckBrauchtUebersetzung(q, DRUCK_SPRACHE, druckRegionSprache(n))) neu[q] = cache[q]; });
+      if (Object.keys(neu).length) workerCall('api_render_uebersetzungen', { token: API_PDF_TOKEN, sprache: DRUCK_SPRACHE, texte: neu });
+    } catch (e) {}
     DRUCK_TEIL = DT().teile.gesamt;
     druckEntwurfVorbereiten();                                 // Wasserzeichen + Entwurfs-Hinweis wie beim Export im Tool
     document.title = druckDateiname();
@@ -12147,6 +12172,67 @@ function druckBereichAufraeumen() {
 // Die Oberflaeche bleibt in ihrer Sprache. Uebersetzungen werden pro Akte gespeichert
 // (Spalte analysen.uebersetzungen) - ein zweiter Export braucht keinen KI-Aufruf.
 // ============================================================
+// ============================================================
+// v12.34 SPRACHE DER KI-TEXTE
+// URSACHE des Fehlers: Die Uebersetzung lief nur deutsch -> englisch, und der Druck hielt jeden
+// Akten-Text fuer deutsch. Bei englisch gepruefter Akte ist das Original englisch und blieb im
+// deutschen PDF stehen. Jetzt: Sprache je Text erkennen und in beide Richtungen uebersetzen.
+// ============================================================
+const _W_DE = new Set('der die das und ist nicht mit von den dem des ein eine einer einen eines wird wurde werden wurden sind zu f\u00fcr fuer auf im bei keine kein keinen oder auch als nach bitte liegt vor beide sowie kann sollte sich noch'.split(' '));
+const _W_EN = new Set('the and is not with of to for on at no or after please are were be been has have this that by from both found can should will its their which'.split(' '));
+function textSprache(t) {
+  const w = String(t || '').toLowerCase().split(/[^a-z\u00e4\u00f6\u00fc\u00df]+/).filter(Boolean);
+  if (w.length < 3) return null;
+  let de = 0, en = 0;
+  w.forEach(function(x){ if (_W_DE.has(x)) de++; if (_W_EN.has(x)) en++; });
+  return de > en ? 'de' : (en > de ? 'en' : null);
+}
+// Sprache, in der die Pruefung lief: gespeichert (neue Pruefungen) oder aus den KI-Texten erkannt (Altakten)
+function berichtSprache(d) {
+  if (!d) return 'de';
+  if (d._sprache === 'en' || d._sprache === 'de') return d._sprache;
+  const teile = [d.empfehlung].concat((d.risikoHinweise || []).map(function(h){ return h && h.text; }));
+  ['grunddaten', 'personen', 'finanzen', 'reputation', 'kontakt'].forEach(function(k){ ((d[k] && d[k].felder) || []).forEach(function(f){ teile.push(f && f.value); }); });
+  return textSprache(teile.filter(function(x){ return typeof x === 'string'; }).join(' . ')) || 'de';
+}
+const _DRUCK_SPRACHE_AKTE = {};
+function druckRegionSprache(n) {
+  const p = n && n.parentNode;
+  if (!p || !p.closest) return 'de';
+  const sec = p.closest('section.ordner-akte[data-analyse-id]');
+  if (sec) {
+    const id = sec.getAttribute('data-analyse-id');
+    if (!_DRUCK_SPRACHE_AKTE[id]) {
+      const row = ((typeof HISTORY_ROWS !== 'undefined' && HISTORY_ROWS) || []).find(function(r){ return r.id === id; });
+      _DRUCK_SPRACHE_AKTE[id] = berichtSprache(row && row.report_json);
+    }
+    return _DRUCK_SPRACHE_AKTE[id];
+  }
+  if (p.closest('#report')) return berichtSprache(typeof CURRENT_REPORT !== 'undefined' ? CURRENT_REPORT : null);
+  return 'de';                                            // Deckblatt, Inhaltsverzeichnis: Oberflaechentexte
+}
+// Muss dieser Text fuer die Zielsprache uebersetzt werden? (nur von Text + Akte abhaengig, damit der
+// zweite Export auf jedem Geraet dieselben Texte braucht - und sie gespeichert vorfindet)
+function _druckBrauchtUebersetzung(q, ziel, region) {
+  if (ziel === 'en') return _TR_CACHE[q] !== undefined || textSprache(q) !== 'en';
+  const s = textSprache(q);                               // erst Sprache + Akte entscheiden, dann erst der Speicher
+  if (s) return s === 'en';
+  return region === 'en';                                 // kurze, unklare Texte: nur in englisch gepruefter Akte
+}
+function druckHinweisSetzen(w, sprache) {
+  const txt = sprache === 'en'
+    ? 'Note: the translation service was not available \u2013 AI-generated texts are shown in their original language.'
+    : 'Hinweis: Die \u00dcbersetzung war nicht verf\u00fcgbar \u2013 KI-generierte Texte stehen in der Originalsprache.';
+  w.wurzeln.forEach(function(r){
+    const ziele = w.ordner ? r.querySelectorAll('section.ordner-akte') : [r];
+    Array.prototype.forEach.call(ziele, function(z){
+      const h = document.createElement('div'); h.className = 'druck-orig-hinweis'; h.setAttribute('data-tr', 'aus'); h.textContent = txt;
+      z.insertBefore(h, z.firstChild);
+    });
+  });
+}
+function druckHinweisWeg() { Array.prototype.forEach.call(document.querySelectorAll('.druck-orig-hinweis'), function(e){ e.remove(); }); }
+
 let DRUCK_LAEUFT = false;
 const MONATE_EN = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 function datumEN(t) {
@@ -12167,24 +12253,29 @@ function druckAnalyseIds(w) {
   return id ? [id] : [];
 }
 // Deutsche Originaltexte eines Bereichs, fuer die noch keine englische Uebersetzung vorliegt
-function druckFehlendeTexte(wurzeln) {
-  const offen = [];
+// Originaltexte eines Bereichs, fuer die in der Zielsprache noch keine Uebersetzung vorliegt
+function druckFehlendeTexte(wurzeln, ziel) {
+  ziel = ziel === 'de' ? 'de' : 'en';
+  const cache = _trCache(ziel), offen = [];
   wurzeln.forEach(function(r){
     _trKnoten(r).forEach(function(n){
-      const de = (_LANG_DE.get(n) || '').trim();
-      if (de && _trUebersetzbar(de) && _TR_CACHE[de] === undefined && offen.indexOf(de) < 0) offen.push(de);
+      const q = (_LANG_DE.get(n) || '').trim();
+      if (!q || !_trUebersetzbar(q) || cache[q] !== undefined || offen.indexOf(q) >= 0) return;
+      if (_druckBrauchtUebersetzung(q, ziel, druckRegionSprache(n))) offen.push(q);
     });
   });
   return offen;
 }
 function druckSpracheSetzen(wurzeln, sprache) {
+  const ziel = sprache === 'en' ? 'en' : 'de', cache = _trCache(ziel);
   wurzeln.forEach(function(r){
     _trKnoten(r).forEach(function(n){
       const orig = _LANG_DE.get(n);
       if (orig === undefined) return;
-      if (sprache !== 'en') { n.nodeValue = orig; return; }
-      const de = orig.trim(), en = _TR_CACHE[de];
-      n.nodeValue = datumEN(en !== undefined && en !== null ? orig.replace(de, en) : orig);
+      const q = orig.trim(), t = cache[q];
+      let neu = (t !== undefined && t !== null && _druckBrauchtUebersetzung(q, ziel, druckRegionSprache(n))) ? orig.replace(q, t) : orig;
+      if (ziel === 'en') neu = datumEN(neu);
+      n.nodeValue = neu;
     });
   });
 }
@@ -12200,48 +12291,53 @@ function druckSpracheZurueck(wurzeln) {
     });
   });
 }
-async function druckUebersetzungenSicherstellen(w) {
-  const ids = druckAnalyseIds(w), gespeichert = {};
-  // 1. gespeicherte Uebersetzungen der Akten laden (kein KI-Aufruf noetig)
+// Gespeicherte Uebersetzungen laden, Fehlendes EINMAL uebersetzen, pro Akte und Sprache speichern.
+// Gibt { fehler } zurueck - ein Fehler verhindert das PDF nicht.
+async function druckUebersetzungenSicherstellen(w, ziel) {
+  ziel = ziel === 'de' ? 'de' : 'en';
+  const ids = druckAnalyseIds(w), gespeichert = {}, cache = _trCache(ziel);
   try {
     if (ids.length && sb) {
       const { data, error } = await sb.from('analysen').select('id, uebersetzungen').in('id', ids);
       if (!error) (data || []).forEach(function(r){
         gespeichert[r.id] = (r && r.uebersetzungen) || {};
-        const en = gespeichert[r.id].en;
-        if (en && typeof en === 'object') Object.keys(en).forEach(function(de){ if (_TR_CACHE[de] === undefined && typeof en[de] === 'string') _TR_CACHE[de] = en[de]; });
+        ['en', 'de'].forEach(function(z){
+          const m = gespeichert[r.id][z], c = _trCache(z);
+          if (m && typeof m === 'object') Object.keys(m).forEach(function(q){ if (c[q] === undefined && typeof m[q] === 'string') c[q] = m[q]; });
+        });
       });
     }
   } catch (e) {}
-  // 2. nur den Rest einmalig uebersetzen
-  const offen = druckFehlendeTexte(w.wurzeln);
-  if (!offen.length) return;
-  const pakete = []; let akt = [], zeichen = 0;
-  offen.forEach(function(t){
-    if (akt.length >= 25 || zeichen + t.length > 6000) { if (akt.length) pakete.push(akt); akt = []; zeichen = 0; }
-    akt.push(t); zeichen += t.length;
-  });
-  if (akt.length) pakete.push(akt);
-  for (let i = 0; i < pakete.length; i++) {
-    druckStatusText((LANG === 'en' ? 'Translating \u2026 ' : '\u00dcbersetzung \u2026 ') + Math.round((i + 1) / pakete.length * 100) + ' %');
-    await _trPaket(pakete[i], 0);
+  const offen = druckFehlendeTexte(w.wurzeln, ziel);
+  let fehler = false;
+  if (offen.length) {
+    const pakete = []; let akt = [], zeichen = 0;
+    offen.forEach(function(t){
+      if (akt.length >= 25 || zeichen + t.length > 6000) { if (akt.length) pakete.push(akt); akt = []; zeichen = 0; }
+      akt.push(t); zeichen += t.length;
+    });
+    if (akt.length) pakete.push(akt);
+    for (let i = 0; i < pakete.length; i++) {
+      druckStatusText((LANG === 'en' ? 'Translating \u2026 ' : '\u00dcbersetzung \u2026 ') + Math.round((i + 1) / pakete.length * 100) + ' %');
+      try { await _trPaket(pakete[i], 0, ziel, true); } catch (e) { fehler = true; break; }
+    }
+    try { _trSpeichern(); } catch (e) {}
   }
-  try { _trSpeichern(); } catch (e) {}
-  if (druckFehlendeTexte(w.wurzeln).length >= offen.length) throw new Error(LANG === 'en' ? 'The translation service is not reachable.' : 'Der \u00dcbersetzungsdienst ist nicht erreichbar.');
-  // 3. pro Akte speichern
+  // pro Akte speichern - auch unveraenderte Ergebnisse (z. B. Namen), damit der zweite Export ohne KI-Aufruf auskommt
   for (const id of ids) {
     try {
       const bereich = w.ordner ? w.wurzeln[0].querySelector('section.ordner-akte[data-analyse-id="' + id + '"]') : w.wurzeln[0];
       if (!bereich) continue;
-      const alt = gespeichert[id] || {}, en = Object.assign({}, alt.en || {});
+      const alt = gespeichert[id] || {}, m = Object.assign({}, alt[ziel] || {});
       let neu = 0;
       _trKnoten(bereich).forEach(function(n){
-        const de = (_LANG_DE.get(n) || '').trim(), t = _TR_CACHE[de];
-        if (de && typeof t === 'string' && t !== de && en[de] !== t && Object.keys(en).length < 3000) { en[de] = t; neu++; }
+        const q = (_LANG_DE.get(n) || '').trim(), t = cache[q];
+        if (q && typeof t === 'string' && m[q] !== t && Object.keys(m).length < 3000 && _druckBrauchtUebersetzung(q, ziel, druckRegionSprache(n))) { m[q] = t; neu++; }
       });
-      if (neu) await sb.from('analysen').update({ uebersetzungen: Object.assign({}, alt, { en: en }) }).eq('id', id);
+      if (neu && sb) { const daten = Object.assign({}, alt); daten[ziel] = m; await sb.from('analysen').update({ uebersetzungen: daten }).eq('id', id); }
     } catch (e) {}
   }
+  return { fehler: fehler || druckFehlendeTexte(w.wurzeln, ziel).length > 0 };
 }
 function exportProtokollieren(bereich, sprache, ordner) {
   try {
@@ -12271,14 +12367,14 @@ function druckStatus(art, fehlertext, weiter) {
   }
 }
 function druckStatusText(t) { const x = document.getElementById('druckStatusText'); if (x) x.textContent = t; }
-function druckFertig(w) {
-  const zurueck = function(){ try { druckSpracheZurueck(w.wurzeln); } catch (e) {} DRUCK_SPRACHE = null; try { if (w.ordner) buildAkteWatermark(DRUCK_NAME); } catch (e) {} };
+function druckFertig(w, nachher) {
+  const zurueck = function(){ try { druckHinweisWeg(); } catch (e) {} try { druckSpracheZurueck(w.wurzeln); } catch (e) {} DRUCK_SPRACHE = null; try { if (w.ordner) buildAkteWatermark(DRUCK_NAME); } catch (e) {} if (nachher) { try { nachher(); } catch (e) {} } };
   let erledigt = false;
   const einmal = function(){ if (erledigt) return; erledigt = true; window.removeEventListener('afterprint', einmal); zurueck(); };
   return einmal;
 }
-function druckAusloesen(w, bereich) {
-  const fertig = druckFertig(w);
+function druckAusloesen(w, bereich, nachher) {
+  const fertig = druckFertig(w, nachher);
   window.addEventListener('afterprint', fertig);
   try { druckeJetztKern(bereich); } finally { setTimeout(fertig, 400); }
 }
@@ -12287,7 +12383,7 @@ async function druckeInSprache(bereich, sprache) {
   const w = druckWurzeln();
   DRUCK_SPRACHE = sprache;
   // Alles schon da? Dann sofort drucken - noch innerhalb des Klicks (wichtig fuer iPhone/Safari)
-  if ((sprache !== 'en' || !druckFehlendeTexte(w.wurzeln).length) && !pdfAnlagenOffen(bereich)) {
+  if (!druckFehlendeTexte(w.wurzeln, sprache).length && !pdfAnlagenOffen(bereich)) {
     druckSpracheSetzen(w.wurzeln, sprache);
     if (w.ordner) buildAkteWatermark(DRUCK_NAME);
     exportProtokollieren(bereich, sprache, w.ordner);
@@ -12299,16 +12395,22 @@ async function druckeInSprache(bereich, sprache) {
   try {
     const t0 = Date.now();
     while (pdfAnlagenOffen(bereich) && Date.now() - t0 < 60000) { try { kycPdfVorbereiten(); } catch (e) {} await ordnerWarte(400); }
-    if (sprache === 'en') await druckUebersetzungenSicherstellen(w);
+    const erg = await druckUebersetzungenSicherstellen(w, sprache);      // in beide Richtungen
     druckSpracheSetzen(w.wurzeln, sprache);
+    if (erg.fehler) druckHinweisSetzen(w, sprache);                     // PDF trotzdem - mit Hinweis "Originalsprache"
     if (w.ordner) buildAkteWatermark(DRUCK_NAME);
     exportProtokollieren(bereich, sprache, w.ordner);
+    const meldung = erg.fehler ? function(){
+      try { zeigeToast(LANG === 'en' ? 'PDF created in the original language' : 'PDF in Originalsprache erstellt',
+        LANG === 'en' ? 'The translation was not available. AI-generated texts remain in their original language \u2013 please try again later.'
+                      : 'Die \u00dcbersetzung war nicht erreichbar. KI-generierte Texte stehen in der Originalsprache \u2013 bitte sp\u00e4ter erneut versuchen.'); } catch (e) {}
+    } : null;
     const safari = /^((?!chrome|chromium|android|crios|fxios|edg).)*safari/i.test(navigator.userAgent);
     const aktiv = !(navigator.userActivation) || navigator.userActivation.isActive;
-    if (safari && !aktiv) druckStatus('bereit', '', function(){ druckStatus(null); druckAusloesen(w, bereich); });
-    else { druckStatus(null); druckAusloesen(w, bereich); }
+    if (safari && !aktiv) druckStatus('bereit', '', function(){ druckStatus(null); druckAusloesen(w, bereich, meldung); });
+    else { druckStatus(null); druckAusloesen(w, bereich, meldung); }
   } catch (e) {
-    try { druckSpracheZurueck(w.wurzeln); } catch (x) {}
+    try { druckHinweisWeg(); druckSpracheZurueck(w.wurzeln); } catch (x) {}
     DRUCK_SPRACHE = null;
     druckStatus('fehler', (e && e.message) || '');
   } finally { DRUCK_LAEUFT = false; }
@@ -13502,6 +13604,7 @@ async function runAnalysis(name, ust, land, sitz, auswahl) {
       }
     }
     report._standort = standortWert();
+    report._sprache = (LANG === 'en') ? 'en' : 'de';      // v12.34: Sprache der KI-Texte (fuer PDFs in der anderen Sprache)
     const viesOk = !!(viesData && viesData.valid);
     report._dataSource = (viesOk ? 'vies' : '') + (googleData ? 'google' : (viesOk ? '' : 'ki'));
     if (viesData && viesData.status === 'unavailable') report._viesUnavailable = true;
@@ -13913,7 +14016,7 @@ setTimeout(function(){ try { akteVorschauZeichnen(); } catch(e) {} }, 0);
 // Kleine Korrekturen ohne neue Funktionen: NEU_VERSION unveraendert lassen.
 // ============================================================
 const NEU_VERSION = 'v12.15';           // Stand der Neuigkeiten - nur erhoehen, wenn es wirklich Neues gibt
-const APP_VERSION = 'v12.33';           // aktuelle Version (Anzeige im Bericht und oben im Kopf)
+const APP_VERSION = 'v12.34';           // aktuelle Version (Anzeige im Bericht und oben im Kopf)
 const UPDATE_KURZ = 'Abgeschlossene Akten sind jetzt schreibgesch\u00fctzt \u2013 zum \u00c4ndern werden sie wieder ge\u00f6ffnet.';
 const NEUIGKEITEN = [
   { farbe: '#B45309', v: 'v12.15', ico: '<path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/>',
