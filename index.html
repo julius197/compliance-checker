@@ -4100,6 +4100,30 @@
     @media (max-width:520px) { .dsw-karte, .ds-karte { padding:18px; } .dsw-btns button { flex:1; } }
     @media (prefers-reduced-motion: reduce) { .dsw, .dsw-karte, .ds-status { animation:none !important; } }
     @media print { .dsw, .ds-status { display:none !important; } }
+
+    /* ===== v12.33 API ===== */
+    .api-neu { display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; }
+    .api-neu .om-name-input { flex:1; min-width:200px; }
+    .api-einmal { margin-top:14px; padding:14px; border-radius:12px; background:#FFFBEB; border:1px solid #FCD34D; font-size:13px; color:#78350F; animation:nwIn .2s ease both; }
+    .api-einmal-z { display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin:10px 0 6px; }
+    .api-einmal-z code { flex:1; min-width:0; padding:8px 10px; border-radius:8px; background:#fff; border:1px solid #FDE68A; font-size:12.5px; word-break:break-all; color:#1F2937; }
+    .api-liste { display:grid; gap:8px; margin-top:14px; }
+    .api-zeile { display:flex; align-items:center; gap:12px; padding:10px 12px; border-radius:10px; border:1px solid var(--border2,#E5E7EB); background:#fff; }
+    .api-zeile.aus { opacity:.6; background:#F8FAF9; }
+    .api-z-info { flex:1; min-width:0; display:flex; flex-direction:column; gap:3px; font-size:13px; }
+    .api-z-info small { color:var(--gray,#5A6670); font-size:11.5px; }
+    .api-z-info code, .api-basis code { font-size:11.5px; background:#F1F5F3; padding:1px 6px; border-radius:5px; }
+    .api-z-aus { color:#B91C1C; font-weight:600; }
+    .api-z-btn { flex:none; width:auto !important; margin:0 !important; padding:7px 14px !important; font-size:12px !important; }
+    .api-neu .plan-btn, .api-einmal-z .plan-btn { width:auto !important; margin:0 !important; flex:none; padding-left:18px !important; padding-right:18px !important; }
+    .api-z-info b { overflow-wrap:anywhere; }
+    .api-basis { margin-top:12px; word-break:break-all; }
+    .api-badge { display:inline-block; padding:1px 7px; border-radius:999px; background:#EEF4FF; color:#1E4E8C; font-size:10.5px; font-weight:800; letter-spacing:.04em; vertical-align:middle; }
+    @media (max-width:520px) { .api-zeile { flex-direction:column; align-items:stretch; } .api-z-btn { width:100% !important; } .api-neu .plan-btn { width:100% !important; } }
+    /* Darstellungsmodus fuer serverseitige PDFs */
+    body.api-pdf-modus #landingGate, body.api-pdf-modus #authGate, body.api-pdf-modus #planGate, body.api-pdf-modus #uploadGate,
+    body.api-pdf-modus #helpBtn, body.api-pdf-modus #helpPop, body.api-pdf-modus #langBtn { display:none !important; }
+    body.api-pdf-modus .app, body.api-pdf-modus #mainView { display:block !important; }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -4736,6 +4760,18 @@
         <div class="konto-card-h">Meine Daten exportieren</div>
         <p class="konto-card-p">Lade alle deine Daten als JSON-Datei herunter – inklusive aller Prüfungen (DSGVO-Auskunft).</p>
         <button class="plan-btn konto-export" id="exportBtn" onclick="exportiereDaten()">Daten exportieren (JSON)</button>
+      </div>
+      <div class="konto-card" id="apiKarte" style="display:none;">
+        <div class="konto-card-h">API-Zugang</div>
+        <p class="konto-card-p">Für die Anbindung anderer Software (z.&nbsp;B. Car-Client). Prüfungen über die API erscheinen wie gewohnt in Historie und Audit-Log und zählen gegen das Kontingent. Der Schlüssel wird <strong>nur einmal</strong> angezeigt.</p>
+        <div class="api-neu">
+          <input type="text" class="om-name-input" id="apiName" maxlength="60" placeholder="Name, z. B. Car-Client REMAX" />
+          <button class="plan-btn" id="apiNeuBtn" onclick="apiSchluesselErzeugen()">Schlüssel erzeugen</button>
+        </div>
+        <div id="apiMsg" class="auth-msg" style="display:none; margin-top:10px;"></div>
+        <div id="apiNeuAnzeige"></div>
+        <div id="apiListe" class="api-liste"></div>
+        <p class="konto-card-p api-basis">Basis-URL: <code id="apiBasisUrl"></code> · Header: <code>accesskey</code></p>
       </div>
       <div class="konto-card danger">
         <div class="konto-card-h">Konto löschen</div>
@@ -6553,7 +6589,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span class="app-version" onclick="neuigkeitenZeigen()" title="Was ist neu?" style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v12.32</span>
+      <span class="app-version" onclick="neuigkeitenZeigen()" title="Was ist neu?" style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v12.33</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -10299,6 +10335,43 @@ function infoWarn(titel, text, farbe) {
 }
 
 // ===== ÖFFENTLICHE UPLOAD-SEITE (per Link) =====
+// v12.33: Darstellungsmodus fuer serverseitige API-PDFs (Cloudflare Browser Rendering)
+const API_PDF_TOKEN = (function(){ try { return new URLSearchParams(location.search).get('api_pdf') || ''; } catch(e) { return ''; } })();
+async function apiPdfRender() {
+  document.body.classList.add('api-pdf-modus');
+  const fertig = function(fehler){
+    if (document.getElementById('pdfRenderFertig')) return;
+    const m = document.createElement('div'); m.id = 'pdfRenderFertig'; m.setAttribute('data-fehler', fehler || ''); m.style.display = 'none';
+    document.body.appendChild(m);
+  };
+  try {
+    ['landingGate', 'authGate', 'planGate', 'uploadGate'].forEach(function(id){ const x = document.getElementById(id); if (x) x.style.display = 'none'; });
+    const app = document.querySelector('.app'); if (app) app.style.display = '';
+    const mv = document.getElementById('mainView'); if (mv) mv.style.display = 'block';
+    const r = await workerCall('api_render_daten', { token: API_PDF_TOKEN });
+    if (!r || !r.ok || !r.report) throw new Error((r && r.error) || 'Keine Daten');
+    const d = r.report;
+    d._analyseId = r.analyse_id || d._analyseId;
+    if (r.abgeschlossen_am) d._abgeschlossen_am = r.abgeschlossen_am;
+    if (r.uebersetzungen) Object.keys(r.uebersetzungen).forEach(function(de){ if (_TR_CACHE[de] === undefined) _TR_CACHE[de] = r.uebersetzungen[de]; });
+    CURRENT_USER_EMAIL = d._email || '';
+    showReport(d, d.firmenname, true, true);
+    await akteDruckBereit(null, 60000);                       // Bilder, Karte, Sanktionen fertig
+    const w = { ordner: false, wurzeln: [document.getElementById('report')] };
+    DRUCK_SPRACHE = r.lang === 'en' ? 'en' : 'de';           // zentrale Sprach-Logik aus v12.32
+    if (DRUCK_SPRACHE === 'en') { try { await druckUebersetzungenSicherstellen(w); } catch (e) {} }
+    druckSpracheSetzen(w.wurzeln, DRUCK_SPRACHE);
+    DRUCK_TEIL = DT().teile.gesamt;
+    druckEntwurfVorbereiten();                                 // Wasserzeichen + Entwurfs-Hinweis wie beim Export im Tool
+    document.title = druckDateiname();
+    fertig('');
+  } catch (e) {
+    const p = document.createElement('p'); p.style.cssText = 'padding:40px;font:16px Arial'; p.textContent = 'PDF konnte nicht erstellt werden: ' + ((e && e.message) || 'Fehler');
+    document.body.appendChild(p);
+    fertig((e && e.message) || 'Fehler');
+  }
+}
+
 const UPLOAD_TOKEN = (function(){ try { return new URLSearchParams(location.search).get('upload') || ''; } catch(e) { return ''; } })();
 
 // Kommt der Aufruf aus der Passwort-Mail? Supabase haengt das an die Adresse an.
@@ -11697,9 +11770,9 @@ if (sb) {
     }
     try {
       const { data } = await sb.auth.getSession();
-      if (UPLOAD_TOKEN) { showUploadGate(); } else if (data && data.session) showApp(data.session); else if (EINLADUNG_TOKEN) { showGate(); einladungHinweis(); } else showLanding();
+      if (API_PDF_TOKEN) { apiPdfRender(); } else if (UPLOAD_TOKEN) { showUploadGate(); } else if (data && data.session) showApp(data.session); else if (EINLADUNG_TOKEN) { showGate(); einladungHinweis(); } else showLanding();
     } catch (e) {
-      if (UPLOAD_TOKEN) { showUploadGate(); } else showLanding();
+      if (API_PDF_TOKEN) { apiPdfRender(); } else if (UPLOAD_TOKEN) { showUploadGate(); } else showLanding();
     }
     initialDone = true;
   })();
@@ -12635,7 +12708,74 @@ function closeLegal() {
   if (g) g.style.display = 'none';
 }
 
+// ============================================================
+// v12.33 API-ZUGANG (Konto -> nur Team-Leitung)
+// Der Schluessel wird in der Datenbank erzeugt und nur EINMAL angezeigt; gespeichert ist nur sein SHA-256-Hash.
+// ============================================================
+function apiDarf() { return ['president', 'vice', 'support'].indexOf(CURRENT_USER_RANG) >= 0; }
+function apiKarteZeigen() {
+  const k = document.getElementById('apiKarte'); if (!k) return;
+  k.style.display = apiDarf() ? '' : 'none';
+  const b = document.getElementById('apiBasisUrl'); if (b) b.textContent = String(WORKER || '').replace(/\/$/, '') + '/api/check';
+  if (apiDarf()) apiSchluesselLaden();
+}
+function apiMeldung(text, gut) {
+  const m = document.getElementById('apiMsg'); if (!m) return;
+  m.style.display = text ? 'block' : 'none'; m.className = 'auth-msg ' + (gut ? 'ok' : 'err'); m.textContent = text || '';
+}
+function apiDatum(t) { return t ? new Date(t).toLocaleString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '\u2013'; }
+async function apiSchluesselLaden() {
+  const z = document.getElementById('apiListe'); if (!z || !sb) return;
+  try {
+    const { data, error } = await sb.rpc('api_schluessel_liste');
+    if (error) { z.innerHTML = '<p class="konto-card-p">API-Zugang ist noch nicht eingerichtet.</p>'; return; }
+    const liste = data || [];
+    if (!liste.length) { z.innerHTML = '<p class="konto-card-p api-leer">Noch kein Schl\u00fcssel angelegt.</p>'; return; }
+    z.innerHTML = liste.map(function(k){
+      const aktiv = !k.widerrufen_am;
+      return '<div class="api-zeile' + (aktiv ? '' : ' aus') + '"><div class="api-z-info"><b>' + escapeHtml(k.name) + '</b> <code>' + escapeHtml(k.praefix || '') + '\u2026</code>'
+        + '<small>Erstellt ' + apiDatum(k.erstellt_am) + (k.erstellt_von_name ? ' von ' + escapeHtml(k.erstellt_von_name) : '') + ' \u00b7 Zuletzt benutzt ' + apiDatum(k.zuletzt_benutzt)
+        + (aktiv ? '' : ' \u00b7 <span class="api-z-aus">Widerrufen ' + apiDatum(k.widerrufen_am) + '</span>') + '</small></div>'
+        + (aktiv ? '<button class="plan-btn danger api-z-btn" onclick="apiSchluesselWiderrufen(\'' + k.id + '\', this)">Widerrufen</button>' : '') + '</div>';
+    }).join('');
+    Array.prototype.forEach.call(z.querySelectorAll('.api-z-btn'), function(b, i){ b.dataset.name = (liste.filter(function(k){ return !k.widerrufen_am; })[i] || {}).name || ''; });
+  } catch (e) { z.innerHTML = ''; }
+}
+async function apiSchluesselErzeugen() {
+  const inp = document.getElementById('apiName'), btn = document.getElementById('apiNeuBtn');
+  const name = (inp && inp.value || '').trim();
+  if (!name) { apiMeldung('Bitte einen Namen f\u00fcr den Schl\u00fcssel eingeben.', false); if (inp) inp.focus(); return; }
+  btn.disabled = true; apiMeldung('', true);
+  try {
+    const { data, error } = await sb.rpc('api_schluessel_erzeugen', { p_name: name });
+    if (error || !data || !data[0]) throw new Error((error && error.message) || 'Fehler');
+    const k = data[0];
+    document.getElementById('apiNeuAnzeige').innerHTML = '<div class="api-einmal" role="alert"><b>Neuer Schl\u00fcssel \u2013 jetzt kopieren, er wird nicht noch einmal angezeigt:</b>'
+      + '<div class="api-einmal-z"><code id="apiNeuKey">' + escapeHtml(k.schluessel) + '</code><button class="plan-btn" onclick="apiKopieren()">Kopieren</button></div>'
+      + '<small>Im Car-Client als HTTP-Header <code>accesskey</code> eintragen. In der Datenbank liegt nur ein Hash.</small></div>';
+    if (inp) inp.value = '';
+    apiSchluesselLaden();
+  } catch (e) { apiMeldung('Schl\u00fcssel konnte nicht erzeugt werden: ' + ((e && e.message) || ''), false); }
+  finally { btn.disabled = false; }
+}
+function apiKopieren() {
+  const c = document.getElementById('apiNeuKey'); if (!c) return;
+  try { navigator.clipboard.writeText(c.textContent).then(function(){ apiMeldung('Schl\u00fcssel kopiert.', true); }); } catch (e) {}
+}
+async function apiSchluesselWiderrufen(id, btn) {
+  const name = (btn && btn.dataset && btn.dataset.name) || '';
+  if (!confirm('Schl\u00fcssel \u201e' + name + '\u201c widerrufen?\n\nAnfragen mit diesem Schl\u00fcssel werden danach abgelehnt (403).')) return;
+  try {
+    const { error } = await sb.rpc('api_schluessel_widerrufen', { p_id: id });
+    if (error) throw new Error(error.message);
+    apiMeldung('Schl\u00fcssel \u201e' + name + '\u201c wurde widerrufen.', true);
+    const a = document.getElementById('apiNeuAnzeige'); if (a) a.innerHTML = '';
+    apiSchluesselLaden();
+  } catch (e) { apiMeldung('Widerrufen fehlgeschlagen: ' + ((e && e.message) || ''), false); }
+}
+
 function openKonto() {
+  try { setTimeout(apiKarteZeigen, 0); } catch (e) {}
   const lg = document.getElementById('kontoLogo');
   const src = document.querySelector('.auth-card .auth-logo');
   if (lg && src && src.src) lg.src = src.src;
@@ -13003,6 +13143,13 @@ async function exportiereDaten() {
         paket_limit: CURRENT_FIRMA.monatslimit, testphase: !!CURRENT_FIRMA.trial
       } : null,
       pruefungen: { anzahl: analysen.length, eintraege: analysen },
+      api_zugang: await (async function(){   // v12.33: Schluessel (ohne Hash) und API-Pruefungen
+        try {
+          const a = await sb.rpc('api_schluessel_liste');
+          const b = await sb.from('api_pruefungen').select('pruef_id,ref,status,eingabe,analyse_id,created_at,pdf_ablauf');
+          return { schluessel: (a && a.data) || [], pruefungen: (b && b.data) || [] };
+        } catch (e) { return { schluessel: [], pruefungen: [] }; }
+      })(),
       ueberwachung: { anzahl: favoriten.length, eintraege: favoriten },
       ordner: { anzahl: ordner.length, eintraege: ordner },
       ordner_freigaben: { anzahl: freigaben.length, eintraege: freigaben },
@@ -13766,7 +13913,7 @@ setTimeout(function(){ try { akteVorschauZeichnen(); } catch(e) {} }, 0);
 // Kleine Korrekturen ohne neue Funktionen: NEU_VERSION unveraendert lassen.
 // ============================================================
 const NEU_VERSION = 'v12.15';           // Stand der Neuigkeiten - nur erhoehen, wenn es wirklich Neues gibt
-const APP_VERSION = 'v12.32';           // aktuelle Version (Anzeige im Bericht und oben im Kopf)
+const APP_VERSION = 'v12.33';           // aktuelle Version (Anzeige im Bericht und oben im Kopf)
 const UPDATE_KURZ = 'Abgeschlossene Akten sind jetzt schreibgesch\u00fctzt \u2013 zum \u00c4ndern werden sie wieder ge\u00f6ffnet.';
 const NEUIGKEITEN = [
   { farbe: '#B45309', v: 'v12.15', ico: '<path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/>',
@@ -14111,7 +14258,7 @@ function akteStammHTML(d) {
     + z('Eigener Standort', escapeHtml(d._standort || ''))
     + z('Pr\u00fcf-ID', escapeHtml(d.pruefId || ''))
     + z('Angelegt am', datum)
-    + z('Angelegt von', escapeHtml(d._name || d._email || ''))
+    + z('Angelegt von', d._api ? '<span class="api-badge">API</span> ' + escapeHtml('\u00fcber API \u00b7 ' + (d._api.schluessel || '') + (d._api.ref ? ' \u00b7 Ref. ' + d._api.ref : '')) : escapeHtml(d._name || d._email || ''))
     + z('Fassung', d._fassung ? String(d._fassung) : '')
     + '</div>'
     + '<div class="st-fuss">Die Akte ist angelegt und in der \u00dcbersicht \u201eAkten &amp; Ordner\u201c abgelegt. Ordner-Zuordnung und \u00dcberwachung verwaltest du dort bzw. oben in der \u00dcbersicht.</div>'
@@ -17222,7 +17369,7 @@ function renderHistoryList() {
       return '<div class="history-row hr-anim akte-mappe' + (r.abgeschlossen_am ? ' versiegelt' : '') + '" data-reiter="' + escapeHtml(r.pruef_id || 'Akte') + '" style="--mappe:' + mappe + ';animation-delay:' + Math.min(idx * 45, 600) + 'ms">'
         + '<div class="hr-click" onclick="openFromHistory(' + idx + ')">'
         + '<div class="hr-main">'
-        + '<div class="hr-name">' + escapeHtml(r.firmenname || 'Unbekanntes Unternehmen')
+        + '<div class="hr-name">' + escapeHtml(r.firmenname || 'Unbekanntes Unternehmen') + ((r.report_json && r.report_json._api) ? ' <span class="api-badge" title="\u00fcber API">API</span>' : '')
         + (r.abgeschlossen_am ? ' <span class="hr-akte-ok" title="Akte abgeschlossen \u2013 Vollst\u00e4ndigkeit best\u00e4tigt"><svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Abgeschlossen</span>' : '')
         + '</div>'
         + '<div class="hr-meta">' + datum + (uhr ? ' · ' + uhr : '') + land + '</div>'
