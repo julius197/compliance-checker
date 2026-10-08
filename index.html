@@ -4129,6 +4129,15 @@
     .druck-orig-hinweis { display:none; }
     @media print { .druck-orig-hinweis { display:block !important; margin:0 0 10px; padding:8px 12px; border:1px solid #F59E0B; border-radius:8px; background:#FFFBEB !important;
       color:#92400E; font-size:11px; line-height:1.45; -webkit-print-color-adjust:exact; print-color-adjust:exact; } }
+
+    /* v12.35 Identitaetspruefung ohne Handelsregister */
+    .idt-box { margin:14px 0; padding:12px 14px; border-radius:12px; font-size:13px; line-height:1.5; border:1px solid; break-inside:avoid; page-break-inside:avoid; }
+    .idt-box.ok { background:#F0FBF4; border-color:#BBE5C8; color:#14532D; }
+    .idt-box.warn { background:#FFFBEB; border-color:#FCD34D; color:#78350F; }
+    .idt-t { font-size:11px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; margin-bottom:4px; }
+    .idt-basis { font-weight:700; letter-spacing:0; text-transform:none; opacity:.85; }
+    .idt-liste { margin:6px 0 0 18px; padding:0; font-size:12px; }
+    @media print { .idt-box { -webkit-print-color-adjust:exact; print-color-adjust:exact; } }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -6594,7 +6603,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span class="app-version" onclick="neuigkeitenZeigen()" title="Was ist neu?" style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v12.34</span>
+      <span class="app-version" onclick="neuigkeitenZeigen()" title="Was ist neu?" style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v12.35</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -13391,6 +13400,207 @@ function gleichnamigeKonkurrenz(treffer) {
   return treffer.some(function(t){ const k = firmenKern(t.name); z[k] = (z[k] || 0) + 1; return z[k] > 1; });
 }
 // Eingegebenen Sitz mit dem Sitz laut Quelle vergleichen
+// ============================================================
+// v12.35 GEMEINSAME FUNKTIONEN (App UND Worker nutzen exakt diesen Code)
+// Identitaet ohne Handelsregister: USt-ID (VIES) als Hauptanker, Abgleich von Adresse und Website,
+// faire Score-Regel "kein Register auffindbar". Im Worker steht eine wortgleiche Kopie.
+// ============================================================
+const VIES_LAENDER = ['AT', 'BE', 'BG', 'CY', 'CZ', 'DE', 'DK', 'EE', 'EL', 'ES', 'FI', 'FR', 'HR', 'HU', 'IE', 'IT', 'LT', 'LU', 'LV', 'MT', 'NL', 'PL', 'PT', 'RO', 'SE', 'SI', 'SK', 'XI'];
+function adrNorm(s) {
+  return String(s == null ? '' : s).toLowerCase().replace(/\u00df/g, 'ss').normalize('NFKD').replace(/[\u0300-\u036f]/g, '');
+}
+// Strasse in Name + Hausnummer zerlegen: "Saarstr. 11" = "Saarstrasse 11" = "Saarstraße 11"
+function strasseTeile(s) {
+  let t = adrNorm(s).replace(/(strasse|strase|str)\.?/g, 'str ');
+  const nr = ((t.match(/(\d+(?:\s?[a-z](?![a-z]))?)(?!.*\d)/) || [])[1] || '').replace(/\s+/g, '');
+  const name = t.replace(/\d+(?:\s?[a-z](?![a-z]))?(\s*[-\/]\s*\d+(?:\s?[a-z](?![a-z]))?)?/g, ' ').replace(/[^a-z]/g, '');
+  return { name: name, nr: nr };
+}
+function strassenGleich(a, b) {
+  const x = strasseTeile(a), y = strasseTeile(b);
+  if (!x.name || !y.name) return null;
+  const nameOk = x.name === y.name || (x.name.length >= 5 && y.name.length >= 5 && (x.name.indexOf(y.name) >= 0 || y.name.indexOf(x.name) >= 0));
+  if (!nameOk) return false;
+  return (x.nr && y.nr) ? x.nr === y.nr : true;
+}
+// Freitext-Adresse (VIES, Google, Register) mit der Eingabe vergleichen: true / false / null (nicht vergleichbar)
+function adresseVergleichen(text, eingabe) {
+  const t = String(text == null ? '' : text);
+  if (!t.trim() || !eingabe) return null;
+  const n = adrNorm(t), teile = [];
+  if (eingabe.zip) teile.push(n.replace(/\s/g, '').indexOf(adrNorm(eingabe.zip).replace(/\s/g, '')) >= 0);
+  if (eingabe.city) teile.push(n.indexOf(adrNorm(eingabe.city).trim()) >= 0);
+  if (eingabe.street) {
+    const zeilen = t.split(/[\n,;]/).map(function(z){ return z.trim(); }).filter(Boolean);
+    teile.push(zeilen.some(function(z){ return strassenGleich(z, eingabe.street) === true; }));
+  }
+  if (!teile.length) return null;
+  return teile.every(function(x){ return x === true; });
+}
+// Website auf die Domain reduzieren: "https://www.fritz.gmbh/kontakt" -> "fritz.gmbh"
+function domainNorm(u) {
+  const s = String(u == null ? '' : u).trim().toLowerCase().replace(/^[a-z][a-z0-9+.-]*:\/\//, '').replace(/^www\d?\./, '').split(/[\/?#:\s]/)[0].replace(/\.+$/, '');
+  return (/^[a-z0-9\u00e4\u00f6\u00fc-]+(\.[a-z0-9\u00e4\u00f6\u00fc-]+)*\.[a-z]{2,}$/.test(s) && s.length <= 100) ? s : '';
+}
+function domainsGleich(a, b) {
+  const x = domainNorm(a), y = domainNorm(b);
+  if (!x || !y) return null;
+  return x === y || x.slice(-(y.length + 1)) === '.' + y || y.slice(-(x.length + 1)) === '.' + x;
+}
+function registerStatusErmitteln(d) {
+  if (d && d._registerAuswahl) return 'found';
+  const f = ((d && d.grunddaten && d.grunddaten.felder) || []).find(function(x){ return /register/i.test(String((x && x.key) || '')); });
+  const v = String((f && f.value) || '').trim();
+  if (/nicht eintragungspflichtig|keine eintragungspflicht|not applicable|nicht anwendbar/i.test(v)) return 'not_applicable';
+  if (!v || isNA(v) || /nicht (gefunden|auffindbar|ermittelt|vorhanden|belegt)|kein(e|en)? (eintrag|register)|not found|no (entry|register)|unbekannt/i.test(v)) return 'not_found';
+  return 'found';
+}
+// Worauf beruht die Identitaet? (Register, VIES, Website, Google) - inkl. Hinweisen auf Deutsch und Englisch
+function identitaetBewerten(d, vies, eingabe, website, google) {
+  eingabe = eingabe || {};
+  const notiz = function(de, en){ out.notizen.push({ de: de, en: en }); };
+  const vat = String(eingabe.vat_id || '').toUpperCase().replace(/[\s.\-]/g, '');
+  const land = vat.slice(0, 2), name = eingabe.company || (d && d.firmenname) || '';
+  const out = { registerStatus: registerStatusErmitteln(d), basis: [], viesAnker: false, addressMatch: null, websiteMatch: null, notizen: [],
+    vies: { checked: false, valid: null, name: null, address: null, name_match: null, address_match: null, status: vat ? null : 'not_provided' } };
+  if (vat) {
+    if (VIES_LAENDER.indexOf(land) < 0) {
+      out.vies.status = 'not_applicable';
+      notiz('USt-ID nicht \u00fcber VIES pr\u00fcfbar (Land au\u00dferhalb der EU).', 'VAT ID cannot be checked via VIES (country outside the EU).');
+    } else if (vies && (vies.valid === true || vies.status === 'valid')) {
+      const vn = String(vies.name || '').trim(), va = String(vies.address || '').trim();
+      out.vies.checked = true; out.vies.valid = true; out.vies.status = 'valid';
+      out.vies.name = (vn && vn !== '---') ? vn : null;
+      out.vies.address = (va && va !== '---') ? va : null;
+      out.vies.name_match = out.vies.name ? !!(namenGleich(out.vies.name, name) || (d && d.firmenname && namenGleich(out.vies.name, d.firmenname))) : null;
+      out.vies.address_match = out.vies.address ? adresseVergleichen(out.vies.address, eingabe) : null;
+      if (!out.vies.name) notiz('Firmenname von VIES nicht geliefert.', 'Company name not provided by VIES.');
+      if (!out.vies.address) notiz('Adresse von VIES nicht geliefert.', 'Address not provided by VIES.');
+      if (out.vies.name_match === false) notiz('Name laut VIES weicht ab: ' + out.vies.name, 'Name according to VIES differs: ' + out.vies.name);
+      if (out.vies.address_match === false) notiz('Adresse laut VIES weicht von der Eingabe ab: ' + out.vies.address, 'Address according to VIES differs from the input: ' + out.vies.address);
+    } else if (vies && vies.status === 'unavailable') {
+      out.vies.status = 'unavailable';
+      notiz('VIES war nicht erreichbar \u2013 USt-ID nicht best\u00e4tigt.', 'VIES was not reachable \u2013 VAT ID not confirmed.');
+    } else if (vies) {
+      out.vies.checked = true; out.vies.valid = false; out.vies.status = 'invalid';
+      notiz('USt-ID laut VIES ung\u00fcltig.', 'VAT ID invalid according to VIES.');
+    }
+  }
+  // Website: erreichbar, Firmenname/Impressum gefunden, Domain passt zur Eingabe
+  const wsBestaetigt = !!(website && website.erreichbar && website.nameGefunden);
+  if (eingabe.website) {
+    const bekannt = (website && website.domain) || (google && google.websiteUri) || '';
+    const dom = bekannt ? domainsGleich(eingabe.website, bekannt) : null;
+    out.websiteMatch = dom === false ? false : (wsBestaetigt ? true : ((website && website.erreichbar === false) ? false : null));
+    if (website && website.erreichbar === false) notiz('Website ' + domainNorm(eingabe.website) + ' nicht erreichbar.', 'Website ' + domainNorm(eingabe.website) + ' not reachable.');
+    else if (website && website.erreichbar && !website.nameGefunden) notiz('Firmenname auf der Website nicht gefunden.', 'Company name not found on the website.');
+    if (dom === false) notiz('Angegebene Website passt nicht zur gefundenen Website (' + domainNorm(bekannt) + ').', 'Given website does not match the website found (' + domainNorm(bekannt) + ').');
+  }
+  // Google-Eintrag bestaetigt Name und Ort
+  const gName = google && google.displayName && google.displayName.text;
+  const gBestaetigt = !!(gName && namenGleich(gName, name) && google.formattedAddress
+    && (!(eingabe.zip || eingabe.city) || ortPasst(googleOrt(google.formattedAddress), { ort: eingabe.city || '', plz: eingabe.zip || '' })));
+  // Angegebene Adresse gegen amtliche Adresse, VIES und Google
+  const amtlich = (((d && d.grunddaten && d.grunddaten.felder) || []).find(function(x){ return /adresse|anschrift/i.test(String((x && x.key) || '')); }) || {}).value;
+  const quellen = [amtlich && !isNA(amtlich) ? amtlich : null, out.vies.address, google && google.formattedAddress].filter(Boolean);
+  if (eingabe.street || eingabe.zip || eingabe.city) {
+    const erg = quellen.map(function(q){ return adresseVergleichen(q, eingabe); }).filter(function(x){ return x !== null; });
+    out.addressMatch = erg.length ? erg.some(function(x){ return x === true; }) : null;
+    if (out.addressMatch === false) notiz('Angegebene Adresse weicht von den gefundenen Quellen ab.', 'Given address differs from the sources found.');
+  }
+  if (out.registerStatus === 'found') out.basis.push('register');
+  if (out.vies.valid === true) out.basis.push('vies');
+  if (wsBestaetigt) out.basis.push('website');
+  if (gBestaetigt) out.basis.push('google');
+  // Hauptanker USt-ID: nur ohne Register, nur gueltig, nur mit passendem Namen (VIES oder - falls VIES keinen
+  // Namen liefert - Website/Google), und die Adresse darf VIES nicht widersprechen. Sonst: Bewertung wie bisher.
+  const nameOk = out.vies.name_match === true || (out.vies.name_match === null && (wsBestaetigt || gBestaetigt));
+  out.viesAnker = out.registerStatus !== 'found' && out.vies.valid === true && nameOk && out.vies.address_match !== false;
+  if (out.registerStatus !== 'found') {
+    const ausland = land && land !== 'DE' ? (land === 'EL' ? 'GR' : land) : '';
+    const istAusland = !!ausland || (eingabe.country && String(eingabe.country).toUpperCase() !== 'DE');
+    if (out.viesAnker) {
+      const nT = out.vies.name_match === true ? ['Name passt', 'name matches'] : ['Name von VIES nicht geliefert', 'name not provided by VIES'];
+      const aT = out.vies.address_match === true ? ['Adresse passt', 'address matches'] : ['Adresse von VIES nicht geliefert', 'address not provided by VIES'];
+      const best = [wsBestaetigt ? 'Website' : '', gBestaetigt ? 'Google' : ''].filter(Boolean);
+      out.notizen.unshift({
+        de: 'Kein Handelsregister auffindbar' + (istAusland ? ' (Ausland)' : '') + '. Identit\u00e4t \u00fcber USt-ID (VIES g\u00fcltig, ' + nT[0] + ', ' + aT[0] + ')' + (best.length ? ', ' + best.join(' und ') + ' best\u00e4tigt' : '') + '. Das fehlende Register wird nicht negativ gewertet.',
+        en: 'No commercial register found' + (istAusland ? ' (foreign company)' : '') + '. Identity confirmed via VAT ID (VIES valid, ' + nT[1] + ', ' + aT[1] + ')' + (best.length ? ', ' + best.join(' and ') + ' confirmed' : '') + '. The missing register is not counted negatively.' });
+    } else {
+      out.notizen.unshift({ de: 'Kein Handelsregister auffindbar. Die Identit\u00e4t ist nicht \u00fcber die USt-ID belegt \u2013 Bewertung wie bisher.',
+        en: 'No commercial register found. Identity is not confirmed via the VAT ID \u2013 assessment unchanged.' });
+    }
+  }
+  return out;
+}
+function registerFairnessAktiv(d) { return !!(d && d._identitaet && d._identitaet.viesAnker === true); }
+// Beruht der Phantom-Verdacht ausschliesslich auf dem fehlenden Register?
+function phantomNurRegister(d) {
+  const p = d && d.phantom;
+  if (!p || p.verdacht !== true) return false;
+  if (p.nurRegister === true) return true;
+  const ind = (p.indizien || []).map(function(i){ return String((i && i.text) || ''); });
+  return ind.length > 0 && ind.every(function(x){ return /handelsregister|register|registry|registereintrag/i.test(x); });
+}
+// Gesamt-Score (Gewichte, Sitz-Abzug, Deckel, Stufen) - App und API rechnen mit DIESER Funktion
+function scoreBerechnen(d) {
+  const fair = registerFairnessAktiv(d);
+  const gd = d.grunddaten && d.grunddaten.score;
+  const abzug = fair ? Math.max(0, Math.min(100, Number(d.grunddaten && d.grunddaten.registerAbzug) || 0)) : 0;
+  // Grunddaten 30%, Personen 30%, Kontakt 20%, Finanzen 15%, Reputation 5%
+  const weighted = [
+    { score: (typeof gd === 'number' && gd > 0 && abzug) ? Math.min(100, gd + abzug) : gd, weight: 0.30 },
+    { score: d.personen   && d.personen.score,   weight: 0.30 },
+    { score: d.kontakt    && d.kontakt.score,    weight: 0.20 },
+    { score: d.reputation && d.reputation.score, weight: 0.05 },
+    { score: d.finanzen   && d.finanzen.score,   weight: 0.15 },
+  ];
+  // Nur Kategorien mit echtem Score (nicht null/0) zählen
+  const valid = weighted.filter(function(w){ return typeof w.score === 'number' && w.score > 0; });
+  let computedScore = null;
+  if (valid.length > 0) {
+    const totalWeight = valid.reduce(function(a, w){ return a + w.weight; }, 0);
+    const weightedSum = valid.reduce(function(a, w){ return a + w.score * w.weight; }, 0);
+    computedScore = Math.round(weightedSum / totalWeight);
+  }
+  d.gesamtScore = computedScore !== null ? computedScore : d.gesamtScore;
+  // SITZ-ABWEICHUNG (v12.2): Sitz laut Quelle passt nicht zum eingegebenen Ort -> Abzug (SITZ_ABZUG)
+  if (d._sitz && d._sitz.abweichung && typeof d.gesamtScore === 'number') {
+    d.gesamtScore = Math.max(0, d.gesamtScore - (d._sitz.abzug || SITZ_ABZUG));
+  }
+  d.phantom = d.phantom || { verdacht: false };
+  // PHANTOM-DECKELUNG: hart gedeckelt - ausser der Verdacht beruht nur auf dem fehlenden Register
+  // und die Identitaet ist ueber die USt-ID belegt (v12.35)
+  const phantomVerdacht = d.phantom && d.phantom.verdacht === true && !(fair && phantomNurRegister(d));
+  if (phantomVerdacht) {
+    const phantomScore = typeof d.phantom.score === 'number' ? d.phantom.score : 25;
+    const deckel = Math.min(30, phantomScore);
+    d.gesamtScore = Math.min(d.gesamtScore || deckel, deckel);
+  }
+  // INSOLVENZ-DECKELUNG: Insolvenz ist ein K.O.-Kriterium (wie Phantom)
+  if (d.insolvenz && d.insolvenz.verdacht === true) d.gesamtScore = Math.min(d.gesamtScore || 25, 25);
+  // SANKTIONS-/PEP-DECKELUNG: Sanktions-Treffer = K.O. (max 30), PEP allein = weicher Deckel (max 60, nie grün)
+  const sank = d.sanktion || {};
+  const sanktionTreffer = sank.treffer === true && (sank.art === 'sanktion' || sank.art === 'beides');
+  const pepTreffer = sank.treffer === true && sank.art === 'pep';
+  if (sanktionTreffer) {
+    const sScore = typeof sank.score === 'number' ? sank.score : 25;
+    const deckelS = Math.min(30, sScore);
+    d.gesamtScore = Math.min(d.gesamtScore != null ? d.gesamtScore : deckelS, deckelS);
+  } else if (pepTreffer) {
+    d.gesamtScore = Math.min(d.gesamtScore != null ? d.gesamtScore : 60, 60);
+  }
+  // Verdict an finalen Score anpassen - das Tool entscheidet NICHT über Geschäfte, es gibt nur Sorgfalts-Hinweise.
+  if (d.gesamtScore !== null && d.gesamtScore !== undefined) {
+    if (phantomVerdacht) { d.verdict = 'bad'; d.verdictText = t('v_warn', 'Erhöhte Sorgfaltspflicht'); }
+    else if (d.gesamtScore >= 75) { d.verdict = 'ok'; d.verdictText = t('v_ok', 'Geringe Auffälligkeiten'); }
+    else if (d.gesamtScore >= 50) { d.verdict = 'warn'; d.verdictText = t('v_warn', 'Erhöhte Sorgfaltspflicht'); }
+    else { d.verdict = 'bad'; d.verdictText = t('v_bad', 'Verstärkte Sorgfaltspflicht'); }
+  }
+  return d;
+}
+// ============ ENDE GEMEINSAME FUNKTIONEN ============
+
 function sitzAuswerten(eingabe, auswahl, report, g) {
   eingabe = eingabe || {};
   // Massgeblich ist die eigene Eingabe; nur ohne Eingabe gilt der Sitz der gewaehlten Firma
@@ -13639,6 +13849,10 @@ async function runAnalysis(name, ust, land, sitz, auswahl) {
     // Sitz: eingegeben vs. laut Quelle
     report._sitz = sitzAuswerten(sitz, auswahl, report, (googleTrefferOk && googleData) ? googleData : null);
     if (auswahl && auswahl.register) report._registerAuswahl = auswahl.register;
+    try {                                                     // v12.35: Identitaet (gemeinsame Funktion mit der API)
+      report._identitaet = identitaetBewerten(report, viesData, { company: name, vat_id: ust || '', zip: sollSitz.plz, city: sollSitz.ort, street: '', website: '', country: land },
+        null, (googleTrefferOk && googleData) ? googleData : null);
+    } catch (e) {}
     if (googleFehlerAnalyse) report._googleFehler = { status: googleFehlerAnalyse.status || 0, grund: googleFehlerAnalyse.grund || 'unbekannt' };
 
     showReport(report, name);
@@ -13745,8 +13959,18 @@ function secCard(title, data, weight) {
   </div>`;
 }
 
+// v12.35: Worauf beruht die Identitaet? (sichtbar in Akte und PDF; Uebersetzung ueber die zentrale Sprach-Logik)
+function identitaetHTML(d) {
+  const idt = d && d._identitaet;
+  if (!idt || idt.registerStatus === 'found' || !idt.notizen || !idt.notizen.length) return '';
+  const weitere = idt.notizen.slice(1).map(function(n){ return '<li>' + escapeHtml(n.de) + '</li>'; }).join('');
+  const basis = (idt.basis || []).map(function(b){ return ({ register: 'Handelsregister', vies: 'USt-ID (VIES)', website: 'Website', google: 'Google' })[b] || b; }).join(' \u00b7 ');
+  return '<div class="idt-box ' + (idt.viesAnker ? 'ok' : 'warn') + '"><div class="idt-t">Identit\u00e4tspr\u00fcfung' + (basis ? ' \u00b7 <span class="idt-basis">' + escapeHtml(basis) + '</span>' : '') + '</div>'
+    + '<div class="idt-text">' + escapeHtml(idt.notizen[0].de) + '</div>' + (weitere ? '<ul class="idt-liste">' + weitere + '</ul>' : '') + '</div>';
+}
 function phantomHTML(d) {
   if (!d.phantom || d.phantom.verdacht !== true) return '';
+  if (registerFairnessAktiv(d) && phantomNurRegister(d)) return '';   // v12.35: nur Register fehlt, Identitaet ueber USt-ID belegt
   const indizien = (d.phantom.indizien || []).map(ind => {
     const sw = ind.schwere || 'mittel';
     const swCls = sw==='hoch'?'schwere-hoch':sw==='niedrig'?'schwere-niedrig':'schwere-mittel';
@@ -14016,7 +14240,7 @@ setTimeout(function(){ try { akteVorschauZeichnen(); } catch(e) {} }, 0);
 // Kleine Korrekturen ohne neue Funktionen: NEU_VERSION unveraendert lassen.
 // ============================================================
 const NEU_VERSION = 'v12.15';           // Stand der Neuigkeiten - nur erhoehen, wenn es wirklich Neues gibt
-const APP_VERSION = 'v12.34';           // aktuelle Version (Anzeige im Bericht und oben im Kopf)
+const APP_VERSION = 'v12.35';           // aktuelle Version (Anzeige im Bericht und oben im Kopf)
 const UPDATE_KURZ = 'Abgeschlossene Akten sind jetzt schreibgesch\u00fctzt \u2013 zum \u00c4ndern werden sie wieder ge\u00f6ffnet.';
 const NEUIGKEITEN = [
   { farbe: '#B45309', v: 'v12.15', ico: '<path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/>',
@@ -16889,66 +17113,9 @@ function showReport(d, rawName, fromHistory, nichtSpeichern) {
   const na = v => isNA(v)?'<span class="cc-value na">N/A</span>':`<div class="cc-value">${escapeHtml(v)}</div>`;
 
   // Gewichteter Gesamt-Score (Prioritäten von Remax)
-  // Grunddaten 30%, Personen 30%, Kontakt 20%, Finanzen 15%, Reputation 5%
-  const weighted = [
-    { score: d.grunddaten && d.grunddaten.score, weight: 0.30 },
-    { score: d.personen   && d.personen.score,   weight: 0.30 },
-    { score: d.kontakt    && d.kontakt.score,    weight: 0.20 },
-    { score: d.reputation && d.reputation.score, weight: 0.05 },
-    { score: d.finanzen   && d.finanzen.score,   weight: 0.15 },
-  ];
-  // Nur Kategorien mit echtem Score (nicht null/0) zählen
-  const valid = weighted.filter(w => typeof w.score === 'number' && w.score > 0);
-  let computedScore = null;
-  if (valid.length > 0) {
-    // Gewichte normalisieren (falls Kategorien fehlen, bleiben die Verhältnisse erhalten)
-    const totalWeight = valid.reduce((a,w) => a + w.weight, 0);
-    const weightedSum = valid.reduce((a,w) => a + w.score * w.weight, 0);
-    computedScore = Math.round(weightedSum / totalWeight);
-  }
-  d.gesamtScore = computedScore !== null ? computedScore : d.gesamtScore;
-
-  // SITZ-ABWEICHUNG (v12.2): Sitz laut Quelle passt nicht zum eingegebenen Ort -> Abzug (SITZ_ABZUG)
-  if (d._sitz && d._sitz.abweichung && typeof d.gesamtScore === 'number') {
-    d.gesamtScore = Math.max(0, d.gesamtScore - (d._sitz.abzug || SITZ_ABZUG));
-  }
-
-  // PHANTOM-DECKELUNG (Option A): Bei Phantom-Verdacht wird der Score hart gedeckelt
-  const phantomVerdacht = d.phantom && d.phantom.verdacht === true;
-  if (phantomVerdacht) {
-    const phantomScore = typeof d.phantom.score === 'number' ? d.phantom.score : 25;
-    // Score wird auf maximal 30 gedeckelt – ein Phantom ist ein K.O.-Kriterium
-    const deckel = Math.min(30, phantomScore);
-    d.gesamtScore = Math.min(d.gesamtScore || deckel, deckel);
-  }
-
-  // INSOLVENZ-DECKELUNG: Insolvenz ist ein K.O.-Kriterium (wie Phantom)
-  const insolvenzVerdacht = d.insolvenz && d.insolvenz.verdacht === true;
-  if (insolvenzVerdacht) {
-    // Score wird auf maximal 25 gedeckelt – Insolvenz ist ein schwerwiegendes Signal
-    d.gesamtScore = Math.min(d.gesamtScore || 25, 25);
-  }
-
-  // SANKTIONS-/PEP-DECKELUNG: Sanktions-Treffer = K.O. (max 30, wie Phantom), PEP allein = weicher Deckel (max 60, nie grün)
+  // v12.35: gemeinsame Score-Berechnung (identisch in App und API, inkl. fairer Regel "kein Register auffindbar")
+  scoreBerechnen(d);
   const sank = d.sanktion || {};
-  const sanktionTreffer = sank.treffer === true && (sank.art === 'sanktion' || sank.art === 'beides');
-  const pepTreffer = sank.treffer === true && sank.art === 'pep';
-  if (sanktionTreffer) {
-    const sScore = typeof sank.score === 'number' ? sank.score : 25;
-    const deckelS = Math.min(30, sScore);
-    d.gesamtScore = Math.min(d.gesamtScore != null ? d.gesamtScore : deckelS, deckelS);
-  } else if (pepTreffer) {
-    d.gesamtScore = Math.min(d.gesamtScore != null ? d.gesamtScore : 60, 60);
-  }
-
-  // Verdict an finalen Score anpassen
-  // WICHTIG: Das Tool entscheidet NICHT über Geschäfte – es gibt nur Sorgfalts-Hinweise.
-  if (d.gesamtScore !== null && d.gesamtScore !== undefined) {
-    if (phantomVerdacht) { d.verdict='bad'; d.verdictText=t('v_warn','Erhöhte Sorgfaltspflicht'); }
-    else if (d.gesamtScore >= 75) { d.verdict='ok'; d.verdictText=t('v_ok','Geringe Auffälligkeiten'); }
-    else if (d.gesamtScore >= 50) { d.verdict='warn'; d.verdictText=t('v_warn','Erhöhte Sorgfaltspflicht'); }
-    else { d.verdict='bad'; d.verdictText=t('v_bad','Verstärkte Sorgfaltspflicht'); }
-  }
   const vIcon2 = d.verdict==='ok'?'✓':d.verdict==='bad'?'✕':'⚠';
 
   document.getElementById('report').innerHTML = `
@@ -16982,6 +17149,7 @@ function showReport(d, rawName, fromHistory, nichtSpeichern) {
       ${secCard('Reputation', d.reputation, '5%')}
       ${secCard('Finanzen', d.finanzen, '15%')}
     </div>
+    ${identitaetHTML(d)}
     ${phantomHTML(d)}
     ${insolvenzHTML(d)}
     <div class="contact-card reveal">
