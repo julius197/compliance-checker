@@ -4138,6 +4138,11 @@
     .idt-basis { font-weight:700; letter-spacing:0; text-transform:none; opacity:.85; }
     .idt-liste { margin:6px 0 0 18px; padding:0; font-size:12px; }
     @media print { .idt-box { -webkit-print-color-adjust:exact; print-color-adjust:exact; } }
+
+    /* v12.36: neutrale Zeile im API-PDF (statt Entwurfs-Hinweis) */
+    .api-pdf-zeile { margin:0 0 14px; padding:8px 12px; border:1px solid var(--border2,#E5E7EB); border-left:3px solid #94A3B8; border-radius:8px;
+      background:#F8FAFC; color:#475569; font-size:12px; line-height:1.45; break-inside:avoid; page-break-inside:avoid; }
+    @media print { .api-pdf-zeile { display:block !important; margin:0 0 4mm; font-size:9pt; -webkit-print-color-adjust:exact; print-color-adjust:exact; } }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -6603,7 +6608,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span class="app-version" onclick="neuigkeitenZeigen()" title="Was ist neu?" style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v12.35</span>
+      <span class="app-version" onclick="neuigkeitenZeigen()" title="Was ist neu?" style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v12.36</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -10361,6 +10366,9 @@ function infoWarn(titel, text, farbe) {
 // ===== ÖFFENTLICHE UPLOAD-SEITE (per Link) =====
 // v12.33: Darstellungsmodus fuer serverseitige API-PDFs (Cloudflare Browser Rendering)
 const API_PDF_TOKEN = (function(){ try { return new URLSearchParams(location.search).get('api_pdf') || ''; } catch(e) { return ''; } })();
+// v12.36: true NUR im serverseitigen API-Renderpfad (?api_pdf=<token>). API-Akten werden nie abgeschlossen,
+// sind aber kein Entwurf: kein Entwurfs-Banner/-Wasserzeichen/-Dateizusatz, stattdessen eine neutrale API-Zeile.
+const API_RENDER = !!API_PDF_TOKEN;
 async function apiPdfRender() {
   document.body.classList.add('api-pdf-modus');
   const fertig = function(fehler){
@@ -10396,7 +10404,7 @@ async function apiPdfRender() {
       if (Object.keys(neu).length) workerCall('api_render_uebersetzungen', { token: API_PDF_TOKEN, sprache: DRUCK_SPRACHE, texte: neu });
     } catch (e) {}
     DRUCK_TEIL = DT().teile.gesamt;
-    druckEntwurfVorbereiten();                                 // Wasserzeichen + Entwurfs-Hinweis wie beim Export im Tool
+    druckEntwurfVorbereiten();                                 // Pruef-ID-Wasserzeichen wie im Tool; im API-Pfad kein Entwurfs-Markup, sondern die neutrale API-Zeile (v12.36)
     document.title = druckDateiname();
     fertig('');
   } catch (e) {
@@ -12071,6 +12079,7 @@ function akteWirdAngezeigt() {
   return !!(typeof CURRENT_REPORT !== 'undefined' && CURRENT_REPORT && rep && rep.getClientRects().length);
 }
 function akteEntwurf() {
+  if (API_RENDER) return false;                   // v12.36: API-PDF ist kein Entwurf
   return akteWirdAngezeigt() && !CURRENT_REPORT._abgeschlossen_am;
 }
 // v12.21: Chrome/Edge druckt Datum, Titel und Adresse in den Seitenrand. Ohne Seitenrand
@@ -12103,6 +12112,10 @@ function druckEntwurfVorbereiten() {
   druckWasserzeichenAktualisieren();              // Druckzeitpunkt statt Analysezeitpunkt
   const offen = akteEntwurf();
   document.body.classList.toggle('druck-entwurf', offen);
+  if (API_RENDER) {                               // v12.36: auch bei beforeprint / print-Mediaquery nie Entwurfs-Markup
+    ['druckWz', 'druckEntwurfBanner'].forEach(function(id){ const x = document.getElementById(id); if (x) x.remove(); });
+    apiPdfZeileSetzen();
+  }
   if (!offen) return false;
   const jetzt = druckZeitText();
   const id = CURRENT_REPORT.pruefId || DRUCK_ID || '';
@@ -14240,9 +14253,13 @@ setTimeout(function(){ try { akteVorschauZeichnen(); } catch(e) {} }, 0);
 // Kleine Korrekturen ohne neue Funktionen: NEU_VERSION unveraendert lassen.
 // ============================================================
 const NEU_VERSION = 'v12.15';           // Stand der Neuigkeiten - nur erhoehen, wenn es wirklich Neues gibt
-const APP_VERSION = 'v12.35';           // aktuelle Version (Anzeige im Bericht und oben im Kopf)
+const APP_VERSION = 'v12.36';           // aktuelle Version (Anzeige im Bericht und oben im Kopf)
 const UPDATE_KURZ = 'Abgeschlossene Akten sind jetzt schreibgesch\u00fctzt \u2013 zum \u00c4ndern werden sie wieder ge\u00f6ffnet.';
 const NEUIGKEITEN = [
+  { farbe: '#475569', v: 'v12.36', ico: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="m9 15 2 2 4-4"/>',
+    t: 'API-PDFs ohne Entwurfs-Kennzeichnung',
+    kurz: 'PDFs aus der REST-API tragen keinen Entwurfs-Hinweis mehr, sondern eine neutrale Zeile mit Pr\u00fcf-ID und Datum.',
+    d: 'PDFs, die \u00fcber die REST-API (z.\u2009B. aus dem Car-Client) erstellt werden, tragen kein Entwurfs-Banner, kein Wasserzeichen \u201eAkte nicht abgeschlossen\u201c und keinen Entwurfs-Zusatz im Dateinamen mehr. Stattdessen steht oben die Zeile \u201eAutomatische Pr\u00fcfung \u00fcber die REST-API\u201c mit Pr\u00fcf-ID und Datum. Ausdrucke im Tool sind unver\u00e4ndert.' },
   { farbe: '#B45309', v: 'v12.15', ico: '<path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/>',
     t: 'Entw\u00fcrfe klar gekennzeichnet',
     kurz: 'PDFs von Akten, die noch nicht abgeschlossen sind, tragen jetzt auf jeder Seite das Wasserzeichen \u201eAkte nicht abgeschlossen\u201c.',
@@ -16207,14 +16224,36 @@ function generatePruefId() {
 // - Zeitpunkt = Moment des Drucks (vorher: Zeitpunkt der Analyse)
 // - zusaetzlich auf jeder Seite unten eine waagerechte, gut lesbare Pruefzeile (auch fuer Scans)
 // ============================================================
-function druckZeitText() {
-  const jetzt = new Date();
+function druckZeitText() { return druckZeitFormat(new Date()); }
+// Datum + Uhrzeit in der Sprache des Ausdrucks. v12.36: Im API-Pfad immer deutsche Zeit (Europe/Berlin) -
+// der Chrome von Cloudflare Browser Rendering laeuft in UTC. Im Tool unveraendert die Zeit des Browsers.
+function druckZeitFormat(datum) {
+  const zone = API_RENDER ? { timeZone: 'Europe/Berlin' } : {};
   if (druckSprache() === 'en') {
-    return jetzt.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
-      + ', ' + jetzt.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+    return datum.toLocaleDateString('en-GB', Object.assign({ day: '2-digit', month: 'short', year: 'numeric' }, zone))
+      + ', ' + datum.toLocaleTimeString('en-GB', Object.assign({ hour: '2-digit', minute: '2-digit' }, zone));
   }
-  return jetzt.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' })
-    + ', ' + jetzt.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }) + ' Uhr';
+  return datum.toLocaleDateString('de-DE', Object.assign({ day: '2-digit', month: '2-digit', year: 'numeric' }, zone))
+    + ', ' + datum.toLocaleTimeString('de-DE', Object.assign({ hour: '2-digit', minute: '2-digit' }, zone)) + ' Uhr';
+}
+// v12.36: neutrale Zeile im API-PDF statt Entwurfs-Hinweis (Text aus DT(), Sprache nach DRUCK_SPRACHE)
+function apiPdfZeileSetzen() {
+  if (!API_RENDER) return;
+  const rep = document.getElementById('report');
+  if (!rep) return;
+  const d = (typeof CURRENT_REPORT !== 'undefined' && CURRENT_REPORT) || {};
+  const id = d.pruefId || DRUCK_ID || '';
+  const t0 = d._createdAt ? new Date(d._createdAt) : null;
+  const zeit = druckZeitFormat(t0 && !isNaN(t0.getTime()) ? t0 : new Date());   // Analysezeitpunkt, sonst Renderzeitpunkt
+  let z = document.getElementById('apiPdfZeile');
+  if (!z) {
+    z = document.createElement('div');
+    z.id = 'apiPdfZeile'; z.className = 'api-pdf-zeile'; z.setAttribute('data-tr', 'aus');
+  }
+  z.textContent = DT().apiTitel + ' \u00b7 ' + DT().pruefId + ' ' + id + ' \u00b7 ' + DT().apiErstellt + ' ' + zeit;
+  const kopf = rep.querySelector('.report-top');                                   // unter den Kopf der Akte
+  if (kopf && kopf.parentNode) { if (kopf.nextSibling !== z) kopf.parentNode.insertBefore(z, kopf.nextSibling); }
+  else if (rep.firstChild !== z) rep.insertBefore(z, rep.firstChild);
 }
 // ---------- v12.32: Sprache des Ausdrucks (unabhaengig von der Oberflaeche) ----------
 let DRUCK_SPRACHE = null;
@@ -16224,11 +16263,13 @@ const DRUCK_TXT = {
         wzFuss: 'ENTWURF \u00b7 Akte nicht abgeschlossen \u00b7 gedruckt am ', banTitel: 'Entwurf \u2013 Akte nicht abgeschlossen',
         banText1: 'Dieser Ausdruck vom ', banText2: ' zeigt einen vorl\u00e4ufigen Stand', banAkte: ' der Akte ', banText3: '. Verbindlich ist erst die abgeschlossene Akte.',
         dateiEntwurf: ' - ENTWURF (nicht abgeschlossen)', pruefung: 'Compliance-Pr\u00fcfung',
+        apiTitel: 'Automatische Pr\u00fcfung \u00fcber die REST-API', apiErstellt: 'erstellt am',
         teile: { gesamt: 'Akte', analyse: 'Analyse', sanktion: 'Sanktionsabgleich', dokumente: 'Dokumente', endverbleib: 'Endverbleibserkl\u00e4rung' } },
   en: { pruefId: 'Check ID', gedruckt: 'printed', ordner: 'Folder', wzDiag: 'File not<br>finalised',
         wzFuss: 'DRAFT \u00b7 File not finalised \u00b7 printed on ', banTitel: 'Draft \u2013 file not finalised',
         banText1: 'This printout of ', banText2: ' shows a preliminary state', banAkte: ' of file ', banText3: '. Only the finalised file is binding.',
         dateiEntwurf: ' - DRAFT (not finalised)', pruefung: 'Compliance check',
+        apiTitel: 'Automated check via REST API', apiErstellt: 'created on',
         teile: { gesamt: 'File', analyse: 'Analysis', sanktion: 'Sanctions check', dokumente: 'Documents', endverbleib: 'End-use declaration' } }
 };
 function DT() { return DRUCK_TXT[druckSprache() === 'en' ? 'en' : 'de']; }
