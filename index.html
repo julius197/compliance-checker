@@ -6608,7 +6608,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span class="app-version" onclick="neuigkeitenZeigen()" title="Was ist neu?" style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v12.36</span>
+      <span class="app-version" onclick="neuigkeitenZeigen()" title="Was ist neu?" style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v12.37</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -12840,6 +12840,9 @@ function apiDarf() { return ['president', 'vice', 'support'].indexOf(CURRENT_USE
 function apiKarteZeigen() {
   const k = document.getElementById('apiKarte'); if (!k) return;
   k.style.display = apiDarf() ? '' : 'none';
+  // Sicherheitsnetz: Wird die Karte erst nach der Staffel-Animation sichtbar (z. B. Rang laedt spaeter),
+  // haette sie animation:none + opacity:0 - dann hier selbst einblenden.
+  if (apiDarf() && (k.style.animationName === 'none' || getComputedStyle(k).animationName === 'none')) k.style.animation = 'histIn .42s cubic-bezier(.2,.7,.2,1) .04s both';
   const b = document.getElementById('apiBasisUrl'); if (b) b.textContent = String(WORKER || '').replace(/\/$/, '') + '/api/check';
   if (apiDarf()) apiSchluesselLaden();
 }
@@ -12899,7 +12902,9 @@ async function apiSchluesselWiderrufen(id, btn) {
 }
 
 function openKonto() {
-  try { setTimeout(apiKarteZeigen, 0); } catch (e) {}
+  // v12.37: API-Karte SOFORT ein-/ausblenden - vor der Staffel-Animation unten. Vorher lief das per
+  // setTimeout(0); kam der Animationsschritt zuerst, blieb die Karte beim 1. Oeffnen unsichtbar (opacity 0).
+  try { apiKarteZeigen(); } catch (e) {}
   const lg = document.getElementById('kontoLogo');
   const src = document.querySelector('.auth-card .auth-logo');
   if (lg && src && src.src) lg.src = src.src;
@@ -14253,7 +14258,7 @@ setTimeout(function(){ try { akteVorschauZeichnen(); } catch(e) {} }, 0);
 // Kleine Korrekturen ohne neue Funktionen: NEU_VERSION unveraendert lassen.
 // ============================================================
 const NEU_VERSION = 'v12.15';           // Stand der Neuigkeiten - nur erhoehen, wenn es wirklich Neues gibt
-const APP_VERSION = 'v12.36';           // aktuelle Version (Anzeige im Bericht und oben im Kopf)
+const APP_VERSION = 'v12.37';           // aktuelle Version (Anzeige im Bericht und oben im Kopf)
 const UPDATE_KURZ = 'Abgeschlossene Akten sind jetzt schreibgesch\u00fctzt \u2013 zum \u00c4ndern werden sie wieder ge\u00f6ffnet.';
 const NEUIGKEITEN = [
   { farbe: '#475569', v: 'v12.36', ico: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="m9 15 2 2 4-4"/>',
