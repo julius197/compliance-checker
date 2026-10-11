@@ -6644,6 +6644,12 @@
     #supDash .sd-hw-info .sd-hw-ico { background:rgba(57,135,229,.16); color:var(--sd-akzent-h); }
     #supDash .sd-hw-gut .sd-hw-ico { background:rgba(12,163,12,.16); color:#4cc94c; }
     #supDash .sd-hw-krit { border-left:2px solid var(--sd-krit); }
+    #supDash .sd-hw-zeile { position:relative; }
+    #supDash .sd-hw-zeile .sd-hw { padding-right:42px; }
+    #supDash .sd-hw-weg { position:absolute; top:50%; right:6px; margin-top:-15px; width:30px; height:30px; display:grid; place-items:center; border:0; border-radius:6px; background:transparent; color:var(--sd-t3); cursor:pointer; }
+    #supDash .sd-hw-weg:hover { background:rgba(255,255,255,.09); color:var(--sd-t1); }
+    #supDash .sd-hw-zeigen { align-self:flex-start; margin-top:10px; padding:4px 0; border:0; background:none; color:var(--sd-t3); font-size:12px; cursor:pointer; text-decoration:underline; text-underline-offset:3px; }
+    #supDash .sd-hw-zeigen:hover { color:var(--sd-t1); }
     #supDash .sd-hw-txt { flex:1; min-width:0; display:flex; flex-direction:column; gap:1px; }
     #supDash .sd-hw-txt b { font-size:12.5px; color:var(--sd-t1); }
     #supDash .sd-hw-txt span { font-size:11.5px; color:var(--sd-t3); overflow:hidden; text-overflow:ellipsis; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; }
@@ -6747,7 +6753,7 @@
     #supDash .sd-form label { display:flex; flex-direction:column; gap:5px; font-size:12px; color:var(--sd-t2); font-weight:500; }
     #supDash .sd-form label:first-child { grid-column:1 / -1; }
     #supDash .sd-form small { font-size:11px; color:var(--sd-t3); font-weight:400; }
-    #supDash .sd-form-chk { display:flex; gap:18px; align-items:center; grid-column:1 / -1; }
+    #supDash .sd-form-chk { display:flex; flex-wrap:wrap; gap:10px 18px; align-items:center; grid-column:1 / -1; }
     #supDash .sd-form-chk label { flex-direction:row; align-items:center; gap:7px; cursor:pointer; color:var(--sd-t1); }
     #supDash .sd-form-chk input { width:15px; height:15px; accent-color:var(--sd-akzent); }
     #supDash .sd-dr-aktionen { display:flex; gap:8px; flex-wrap:wrap; margin-top:14px; }
@@ -6818,6 +6824,7 @@
       #supDash .sd-dr-zahlen { grid-template-columns:repeat(2, minmax(0,1fr)); }
       #supDash .sd-form { grid-template-columns:1fr; }
       #supDash .sd-hw-stufe { display:none; }
+      #supDash .sd-hw-weg { width:34px; height:34px; margin-top:-17px; }
       #supDash .sd-hw-rahmen { min-height:0; }
       #supDash .sd-hw-liste { position:static; max-height:340px; }
       #supDash .sd-suchfeld input, #supDash .sd-form input:not([type="checkbox"]), #supDash .sd-form select, #supDash .sd-select { font-size:16px; }   /* iPhone zoomt sonst beim Antippen */
@@ -6985,7 +6992,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span class="app-version" onclick="neuigkeitenZeigen()" title="Was ist neu?" style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v12.38</span>
+      <span class="app-version" onclick="neuigkeitenZeigen()" title="Was ist neu?" style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v12.40</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -9744,7 +9751,10 @@ function renderTeam() {
 
 // Unternehmens-Code (President/Vize) + Team verlassen
 // ============================================================
-// SUPPORT-CENTER v12.38 - Dashboard im eigenen, dunklen Look
+// SUPPORT-CENTER v12.40 - Dashboard im eigenen, dunklen Look
+// v12.40: Handlungsbedarf-Punkte lassen sich mit × abhaken; Nutzer-Zahl zeigt nur neue Unbestaetigte.
+// v12.39: Umsatz nur noch aus den im Kunden-Fenster hinterlegten Monatsbetraegen (Tabelle sup_kunden_info),
+// nicht mehr aus der Kontingent-Groesse geschaetzt. Konten lassen sich als "intern" markieren.
 // Daten: sup_dashboard (Zeitverlaeufe, neu in migration_2026-10-11), sup_status, sup_firmen,
 // sup_aktivitaet, sup_mitglieder, sup_nutzer_suchen (bestehend). Aktionen (Speichern, Beitreten,
 // Rang, Passwort, Bestaetigen) laufen unveraendert ueber die bisherigen sup*-Funktionen.
@@ -9753,8 +9763,7 @@ function renderTeam() {
 let SUP_FIRMEN = [];
 let SUP_TAB = 'uebersicht';
 const SD = { tage: 30, ohneIntern: true, tab: 'uebersicht', d: null, dFehler: null, status: null, firmen: [], akt: [], laedt: false,
-  stand: null, filter: 'alle', suche: '', sort: { k: 'monat', ab: true }, drawer: null, tabelle: false, aktSuche: '', zeichner: [] };
-const SD_PREISE = { 100: 299.99, 300: 999.99, 600: 1999.99, 1000: 2999.99 };
+  info: {}, infoDa: false, stand: null, filter: 'alle', suche: '', sort: { k: 'monat', ab: true }, drawer: null, tabelle: false, aktSuche: '', zeichner: [] };
 const SD_PAKET = { 100: 'Bronze', 300: 'Silber', 600: 'Gold', 1000: 'Platinum' };
 const SD_SERIE = { tool: '#3987e5', api: '#d95926', support: '#199e70', firmen: '#d95926' };
 const SD_ST = { gut: '#0ca30c', warn: '#fab219', ernst: '#ec835a', krit: '#d03b3b', leer: '#4a515b' };
@@ -9770,7 +9779,7 @@ const SD_TABS = [
 
 // ---------- Format-Helfer ----------
 function sdZ(n) { return (Number(n) || 0).toLocaleString('de-DE'); }
-function sdEuro(n) { return (Number(n) || 0).toLocaleString('de-DE', { style: 'currency', currency: 'EUR', minimumFractionDigits: 0, maximumFractionDigits: 0 }); }
+function sdEuro(n) { n = Number(n) || 0; const k = Math.round(n * 100) % 100 !== 0 ? 2 : 0; return n.toLocaleString('de-DE', { style: 'currency', currency: 'EUR', minimumFractionDigits: k, maximumFractionDigits: k }); }
 function sdKurz(n) { n = Number(n) || 0; return n >= 10000 ? (n / 1000).toLocaleString('de-DE', { maximumFractionDigits: 0 }) + 'K' : n >= 1000 ? (n / 1000).toLocaleString('de-DE', { maximumFractionDigits: 1 }) + 'K' : String(n); }
 function sdTag(iso, mitWochentag) {
   const d = new Date(String(iso).slice(0, 10) + 'T12:00:00');
@@ -9811,11 +9820,15 @@ function sdDelta(jetzt, vorher, obenGut, einheit) {
 
 // ---------- Kunden-Kennzahlen (aus sup_firmen) ----------
 function sdFirmaInfo(f) {
-  const lim = Number(f.monatslimit) || 0, intern = lim >= 999999;
-  const zahlend = !intern && !f.trial && f.aktiv !== false && SD_PREISE[lim] != null;
+  const info = (SD.info && SD.info[f.firma_id]) || {};
+  const lim = Number(f.monatslimit) || 0, intern = lim >= 999999 || info.intern === true;
+  // Monatsbetrag: nur was im Kunden-Fenster hinterlegt ist (null = noch nicht eingetragen)
+  const betrag = (info.umsatz_monat === null || info.umsatz_monat === undefined || info.umsatz_monat === '') ? null : Number(info.umsatz_monat);
+  const zahlend = !intern && f.aktiv !== false && betrag !== null && betrag > 0;
   const letzte = f.letzte_analyse ? new Date(f.letzte_analyse) : null;
-  const status = intern ? 'intern' : f.aktiv === false ? 'inaktiv' : f.trial ? 'test' : zahlend ? 'zahlend' : 'aktiv';
-  return { lim: lim, intern: intern, zahlend: zahlend, umsatz: zahlend ? SD_PREISE[lim] : 0, status: status,
+  const status = intern ? 'intern' : f.aktiv === false ? 'inaktiv' : zahlend ? 'zahlend' : f.trial ? 'test' : 'aktiv';
+  return { lim: lim, intern: intern, zahlend: zahlend, betrag: betrag, umsatz: zahlend ? betrag : 0, status: status,
+    betragFehlt: SD.infoDa && !intern && f.aktiv !== false && !f.trial && betrag === null,
     quote: (lim && !intern) ? Math.round((Number(f.analysen_monat) || 0) / lim * 100) : 0,
     tageRuhig: letzte ? Math.floor((Date.now() - letzte.getTime()) / 86400000) : null,
     paket: intern ? 'Unbegrenzt' : f.trial ? 'Testphase' : (SD_PAKET[lim] ? SD_PAKET[lim] + ' · ' + lim : lim + ' / Monat') };
@@ -9930,6 +9943,9 @@ async function sdLaden(still) {
   SD.d = wert(r[0]) || false; SD.dFehler = fehler(r[0]);
   SD.status = wert(r[1]) || {}; SD.firmen = wert(r[2]) || []; SD.akt = wert(r[3]) || [];
   SD.basisFehler = fehler(r[1]) || fehler(r[2]);
+  SD.infoDa = !!(SD.d && Array.isArray(SD.d.kunden_info));
+  SD.info = {};
+  if (SD.infoDa) SD.d.kunden_info.forEach(function(k){ if (k && k.firma_id) SD.info[k.firma_id] = k; });
   SUP_FIRMEN = SD.firmen;
   SD.stand = new Date();
   SD.laedt = false;
@@ -9953,17 +9969,25 @@ function sdRender() {
   if (hw) {
     let txt = '';
     if (SD.basisFehler) txt = '<b>Daten konnten nicht geladen werden.</b> ' + escapeHtml(SD.basisFehler);
+    else if (SD.d && !SD.infoDa) txt = '<b>Monatsbeträge fehlen noch:</b> Bitte die neue <code>migration_2026-10-11_support_dashboard.sql</code> noch einmal im Supabase SQL-Editor ausführen. Erst dann lassen sich Beträge pro Kunde hinterlegen und der Umsatz stimmt.';
     else if (SD.d === false) txt = '<b>Diagramme fehlen noch:</b> Bitte <code>migration_2026-10-11_support_dashboard.sql</code> einmal im Supabase SQL-Editor ausführen. Kennzahlen aus den bestehenden Funktionen werden schon angezeigt.'
       + (SD.dFehler ? ' <span class="sd-grau">(' + escapeHtml(SD.dFehler) + ')</span>' : '');
     hw.innerHTML = txt ? '<div class="sd-banner">' + sdIco('<path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0zM12 9v4M12 17h.01"/>', 16) + '<div>' + txt + '</div></div>' : '';
   }
   const hinweise = sdHinweise();
-  const krit = hinweise.filter(function(h){ return h.stufe === 'krit' || h.stufe === 'warn'; }).length;
-  sdBadge('uebersicht', krit, hinweise.some(function(h){ return h.stufe === 'krit'; }) ? '' : 'warn');
-  const unb = (SD.d && SD.d.nutzer && SD.d.nutzer.unbestaetigt) || 0;
-  sdBadge('nutzer', unb, 'warn');
-  const api5 = SD.d && SD.d.api ? sdApiServerfehler(2) : 0;
-  sdBadge('api', api5, '');
+  SD.hinweise = hinweise;
+  sdWegAufraeumen(hinweise);
+  const sichtbar = hinweise.filter(function(h){ return !sdIstWeg(h); });
+  const krit = sichtbar.filter(function(h){ return h.stufe === 'krit' || h.stufe === 'warn'; }).length;
+  sdBadge('uebersicht', krit, sichtbar.some(function(h){ return h.stufe === 'krit'; }) ? '' : 'warn');
+  // Nutzer: Zahl = noch nicht gesehene Unbestaetigte. Wer den Bereich "Nutzer" oeffnet, hat sie gesehen.
+  const unbL = (SD.d && SD.d.nutzer && Array.isArray(SD.d.nutzer.unbestaetigt_liste)) ? SD.d.nutzer.unbestaetigt_liste : [];
+  if (SD.tab === 'nutzer' && SD.d) { const g = {}; unbL.forEach(function(u){ g[u.user_id] = 1; }); sdSchreib(SD_GESEHEN_KEY, g); }
+  const gesehen = sdLies(SD_GESEHEN_KEY);
+  sdBadge('nutzer', unbL.filter(function(u){ return !gesehen[u.user_id]; }).length, 'warn');
+  // REST-API: Zahl nur, solange der Serverfehler-Hinweis nicht ausgeblendet ist
+  const apiH = hinweise.find(function(h){ return h.id === 'api5'; });
+  sdBadge('api', apiH && !sdIstWeg(apiH) ? sdApiServerfehler(2) : 0, '');
   try {
     if (SD.tab === 'uebersicht') sdUebersicht(b, hinweise);
     else if (SD.tab === 'firmen') sdKundenTab(b);
@@ -10004,25 +10028,29 @@ function sdHinweise() {
   const l = [], s = SD.status || {}, d = SD.d || {};
   const sank = (s.sanktionen || [])[0] || {};
   const alt = sank.stand ? Math.floor((Date.now() - new Date(sank.stand).getTime()) / 86400000) : null;
-  if (sank.meldung) l.push({ stufe: 'krit', t: 'Sanktionsliste: Fehler beim Aktualisieren', d: sank.meldung, ziel: 'system' });
-  else if (alt === null) l.push({ stufe: 'krit', t: 'Sanktionsliste nicht geladen', d: 'Ohne Liste läuft kein Abgleich.', ziel: 'system' });
-  else if (alt > 2) l.push({ stufe: alt > 8 ? 'krit' : 'warn', t: 'Sanktionsliste veraltet', d: 'Stand ' + new Date(sank.stand).toLocaleDateString('de-DE') + ' · vor ' + alt + ' Tagen', ziel: 'system' });
+  if (sank.meldung) l.push({ id: 'sank', sig: 'fehler:' + sank.meldung, stufe: 'krit', t: 'Sanktionsliste: Fehler beim Aktualisieren', d: sank.meldung, ziel: 'system' });
+  else if (alt === null) l.push({ id: 'sank', sig: 'fehlt', stufe: 'krit', t: 'Sanktionsliste nicht geladen', d: 'Ohne Liste läuft kein Abgleich.', ziel: 'system' });
+  else if (alt > 2) l.push({ id: 'sank', sig: 'alt:' + String(sank.stand).slice(0, 10) + (alt > 8 ? ':krit' : ''), stufe: alt > 8 ? 'krit' : 'warn', t: 'Sanktionsliste veraltet', d: 'Stand ' + new Date(sank.stand).toLocaleDateString('de-DE') + ' · vor ' + alt + ' Tagen', ziel: 'system' });
   const api5 = sdApiServerfehler(2);
-  if (api5) l.push({ stufe: 'krit', t: 'REST-API: ' + api5 + ' Serverfehler', d: 'In den letzten 2 Tagen (Status 5xx).', ziel: 'api' });
+  if (api5) l.push({ id: 'api5', sig: sdLetzter5xx() || ('n' + api5), stufe: 'krit', t: 'REST-API: ' + api5 + ' Serverfehler', d: 'In den letzten 2 Tagen (Status 5xx).', ziel: 'api' });
   const kunden = sdKunden().map(function(f){ return { f: f, i: sdFirmaInfo(f) }; });
   const voll = kunden.filter(function(x){ return !x.i.intern && x.f.aktiv !== false && x.i.quote >= 90; }).sort(function(a, b){ return b.i.quote - a.i.quote; });
-  if (voll.length) l.push({ stufe: 'warn', t: 'Kontingent fast aufgebraucht', d: voll.slice(0, 3).map(function(x){ return x.f.name + ' (' + x.i.quote + ' %)'; }).join(', ') + (voll.length > 3 ? ' und ' + (voll.length - 3) + ' weitere' : ''), ziel: 'firmen', filter: 'voll' });
-  const ruhig = kunden.filter(function(x){ return x.i.zahlend && (x.i.tageRuhig === null || x.i.tageRuhig >= 14); });
-  if (ruhig.length) l.push({ stufe: 'warn', t: ruhig.length + ' zahlende ' + (ruhig.length === 1 ? 'Kunde' : 'Kunden') + ' seit 14+ Tagen ohne Prüfung', d: 'Kündigungsrisiko – ' + ruhig.slice(0, 3).map(function(x){ return x.f.name; }).join(', '), ziel: 'firmen', filter: 'ruhig' });
+  if (voll.length) l.push({ id: 'voll', sig: sdSig(voll), stufe: 'warn', t: 'Kontingent fast aufgebraucht', d: voll.slice(0, 3).map(function(x){ return x.f.name + ' (' + x.i.quote + ' %)'; }).join(', ') + (voll.length > 3 ? ' und ' + (voll.length - 3) + ' weitere' : ''), ziel: 'firmen', filter: 'voll' });
+  // Kuendigungsrisiko: aktive, nicht interne Kunden ausserhalb der Testphase (ausser ausdruecklich 0 €)
+  const ruhig = kunden.filter(function(x){ return !x.i.intern && x.f.aktiv !== false && x.i.status !== 'test' && x.i.betrag !== 0 && (x.i.tageRuhig === null || x.i.tageRuhig >= 14); });
+  if (ruhig.length) l.push({ id: 'ruhig', sig: sdSig(ruhig), stufe: 'warn', t: ruhig.length + ' ' + (ruhig.length === 1 ? 'Kunde' : 'Kunden') + ' seit 14+ Tagen ohne Prüfung', d: 'Kündigungsrisiko – ' + ruhig.slice(0, 3).map(function(x){ return x.f.name; }).join(', '), ziel: 'firmen', filter: 'ruhig' });
   const n = d.nutzer || {};
-  const unbAlt = (n.unbestaetigt_liste || []).filter(function(u){ return Date.now() - new Date(u.erstellt).getTime() > 86400000; }).length;
-  if (unbAlt) l.push({ stufe: 'warn', t: unbAlt + ' Nutzer seit über 24 Std. unbestätigt', d: 'Bestätigungs-Mail nicht angekommen? Im Bereich Nutzer freischalten.', ziel: 'nutzer' });
-  if (Number(s.faellige_favoriten) > 0) l.push({ stufe: 'warn', t: s.faellige_favoriten + ' Überwachungen fällig', d: 'Laufen beim nächsten Cron-Durchlauf.', ziel: 'system' });
+  const unbListe = (n.unbestaetigt_liste || []).filter(function(u){ return Date.now() - new Date(u.erstellt).getTime() > 86400000; });
+  const unbAlt = unbListe.length;
+  if (unbAlt) l.push({ id: 'unb', sig: unbListe.map(function(u){ return u.user_id; }).sort().join(','), stufe: 'warn', t: unbAlt + ' Nutzer seit über 24 Std. unbestätigt', d: 'Bestätigungs-Mail nicht angekommen? Im Bereich Nutzer freischalten.', ziel: 'nutzer' });
+  if (Number(s.faellige_favoriten) > 0) l.push({ id: 'faellig', sig: 'x', stufe: 'warn', t: s.faellige_favoriten + ' Überwachungen fällig', d: 'Laufen beim nächsten Cron-Durchlauf.', ziel: 'system' });
   const amb = d.api && d.api.pruefungen ? Number(d.api.pruefungen.ambiguous) || 0 : 0;
-  if (amb) l.push({ stufe: 'info', t: amb + ' API-Prüfungen mehrdeutig (409)', d: 'Der Kunde musste präzisieren.', ziel: 'api' });
+  if (amb) l.push({ id: 'amb', sig: 'n' + amb, stufe: 'info', t: amb + ' API-Prüfungen mehrdeutig (409)', d: 'Der Kunde musste präzisieren.', ziel: 'api' });
+  const ohneBetrag = kunden.filter(function(x){ return x.i.betragFehlt; });
+  if (ohneBetrag.length) l.push({ id: 'betrag', sig: sdSig(ohneBetrag), stufe: 'info', t: ohneBetrag.length + ' ' + (ohneBetrag.length === 1 ? 'Kunde' : 'Kunden') + ' ohne Monatsbetrag', d: 'Für den Umsatz eintragen (oder 0 €) – ' + ohneBetrag.slice(0, 3).map(function(x){ return x.f.name; }).join(', '), ziel: 'firmen', filter: 'offen' });
   const test = kunden.filter(function(x){ return x.i.status === 'test' && (Number(x.f.analysen_gesamt) || 0) >= 2; });
-  if (test.length) l.push({ stufe: 'gut', t: test.length + ' aktive Testphase' + (test.length === 1 ? '' : 'n') + ' – Verkaufschance', d: test.slice(0, 3).map(function(x){ return x.f.name + ' (' + x.f.analysen_gesamt + ' Prüfungen)'; }).join(', '), ziel: 'firmen', filter: 'test' });
-  if (SD.d === false) l.push({ stufe: 'info', t: 'Datenbank-Funktion für Diagramme fehlt', d: 'migration_2026-10-11_support_dashboard.sql ausführen.', ziel: 'system' });
+  if (test.length) l.push({ id: 'test', sig: sdSig(test), stufe: 'gut', t: test.length + ' aktive Testphase' + (test.length === 1 ? '' : 'n') + ' – Verkaufschance', d: test.slice(0, 3).map(function(x){ return x.f.name + ' (' + x.f.analysen_gesamt + ' Prüfungen)'; }).join(', '), ziel: 'firmen', filter: 'test' });
+  if (SD.d === false) l.push({ id: 'sql', sig: 'x', stufe: 'info', t: 'Datenbank-Funktion für Diagramme fehlt', d: 'migration_2026-10-11_support_dashboard.sql ausführen.', ziel: 'system' });
   return l;
 }
 const SD_STUFE_ICO = {
@@ -10033,14 +10061,59 @@ const SD_STUFE_ICO = {
 };
 const SD_STUFE_TXT = { krit: 'Kritisch', warn: 'Achtung', info: 'Hinweis', gut: 'Chance' };
 function sdHinweiseHTML(l) {
-  if (!l.length) return '<div class="sd-alles-gut">' + sdIco(SD_STUFE_ICO.gut, 18) + '<div><b>Alles im grünen Bereich</b><span>Kein Handlungsbedarf erkannt.</span></div></div>';
+  const sichtbar = l.filter(function(h){ return !sdIstWeg(h); }), weg = l.length - sichtbar.length;
+  const zeigen = weg ? '<button type="button" class="sd-hw-zeigen" onclick="sdAlleZeigen()">' + weg + ' ausgeblendet · wieder anzeigen</button>' : '';
+  if (!sichtbar.length) return '<div class="sd-alles-gut">' + sdIco(SD_STUFE_ICO.gut, 18) + '<div><b>' + (weg ? 'Alles abgehakt' : 'Alles im grünen Bereich') + '</b><span>'
+    + (weg ? 'Neue Punkte erscheinen automatisch wieder.' : 'Kein Handlungsbedarf erkannt.') + '</span></div></div>' + zeigen;
   const ord = { krit: 0, warn: 1, info: 2, gut: 3 };
-  return '<div class="sd-hw-rahmen"><ul class="sd-hw-liste">' + l.slice().sort(function(a, b){ return ord[a.stufe] - ord[b.stufe]; }).map(function(h){
-    return '<li><button type="button" class="sd-hw sd-hw-' + h.stufe + '" onclick="sdHinweisOeffnen(\'' + h.ziel + '\',\'' + (h.filter || '') + '\')">'
+  return '<div class="sd-hw-rahmen"><ul class="sd-hw-liste">' + sichtbar.slice().sort(function(a, b){ return ord[a.stufe] - ord[b.stufe]; }).map(function(h){
+    return '<li class="sd-hw-zeile"><button type="button" class="sd-hw sd-hw-' + h.stufe + '" onclick="sdHinweisOeffnen(\'' + h.ziel + '\',\'' + (h.filter || '') + '\')">'
       + '<span class="sd-hw-ico" aria-hidden="true">' + sdIco(SD_STUFE_ICO[h.stufe], 15) + '</span>'
       + '<span class="sd-hw-txt"><b>' + escapeHtml(h.t) + '</b><span>' + escapeHtml(h.d || '') + '</span></span>'
-      + '<span class="sd-hw-stufe">' + SD_STUFE_TXT[h.stufe] + '</span></button></li>';
-  }).join('') + '</ul></div>';
+      + '<span class="sd-hw-stufe">' + SD_STUFE_TXT[h.stufe] + '</span></button>'
+      + '<button type="button" class="sd-hw-weg" data-id="' + h.id + '" onclick="sdAusblenden(\'' + h.id + '\')" title="Ausblenden – kommt wieder, sobald sich etwas ändert" aria-label="Ausblenden: ' + escapeHtml(h.t) + '">'
+      + sdIco('<path d="M18 6 6 18M6 6l12 12"/>', 14) + '</button></li>';
+  }).join('') + '</ul></div>' + zeigen;
+}
+
+// ---------- Ausblenden / Gesehen (v12.40) ----------
+// Ein Punkt bleibt ausgeblendet, solange er sich nicht aendert (gleiche Signatur). Kommt etwas Neues dazu
+// (andere Firmen, neuer Serverfehler, ...), erscheint er wieder. Gespeichert pro Browser.
+const SD_WEG_KEY = 'sd_ausgeblendet_v1', SD_GESEHEN_KEY = 'sd_unb_gesehen_v1';
+const _sdSpeicher = {};
+function sdLies(k) {
+  try { const v = JSON.parse(localStorage.getItem(k) || 'null'); if (v && typeof v === 'object') return v; } catch (e) {}
+  return _sdSpeicher[k] || {};
+}
+function sdSchreib(k, v) { _sdSpeicher[k] = v; try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+function sdSig(liste) { return liste.map(function(x){ return x.f.firma_id; }).sort().join(','); }
+function sdLetzter5xx() {
+  const api = SD.d && SD.d.api; if (!api) return '';
+  const f = (api.letzte_fehler || []).find(function(e){ return Number(e.status) >= 500; });
+  if (f && f.zeit) return String(f.zeit);
+  const t = (api.tage || []).filter(function(x){ return Number(x.server) > 0; }).pop();
+  return t ? 'tag:' + t.d + ':' + t.server : '';
+}
+function sdIstWeg(h) { return !!h && !!h.id && sdLies(SD_WEG_KEY)[h.id] === h.sig; }
+function sdAusblenden(id) {
+  const h = (SD.hinweise || []).find(function(x){ return x.id === id; });
+  if (!h) return;
+  const w = sdLies(SD_WEG_KEY); w[id] = h.sig; sdSchreib(SD_WEG_KEY, w);
+  sdRender();
+}
+function sdAlleZeigen() {
+  const w = sdLies(SD_WEG_KEY);
+  (SD.hinweise || []).forEach(function(h){ delete w[h.id]; });
+  sdSchreib(SD_WEG_KEY, w);
+  sdRender();
+}
+// Punkte, die erledigt sind, aus der Ausblende-Liste entfernen - tauchen sie spaeter neu auf, sieht man sie wieder.
+// Nur bei vollstaendig geladenen Daten in der Standardansicht, damit nichts versehentlich zurueckkommt.
+function sdWegAufraeumen(l) {
+  if (!SD.d || SD.basisFehler || !SD.ohneIntern) return;
+  const w = sdLies(SD_WEG_KEY); let neu = false;
+  Object.keys(w).forEach(function(id){ if (!l.some(function(h){ return h.id === id; })) { delete w[id]; neu = true; } });
+  if (neu) sdSchreib(SD_WEG_KEY, w);
 }
 function sdHinweisOeffnen(ziel, filter) { if (filter) { SD.filter = filter; SD.suche = ''; } sdTabZeigen(ziel); }
 
@@ -10049,7 +10122,7 @@ function sdUebersicht(b, hinweise) {
   const d = SD.d || {}, s = SD.status || {}, p = d.pruefungen || {}, n = d.nutzer || {}, api = d.api || null;
   const kunden = sdKunden().map(function(f){ return { f: f, i: sdFirmaInfo(f) }; });
   const zahlend = kunden.filter(function(x){ return x.i.zahlend; });
-  const umsatz = zahlend.reduce(function(a, x){ return a + x.i.umsatz; }, 0);
+  const offenH = hinweise.filter(function(h){ return !sdIstWeg(h); }).length;
   const vonDatum = d.von ? new Date(d.von + 'T00:00:00') : new Date(Date.now() - SD.tage * 86400000);
   const aktiveKunden = kunden.filter(function(x){ return !x.i.intern && x.f.letzte_analyse && new Date(x.f.letzte_analyse) >= vonDatum; }).length;
   const tage = Array.isArray(d.pruefungen_tage) ? d.pruefungen_tage : [];
@@ -10059,7 +10132,7 @@ function sdUebersicht(b, hinweise) {
         unter: SD.d ? 'vs. Vorzeitraum · heute ' + sdZ(p.heute) : 'diesen Monat', spark: tage.length ? 'sdSp1' : '' })
     + sdKpi({ label: 'Aktive Kunden', wert: sdZ(aktiveKunden), einheit: ' / ' + sdZ(kunden.filter(function(x){ return !x.i.intern; }).length),
         unter: zahlend.length + ' zahlend · ' + kunden.filter(function(x){ return x.i.status === 'test'; }).length + ' Testphase', info: 'Kunden mit mindestens einer Prüfung im Zeitraum' })
-    + sdKpi({ label: 'Umsatz / Monat', wert: sdEuro(umsatz), unter: 'geschätzt aus ' + zahlend.length + ' Paket' + (zahlend.length === 1 ? '' : 'en'), info: 'Summe der Paketpreise aller zahlenden Kunden (Bronze 299,99 € … Platinum 2.999,99 €). Kein Stripe-Abgleich.' })
+    + sdKpi(sdUmsatzKpi(kunden))
     + sdKpi({ label: 'Nutzer aktiv · 7 Tage', wert: SD.d ? sdZ(n.aktiv_7) : '–', einheit: SD.d ? ' / ' + sdZ(n.gesamt) : '',
         delta: SD.d ? sdDelta(n.neu_zeitraum, n.neu_vorher, true) : '', unter: SD.d ? sdZ(n.neu_zeitraum) + ' neu im Zeitraum' : 'Funktion fehlt', spark: (n.tage || []).length ? 'sdSp4' : '' })
     + sdKpi({ label: 'Ø Score', wert: (p.score_schnitt != null ? p.score_schnitt : '–'), einheit: p.score_schnitt != null ? ' / 100' : '',
@@ -10079,7 +10152,7 @@ function sdUebersicht(b, hinweise) {
   b.innerHTML = kpis
     + '<div class="sd-grid">'
     + sdKarte('Prüfungen pro Tag', 'Letzte ' + SD.tage + ' Tage · ' + sdZ(p.zeitraum || 0) + ' gesamt', hauptInhalt, 'sd-s8', tabKnopf)
-    + sdKarte('Handlungsbedarf', hinweise.length ? hinweise.length + ' Punkt' + (hinweise.length === 1 ? '' : 'e') : 'Stand jetzt', sdHinweiseHTML(hinweise), 'sd-s4 sd-hw-karte')
+    + sdKarte('Handlungsbedarf', offenH ? offenH + ' offen · mit × abhaken' : 'Stand jetzt', sdHinweiseHTML(hinweise), 'sd-s4 sd-hw-karte')
     + sdKarte('Ergebnis-Ampel', 'Prüfungen im Zeitraum', ampel ? sdAmpelHTML(ampel) + sdScoreVerteilung(p.score_verteilung) : sdLeer('Keine Daten'), 'sd-s4')
     + sdKarte('Akten-Fortschritt', 'Akten aus dem Zeitraum', tr ? sdTrichterHTML(tr) : sdLeer('Keine Daten'), 'sd-s4')
     + sdKarte('Länder', 'Sitz der geprüften Firmen', laender.length ? sdBalkenHTML(laender.map(function(x){ return { l: x.land, w: x.n }; }), SD_SERIE.tool) : sdLeer('Keine Daten'), 'sd-s4')
@@ -10153,6 +10226,16 @@ function sdFeedHTML(l) {
   }).join('') + '</ul>';
 }
 
+function sdUmsatzKpi(kunden) {
+  const zahlend = kunden.filter(function(x){ return x.i.zahlend; });
+  const summe = zahlend.reduce(function(a, x){ return a + x.i.umsatz; }, 0);
+  const fehlt = kunden.filter(function(x){ return x.i.betragFehlt; }).length;
+  if (!SD.infoDa) return { label: 'Umsatz / Monat', wert: '–', unter: 'SQL-Update nötig', info: 'Summe der im Kunden-Fenster hinterlegten Monatsbeträge.' };
+  return { label: 'Umsatz / Monat', wert: sdEuro(summe),
+    unter: zahlend.length + ' zahlende' + (zahlend.length === 1 ? 'r Kunde' : ' Kunden') + (fehlt ? ' · <span class="sd-warn-t">' + fehlt + ' ohne Betrag</span>' : ''),
+    info: 'Summe der im Kunden-Fenster hinterlegten Monatsbeträge aktiver Kunden. Interne Konten und inaktive Kunden zählen nicht.' };
+}
+
 // ---------- Bereich: Kunden ----------
 function sdKundenTab(b) {
   const alle = sdKunden().map(function(f){ return { f: f, i: sdFirmaInfo(f) }; });
@@ -10162,9 +10245,10 @@ function sdKundenTab(b) {
     test:    function(x){ return x.i.status === 'test'; },
     inaktiv: function(x){ return x.i.status === 'inaktiv'; },
     voll:    function(x){ return !x.i.intern && x.i.quote >= 80; },
-    ruhig:   function(x){ return !x.i.intern && x.f.aktiv !== false && (x.i.tageRuhig === null || x.i.tageRuhig >= 14); }
+    ruhig:   function(x){ return !x.i.intern && x.f.aktiv !== false && (x.i.tageRuhig === null || x.i.tageRuhig >= 14); },
+    offen:   function(x){ return x.i.betragFehlt; }
   };
-  const namen = { alle: 'Alle', zahlend: 'Zahlend', test: 'Testphase', inaktiv: 'Inaktiv', voll: 'Kontingent ≥ 80 %', ruhig: '14+ Tage ruhig' };
+  const namen = { alle: 'Alle', zahlend: 'Zahlend', test: 'Testphase', inaktiv: 'Inaktiv', voll: 'Kontingent ≥ 80 %', ruhig: '14+ Tage ruhig', offen: 'Betrag fehlt' };
   if (!filter[SD.filter]) SD.filter = 'alle';
   const q = SD.suche.toLowerCase();
   let l = alle.filter(filter[SD.filter]).filter(function(x){ return !q || String(x.f.name || '').toLowerCase().indexOf(q) >= 0 || String(x.f.code || '').toLowerCase().indexOf(q) >= 0; });
@@ -10173,13 +10257,12 @@ function sdKundenTab(b) {
     mitglieder: function(x){ return Number(x.f.mitglieder) || 0; }, monat: function(x){ return x.i.lim && !x.i.intern ? x.i.quote : -1; },
     gesamt: function(x){ return Number(x.f.analysen_gesamt) || 0; }, zuletzt: function(x){ return x.f.letzte_analyse ? new Date(x.f.letzte_analyse).getTime() : 0; } };
   l.sort(function(a, c){ const va = wert[k](a), vc = wert[k](c); return va < vc ? -ab : va > vc ? ab : 0; });
-  const umsatz = alle.reduce(function(s, x){ return s + x.i.umsatz; }, 0);
   const th = function(key, txt, r){ const an = SD.sort.k === key;
     return '<th class="' + (r ? 'r ' : '') + 'sd-sort' + (an ? ' an' : '') + '" aria-sort="' + (an ? (SD.sort.ab ? 'descending' : 'ascending') : 'none') + '"><button type="button" onclick="sdSortieren(\'' + key + '\')">' + txt + (an ? (SD.sort.ab ? ' ↓' : ' ↑') : '') + '</button></th>'; };
   b.innerHTML = '<div class="sd-kpis sd-kpis-4">'
     + sdKpi({ label: 'Kunden', wert: sdZ(alle.filter(function(x){ return !x.i.intern; }).length), unter: alle.filter(function(x){ return x.i.intern; }).length ? alle.filter(function(x){ return x.i.intern; }).length + ' intern' : '' })
     + sdKpi({ label: 'Zahlend', wert: sdZ(alle.filter(filter.zahlend).length), unter: 'Testphase: ' + alle.filter(filter.test).length })
-    + sdKpi({ label: 'Umsatz / Monat', wert: sdEuro(umsatz), unter: 'geschätzt aus Paketen' })
+    + sdKpi(sdUmsatzKpi(alle))
     + sdKpi({ label: 'Prüfungen diesen Monat', wert: sdZ(alle.reduce(function(s, x){ return s + (Number(x.f.analysen_monat) || 0); }, 0)), unter: sdZ(alle.reduce(function(s, x){ return s + (Number(x.f.analysen_gesamt) || 0); }, 0)) + ' gesamt' })
     + '</div>'
     + '<section class="sd-karte sd-s12"><div class="sd-werkzeug">'
@@ -10206,7 +10289,7 @@ function sdKundenZeilen(l) {
       + '<td>' + sdStatusPill(i.status) + '</td>'
       + '<td class="sd-td-name" title="' + escapeHtml(f.name || '') + '"><b>' + escapeHtml(f.name || '') + '</b>' + (f.typ === 'einzel' ? ' <span class="sd-tag">Einzel</span>' : '') + '</td>'
       + '<td class="sd-grau">' + escapeHtml(i.paket) + '</td>'
-      + '<td class="r">' + (i.umsatz ? sdEuro(i.umsatz) : '<span class="sd-grau">–</span>') + '</td>'
+      + '<td class="r">' + (i.umsatz ? sdEuro(i.umsatz) : i.betragFehlt ? '<span class="sd-warn-t">fehlt</span>' : '<span class="sd-grau">' + (i.betrag === 0 && !i.intern ? '0 €' : '–') + '</span>') + '</td>'
       + '<td class="r">' + sdZ(f.mitglieder) + '</td>'
       + '<td>' + (i.intern || !i.lim ? '<span class="sd-grau">' + sdZ(f.analysen_monat) + ' Prüfungen</span>'
           : '<div class="sd-mini-meter"><div class="sd-b-bahn sd-meter"><i style="width:' + Math.min(100, Math.max(q ? 2 : 0, q)) + '%;background:' + farbe + '"></i></div><span><b>' + q + ' %</b> ' + sdZ(f.analysen_monat) + '/' + sdZ(i.lim) + '</span></div>') + '</td>'
@@ -10230,14 +10313,16 @@ async function sdFirmaOeffnen(id, still) {
     + '<div><span>Diesen Monat</span><b>' + sdZ(f.analysen_monat) + '</b><small>' + (i.intern || !i.lim ? 'unbegrenzt' : i.quote + ' % von ' + sdZ(i.lim)) + '</small></div>'
     + '<div><span>Gesamt</span><b>' + sdZ(f.analysen_gesamt) + '</b><small>Prüfungen</small></div>'
     + '<div><span>Nutzer</span><b>' + sdZ(f.mitglieder) + '</b><small>im Team</small></div>'
-    + '<div><span>Umsatz</span><b>' + (i.umsatz ? sdEuro(i.umsatz) : '–') + '</b><small>' + escapeHtml(i.paket) + '</small></div>'
+    + '<div><span>Umsatz / Monat</span><b>' + (i.umsatz ? sdEuro(i.umsatz) : i.intern ? 'intern' : i.betragFehlt ? 'fehlt' : i.betrag === 0 ? '0 €' : '–') + '</b><small>' + escapeHtml(i.paket) + '</small></div>'
     + '</div>'
     + '<div class="sd-k-u sd-dr-zuletzt">Zuletzt aktiv: <b>' + (f.letzte_analyse ? new Date(f.letzte_analyse).toLocaleString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) + ' Uhr' : 'nie') + '</b></div>';
   const form = '<section class="sd-dr-block"><h3>Einstellungen</h3><div class="sd-form">'
     + '<label>Name<input id="supFName" value="' + escapeHtml(f.name || '') + '" /></label>'
     + '<label>Typ<select id="supFTyp"><option value="firma"' + (f.typ === 'firma' ? ' selected' : '') + '>Unternehmen</option><option value="einzel"' + (f.typ === 'einzel' ? ' selected' : '') + '>Einzelperson</option></select></label>'
     + '<label>Prüfungen / Monat<input id="supFLimit" type="number" min="0" value="' + (Number(f.monatslimit) || 0) + '" /><small>Bronze 100 · Silber 300 · Gold 600 · Platinum 1000 · intern 999999</small></label>'
-    + '<div class="sd-form-chk"><label><input type="checkbox" id="supFTrial"' + (f.trial ? ' checked' : '') + ' /> Testphase</label><label><input type="checkbox" id="supFAktiv"' + (f.aktiv ? ' checked' : '') + ' /> Aktiv</label></div>'
+    + '<label>Umsatz / Monat in €<input id="sdFUmsatz" type="text" inputmode="decimal" placeholder="z. B. 350" value="' + (i.betrag === null ? '' : (Number.isInteger(i.betrag) ? String(i.betrag) : i.betrag.toFixed(2)).replace('.', ',')) + '"' + (SD.infoDa ? '' : ' disabled') + ' /><small>' + (SD.infoDa ? 'Was der Kunde tatsächlich zahlt. Leer = noch nicht eingetragen, 0 = zahlt nichts.' : 'Erst nach dem SQL-Update möglich.') + '</small></label>'
+    + '<div class="sd-form-chk"><label><input type="checkbox" id="supFTrial"' + (f.trial ? ' checked' : '') + ' /> Testphase</label><label><input type="checkbox" id="supFAktiv"' + (f.aktiv ? ' checked' : '') + ' /> Aktiv</label>'
+    + '<label title="Eigene Konten und Test-Konten: zählen nicht im Umsatz und werden mit „Interne ausblenden“ aus allen Zahlen herausgerechnet"><input type="checkbox" id="sdFIntern"' + ((SD.info[id] || {}).intern ? ' checked' : '') + (SD.infoDa ? '' : ' disabled') + ' /> Internes Konto / Test</label></div>'
     + '</div><div class="sd-dr-aktionen"><button type="button" class="sd-btn prim" onclick="sdFirmaSpeichern(\'' + id + '\', this)">Speichern</button>'
     + '<button type="button" class="sd-btn" onclick="supBeitreten(\'' + id + '\')">Als Support beitreten</button></div>'
     + '<div id="supFMsg" class="sd-meldung" style="display:none"></div></section>';
@@ -10260,10 +10345,28 @@ function sdDrawerZu() {
 }
 async function sdFirmaSpeichern(id, knopf) {
   if (knopf) { knopf.disabled = true; knopf.textContent = 'Speichert …'; }
+  // Monatsbetrag + intern vorab lesen (das Formular wird nach dem Speichern neu aufgebaut)
+  const fu = document.getElementById('sdFUmsatz'), fi = document.getElementById('sdFIntern');
+  const roh = fu && !fu.disabled ? String(fu.value || '').trim().replace(/\s|€/g, '').replace(/\.(?=\d{3}(\D|$))/g, '').replace(',', '.') : null;
+  const betrag = roh === null || roh === '' ? null : Number(roh);
+  const intern = !!(fi && fi.checked);
+  if (roh && (isNaN(betrag) || betrag < 0 || betrag > 1000000)) {
+    supMsg('Bitte einen gültigen Betrag in Euro eintragen (z. B. 350 oder 299,99).', 'error');
+    if (knopf) { knopf.disabled = false; knopf.textContent = 'Speichern'; }
+    return;
+  }
   await supFirmaSpeichern(id);                         // bestehende Logik (sup_firma_aendern + sup_kontingent)
-  if (knopf) { knopf.disabled = false; knopf.textContent = 'Speichern'; }
   const msg = document.getElementById('supFMsg');
-  const meldung = msg ? { t: msg.textContent, c: msg.className } : null;
+  let meldung = msg ? { t: msg.textContent, c: msg.className } : null;
+  const alt = SD.info[id] || {};
+  const altBetrag = (alt.umsatz_monat === null || alt.umsatz_monat === undefined) ? null : Number(alt.umsatz_monat);
+  if (fu && !fu.disabled && (betrag !== altBetrag || intern !== (alt.intern === true))) {
+    try {
+      const r = await sb.rpc('sup_kunde_info_setzen', { p_firma: id, p_umsatz: betrag, p_intern: intern });
+      if (r.error || !(r.data && r.data.ok)) meldung = { t: 'Betrag nicht gespeichert: ' + ((r.error && r.error.message) || (r.data && r.data.grund) || 'Fehler'), c: 'auth-msg error' };
+    } catch (e) { meldung = { t: 'Betrag nicht gespeichert: ' + ((e && e.message) || 'Fehler'), c: 'auth-msg error' }; }
+  }
+  if (knopf) { knopf.disabled = false; knopf.textContent = 'Speichern'; }
   await sdLaden(true);
   if (SD.drawer === id) { await sdFirmaOeffnen(id, true); const m2 = document.getElementById('supFMsg'); if (m2 && meldung) { m2.textContent = meldung.t; m2.className = meldung.c + ' sd-meldung'; m2.style.display = ''; } }
 }
@@ -15258,7 +15361,7 @@ setTimeout(function(){ try { akteVorschauZeichnen(); } catch(e) {} }, 0);
 // Kleine Korrekturen ohne neue Funktionen: NEU_VERSION unveraendert lassen.
 // ============================================================
 const NEU_VERSION = 'v12.15';           // Stand der Neuigkeiten - nur erhoehen, wenn es wirklich Neues gibt
-const APP_VERSION = 'v12.38';           // aktuelle Version (Anzeige im Bericht und oben im Kopf)
+const APP_VERSION = 'v12.40';           // aktuelle Version (Anzeige im Bericht und oben im Kopf)
 const UPDATE_KURZ = 'Abgeschlossene Akten sind jetzt schreibgesch\u00fctzt \u2013 zum \u00c4ndern werden sie wieder ge\u00f6ffnet.';
 const NEUIGKEITEN = [
   { farbe: '#475569', v: 'v12.36', ico: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="m9 15 2 2 4-4"/>',
