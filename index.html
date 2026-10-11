@@ -6451,6 +6451,383 @@
       animation:teamIn .45s cubic-bezier(.2,.7,.2,1) .3s both; }
     .score-rechnung svg { flex-shrink:0; margin-top:2px; color:var(--gray-l,#8A949D); }
     @media (max-width:760px) { .score-rechnung { font-size:10px; padding:7px 9px; } }
+
+    /* ============================================================
+       SUPPORT-CENTER v12.38 - eigenes, dunkles Dashboard
+       Alles unter #supDash gekapselt, beruehrt keine bestehende Ansicht.
+       ============================================================ */
+    #supDash.sd {
+      --sd-bg:#0b0d10; --sd-p1:#14171c; --sd-p2:#1a1e24; --sd-p3:#222730;
+      --sd-rand:rgba(255,255,255,.08); --sd-rand2:rgba(255,255,255,.14);
+      --sd-grid:#252a31; --sd-achse:#363c44;
+      --sd-t1:#eceef1; --sd-t2:#b4bac2; --sd-t3:#848c96;
+      --sd-akzent:#3987e5; --sd-akzent-h:#5598e7;
+      --sd-gut:#0ca30c; --sd-warn:#fab219; --sd-ernst:#ec835a; --sd-krit:#d03b3b;
+      --sd-mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+      position:fixed; inset:0; z-index:10001; display:flex; background:var(--sd-bg); color:var(--sd-t1);
+      font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; font-size:13px; line-height:1.45;
+      font-feature-settings:'tnum' 1, 'cv11' 1; -webkit-font-smoothing:antialiased; color-scheme:dark;
+      opacity:0; transform:scale(.995); transition:opacity .18s ease, transform .18s ease;
+    }
+    #supDash.sd.an { opacity:1; transform:none; }
+    #supDash.sd.weg { opacity:0; pointer-events:none; }
+    body.sd-offen { overflow:hidden !important; }
+    html.sd-offen { overflow:hidden !important; scrollbar-gutter:auto !important; }
+    body.sd-offen .help-btn, body.sd-offen .help-pop, body.sd-offen .lang-btn, body.sd-offen .tr-toast { display:none !important; }
+    #supDash.sd *, #supDash.sd *::before, #supDash.sd *::after { box-sizing:border-box; }
+    #supDash.sd button { font-family:inherit; color:inherit; transition:background .15s, border-color .15s, color .15s, opacity .15s; }
+    #supDash.sd button:active:not(:disabled) { transform:none; }
+    #supDash.sd :focus-visible { outline:2px solid var(--sd-akzent); outline-offset:2px; }
+    #supDash.sd b { font-weight:600; }
+    #supDash.sd code { font-family:var(--sd-mono); font-size:12px; background:var(--sd-p3); border-radius:4px; padding:1px 5px; }
+    #supDash.sd table.sd-tab { display:table; }
+    #supDash.sd ::-webkit-scrollbar { width:10px; height:10px; }
+    #supDash.sd ::-webkit-scrollbar-thumb { background:#2a3038; border-radius:99px; border:2px solid var(--sd-bg); }
+    #supDash.sd ::-webkit-scrollbar-track { background:transparent; }
+    #supDash .sd-grau { color:var(--sd-t3); }
+    #supDash .sd-mono { font-family:var(--sd-mono); font-size:12px; }
+
+    /* ---------- Seitenleiste ---------- */
+    #supDash .sd-side { flex:none; width:232px; display:flex; flex-direction:column; gap:18px; padding:16px 12px; background:#0e1014; border-right:1px solid var(--sd-rand); }
+    #supDash .sd-brand { display:flex; align-items:center; gap:10px; padding:4px 6px 0; }
+    #supDash .sd-brand b { display:block; font-size:14px; letter-spacing:-.01em; }
+    #supDash .sd-brand small { display:block; font-size:11px; color:var(--sd-t3); }
+    #supDash .sd-logo { width:30px; height:30px; border-radius:8px; display:grid; place-items:center; background:linear-gradient(145deg,#2a78d6,#184f95); color:#fff; flex:none; }
+    #supDash .sd-nav { display:flex; flex-direction:column; gap:2px; }
+    #supDash .sd-nav-btn { display:flex; align-items:center; gap:10px; width:100%; padding:8px 10px; border:0; border-radius:7px; background:transparent; color:var(--sd-t2); font-size:13px; font-weight:500; cursor:pointer; text-align:left; }
+    #supDash .sd-nav-btn svg { color:var(--sd-t3); flex:none; }
+    #supDash .sd-nav-btn span { flex:1; }
+    #supDash .sd-nav-btn:hover { background:var(--sd-p2); color:var(--sd-t1); }
+    #supDash .sd-nav-btn.aktiv { background:var(--sd-p3); color:var(--sd-t1); box-shadow:inset 2px 0 0 var(--sd-akzent); }
+    #supDash .sd-nav-btn.aktiv svg { color:var(--sd-akzent-h); }
+    #supDash .sd-badge { font-style:normal; min-width:20px; height:18px; padding:0 6px; border-radius:99px; display:inline-grid; place-items:center; font-size:11px; font-weight:700; background:var(--sd-krit); color:#fff; }
+    #supDash .sd-badge.warn { background:var(--sd-warn); color:#1a1300; }
+    #supDash .sd-badge[hidden] { display:none; }
+    #supDash .sd-side-fuss { margin-top:auto; display:flex; flex-direction:column; gap:10px; }
+    #supDash .sd-ver { font-size:11px; color:var(--sd-t3); padding:0 4px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+
+    /* ---------- Knoepfe ---------- */
+    #supDash .sd-btn { display:inline-flex; align-items:center; justify-content:center; gap:7px; height:32px; padding:0 12px; border-radius:7px; border:1px solid var(--sd-rand2); background:var(--sd-p2); color:var(--sd-t1); font-size:12.5px; font-weight:600; cursor:pointer; white-space:nowrap; }
+    #supDash .sd-btn:hover:not(:disabled) { background:var(--sd-p3); border-color:rgba(255,255,255,.22); }
+    #supDash .sd-btn:disabled { opacity:.55; cursor:default; }
+    #supDash .sd-btn.prim { background:var(--sd-akzent); border-color:var(--sd-akzent); color:#fff; }
+    #supDash .sd-btn.prim:hover:not(:disabled) { background:var(--sd-akzent-h); border-color:var(--sd-akzent-h); }
+    #supDash .sd-btn.sd-klein { height:26px; padding:0 9px; font-size:12px; border-radius:6px; }
+    #supDash .sd-btn.sd-voll { width:100%; }
+    #supDash .sd-ico-btn { width:32px; padding:0; }
+    #supDash .sd-ico-btn.dreht svg { animation:sdDreh .8s linear infinite; }
+    @keyframes sdDreh { to { transform:rotate(360deg); } }
+
+    /* ---------- Hauptbereich + Kopfzeile ---------- */
+    #supDash .sd-main { flex:1; min-width:0; overflow-y:auto; overflow-x:hidden; position:relative; scroll-behavior:smooth; }
+    #supDash .sd-top { position:sticky; top:0; z-index:5; display:flex; align-items:center; justify-content:space-between; gap:12px 16px; flex-wrap:wrap; padding:14px 24px; background:rgba(11,13,16,.86); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); border-bottom:1px solid var(--sd-rand); }
+    #supDash .sd-top-l { display:flex; align-items:baseline; gap:12px; min-width:0; }
+    #supDash .sd-top h1 { font-size:18px; font-weight:700; letter-spacing:-.015em; margin:0; color:var(--sd-t1); }
+    #supDash .sd-stand { display:inline-flex; align-items:center; gap:6px; font-size:12px; color:var(--sd-t3); white-space:nowrap; }
+    #supDash .sd-live { width:7px; height:7px; border-radius:50%; background:var(--sd-gut); box-shadow:0 0 0 3px rgba(12,163,12,.18); }
+    #supDash .sd-filter { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+    #supDash .sd-seg { display:inline-flex; padding:2px; border-radius:8px; background:var(--sd-p1); border:1px solid var(--sd-rand); }
+    #supDash .sd-seg button { height:26px; padding:0 11px; border:0; border-radius:6px; background:transparent; color:var(--sd-t2); font-size:12px; font-weight:600; cursor:pointer; }
+    #supDash .sd-seg button:hover { color:var(--sd-t1); }
+    #supDash .sd-seg button.an { background:var(--sd-p3); color:var(--sd-t1); box-shadow:0 1px 2px rgba(0,0,0,.4); }
+    #supDash .sd-schalter { display:inline-flex; align-items:center; gap:8px; font-size:12px; color:var(--sd-t2); cursor:pointer; user-select:none; white-space:nowrap; }
+    #supDash .sd-schalter input { position:absolute; opacity:0; width:1px; height:1px; pointer-events:none; }
+    #supDash .sd-sch-bahn { width:30px; height:18px; border-radius:99px; background:var(--sd-p3); border:1px solid var(--sd-rand2); position:relative; transition:background .15s; flex:none; }
+    #supDash .sd-sch-bahn i { position:absolute; top:2px; left:2px; width:12px; height:12px; border-radius:50%; background:var(--sd-t2); transition:transform .15s, background .15s; }
+    #supDash .sd-schalter input:checked + .sd-sch-bahn { background:var(--sd-akzent); border-color:var(--sd-akzent); }
+    #supDash .sd-schalter input:checked + .sd-sch-bahn i { transform:translateX(12px); background:#fff; }
+    #supDash .sd-schalter input:focus-visible + .sd-sch-bahn { outline:2px solid var(--sd-akzent); outline-offset:2px; }
+
+    #supDash #sdHinweis:empty { display:none; }
+    #supDash #sdHinweis { padding:14px 24px 0; max-width:1520px; margin:0 auto; }
+    #supDash .sd-banner { display:flex; gap:10px; align-items:flex-start; padding:10px 12px; border-radius:8px; background:rgba(250,178,25,.08); border:1px solid rgba(250,178,25,.32); color:var(--sd-t1); font-size:12.5px; margin-top:10px; }
+    #supDash #sdHinweis .sd-banner { margin-top:0; }
+    #supDash .sd-banner svg { color:var(--sd-warn); flex:none; margin-top:1px; }
+    #supDash .sd-banner-krit { background:rgba(208,59,59,.1); border-color:rgba(208,59,59,.4); }
+
+    #supDash .sd-body { padding:18px 24px 48px; max-width:1520px; margin:0 auto; transition:opacity .2s; }
+    #supDash .sd-body.lade { opacity:.55; pointer-events:none; }
+    #supDash .sd-leer-gross { display:flex; align-items:center; justify-content:center; gap:12px; min-height:50vh; color:var(--sd-t3); }
+    #supDash .neu-spin { width:16px; height:16px; border-width:2px; border-color:rgba(57,135,229,.22); border-top-color:var(--sd-akzent); vertical-align:-3px; display:inline-block; }
+
+    /* ---------- Raster + Karten ---------- */
+    #supDash .sd-grid { display:grid; grid-template-columns:repeat(12, minmax(0,1fr)); gap:14px; }
+    #supDash .sd-s4 { grid-column:span 4; } #supDash .sd-s6 { grid-column:span 6; } #supDash .sd-s8 { grid-column:span 8; } #supDash .sd-s12 { grid-column:1 / -1; }
+    #supDash .sd-karte { background:var(--sd-p1); border:1px solid var(--sd-rand); border-radius:10px; padding:16px; min-width:0; }
+    #supDash .sd-body > .sd-karte { margin-bottom:14px; }
+    #supDash .sd-k-kopf { display:flex; justify-content:space-between; align-items:flex-start; gap:10px; margin-bottom:14px; }
+    #supDash .sd-k-t { font-size:13.5px; font-weight:600; margin:0; color:var(--sd-t1); letter-spacing:-.005em; }
+    #supDash .sd-k-u { font-size:12px; color:var(--sd-t3); margin-top:2px; }
+    #supDash .sd-leer { padding:22px 8px; text-align:center; color:var(--sd-t3); font-size:12.5px; }
+    #supDash .sd-fehlerkarte { border-color:rgba(208,59,59,.45); color:var(--sd-t1); }
+    #supDash .sd-fuss-notiz { margin-top:12px; padding-top:10px; border-top:1px solid var(--sd-rand); font-size:12px; color:var(--sd-t3); }
+    #supDash .sd-fuss-notiz b { color:var(--sd-t1); }
+
+    /* ---------- Kennzahlen ---------- */
+    #supDash .sd-kpis { display:grid; grid-template-columns:repeat(6, minmax(0,1fr)); gap:14px; margin-bottom:14px; }
+    #supDash .sd-kpis.sd-kpis-4 { grid-template-columns:repeat(4, minmax(0,1fr)); }
+    #supDash .sd-kpi { padding:14px 14px 12px; display:flex; flex-direction:column; gap:4px; position:relative; overflow:hidden; }
+    #supDash .sd-kpi-l { font-size:12px; color:var(--sd-t2); font-weight:500; display:flex; align-items:center; gap:6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    #supDash .sd-i { display:inline-grid; place-items:center; width:15px; height:15px; border-radius:50%; border:1px solid var(--sd-rand2); color:var(--sd-t3); font-size:9.5px; font-weight:700; font-style:normal; cursor:help; flex:none; }
+    #supDash .sd-kpi-w { font-size:26px; font-weight:650; letter-spacing:-.025em; line-height:1.15; color:var(--sd-t1); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    #supDash .sd-kpi-w small { font-size:13px; font-weight:500; color:var(--sd-t3); letter-spacing:0; }
+    #supDash .sd-kpi-u { font-size:11.5px; color:var(--sd-t3); display:flex; flex-wrap:wrap; gap:4px 8px; align-items:center; min-height:17px; }
+    #supDash .sd-spark { margin:6px -4px -4px; height:30px; }
+    #supDash .sd-delta { display:inline-flex; align-items:center; gap:3px; font-size:11.5px; font-weight:600; color:var(--sd-t2); padding:0 6px; height:18px; border-radius:5px; background:var(--sd-p3); white-space:nowrap; }
+    #supDash .sd-delta.gut { color:#5fd35f; background:rgba(12,163,12,.14); }
+    #supDash .sd-delta.schlecht { color:#f07a7a; background:rgba(208,59,59,.16); }
+
+    /* ---------- Diagramme ---------- */
+    #supDash .sd-chart { position:relative; width:100%; min-height:40px; }
+    #supDash .sd-chart svg { display:block; overflow:visible; }
+    #supDash .sd-gl { stroke:var(--sd-grid); stroke-width:1; }
+    #supDash .sd-basis { stroke:var(--sd-achse); stroke-width:1; }
+    #supDash .sd-ax { fill:var(--sd-t3); font-size:10.5px; font-family:inherit; font-feature-settings:'tnum' 1; }
+    #supDash .sd-band { fill:transparent; }
+    #supDash .sd-band.an { fill:rgba(255,255,255,.045); }
+    #supDash .sd-hit { fill:transparent; cursor:crosshair; outline:none; }
+    #supDash .sd-zelle { cursor:crosshair; }
+    #supDash .sd-zelle:hover { stroke:var(--sd-t1); stroke-width:1.5; }
+    #supDash .sd-legende { display:flex; flex-wrap:wrap; gap:6px 16px; font-size:12px; color:var(--sd-t2); margin:-4px 0 10px; }
+    #supDash .sd-legende span { display:inline-flex; align-items:center; gap:6px; }
+    #supDash .sd-leg-sw { width:10px; height:10px; border-radius:3px; display:inline-block; flex:none; }
+    #supDash .sd-skala { display:flex; align-items:center; justify-content:flex-end; gap:3px; margin-top:8px; font-size:11px; color:var(--sd-t3); }
+    #supDash .sd-skala span { margin:0 4px; }
+    #supDash .sd-skala i { width:14px; height:10px; border-radius:2px; display:inline-block; }
+
+    /* Tooltip */
+    #supDash .sd-tip { position:fixed; z-index:10010; left:0; top:0; min-width:150px; max-width:260px; padding:9px 11px; border-radius:8px; background:#1f242b; border:1px solid var(--sd-rand2); box-shadow:0 10px 30px rgba(0,0,0,.5); font-size:12px; pointer-events:none; opacity:0; visibility:hidden; transition:opacity .1s; }
+    #supDash .sd-tip.an { opacity:1; visibility:visible; }
+    #supDash .sd-tip-t { font-weight:600; color:var(--sd-t1); margin-bottom:6px; }
+    #supDash .sd-tip-z { display:flex; align-items:center; gap:7px; color:var(--sd-t2); padding:1px 0; }
+    #supDash .sd-tip-z b { order:3; margin-left:auto; padding-left:14px; color:var(--sd-t1); font-weight:600; }
+    #supDash .sd-tip-z span { order:2; }
+    #supDash .sd-tip-key { order:1; width:8px; height:8px; border-radius:2px; flex:none; }
+    #supDash .sd-tip-summe { border-top:1px solid var(--sd-rand); margin-top:5px; padding-top:5px; }
+
+    /* ---------- Balkenlisten / Meter ---------- */
+    #supDash .sd-balken { list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:11px; }
+    #supDash .sd-b-kopf { display:flex; justify-content:space-between; align-items:baseline; gap:10px; font-size:12.5px; color:var(--sd-t2); margin-bottom:5px; }
+    #supDash .sd-b-kopf > span:last-child { display:inline-flex; align-items:baseline; gap:8px; white-space:nowrap; }
+    #supDash .sd-b-kopf b { color:var(--sd-t1); }
+    #supDash .sd-b-kopf em { font-style:normal; color:var(--sd-t3); font-size:11.5px; }
+    #supDash .sd-b-l { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    #supDash .sd-b-l small { color:var(--sd-t3); font-size:11px; margin-left:4px; }
+    #supDash .sd-b-bahn { height:8px; border-radius:99px; background:var(--sd-p3); overflow:hidden; }
+    #supDash .sd-b-bahn i { display:block; height:100%; border-radius:99px; transition:width .5s cubic-bezier(.2,.8,.2,1); }
+    #supDash .sd-meter { height:6px; }
+    #supDash .sd-klickbar { cursor:pointer; border-radius:6px; margin:-4px -6px; padding:4px 6px; }
+    #supDash .sd-klickbar:hover { background:var(--sd-p2); }
+    #supDash .sd-q-krit, #supDash .sd-q-warn { font-style:normal; font-size:10.5px !important; font-weight:700; text-transform:uppercase; letter-spacing:.04em; padding:1px 6px; border-radius:4px; color:var(--sd-t1) !important; }
+    #supDash .sd-q-krit { background:rgba(208,59,59,.28); }
+    #supDash .sd-q-warn { background:rgba(250,178,25,.22); }
+
+    /* Ampel */
+    #supDash .sd-stapel { display:flex; gap:2px; height:12px; border-radius:4px; overflow:hidden; margin-bottom:14px; }
+    #supDash .sd-stapel span { min-width:3px; }
+    #supDash .sd-ampel-liste { list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:8px; }
+    #supDash .sd-ampel-liste li { display:flex; align-items:center; gap:9px; font-size:12.5px; color:var(--sd-t2); }
+    #supDash .sd-am-ico { display:inline-grid; place-items:center; flex:none; }
+    #supDash .sd-am-n { flex:1; min-width:0; }
+    #supDash .sd-ampel-liste b { color:var(--sd-t1); }
+    #supDash .sd-ampel-liste em { font-style:normal; color:var(--sd-t3); width:42px; text-align:right; font-size:11.5px; }
+
+    /* ---------- Handlungsbedarf ---------- */
+    #supDash .sd-hw-karte { display:flex; flex-direction:column; }
+    #supDash .sd-hw-rahmen { flex:1; position:relative; min-height:230px; }
+    #supDash .sd-hw-liste { list-style:none; margin:0 -6px 0 0; padding:0 6px 0 0; display:flex; flex-direction:column; gap:6px; position:absolute; inset:0; overflow-y:auto; }
+    #supDash .sd-hw { width:100%; display:flex; align-items:flex-start; gap:10px; padding:9px 10px; border-radius:8px; border:1px solid var(--sd-rand); background:var(--sd-p2); cursor:pointer; text-align:left; }
+    #supDash .sd-hw:hover { border-color:var(--sd-rand2); background:var(--sd-p3); }
+    #supDash .sd-hw-ico { flex:none; width:26px; height:26px; border-radius:7px; display:grid; place-items:center; }
+    #supDash .sd-hw-krit .sd-hw-ico { background:rgba(208,59,59,.18); color:#f07a7a; }
+    #supDash .sd-hw-warn .sd-hw-ico { background:rgba(250,178,25,.15); color:var(--sd-warn); }
+    #supDash .sd-hw-info .sd-hw-ico { background:rgba(57,135,229,.16); color:var(--sd-akzent-h); }
+    #supDash .sd-hw-gut .sd-hw-ico { background:rgba(12,163,12,.16); color:#4cc94c; }
+    #supDash .sd-hw-krit { border-left:2px solid var(--sd-krit); }
+    #supDash .sd-hw-txt { flex:1; min-width:0; display:flex; flex-direction:column; gap:1px; }
+    #supDash .sd-hw-txt b { font-size:12.5px; color:var(--sd-t1); }
+    #supDash .sd-hw-txt span { font-size:11.5px; color:var(--sd-t3); overflow:hidden; text-overflow:ellipsis; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; }
+    #supDash .sd-hw-stufe { flex:none; font-size:10.5px; font-weight:600; color:var(--sd-t3); text-transform:uppercase; letter-spacing:.05em; padding-top:2px; }
+    #supDash .sd-alles-gut { display:flex; gap:12px; align-items:center; padding:16px 14px; border-radius:8px; background:rgba(12,163,12,.08); border:1px solid rgba(12,163,12,.28); color:#4cc94c; }
+    #supDash .sd-alles-gut b { display:block; color:var(--sd-t1); font-size:13px; }
+    #supDash .sd-alles-gut span { display:block; color:var(--sd-t3); font-size:12px; }
+
+    /* ---------- Live-Feed ---------- */
+    #supDash .sd-feed { list-style:none; margin:0; padding:0; }
+    #supDash .sd-feed li { display:flex; align-items:center; gap:12px; padding:8px 2px; border-top:1px solid var(--sd-rand); font-size:12.5px; }
+    #supDash .sd-feed li:first-child { border-top:0; }
+    #supDash .sd-feed-z { flex:none; width:96px; color:var(--sd-t3); font-size:12px; white-space:nowrap; }
+    #supDash .sd-feed-t { flex:1; min-width:0; color:var(--sd-t2); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    #supDash .sd-feed-t b { color:var(--sd-t1); }
+    #supDash .sd-score { flex:none; display:inline-flex; align-items:center; gap:6px; min-width:44px; justify-content:flex-end; font-weight:600; color:var(--sd-t1); }
+    #supDash .sd-score i { width:8px; height:8px; border-radius:50%; display:inline-block; }
+    #supDash .sd-tag-kopf { font-size:11.5px; font-weight:600; color:var(--sd-t3); text-transform:uppercase; letter-spacing:.05em; margin:18px 0 4px; }
+    #supDash .sd-tag-kopf:first-of-type { margin-top:6px; }
+
+    /* ---------- Tabellen ---------- */
+    #supDash .sd-tab-scroll { overflow-x:auto; margin:0 -16px -16px; }
+    #supDash .sd-tab { width:100%; border-collapse:collapse; font-size:12.5px; }
+    #supDash .sd-tab th { position:sticky; top:0; text-align:left; font-weight:600; font-size:11.5px; color:var(--sd-t3); padding:9px 12px; border-bottom:1px solid var(--sd-rand); background:var(--sd-p1); white-space:nowrap; }
+    #supDash .sd-tab td { padding:10px 12px; border-bottom:1px solid var(--sd-rand); color:var(--sd-t2); vertical-align:middle; white-space:nowrap; }
+    #supDash .sd-tab td b { color:var(--sd-t1); }
+    #supDash .sd-tab th:first-child, #supDash .sd-tab td:first-child { padding-left:16px; }
+    #supDash .sd-tab th:last-child, #supDash .sd-tab td:last-child { padding-right:16px; }
+    #supDash .sd-tab tbody tr:last-child td { border-bottom:0; }
+    #supDash .sd-tab .r { text-align:right; }
+    #supDash .sd-tab-klick tbody tr { cursor:pointer; outline:none; }
+    #supDash .sd-tab-klick tbody tr:hover td, #supDash .sd-tab-klick tbody tr:focus-visible td { background:var(--sd-p2); }
+    #supDash .sd-tab-klick tbody tr:focus-visible td:first-child { box-shadow:inset 2px 0 0 var(--sd-akzent); }
+    #supDash .sd-sort button { all:unset; cursor:pointer; color:inherit; font:inherit; }
+    #supDash .sd-sort button:hover, #supDash .sd-sort.an button { color:var(--sd-t1); }
+    #supDash .sd-sort button:focus-visible { outline:2px solid var(--sd-akzent); outline-offset:2px; border-radius:3px; }
+    #supDash .sd-mini-meter { display:flex; align-items:center; gap:10px; min-width:180px; }
+    #supDash .sd-mini-meter .sd-b-bahn { flex:1; min-width:60px; }
+    #supDash .sd-mini-meter span { font-size:12px; color:var(--sd-t3); white-space:nowrap; min-width:88px; }
+    #supDash .sd-tab td.sd-td-name { max-width:300px; overflow:hidden; text-overflow:ellipsis; }
+    #supDash .sd-warn-t { color:var(--sd-warn) !important; }
+    #supDash .sd-pill { display:inline-flex; align-items:center; gap:6px; height:22px; padding:0 8px; border-radius:99px; font-size:11.5px; font-weight:600; background:var(--sd-p3); color:var(--sd-t1); white-space:nowrap; }
+    #supDash .sd-pill i { width:7px; height:7px; border-radius:50%; background:var(--sd-t3); }
+    #supDash .sd-pill-zahlend i { background:var(--sd-gut); }
+    #supDash .sd-pill-test i { background:var(--sd-akzent); }
+    #supDash .sd-pill-aktiv i { background:#86b6ef; }
+    #supDash .sd-pill-inaktiv i { background:var(--sd-krit); }
+    #supDash .sd-pill-intern i { background:#6b737d; }
+    #supDash .sd-tag { display:inline-block; font-size:10.5px; font-weight:600; padding:1px 6px; border-radius:4px; background:var(--sd-p3); color:var(--sd-t2); vertical-align:1px; }
+    #supDash .sd-tag-warn { background:rgba(250,178,25,.18); color:#ffd36b; }
+    #supDash .sd-code { display:inline-block; font-family:var(--sd-mono); font-size:11.5px; font-weight:700; padding:1px 7px; border-radius:4px; color:var(--sd-t1); }
+    #supDash .sd-code-warn { background:rgba(250,178,25,.2); }
+    #supDash .sd-code-krit { background:rgba(208,59,59,.3); }
+
+    /* Werkzeugleiste: Filter-Chips + Suche */
+    #supDash .sd-werkzeug { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:14px; }
+    #supDash .sd-chips { display:flex; flex-wrap:wrap; gap:6px; }
+    #supDash .sd-chip { display:inline-flex; align-items:center; gap:7px; height:28px; padding:0 10px; border-radius:99px; border:1px solid var(--sd-rand2); background:transparent; color:var(--sd-t2); font-size:12px; font-weight:500; cursor:pointer; }
+    #supDash .sd-chip:hover { color:var(--sd-t1); background:var(--sd-p2); }
+    #supDash .sd-chip em { font-style:normal; font-size:11px; color:var(--sd-t3); }
+    #supDash .sd-chip.an { background:var(--sd-t1); color:#0b0d10; border-color:var(--sd-t1); }
+    #supDash .sd-chip.an em { color:#4a515b; }
+    #supDash .sd-suchfeld { display:flex; align-items:center; gap:8px; height:32px; padding:0 10px; border-radius:7px; border:1px solid var(--sd-rand2); background:var(--sd-p2); color:var(--sd-t3); min-width:240px; }
+    #supDash .sd-suchfeld:focus-within { border-color:var(--sd-akzent); box-shadow:0 0 0 3px rgba(57,135,229,.2); }
+    #supDash .sd-suchfeld input { flex:1; min-width:0; border:0; outline:0; background:transparent; color:var(--sd-t1); font:inherit; font-size:13px; }
+    #supDash .sd-suchfeld input::placeholder { color:var(--sd-t3); }
+    #supDash .sd-suchfeld-gross { height:40px; margin-bottom:6px; }
+    #supDash .sd-suchfeld-gross input { font-size:14px; }
+
+    /* ---------- Nutzer-Zeilen ---------- */
+    #supDash .sd-nutzer { display:flex; align-items:center; gap:12px; padding:10px 0; border-top:1px solid var(--sd-rand); }
+    #supDash .sd-nutzer:first-child { border-top:0; }
+    #supDash .sd-avatar { flex:none; width:30px; height:30px; border-radius:50%; display:grid; place-items:center; background:var(--sd-p3); color:var(--sd-t2); font-size:12px; font-weight:700; }
+    #supDash .sd-n-haupt { flex:1; min-width:0; }
+    #supDash .sd-n-name { font-size:13px; font-weight:600; color:var(--sd-t1); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    #supDash .sd-n-meta { font-size:11.5px; color:var(--sd-t3); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    #supDash .sd-rang { flex:none; font-size:11px; font-weight:600; color:var(--sd-t2); padding:2px 8px; border-radius:99px; border:1px solid var(--sd-rand2); }
+    #supDash .sd-n-btns { flex:none; display:flex; align-items:center; gap:6px; }
+    #supDash .sd-select, #supDash .sd-form select, #supDash .sd-form input:not([type="checkbox"]) { height:30px; padding:0 9px; border-radius:6px; border:1px solid var(--sd-rand2); background:var(--sd-p2); color:var(--sd-t1); font:inherit; font-size:12.5px; }
+    #supDash .sd-select { height:26px; font-size:12px; padding:0 6px; cursor:pointer; }
+    #supDash .sd-select:focus, #supDash .sd-form select:focus, #supDash .sd-form input:focus { outline:none; border-color:var(--sd-akzent); box-shadow:0 0 0 3px rgba(57,135,229,.2); }
+
+    /* ---------- Kunden-Detail (Seitenleiste rechts) ---------- */
+    #supDash .sd-drawer-hg { position:absolute; inset:0; z-index:20; background:rgba(0,0,0,.5); opacity:0; pointer-events:none; transition:opacity .2s; }
+    #supDash .sd-drawer-hg.an { opacity:1; pointer-events:auto; }
+    #supDash .sd-drawer { position:absolute; top:0; right:0; bottom:0; z-index:21; width:min(560px, 100%); background:var(--sd-p1); border-left:1px solid var(--sd-rand2); box-shadow:-20px 0 50px rgba(0,0,0,.45); display:flex; flex-direction:column; transform:translateX(102%); visibility:hidden; transition:transform .24s cubic-bezier(.2,.8,.2,1), visibility 0s linear .24s; }
+    #supDash .sd-drawer.an { transform:none; visibility:visible; transition:transform .24s cubic-bezier(.2,.8,.2,1), visibility 0s; }
+    #supDash .sd-dr-kopf { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; padding:18px 20px 16px; border-bottom:1px solid var(--sd-rand); }
+    #supDash .sd-dr-kopf h2 { font-size:18px; font-weight:700; margin:6px 0 2px; letter-spacing:-.015em; color:var(--sd-t1); word-break:break-word; }
+    #supDash .sd-dr-inhalt { flex:1; overflow-y:auto; padding:18px 20px 28px; }
+    #supDash .sd-dr-zahlen { display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:8px; }
+    #supDash .sd-dr-zahlen > div { background:var(--sd-p2); border:1px solid var(--sd-rand); border-radius:8px; padding:10px; min-width:0; }
+    #supDash .sd-dr-zahlen span { display:block; font-size:11px; color:var(--sd-t3); }
+    #supDash .sd-dr-zahlen b { display:block; font-size:17px; font-weight:650; color:var(--sd-t1); margin:2px 0 1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    #supDash .sd-dr-zahlen small { display:block; font-size:11px; color:var(--sd-t3); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    #supDash .sd-dr-zuletzt { margin-top:10px; }
+    #supDash .sd-dr-zuletzt b { color:var(--sd-t2); }
+    #supDash .sd-dr-block { margin-top:22px; }
+    #supDash .sd-dr-block h3 { font-size:11.5px; font-weight:600; color:var(--sd-t3); text-transform:uppercase; letter-spacing:.06em; margin:0 0 10px; }
+    #supDash .sd-form { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    #supDash .sd-form label { display:flex; flex-direction:column; gap:5px; font-size:12px; color:var(--sd-t2); font-weight:500; }
+    #supDash .sd-form label:first-child { grid-column:1 / -1; }
+    #supDash .sd-form small { font-size:11px; color:var(--sd-t3); font-weight:400; }
+    #supDash .sd-form-chk { display:flex; gap:18px; align-items:center; grid-column:1 / -1; }
+    #supDash .sd-form-chk label { flex-direction:row; align-items:center; gap:7px; cursor:pointer; color:var(--sd-t1); }
+    #supDash .sd-form-chk input { width:15px; height:15px; accent-color:var(--sd-akzent); }
+    #supDash .sd-dr-aktionen { display:flex; gap:8px; flex-wrap:wrap; margin-top:14px; }
+    #supDash .sd-meldung, #supDash .auth-msg { display:block; margin-top:12px; padding:8px 10px; border-radius:7px; font-size:12.5px; background:var(--sd-p2); border:1px solid var(--sd-rand2); color:var(--sd-t1); }
+    #supDash .auth-msg.ok { background:rgba(12,163,12,.12); border-color:rgba(12,163,12,.4); }
+    #supDash .auth-msg.error { background:rgba(208,59,59,.12); border-color:rgba(208,59,59,.45); }
+
+    /* ---------- System ---------- */
+    #supDash .sd-unterteil { margin-top:16px; padding-top:14px; border-top:1px solid var(--sd-rand); }
+    #supDash .sd-unter-t { font-size:11.5px; font-weight:600; color:var(--sd-t3); text-transform:uppercase; letter-spacing:.05em; margin-bottom:10px; }
+    #supDash .sd-mini-zahlen { display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:8px; margin-top:14px; padding-top:12px; border-top:1px solid var(--sd-rand); }
+    #supDash .sd-mini-zahlen span { display:block; font-size:11px; color:var(--sd-t3); }
+    #supDash .sd-mini-zahlen b { display:block; font-size:13px; color:var(--sd-t1); margin-top:1px; }
+    #supDash .sd-drawer .sd-nutzer { flex-wrap:wrap; row-gap:8px; }
+    #supDash .sd-drawer .sd-n-haupt { flex-basis:calc(100% - 42px - 100px); }
+    #supDash .sd-drawer .sd-n-btns { flex-basis:calc(100% - 42px); margin-left:42px; }
+    #supDash .sd-sys-z { display:flex; justify-content:space-between; align-items:center; gap:12px; padding:9px 0; border-top:1px solid var(--sd-rand); font-size:12.5px; color:var(--sd-t2); }
+    #supDash .sd-sys-z:first-of-type { border-top:0; padding-top:2px; }
+    #supDash .sd-sys-z b { display:inline-flex; align-items:center; gap:7px; color:var(--sd-t1); text-align:right; }
+    #supDash .sd-punkt { width:8px; height:8px; border-radius:50%; display:inline-block; }
+
+    /* ---------- Responsiv ---------- */
+    @media (max-width: 1320px) {
+      #supDash .sd-kpis { grid-template-columns:repeat(3, minmax(0,1fr)); }
+    }
+    @media (max-width: 1100px) {
+      #supDash .sd-side { width:68px; padding:14px 8px; }
+      #supDash .sd-brand > div, #supDash .sd-nav-btn span, #supDash .sd-ver { display:none; }
+      #supDash .sd-brand { justify-content:center; padding:4px 0 0; }
+      #supDash .sd-nav-btn { justify-content:center; padding:10px 0; position:relative; }
+      #supDash .sd-nav-btn .sd-badge { position:absolute; top:2px; right:4px; min-width:16px; height:15px; font-size:9.5px; padding:0 4px; }
+      #supDash .sd-side-fuss .sd-btn { font-size:0; gap:0; padding:0; }
+      #supDash .sd-s4 { grid-column:span 6; } #supDash .sd-s8 { grid-column:1 / -1; }
+      #supDash .sd-kpis.sd-kpis-4 { grid-template-columns:repeat(2, minmax(0,1fr)); }
+    }
+    @media (max-width: 760px) {
+      #supDash.sd { flex-direction:column; }
+      #supDash .sd-side { width:auto; flex-direction:row; align-items:center; gap:8px; padding:8px 10px; border-right:0; border-bottom:1px solid var(--sd-rand); overflow-x:auto; scrollbar-width:none; }
+      #supDash .sd-side::-webkit-scrollbar { display:none; }
+      #supDash .sd-brand { display:none; }
+      #supDash .sd-nav { flex-direction:row; gap:4px; }
+      #supDash .sd-nav-btn { width:auto; padding:8px 10px; flex:none; }
+      #supDash .sd-nav-btn span { display:inline; }
+      #supDash .sd-nav-btn svg { display:none; }
+      #supDash .sd-nav-btn.aktiv { box-shadow:inset 0 -2px 0 var(--sd-akzent); }
+      #supDash .sd-nav-btn .sd-badge { position:static; }
+      #supDash .sd-side-fuss { margin:0; order:-1; flex:none; }
+      #supDash .sd-side-fuss .sd-btn { width:32px; }
+      #supDash .sd-top { padding:10px 14px; }
+      #supDash .sd-top h1 { font-size:16px; }
+      #supDash .sd-filter { width:100%; justify-content:space-between; }
+      #supDash #sdHinweis { padding:12px 14px 0; }
+      #supDash .sd-body { padding:12px 12px 40px; }
+      #supDash .sd-grid { gap:10px; }
+      #supDash .sd-s4, #supDash .sd-s6, #supDash .sd-s8 { grid-column:1 / -1; }
+      #supDash .sd-kpis, #supDash .sd-kpis.sd-kpis-4 { grid-template-columns:repeat(2, minmax(0,1fr)); gap:10px; margin-bottom:10px; }
+      #supDash .sd-kpi-w { font-size:21px; }
+      #supDash .sd-karte { padding:14px; }
+      #supDash .sd-tab-scroll { margin:0 -14px -14px; }
+      #supDash .sd-werkzeug { flex-direction:column; align-items:stretch; }
+      #supDash .sd-chips { flex-wrap:nowrap; overflow-x:auto; scrollbar-width:none; margin:0 -14px; padding:0 14px; }
+      #supDash .sd-suchfeld { min-width:0; }
+      #supDash .sd-feed-z { width:74px; }
+      #supDash .sd-nutzer { flex-wrap:wrap; }
+      #supDash .sd-n-haupt { flex-basis:calc(100% - 42px); }
+      #supDash .sd-n-btns { margin-left:42px; flex-wrap:wrap; }
+      #supDash .sd-rang { order:5; }
+      #supDash .sd-dr-zahlen { grid-template-columns:repeat(2, minmax(0,1fr)); }
+      #supDash .sd-form { grid-template-columns:1fr; }
+      #supDash .sd-hw-stufe { display:none; }
+      #supDash .sd-hw-rahmen { min-height:0; }
+      #supDash .sd-hw-liste { position:static; max-height:340px; }
+      #supDash .sd-suchfeld input, #supDash .sd-form input:not([type="checkbox"]), #supDash .sd-form select, #supDash .sd-select { font-size:16px; }   /* iPhone zoomt sonst beim Antippen */
+      #supDash .sd-td-name { max-width:200px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      #supDash.sd, #supDash .sd-drawer, #supDash .sd-b-bahn i { transition:none !important; }
+      #supDash .sd-ico-btn.dreht svg { animation-duration:2s; }
+    }
+    @media print { #supDash { display:none !important; } }
 </style>
 <div id="legalGate" class="legal-gate" style="display:none;">
   <div class="legal-box">
@@ -6608,7 +6985,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span class="app-version" onclick="neuigkeitenZeigen()" title="Was ist neu?" style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v12.37</span>
+      <span class="app-version" onclick="neuigkeitenZeigen()" title="Was ist neu?" style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v12.38</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -6877,6 +7254,7 @@ function _trAttribute() {
   try { els = document.querySelectorAll('[placeholder], [title]'); } catch(e) { return []; }
   const offen = [];
   els.forEach(function(el){
+    try { if (el.closest && el.closest('#supDash')) return; } catch(e) {}   // v12.38: internes Dashboard
     ['placeholder','title'].forEach(function(attr){
       const wert = el.getAttribute(attr);
       if (wert === null) return;
@@ -7012,16 +7390,21 @@ async function _trNachladen(offen) {
 function _trOverlay(an) {
   let o = document.getElementById('trOverlay');
   if (an) {
-    if (o) { o.classList.add('an'); return; }
+    if (o) { o._soll = true; o.classList.add('an'); return; }
     if (!o) {
       o = document.createElement('div');
       o.id = 'trOverlay';
       o.style.cssText = 'opacity:0;transform:translateY(10px) scale(.94);transition:opacity .3s ease, transform .3s cubic-bezier(.2,.9,.3,1.3);position:fixed;bottom:64px;left:16px;z-index:10002;background:#fff;border:1.5px solid rgba(34,197,94,.35);border-radius:12px;padding:9px 14px;font-size:12.5px;font-weight:700;color:#16A34A;box-shadow:0 10px 26px -12px rgba(10,15,13,.3);display:flex;align-items:center;gap:8px;';
       o.innerHTML = '<span style="width:13px;height:13px;border:2px solid rgba(34,197,94,.3);border-top-color:#16A34A;border-radius:50%;display:inline-block;animation:upSpin .8s linear infinite;"></span><span>Translating\u2026</span>';
       document.body.appendChild(o);
-      einblenden(o);
+      o._soll = true;
+      void o.offsetWidth;
+      // v12.38: nur einblenden, wenn er inzwischen nicht schon wieder ausgeblendet wurde
+      // (sonst blieb "Translating..." stehen, wenn alles aus dem Zwischenspeicher kam)
+      requestAnimationFrame(function(){ if (o._soll) o.classList.add('an'); });
     }
   } else if (o) {
+    o._soll = false;
     o.classList.remove('an');
     setTimeout(function(){ if (o.parentNode && !o.classList.contains('an')) o.remove(); }, 300);
   }
@@ -7038,6 +7421,8 @@ try {
       for (let i = 0; i < m.addedNodes.length; i++) {
         const nd = m.addedNodes[i];
         if (nd.id === 'trOverlay') continue;
+        const _ndEl = nd.nodeType === 1 ? nd : nd.parentNode;   // v12.38: internes Support-Dashboard wird nicht uebersetzt
+        try { if (_ndEl && _ndEl.closest && _ndEl.closest('#supDash')) continue; } catch(e) {}
         if (nd.nodeType === 1) { uebersetzeBaum(nd, true); neuerInhalt = true; }
         else if (nd.nodeType === 3 && nd.parentNode) { uebersetzeBaum(nd.parentNode, true); neuerInhalt = true; }
       }
@@ -9359,140 +9744,784 @@ function renderTeam() {
 
 // Unternehmens-Code (President/Vize) + Team verlassen
 // ============================================================
-// SUPPORT-CENTER
+// SUPPORT-CENTER v12.38 - Dashboard im eigenen, dunklen Look
+// Daten: sup_dashboard (Zeitverlaeufe, neu in migration_2026-10-11), sup_status, sup_firmen,
+// sup_aktivitaet, sup_mitglieder, sup_nutzer_suchen (bestehend). Aktionen (Speichern, Beitreten,
+// Rang, Passwort, Bestaetigen) laufen unveraendert ueber die bisherigen sup*-Funktionen.
+// Diagramme: reines SVG, keine Fremdbibliothek. Farben: validierte Palette (dunkle Flaeche).
 // ============================================================
 let SUP_FIRMEN = [];
 let SUP_TAB = 'uebersicht';
+const SD = { tage: 30, ohneIntern: true, tab: 'uebersicht', d: null, dFehler: null, status: null, firmen: [], akt: [], laedt: false,
+  stand: null, filter: 'alle', suche: '', sort: { k: 'monat', ab: true }, drawer: null, tabelle: false, aktSuche: '', zeichner: [] };
+const SD_PREISE = { 100: 299.99, 300: 999.99, 600: 1999.99, 1000: 2999.99 };
+const SD_PAKET = { 100: 'Bronze', 300: 'Silber', 600: 'Gold', 1000: 'Platinum' };
+const SD_SERIE = { tool: '#3987e5', api: '#d95926', support: '#199e70', firmen: '#d95926' };
+const SD_ST = { gut: '#0ca30c', warn: '#fab219', ernst: '#ec835a', krit: '#d03b3b', leer: '#4a515b' };
+const SD_SEQ = ['#0d366b', '#104281', '#184f95', '#1c5cab', '#256abf', '#2a78d6', '#3987e5', '#5598e7', '#6da7ec', '#86b6ef'];
+const SD_TABS = [
+  { id: 'uebersicht', t: 'Übersicht', ico: '<path d="M3 13h8V3H3zM13 21h8V11h-8zM13 3v6h8V3zM3 21h8v-6H3z"/>' },
+  { id: 'firmen', t: 'Kunden', ico: '<path d="M3 21h18M5 21V7l7-4 7 4v14M9 9h1M14 9h1M9 13h1M14 13h1M9 17h1M14 17h1"/>' },
+  { id: 'nutzer', t: 'Nutzer', ico: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>' },
+  { id: 'aktivitaet', t: 'Aktivität', ico: '<path d="M22 12h-4l-3 9L9 3l-3 9H2"/>' },
+  { id: 'api', t: 'REST-API', ico: '<path d="m16 18 6-6-6-6M8 6l-6 6 6 6"/>' },
+  { id: 'system', t: 'System', ico: '<rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/>' }
+];
 
+// ---------- Format-Helfer ----------
+function sdZ(n) { return (Number(n) || 0).toLocaleString('de-DE'); }
+function sdEuro(n) { return (Number(n) || 0).toLocaleString('de-DE', { style: 'currency', currency: 'EUR', minimumFractionDigits: 0, maximumFractionDigits: 0 }); }
+function sdKurz(n) { n = Number(n) || 0; return n >= 10000 ? (n / 1000).toLocaleString('de-DE', { maximumFractionDigits: 0 }) + 'K' : n >= 1000 ? (n / 1000).toLocaleString('de-DE', { maximumFractionDigits: 1 }) + 'K' : String(n); }
+function sdTag(iso, mitWochentag) {
+  const d = new Date(String(iso).slice(0, 10) + 'T12:00:00');
+  if (isNaN(d.getTime())) return String(iso || '');
+  return (mitWochentag ? ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'][d.getDay()] + ' ' : '') + ('0' + d.getDate()).slice(-2) + '.' + ('0' + (d.getMonth() + 1)).slice(-2) + '.';
+}
+function sdVor(iso) {
+  if (!iso) return 'nie';
+  const t = (Date.now() - new Date(iso).getTime()) / 1000;
+  if (isNaN(t)) return '–';
+  if (t < 90) return 'gerade eben';
+  if (t < 3600) return 'vor ' + Math.round(t / 60) + ' Min.';
+  if (t < 86400) return 'vor ' + Math.round(t / 3600) + ' Std.';
+  const tg = Math.round(t / 86400);
+  return tg === 1 ? 'gestern' : 'vor ' + tg + ' Tagen';
+}
+function sdTicks(max, n) {
+  // Ganzzahlige "runde" Schritte (1-2-5); die oberste Marke liegt immer auf oder ueber dem Maximum,
+  // damit keine Saeule ueber den Diagrammrand hinausragt.
+  max = Math.max(1, Number(max) || 0); n = n || 4;
+  let p = Math.pow(10, Math.floor(Math.log10(max / n))), schritt = 1;
+  if (p < 1) p = 1;
+  for (const f of [1, 2, 5, 10, 20, 50]) { schritt = f * p; if (Math.ceil(max / schritt) <= n + 1) break; }
+  const out = [];
+  for (let v = 0; out.length < 2 || out[out.length - 1] < max; v += schritt) { out.push(v); if (out.length > 12) break; }
+  return out;
+}
+function sdDelta(jetzt, vorher, obenGut, einheit) {
+  jetzt = Number(jetzt) || 0; vorher = Number(vorher) || 0;
+  if (!vorher && !jetzt) return '';
+  let txt, auf;
+  if (einheit === 'pkt') { const d = jetzt - vorher; if (!d) return '<span class="sd-delta">± 0 Pkt.</span>'; auf = d > 0; txt = (d > 0 ? '+' : '−') + Math.abs(d) + ' Pkt.'; }
+  else if (!vorher) { auf = true; txt = 'neu'; }
+  else { const p = Math.round((jetzt - vorher) / vorher * 100); if (!p) return '<span class="sd-delta">± 0 %</span>'; auf = p > 0; txt = (p > 0 ? '+' : '−') + Math.abs(p) + ' %'; }
+  const gut = obenGut === null ? null : (auf === obenGut);
+  return '<span class="sd-delta ' + (gut === null ? '' : gut ? 'gut' : 'schlecht') + '">' + (auf ? '▲' : '▼') + ' ' + txt + '</span>';
+}
+
+// ---------- Kunden-Kennzahlen (aus sup_firmen) ----------
+function sdFirmaInfo(f) {
+  const lim = Number(f.monatslimit) || 0, intern = lim >= 999999;
+  const zahlend = !intern && !f.trial && f.aktiv !== false && SD_PREISE[lim] != null;
+  const letzte = f.letzte_analyse ? new Date(f.letzte_analyse) : null;
+  const status = intern ? 'intern' : f.aktiv === false ? 'inaktiv' : f.trial ? 'test' : zahlend ? 'zahlend' : 'aktiv';
+  return { lim: lim, intern: intern, zahlend: zahlend, umsatz: zahlend ? SD_PREISE[lim] : 0, status: status,
+    quote: (lim && !intern) ? Math.round((Number(f.analysen_monat) || 0) / lim * 100) : 0,
+    tageRuhig: letzte ? Math.floor((Date.now() - letzte.getTime()) / 86400000) : null,
+    paket: intern ? 'Unbegrenzt' : f.trial ? 'Testphase' : (SD_PAKET[lim] ? SD_PAKET[lim] + ' · ' + lim : lim + ' / Monat') };
+}
+const SD_STATUS_TXT = { zahlend: 'Zahlend', test: 'Testphase', aktiv: 'Aktiv', inaktiv: 'Inaktiv', intern: 'Intern' };
+function sdKunden() { return (SD.firmen || []).filter(function(f){ return !SD.ohneIntern || !sdFirmaInfo(f).intern; }); }
+
+// ---------- Oeffnen / Schliessen ----------
 function supportCenterOeffnen() {
   if (CURRENT_USER_RANG !== 'support') {
-    alert('Dieses Konto hat nicht den Rang \u201eSupport\u201c (aktuell: ' + (CURRENT_USER_RANG || 'unbekannt') + ').');
+    alert('Dieses Konto hat nicht den Rang „Support“ (aktuell: ' + (CURRENT_USER_RANG || 'unbekannt') + ').');
     return;
   }
-  try { supCenterAufbauen(); } catch (e) { alert('Support-Center: ' + ((e && e.message) || 'Fehler')); }
+  try { sdOeffnen(); } catch (e) { alert('Support-Center: ' + ((e && e.message) || 'Fehler')); }
 }
-
-function supCenterAufbauen() {
-  const fertig = function(){
-    appUnterseitenReset();
-    ['mainView','historyView','teamView','akteView'].forEach(function(id){ const e = document.getElementById(id); if (e) e.style.display = 'none'; });
-    const v = document.getElementById('supportView');
-    if (!v) return;
-    v.style.display = '';
-    fadeInView(v);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    v.innerHTML = '<div class="history-head"><div>'
-      + '<div class="history-eyebrow">Automati Labs \u00b7 intern</div>'
-      + '<div class="history-title">Support-Center</div>'
-      + '<div class="history-sub">Alle Firmen, Nutzer und Systemwerte auf einen Blick. \u00c4nderungen wirken sofort.</div></div>'
-      + '<button class="btn-action" onclick="backToMain()">Zum Tool</button></div>'
-      + '<div class="sup-tabs">'
-      + supTab('uebersicht', '\u00dcbersicht') + supTab('firmen', 'Firmen') + supTab('nutzer', 'Nutzer') + supTab('aktivitaet', 'Aktivit\u00e4t')
-      + '</div>'
-      + '<div id="supBody"><div class="sup-lade">Wird geladen\u2026</div></div>';
-    supLade();
-  };
-  // Mit Ausblende-Effekt, falls vorhanden - sonst direkt
-  if (typeof mitAusBlende === 'function') {
-    try { mitAusBlende(fertig); } catch (e) { fertig(); }
-  } else { fertig(); }
-}
-
-function supTab(id, label) {
-  return '<button class="sup-tab' + (SUP_TAB === id ? ' aktiv' : '') + '" data-tab="' + id + '" onclick="supTabWechsel(\'' + id + '\')">' + label + '</button>';
-}
-function supTabWechsel(id) {
-  SUP_TAB = id;
-  document.querySelectorAll('.sup-tab').forEach(function(b){ b.classList.toggle('aktiv', b.getAttribute('data-tab') === id); });
-  supLade();
-}
-
-async function supLade() {
-  const b = document.getElementById('supBody');
-  if (!b) return;
-  b.innerHTML = '<div class="sup-lade">Wird geladen\u2026</div>';
-  try {
-    if (SUP_TAB === 'uebersicht') await supUebersicht(b);
-    else if (SUP_TAB === 'firmen') await supFirmen(b);
-    else if (SUP_TAB === 'nutzer') supNutzer(b);
-    else await supAktivitaet(b);
-    sichtbarSicherstellen(b);
-  } catch (e) {
-    const m = (e && e.message) || '';
-    const fehltSql = /does not exist|schema cache|function public\.sup_/i.test(m);
-    b.innerHTML = '<div class="sup-fehler">'
-      + '<b>' + (fehltSql ? 'Die Datenbank-Funktionen fehlen noch' : 'Fehler beim Laden') + '</b><br/>'
-      + (fehltSql
-          ? 'Bitte das SQL-Skript \u201esql support center\u201c einmal in Supabase ausf\u00fchren. Danach hier neu laden.'
-          : escapeHtml(m))
-      + '</div>';
+function supCenterAufbauen() { sdOeffnen(); }
+function sdOeffnen() {
+  let el = document.getElementById('supDash');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'supDash'; el.className = 'sd';
+    el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true'); el.setAttribute('aria-label', 'Support-Center');
+    el.setAttribute('data-tr', 'aus');                    // intern, wird nicht automatisch uebersetzt
+    document.body.appendChild(el);
   }
+  el.classList.remove('weg');
+  el.innerHTML = sdGeruest();
+  document.body.classList.add('sd-offen');
+  document.documentElement.classList.add('sd-offen');   // reservierte Scrollbar-Rinne freigeben
+  requestAnimationFrame(function(){ el.classList.add('an'); });
+  document.addEventListener('keydown', sdTaste);
+  window.addEventListener('resize', sdGroesse);
+  sdTabZeigen(SD.tab, true);
+  if (SD.d !== null) sdRender();                         // erneut geoeffnet: alte Werte sofort zeigen, dann still aktualisieren
+  sdLaden(false);
 }
-
-async function supUebersicht(b) {
-  const { data } = await sb.rpc('sup_status');
-  const s = data || {};
-  const sank = (s.sanktionen || [])[0] || {};
-  const sankAlt = sank.stand ? Math.floor((Date.now() - new Date(sank.stand).getTime()) / 86400000) : null;
-  function k(wert, label, farbe) { return '<div class="sup-kz ' + (farbe || '') + '"><div class="sup-kz-w">' + wert + '</div><div class="sup-kz-l">' + label + '</div></div>'; }
-  b.innerHTML = '<div class="sup-kz-grid">'
-    + k(s.firmen || 0, 'Firmen') + k(s.zahlende_firmen || 0, 'davon zahlend', 'gruen') + k(s.nutzer || 0, 'Nutzer')
-    + k(s.analysen_heute || 0, 'Analysen heute') + k(s.analysen_monat || 0, 'Analysen Monat') + k(s.analysen_gesamt || 0, 'Analysen gesamt')
-    + k(s.favoriten || 0, '\u00dcberwacht') + k(s.faellige_favoriten || 0, 'F\u00e4llig', (s.faellige_favoriten > 0) ? 'gelb' : '')
-    + k(s.kyc_dokumente || 0, 'Ausweise abgelegt') + k(s.offene_einladungen || 0, 'Offene Einladungen')
-    + '</div>'
-    + '<div class="sup-block"><div class="sup-block-h">Sanktionsliste</div>'
-    + '<div class="sup-zeile"><span class="sank-punkt sank-' + (sankAlt === null ? 'grau' : sankAlt <= 8 ? 'gruen' : 'rot') + '"></span>'
-    + '<b>' + (sank.eintraege || 0).toLocaleString('de-DE') + '</b>&nbsp;Eintr\u00e4ge \u00b7 Stand ' + (sank.stand ? new Date(sank.stand).toLocaleDateString('de-DE') : '\u2013')
-    + (sank.meldung ? ' \u00b7 <span class="sup-warn">' + escapeHtml(sank.meldung) + '</span>' : '') + '</div></div>';
+function sdSchliessen() {
+  const el = document.getElementById('supDash');
+  document.removeEventListener('keydown', sdTaste);
+  window.removeEventListener('resize', sdGroesse);
+  document.body.classList.remove('sd-offen');
+  document.documentElement.classList.remove('sd-offen');
+  sdTipWeg();
+  if (!el) return;
+  el.classList.remove('an'); el.classList.add('weg');
+  setTimeout(function(){ if (el.classList.contains('weg')) el.remove(); }, 200);
 }
-
-async function supFirmen(b) {
-  const { data } = await sb.rpc('sup_firmen');
-  SUP_FIRMEN = data || [];
-  if (!SUP_FIRMEN.length) { b.innerHTML = '<div class="sup-lade">Keine Firmen.</div>'; return; }
-  b.innerHTML = '<div class="sup-liste">' + SUP_FIRMEN.map(function(f, i){
-    const q = f.monatslimit ? Math.round(f.analysen_monat / f.monatslimit * 100) : 0;
-    const amp = f.trial ? 'grau' : (!f.aktiv ? 'rot' : (q >= 90 ? 'rot' : q >= 70 ? 'gelb' : 'gruen'));
-    const paket = f.monatslimit >= 999999 ? 'Unbegrenzt' : f.trial ? 'Testphase' : f.monatslimit + '/Monat';
-    return '<div class="sup-firma" style="--sd:' + (i * 0.03) + 's" onclick="supFirmaOeffnen(\'' + f.firma_id + '\')">'
-      + '<span class="sank-punkt sank-' + amp + '"></span>'
-      + '<div class="sup-f-haupt"><div class="sup-f-name">' + escapeHtml(f.name) + (f.typ === 'einzel' ? ' <span class="sup-tag">Einzel</span>' : '') + '</div>'
-      + '<div class="sup-f-meta">' + f.mitglieder + ' Mitgl. \u00b7 ' + paket + ' \u00b7 ' + f.analysen_monat + ' diesen Monat \u00b7 ' + f.analysen_gesamt + ' gesamt'
-      + (f.letzte_analyse ? ' \u00b7 zuletzt ' + new Date(f.letzte_analyse).toLocaleDateString('de-DE') : '') + '</div></div>'
-      + '<svg class="fw-pfeil" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 18l6-6-6-6"/></svg>'
-      + '</div>';
-  }).join('') + '</div>';
+function sdTaste(e) {
+  if (e.key !== 'Escape') return;
+  if (document.getElementById('frageGate')) return;      // offener Rueckfrage-Dialog hat Vorrang
+  if (SD.drawer) { sdDrawerZu(); return; }
+  sdSchliessen();
 }
+let _sdGroesseT = null;
+function sdGroesse() { clearTimeout(_sdGroesseT); _sdGroesseT = setTimeout(function(){ SD.zeichner.forEach(function(f){ try { f(); } catch (e) {} }); }, 120); }
 
-async function supFirmaOeffnen(id) {
-  const f = SUP_FIRMEN.find(function(x){ return x.firma_id === id; });
-  if (!f) return;
-  const b = document.getElementById('supBody');
-  b.innerHTML = '<div class="sup-lade">Wird geladen\u2026</div>';
-  const { data } = await sb.rpc('sup_mitglieder', { p_firma: id });
-  const m = data || [];
-  b.innerHTML = '<button class="sup-zurueck" onclick="supLade()">\u2190 Alle Firmen</button>'
-    + '<div class="sup-block">'
-    + '<div class="sup-block-h">' + escapeHtml(f.name) + '</div>'
-    + '<div class="sup-detail-grid">'
-    + '<label>Name<input class="om-name-input" id="supFName" value="' + escapeHtml(f.name) + '" /></label>'
-    + '<label>Typ<select class="tm-select" id="supFTyp"><option value="firma"' + (f.typ === 'firma' ? ' selected' : '') + '>Unternehmen</option><option value="einzel"' + (f.typ === 'einzel' ? ' selected' : '') + '>Einzelperson</option></select></label>'
-    + '<label>Analysen/Monat<input class="om-name-input" id="supFLimit" type="number" value="' + f.monatslimit + '" /></label>'
-    + '<label class="sup-chk"><input type="checkbox" id="supFTrial"' + (f.trial ? ' checked' : '') + ' /> Testphase</label>'
-    + '<label class="sup-chk"><input type="checkbox" id="supFAktiv"' + (f.aktiv ? ' checked' : '') + ' /> Aktiv</label>'
-    + '</div>'
-    + '<div class="sup-aktionen">'
-    + '<button class="plan-btn" onclick="supFirmaSpeichern(\'' + id + '\')">Speichern</button>'
-    + '<button class="kyc-btn" onclick="supBeitreten(\'' + id + '\')">Firma beitreten</button>'
-    + '<span class="sup-code">Code: <b>' + escapeHtml(f.code || '\u2013') + '</b></span>'
-    + '</div><div id="supFMsg" class="auth-msg" style="display:none;margin-top:10px;"></div></div>'
-    + '<div class="sup-block"><div class="sup-block-h">Mitglieder (' + m.length + ')</div>'
-    + (m.length ? m.map(function(u){ return supNutzerZeile(u); }).join('') : '<div class="sup-lade">Keine Mitglieder.</div>')
+function sdIco(pfad, g) { return '<svg viewBox="0 0 24 24" width="' + (g || 17) + '" height="' + (g || 17) + '" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + pfad + '</svg>'; }
+function sdGeruest() {
+  return '<aside class="sd-side">'
+    + '<div class="sd-brand"><span class="sd-logo">' + sdIco('<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>', 16) + '</span>'
+    + '<div><b>Support-Center</b><small>Compliance-Checker · intern</small></div></div>'
+    + '<nav class="sd-nav" aria-label="Bereiche">' + SD_TABS.map(function(t){
+        return '<button type="button" class="sd-nav-btn" data-tab="' + t.id + '" onclick="sdTabZeigen(\'' + t.id + '\')">' + sdIco(t.ico) + '<span>' + t.t + '</span><em class="sd-badge" id="sdBadge_' + t.id + '" hidden></em></button>';
+      }).join('') + '</nav>'
+    + '<div class="sd-side-fuss"><button type="button" class="sd-btn sd-voll" onclick="sdSchliessen()">' + sdIco('<path d="M19 12H5M12 19l-7-7 7-7"/>', 15) + 'Zum Tool</button>'
+    + '<small class="sd-ver">' + escapeHtml(typeof APP_VERSION !== 'undefined' ? APP_VERSION : '') + ' · ' + escapeHtml(CURRENT_USER_EMAIL || '') + '</small></div>'
+    + '</aside>'
+    + '<main class="sd-main" id="sdMain">'
+    + '<header class="sd-top"><div class="sd-top-l"><h1 id="sdTitel">Übersicht</h1><span class="sd-stand" id="sdStand"><i class="sd-live"></i>wird geladen …</span></div>'
+    + '<div class="sd-filter">'
+    + '<div class="sd-seg" role="radiogroup" aria-label="Zeitraum">' + [7, 30, 90].map(function(t){
+        return '<button type="button" role="radio" aria-checked="' + (SD.tage === t) + '" class="' + (SD.tage === t ? 'an' : '') + '" onclick="sdZeitraum(' + t + ')">' + t + ' Tage</button>';
+      }).join('') + '</div>'
+    + '<label class="sd-schalter" title="Interne Konten (unbegrenztes Kontingent, z. B. Automati Labs) aus allen Zahlen herausrechnen">'
+    + '<input type="checkbox" id="sdIntern"' + (SD.ohneIntern ? ' checked' : '') + ' onchange="sdInternSetzen(this.checked)"><span class="sd-sch-bahn"><i></i></span>Interne ausblenden</label>'
+    + '<button type="button" class="sd-btn sd-ico-btn" id="sdNeu" onclick="sdLaden(true)" title="Aktualisieren" aria-label="Aktualisieren">' + sdIco('<path d="M21 12a9 9 0 1 1-2.64-6.36L21 8"/><path d="M21 3v5h-5"/>', 16) + '</button>'
+    + '</div></header>'
+    + '<div id="sdHinweis"></div>'
+    + '<div id="sdBody" class="sd-body"><div class="sd-leer-gross"><span class="neu-spin"></span>Daten werden geladen …</div></div>'
+    + '</main>'
+    + '<div class="sd-drawer-hg" id="sdDrawerHg" onclick="sdDrawerZu()"></div><aside class="sd-drawer" id="sdDrawer" aria-hidden="true"></aside>'
+    + '<div id="sdTip" class="sd-tip" role="tooltip"></div>';
+}
+function sdTabZeigen(id, ohneRender) {
+  SD.tab = SUP_TAB = id;
+  document.querySelectorAll('#supDash .sd-nav-btn').forEach(function(b){ const an = b.getAttribute('data-tab') === id; b.classList.toggle('aktiv', an); b.setAttribute('aria-current', an ? 'page' : 'false'); });
+  const t = SD_TABS.find(function(x){ return x.id === id; });
+  const h = document.getElementById('sdTitel'); if (h && t) h.textContent = t.t;
+  const m = document.getElementById('sdMain'); if (m) m.scrollTop = 0;
+  if (!ohneRender) sdRender();
+}
+function sdZeitraum(t) {
+  SD.tage = t;
+  document.querySelectorAll('#supDash .sd-seg button').forEach(function(b){ const an = b.textContent.indexOf(t + ' ') === 0; b.classList.toggle('an', an); b.setAttribute('aria-checked', an ? 'true' : 'false'); });
+  sdLaden(true);
+}
+function sdInternSetzen(an) { SD.ohneIntern = !!an; sdLaden(true); }
+
+// ---------- Laden ----------
+async function sdLaden(still) {
+  if (SD.laedt) return;
+  SD.laedt = true;
+  const body = document.getElementById('sdBody'), knopf = document.getElementById('sdNeu');
+  if (body && SD.d !== null) body.classList.add('lade');          // Neu laden: Rahmen bleibt stehen
+  if (knopf) knopf.classList.add('dreht');
+  const r = await Promise.allSettled([
+    sb.rpc('sup_dashboard', { p_tage: SD.tage, p_ohne_intern: SD.ohneIntern }),
+    sb.rpc('sup_status'), sb.rpc('sup_firmen'), sb.rpc('sup_aktivitaet', { p_max: 60 })
+  ]);
+  const wert = function(x){ return (x.status === 'fulfilled' && x.value && !x.value.error) ? x.value.data : null; };
+  const fehler = function(x){ return x.status === 'rejected' ? ((x.reason && x.reason.message) || 'Fehler') : (x.value && x.value.error) ? (x.value.error.message || 'Fehler') : null; };
+  SD.d = wert(r[0]) || false; SD.dFehler = fehler(r[0]);
+  SD.status = wert(r[1]) || {}; SD.firmen = wert(r[2]) || []; SD.akt = wert(r[3]) || [];
+  SD.basisFehler = fehler(r[1]) || fehler(r[2]);
+  SUP_FIRMEN = SD.firmen;
+  SD.stand = new Date();
+  SD.laedt = false;
+  if (body) body.classList.remove('lade');
+  if (knopf) knopf.classList.remove('dreht');
+  const st = document.getElementById('sdStand');
+  if (st) st.innerHTML = '<i class="sd-live"></i>Stand ' + SD.stand.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }) + ' Uhr';
+  sdRender();
+  if (!still && SD.d === false && !SD.basisFehler) { /* Hinweis erscheint im Banner */ }
+}
+// Kompatibilitaet: bestehende Aktionen (Rang, Bestaetigen) rufen supLade() auf
+async function supLade() { if (document.getElementById('supDash')) { await sdLaden(true); if (SD.drawer) sdFirmaOeffnen(SD.drawer, true); } }
+
+// ---------- Rendern ----------
+function sdRender() {
+  const b = document.getElementById('sdBody');
+  if (!b) return;
+  SD.zeichner = [];
+  sdTipWeg();
+  const hw = document.getElementById('sdHinweis');
+  if (hw) {
+    let txt = '';
+    if (SD.basisFehler) txt = '<b>Daten konnten nicht geladen werden.</b> ' + escapeHtml(SD.basisFehler);
+    else if (SD.d === false) txt = '<b>Diagramme fehlen noch:</b> Bitte <code>migration_2026-10-11_support_dashboard.sql</code> einmal im Supabase SQL-Editor ausführen. Kennzahlen aus den bestehenden Funktionen werden schon angezeigt.'
+      + (SD.dFehler ? ' <span class="sd-grau">(' + escapeHtml(SD.dFehler) + ')</span>' : '');
+    hw.innerHTML = txt ? '<div class="sd-banner">' + sdIco('<path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0zM12 9v4M12 17h.01"/>', 16) + '<div>' + txt + '</div></div>' : '';
+  }
+  const hinweise = sdHinweise();
+  const krit = hinweise.filter(function(h){ return h.stufe === 'krit' || h.stufe === 'warn'; }).length;
+  sdBadge('uebersicht', krit, hinweise.some(function(h){ return h.stufe === 'krit'; }) ? '' : 'warn');
+  const unb = (SD.d && SD.d.nutzer && SD.d.nutzer.unbestaetigt) || 0;
+  sdBadge('nutzer', unb, 'warn');
+  const api5 = SD.d && SD.d.api ? sdApiServerfehler(2) : 0;
+  sdBadge('api', api5, '');
+  try {
+    if (SD.tab === 'uebersicht') sdUebersicht(b, hinweise);
+    else if (SD.tab === 'firmen') sdKundenTab(b);
+    else if (SD.tab === 'nutzer') sdNutzerTab(b);
+    else if (SD.tab === 'aktivitaet') sdAktTab(b);
+    else if (SD.tab === 'api') sdApiTab(b);
+    else sdSystemTab(b);
+  } catch (e) {
+    b.innerHTML = '<div class="sd-karte sd-fehlerkarte"><b>Anzeige-Fehler</b><br/>' + escapeHtml((e && e.message) || '') + '</div>';
+    console.error('Support-Dashboard:', e);
+  }
+  SD.zeichner.forEach(function(f){ try { f(); } catch (e) { console.warn('Diagramm:', e && e.message); } });
+}
+function sdBadge(tab, n, art) {
+  const el = document.getElementById('sdBadge_' + tab);
+  if (!el) return;
+  el.hidden = !n; el.textContent = n > 99 ? '99+' : String(n || ''); el.className = 'sd-badge' + (art ? ' ' + art : '');
+}
+function sdKarte(titel, unter, inhalt, klasse, kopfExtra) {
+  return '<section class="sd-karte ' + (klasse || '') + '"><div class="sd-k-kopf"><div><h2 class="sd-k-t">' + titel + '</h2>' + (unter ? '<div class="sd-k-u">' + unter + '</div>' : '') + '</div>' + (kopfExtra || '') + '</div>' + inhalt + '</section>';
+}
+function sdLeer(txt) { return '<div class="sd-leer">' + txt + '</div>'; }
+function sdKpi(o) {
+  return '<div class="sd-karte sd-kpi">'
+    + '<div class="sd-kpi-l">' + o.label + (o.info ? ' <span class="sd-i" title="' + escapeHtml(o.info) + '">i</span>' : '') + '</div>'
+    + '<div class="sd-kpi-w">' + o.wert + (o.einheit ? '<small>' + o.einheit + '</small>' : '') + '</div>'
+    + '<div class="sd-kpi-u">' + (o.delta || '') + (o.unter ? '<span>' + o.unter + '</span>' : '') + '</div>'
+    + (o.spark ? '<div class="sd-spark" id="' + o.spark + '"></div>' : '')
     + '</div>';
-  sichtbarSicherstellen(b);
 }
 
+// ---------- Handlungsbedarf ----------
+function sdApiServerfehler(tage) {
+  const api = SD.d && SD.d.api; if (!api || !Array.isArray(api.tage)) return 0;
+  return api.tage.slice(-tage).reduce(function(s, t){ return s + (Number(t.server) || 0); }, 0);
+}
+function sdHinweise() {
+  const l = [], s = SD.status || {}, d = SD.d || {};
+  const sank = (s.sanktionen || [])[0] || {};
+  const alt = sank.stand ? Math.floor((Date.now() - new Date(sank.stand).getTime()) / 86400000) : null;
+  if (sank.meldung) l.push({ stufe: 'krit', t: 'Sanktionsliste: Fehler beim Aktualisieren', d: sank.meldung, ziel: 'system' });
+  else if (alt === null) l.push({ stufe: 'krit', t: 'Sanktionsliste nicht geladen', d: 'Ohne Liste läuft kein Abgleich.', ziel: 'system' });
+  else if (alt > 2) l.push({ stufe: alt > 8 ? 'krit' : 'warn', t: 'Sanktionsliste veraltet', d: 'Stand ' + new Date(sank.stand).toLocaleDateString('de-DE') + ' · vor ' + alt + ' Tagen', ziel: 'system' });
+  const api5 = sdApiServerfehler(2);
+  if (api5) l.push({ stufe: 'krit', t: 'REST-API: ' + api5 + ' Serverfehler', d: 'In den letzten 2 Tagen (Status 5xx).', ziel: 'api' });
+  const kunden = sdKunden().map(function(f){ return { f: f, i: sdFirmaInfo(f) }; });
+  const voll = kunden.filter(function(x){ return !x.i.intern && x.f.aktiv !== false && x.i.quote >= 90; }).sort(function(a, b){ return b.i.quote - a.i.quote; });
+  if (voll.length) l.push({ stufe: 'warn', t: 'Kontingent fast aufgebraucht', d: voll.slice(0, 3).map(function(x){ return x.f.name + ' (' + x.i.quote + ' %)'; }).join(', ') + (voll.length > 3 ? ' und ' + (voll.length - 3) + ' weitere' : ''), ziel: 'firmen', filter: 'voll' });
+  const ruhig = kunden.filter(function(x){ return x.i.zahlend && (x.i.tageRuhig === null || x.i.tageRuhig >= 14); });
+  if (ruhig.length) l.push({ stufe: 'warn', t: ruhig.length + ' zahlende ' + (ruhig.length === 1 ? 'Kunde' : 'Kunden') + ' seit 14+ Tagen ohne Prüfung', d: 'Kündigungsrisiko – ' + ruhig.slice(0, 3).map(function(x){ return x.f.name; }).join(', '), ziel: 'firmen', filter: 'ruhig' });
+  const n = d.nutzer || {};
+  const unbAlt = (n.unbestaetigt_liste || []).filter(function(u){ return Date.now() - new Date(u.erstellt).getTime() > 86400000; }).length;
+  if (unbAlt) l.push({ stufe: 'warn', t: unbAlt + ' Nutzer seit über 24 Std. unbestätigt', d: 'Bestätigungs-Mail nicht angekommen? Im Bereich Nutzer freischalten.', ziel: 'nutzer' });
+  if (Number(s.faellige_favoriten) > 0) l.push({ stufe: 'warn', t: s.faellige_favoriten + ' Überwachungen fällig', d: 'Laufen beim nächsten Cron-Durchlauf.', ziel: 'system' });
+  const amb = d.api && d.api.pruefungen ? Number(d.api.pruefungen.ambiguous) || 0 : 0;
+  if (amb) l.push({ stufe: 'info', t: amb + ' API-Prüfungen mehrdeutig (409)', d: 'Der Kunde musste präzisieren.', ziel: 'api' });
+  const test = kunden.filter(function(x){ return x.i.status === 'test' && (Number(x.f.analysen_gesamt) || 0) >= 2; });
+  if (test.length) l.push({ stufe: 'gut', t: test.length + ' aktive Testphase' + (test.length === 1 ? '' : 'n') + ' – Verkaufschance', d: test.slice(0, 3).map(function(x){ return x.f.name + ' (' + x.f.analysen_gesamt + ' Prüfungen)'; }).join(', '), ziel: 'firmen', filter: 'test' });
+  if (SD.d === false) l.push({ stufe: 'info', t: 'Datenbank-Funktion für Diagramme fehlt', d: 'migration_2026-10-11_support_dashboard.sql ausführen.', ziel: 'system' });
+  return l;
+}
+const SD_STUFE_ICO = {
+  krit: '<path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0zM12 9v4M12 17h.01"/>',
+  warn: '<circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/>',
+  info: '<circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/>',
+  gut:  '<path d="M20 6 9 17l-5-5"/>'
+};
+const SD_STUFE_TXT = { krit: 'Kritisch', warn: 'Achtung', info: 'Hinweis', gut: 'Chance' };
+function sdHinweiseHTML(l) {
+  if (!l.length) return '<div class="sd-alles-gut">' + sdIco(SD_STUFE_ICO.gut, 18) + '<div><b>Alles im grünen Bereich</b><span>Kein Handlungsbedarf erkannt.</span></div></div>';
+  const ord = { krit: 0, warn: 1, info: 2, gut: 3 };
+  return '<div class="sd-hw-rahmen"><ul class="sd-hw-liste">' + l.slice().sort(function(a, b){ return ord[a.stufe] - ord[b.stufe]; }).map(function(h){
+    return '<li><button type="button" class="sd-hw sd-hw-' + h.stufe + '" onclick="sdHinweisOeffnen(\'' + h.ziel + '\',\'' + (h.filter || '') + '\')">'
+      + '<span class="sd-hw-ico" aria-hidden="true">' + sdIco(SD_STUFE_ICO[h.stufe], 15) + '</span>'
+      + '<span class="sd-hw-txt"><b>' + escapeHtml(h.t) + '</b><span>' + escapeHtml(h.d || '') + '</span></span>'
+      + '<span class="sd-hw-stufe">' + SD_STUFE_TXT[h.stufe] + '</span></button></li>';
+  }).join('') + '</ul></div>';
+}
+function sdHinweisOeffnen(ziel, filter) { if (filter) { SD.filter = filter; SD.suche = ''; } sdTabZeigen(ziel); }
+
+// ---------- Bereich: Uebersicht ----------
+function sdUebersicht(b, hinweise) {
+  const d = SD.d || {}, s = SD.status || {}, p = d.pruefungen || {}, n = d.nutzer || {}, api = d.api || null;
+  const kunden = sdKunden().map(function(f){ return { f: f, i: sdFirmaInfo(f) }; });
+  const zahlend = kunden.filter(function(x){ return x.i.zahlend; });
+  const umsatz = zahlend.reduce(function(a, x){ return a + x.i.umsatz; }, 0);
+  const vonDatum = d.von ? new Date(d.von + 'T00:00:00') : new Date(Date.now() - SD.tage * 86400000);
+  const aktiveKunden = kunden.filter(function(x){ return !x.i.intern && x.f.letzte_analyse && new Date(x.f.letzte_analyse) >= vonDatum; }).length;
+  const tage = Array.isArray(d.pruefungen_tage) ? d.pruefungen_tage : [];
+  const fq = api && api.aufrufe_zeitraum ? Math.round((api.fehler_zeitraum || 0) / api.aufrufe_zeitraum * 1000) / 10 : 0;
+  const kpis = '<div class="sd-kpis">'
+    + sdKpi({ label: 'Prüfungen · ' + SD.tage + ' Tage', wert: SD.d ? sdZ(p.zeitraum) : sdZ(s.analysen_monat), delta: SD.d ? sdDelta(p.zeitraum, p.vorzeitraum, true) : '',
+        unter: SD.d ? 'vs. Vorzeitraum · heute ' + sdZ(p.heute) : 'diesen Monat', spark: tage.length ? 'sdSp1' : '' })
+    + sdKpi({ label: 'Aktive Kunden', wert: sdZ(aktiveKunden), einheit: ' / ' + sdZ(kunden.filter(function(x){ return !x.i.intern; }).length),
+        unter: zahlend.length + ' zahlend · ' + kunden.filter(function(x){ return x.i.status === 'test'; }).length + ' Testphase', info: 'Kunden mit mindestens einer Prüfung im Zeitraum' })
+    + sdKpi({ label: 'Umsatz / Monat', wert: sdEuro(umsatz), unter: 'geschätzt aus ' + zahlend.length + ' Paket' + (zahlend.length === 1 ? '' : 'en'), info: 'Summe der Paketpreise aller zahlenden Kunden (Bronze 299,99 € … Platinum 2.999,99 €). Kein Stripe-Abgleich.' })
+    + sdKpi({ label: 'Nutzer aktiv · 7 Tage', wert: SD.d ? sdZ(n.aktiv_7) : '–', einheit: SD.d ? ' / ' + sdZ(n.gesamt) : '',
+        delta: SD.d ? sdDelta(n.neu_zeitraum, n.neu_vorher, true) : '', unter: SD.d ? sdZ(n.neu_zeitraum) + ' neu im Zeitraum' : 'Funktion fehlt', spark: (n.tage || []).length ? 'sdSp4' : '' })
+    + sdKpi({ label: 'Ø Score', wert: (p.score_schnitt != null ? p.score_schnitt : '–'), einheit: p.score_schnitt != null ? ' / 100' : '',
+        delta: p.score_schnitt != null && p.score_schnitt_vorher != null ? sdDelta(p.score_schnitt, p.score_schnitt_vorher, null, 'pkt') : '', unter: 'aller Prüfungen im Zeitraum' })
+    + sdKpi({ label: 'REST-API', wert: api ? sdZ(api.aufrufe_zeitraum) : '–', einheit: api ? ' Aufrufe' : '',
+        unter: api ? (fq ? fq.toLocaleString('de-DE') + ' % Fehlerquote' : 'keine Fehler') + ' · ' + sdZ(api.schluessel_aktiv) + ' Schlüssel' : 'keine Daten', spark: api && (api.tage || []).length ? 'sdSp6' : '' })
+    + '</div>';
+  const leg = '<div class="sd-legende">' + [['tool', 'Im Tool'], ['api', 'Über API'], ['support', 'Durch Support']].map(function(x){
+      return '<span><i class="sd-leg-sw" style="background:' + SD_SERIE[x[0]] + '"></i>' + x[1] + '</span>'; }).join('') + '</div>';
+  const tabKnopf = '<button type="button" class="sd-btn sd-klein" onclick="SD.tabelle=!SD.tabelle;sdRender()">' + (SD.tabelle ? 'Diagramm' : 'Tabelle') + '</button>';
+  const hauptInhalt = !tage.length ? sdLeer('Keine Verlaufsdaten – Datenbank-Funktion fehlt.')
+    : SD.tabelle ? sdTabelleTage(tage) : leg + '<div class="sd-chart" id="sdC1"></div>';
+  const ampel = p.ampel || null;
+  const tr = d.trichter || null;
+  const laender = d.laender || [];
+  const volle = kunden.filter(function(x){ return !x.i.intern && x.f.aktiv !== false && x.i.lim; }).sort(function(a, b){ return b.i.quote - a.i.quote; }).slice(0, 7);
+  b.innerHTML = kpis
+    + '<div class="sd-grid">'
+    + sdKarte('Prüfungen pro Tag', 'Letzte ' + SD.tage + ' Tage · ' + sdZ(p.zeitraum || 0) + ' gesamt', hauptInhalt, 'sd-s8', tabKnopf)
+    + sdKarte('Handlungsbedarf', hinweise.length ? hinweise.length + ' Punkt' + (hinweise.length === 1 ? '' : 'e') : 'Stand jetzt', sdHinweiseHTML(hinweise), 'sd-s4 sd-hw-karte')
+    + sdKarte('Ergebnis-Ampel', 'Prüfungen im Zeitraum', ampel ? sdAmpelHTML(ampel) + sdScoreVerteilung(p.score_verteilung) : sdLeer('Keine Daten'), 'sd-s4')
+    + sdKarte('Akten-Fortschritt', 'Akten aus dem Zeitraum', tr ? sdTrichterHTML(tr) : sdLeer('Keine Daten'), 'sd-s4')
+    + sdKarte('Länder', 'Sitz der geprüften Firmen', laender.length ? sdBalkenHTML(laender.map(function(x){ return { l: x.land, w: x.n }; }), SD_SERIE.tool) : sdLeer('Keine Daten'), 'sd-s4')
+    + sdKarte('Kontingent-Auslastung', 'Diesen Monat · höchste zuerst', volle.length ? sdMeterHTML(volle) : sdLeer('Keine Kunden mit Kontingent'), 'sd-s6')
+    + sdKarte('Wann wird geprüft?', 'Wochentag × Uhrzeit · deutsche Zeit', (d.wochenstunden || []).length ? '<div class="sd-chart" id="sdHeat"></div>' + sdHeatKennzahlen(d.wochenstunden) : sdLeer('Keine Daten'), 'sd-s6')
+    + sdKarte('Neue Nutzer pro Tag', sdZ(n.neu_zeitraum || 0) + ' im Zeitraum', (n.tage || []).length ? '<div class="sd-chart" id="sdC2"></div>' : sdLeer('Keine Daten'), 'sd-s6')
+    + sdKarte('Aktivste Kunden', 'Prüfungen im Zeitraum', (d.top_firmen || []).length ? sdBalkenHTML(d.top_firmen.map(function(x){ return { l: x.name || 'Ohne Firma', w: x.n }; }), SD_SERIE.tool) : sdLeer('Keine Daten'), 'sd-s6')
+    + sdKarte('Live-Aktivität', 'Letzte Prüfungen aller Kunden', sdFeedHTML(SD.akt.slice(0, 9)), 'sd-s12', '<button type="button" class="sd-btn sd-klein" onclick="sdTabZeigen(\'aktivitaet\')">Alle anzeigen</button>')
+    + '</div>';
+  const summen = tage.map(function(t){ return (t.tool || 0) + (t.api || 0) + (t.support || 0); });
+  if (tage.length && !SD.tabelle) SD.zeichner.push(function(){ sdSaeulen(document.getElementById('sdC1'), { rows: tage, serien: [{ k: 'tool', n: 'Im Tool', f: SD_SERIE.tool }, { k: 'api', n: 'Über API', f: SD_SERIE.api }, { k: 'support', n: 'Durch Support', f: SD_SERIE.support }], hoehe: 250, titel: 'Prüfungen pro Tag' }); });
+  if (tage.length) SD.zeichner.push(function(){ sdSpark(document.getElementById('sdSp1'), summen); });
+  if ((n.tage || []).length) {
+    SD.zeichner.push(function(){ sdSpark(document.getElementById('sdSp4'), n.tage.map(function(t){ return t.neu; })); });
+    SD.zeichner.push(function(){ sdSaeulen(document.getElementById('sdC2'), { rows: n.tage, serien: [{ k: 'neu', n: 'Neue Nutzer', f: SD_SERIE.tool }], hoehe: 170, titel: 'Neue Nutzer pro Tag' }); });
+  }
+  if (api && (api.tage || []).length) SD.zeichner.push(function(){ sdSpark(document.getElementById('sdSp6'), api.tage.map(function(t){ return (t.ok || 0) + (t.client || 0) + (t.server || 0); })); });
+  if ((d.wochenstunden || []).length) SD.zeichner.push(function(){ sdHeatmap(document.getElementById('sdHeat'), d.wochenstunden); });
+}
+function sdTabelleTage(tage) {
+  return '<div class="sd-tab-scroll"><table class="sd-tab"><thead><tr><th>Tag</th><th class="r">Im Tool</th><th class="r">Über API</th><th class="r">Support</th><th class="r">Summe</th></tr></thead><tbody>'
+    + tage.slice().reverse().map(function(t){ const s = (t.tool || 0) + (t.api || 0) + (t.support || 0);
+        return '<tr><td>' + sdTag(t.d, true) + '</td><td class="r">' + sdZ(t.tool) + '</td><td class="r">' + sdZ(t.api) + '</td><td class="r">' + sdZ(t.support) + '</td><td class="r"><b>' + sdZ(s) + '</b></td></tr>'; }).join('')
+    + '</tbody></table></div>';
+}
+function sdAmpelHTML(a) {
+  const teile = [{ k: 'ok', n: 'Geringe Auffälligkeiten', f: SD_ST.gut, ico: SD_STUFE_ICO.gut }, { k: 'warn', n: 'Erhöhte Sorgfalt', f: SD_ST.warn, ico: SD_STUFE_ICO.warn },
+    { k: 'bad', n: 'Verstärkte Sorgfalt', f: SD_ST.krit, ico: SD_STUFE_ICO.krit }, { k: 'ohne', n: 'Ohne Ergebnis', f: SD_ST.leer, ico: SD_STUFE_ICO.info }];
+  const summe = teile.reduce(function(s, t){ return s + (Number(a[t.k]) || 0); }, 0);
+  if (!summe) return sdLeer('Keine Prüfungen im Zeitraum');
+  const sicht = teile.filter(function(t){ return Number(a[t.k]) > 0; });
+  return '<div class="sd-stapel" role="img" aria-label="Verteilung der Ergebnisse">' + sicht.map(function(t){
+      const w = (Number(a[t.k]) || 0) / summe * 100;
+      return '<span style="flex:' + w + ' 1 0;background:' + t.f + '" title="' + t.n + ': ' + a[t.k] + '"></span>'; }).join('') + '</div>'
+    + '<ul class="sd-ampel-liste">' + teile.filter(function(t){ return t.k !== 'ohne' || a.ohne; }).map(function(t){
+        const v = Number(a[t.k]) || 0;
+        return '<li><span class="sd-am-ico" style="color:' + t.f + '">' + sdIco(t.ico, 14) + '</span><span class="sd-am-n">' + t.n + '</span><b>' + sdZ(v) + '</b><em>' + Math.round(v / summe * 100) + ' %</em></li>'; }).join('') + '</ul>';
+}
+function sdTrichterHTML(t) {
+  const akten = Number(t.akten) || 0;
+  if (!akten) return sdLeer('Keine Akten im Zeitraum');
+  const stufen = [['Akte angelegt', akten, '#6da7ec'], ['Dokumente hochgeladen', t.dokumente, '#3987e5'], ['Endverbleib hochgeladen', t.endverbleib, '#256abf'], ['Abgeschlossen', t.abgeschlossen, '#184f95']];
+  return '<ul class="sd-balken">' + stufen.map(function(s){
+    const v = Number(s[1]) || 0, pz = Math.round(v / akten * 100);
+    return '<li><div class="sd-b-kopf"><span>' + s[0] + '</span><span><b>' + sdZ(v) + '</b><em>' + pz + ' %</em></span></div><div class="sd-b-bahn"><i style="width:' + Math.max(v ? 1.5 : 0, pz) + '%;background:' + s[2] + '"></i></div></li>';
+  }).join('') + '</ul><div class="sd-fuss-notiz">Abschlussquote <b>' + Math.round((Number(t.abgeschlossen) || 0) / akten * 100) + ' %</b> · Endverbleib nur bei Autohandel</div>';
+}
+function sdBalkenHTML(items, farbe) {
+  const max = Math.max(1, ...items.map(function(x){ return Number(x.w) || 0; }));
+  return '<ul class="sd-balken">' + items.map(function(x){
+    const v = Number(x.w) || 0;
+    return '<li><div class="sd-b-kopf"><span class="sd-b-l">' + escapeHtml(String(x.l)) + '</span><span><b>' + sdZ(v) + '</b></span></div><div class="sd-b-bahn"><i style="width:' + Math.max(v ? 1.5 : 0, v / max * 100) + '%;background:' + farbe + '"></i></div></li>';
+  }).join('') + '</ul>';
+}
+function sdMeterHTML(liste) {
+  return '<ul class="sd-balken">' + liste.map(function(x){
+    const q = x.i.quote, f = q >= 90 ? SD_ST.krit : q >= 70 ? SD_ST.warn : SD_SERIE.tool;
+    const st = q >= 90 ? 'kritisch' : q >= 70 ? 'hoch' : '';
+    return '<li class="sd-klickbar" onclick="sdFirmaOeffnen(\'' + x.f.firma_id + '\')"><div class="sd-b-kopf"><span class="sd-b-l">' + escapeHtml(x.f.name) + ' <small>' + escapeHtml(x.i.paket) + '</small></span>'
+      + '<span>' + (st ? '<em class="sd-q-' + (q >= 90 ? 'krit' : 'warn') + '">' + st + '</em>' : '') + '<b>' + q + ' %</b><em>' + sdZ(x.f.analysen_monat) + ' / ' + sdZ(x.i.lim) + '</em></span></div>'
+      + '<div class="sd-b-bahn sd-meter"><i style="width:' + Math.min(100, Math.max(q ? 1.5 : 0, q)) + '%;background:' + f + '"></i></div></li>';
+  }).join('') + '</ul>';
+}
+function sdFeedHTML(l) {
+  if (!l || !l.length) return sdLeer('Noch keine Aktivität.');
+  return '<ul class="sd-feed">' + l.map(function(a){
+    const sc = typeof a.score === 'number' ? a.score : null;
+    const f = sc === null ? SD_ST.leer : sc >= 75 ? SD_ST.gut : sc >= 50 ? SD_ST.warn : SD_ST.krit;
+    return '<li><span class="sd-feed-z">' + sdVor(a.zeit) + '</span><span class="sd-feed-t"><b>' + escapeHtml(a.firma || '?') + '</b> · ' + escapeHtml(a.akteur || '') + ' prüfte <b>' + escapeHtml(a.ziel || '') + '</b></span>'
+      + (sc !== null ? '<span class="sd-score"><i style="background:' + f + '"></i>' + sc + '</span>' : '') + '</li>';
+  }).join('') + '</ul>';
+}
+
+// ---------- Bereich: Kunden ----------
+function sdKundenTab(b) {
+  const alle = sdKunden().map(function(f){ return { f: f, i: sdFirmaInfo(f) }; });
+  const filter = {
+    alle:    function(){ return true; },
+    zahlend: function(x){ return x.i.zahlend; },
+    test:    function(x){ return x.i.status === 'test'; },
+    inaktiv: function(x){ return x.i.status === 'inaktiv'; },
+    voll:    function(x){ return !x.i.intern && x.i.quote >= 80; },
+    ruhig:   function(x){ return !x.i.intern && x.f.aktiv !== false && (x.i.tageRuhig === null || x.i.tageRuhig >= 14); }
+  };
+  const namen = { alle: 'Alle', zahlend: 'Zahlend', test: 'Testphase', inaktiv: 'Inaktiv', voll: 'Kontingent ≥ 80 %', ruhig: '14+ Tage ruhig' };
+  if (!filter[SD.filter]) SD.filter = 'alle';
+  const q = SD.suche.toLowerCase();
+  let l = alle.filter(filter[SD.filter]).filter(function(x){ return !q || String(x.f.name || '').toLowerCase().indexOf(q) >= 0 || String(x.f.code || '').toLowerCase().indexOf(q) >= 0; });
+  const k = SD.sort.k, ab = SD.sort.ab ? -1 : 1;
+  const wert = { name: function(x){ return String(x.f.name || '').toLowerCase(); }, status: function(x){ return x.i.status; }, umsatz: function(x){ return x.i.umsatz; },
+    mitglieder: function(x){ return Number(x.f.mitglieder) || 0; }, monat: function(x){ return x.i.lim && !x.i.intern ? x.i.quote : -1; },
+    gesamt: function(x){ return Number(x.f.analysen_gesamt) || 0; }, zuletzt: function(x){ return x.f.letzte_analyse ? new Date(x.f.letzte_analyse).getTime() : 0; } };
+  l.sort(function(a, c){ const va = wert[k](a), vc = wert[k](c); return va < vc ? -ab : va > vc ? ab : 0; });
+  const umsatz = alle.reduce(function(s, x){ return s + x.i.umsatz; }, 0);
+  const th = function(key, txt, r){ const an = SD.sort.k === key;
+    return '<th class="' + (r ? 'r ' : '') + 'sd-sort' + (an ? ' an' : '') + '" aria-sort="' + (an ? (SD.sort.ab ? 'descending' : 'ascending') : 'none') + '"><button type="button" onclick="sdSortieren(\'' + key + '\')">' + txt + (an ? (SD.sort.ab ? ' ↓' : ' ↑') : '') + '</button></th>'; };
+  b.innerHTML = '<div class="sd-kpis sd-kpis-4">'
+    + sdKpi({ label: 'Kunden', wert: sdZ(alle.filter(function(x){ return !x.i.intern; }).length), unter: alle.filter(function(x){ return x.i.intern; }).length ? alle.filter(function(x){ return x.i.intern; }).length + ' intern' : '' })
+    + sdKpi({ label: 'Zahlend', wert: sdZ(alle.filter(filter.zahlend).length), unter: 'Testphase: ' + alle.filter(filter.test).length })
+    + sdKpi({ label: 'Umsatz / Monat', wert: sdEuro(umsatz), unter: 'geschätzt aus Paketen' })
+    + sdKpi({ label: 'Prüfungen diesen Monat', wert: sdZ(alle.reduce(function(s, x){ return s + (Number(x.f.analysen_monat) || 0); }, 0)), unter: sdZ(alle.reduce(function(s, x){ return s + (Number(x.f.analysen_gesamt) || 0); }, 0)) + ' gesamt' })
+    + '</div>'
+    + '<section class="sd-karte sd-s12"><div class="sd-werkzeug">'
+    + '<div class="sd-chips" role="group" aria-label="Filter">' + Object.keys(filter).map(function(id){ const c = alle.filter(filter[id]).length;
+        return '<button type="button" class="sd-chip' + (SD.filter === id ? ' an' : '') + '" aria-pressed="' + (SD.filter === id) + '" onclick="SD.filter=\'' + id + '\';sdRender()">' + namen[id] + '<em>' + c + '</em></button>'; }).join('') + '</div>'
+    + '<div class="sd-suchfeld">' + sdIco('<circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/>', 15) + '<input id="sdKSuche" type="search" placeholder="Kunde oder Code suchen …" value="' + escapeHtml(SD.suche) + '" oninput="SD.suche=this.value;sdKundenNeu()" autocomplete="off" /></div>'
+    + '</div>'
+    + '<div class="sd-tab-scroll"><table class="sd-tab sd-tab-klick"><thead><tr>' + th('status', 'Status') + th('name', 'Kunde') + '<th>Paket</th>' + th('umsatz', 'Umsatz', true)
+    + th('mitglieder', 'Nutzer', true) + th('monat', 'Kontingent diesen Monat') + th('gesamt', 'Gesamt', true) + th('zuletzt', 'Zuletzt aktiv') + '</tr></thead><tbody id="sdKBody">'
+    + sdKundenZeilen(l) + '</tbody></table></div></section>';
+}
+function sdKundenNeu() {
+  const pos = (document.getElementById('sdKSuche') || {}).selectionStart;
+  sdRender();
+  const i = document.getElementById('sdKSuche'); if (i) { i.focus(); try { i.setSelectionRange(pos, pos); } catch (e) {} }
+}
+function sdSortieren(k) { if (SD.sort.k === k) SD.sort.ab = !SD.sort.ab; else { SD.sort.k = k; SD.sort.ab = k !== 'name'; } sdRender(); }
+function sdStatusPill(st) { return '<span class="sd-pill sd-pill-' + st + '"><i></i>' + SD_STATUS_TXT[st] + '</span>'; }
+function sdKundenZeilen(l) {
+  if (!l.length) return '<tr><td colspan="8" class="sd-leer">Keine Kunden für diesen Filter.</td></tr>';
+  return l.map(function(x){
+    const f = x.f, i = x.i, q = i.quote, farbe = q >= 90 ? SD_ST.krit : q >= 70 ? SD_ST.warn : SD_SERIE.tool;
+    return '<tr tabindex="0" onclick="sdFirmaOeffnen(\'' + f.firma_id + '\')" onkeydown="if(event.key===\'Enter\')sdFirmaOeffnen(\'' + f.firma_id + '\')">'
+      + '<td>' + sdStatusPill(i.status) + '</td>'
+      + '<td class="sd-td-name" title="' + escapeHtml(f.name || '') + '"><b>' + escapeHtml(f.name || '') + '</b>' + (f.typ === 'einzel' ? ' <span class="sd-tag">Einzel</span>' : '') + '</td>'
+      + '<td class="sd-grau">' + escapeHtml(i.paket) + '</td>'
+      + '<td class="r">' + (i.umsatz ? sdEuro(i.umsatz) : '<span class="sd-grau">–</span>') + '</td>'
+      + '<td class="r">' + sdZ(f.mitglieder) + '</td>'
+      + '<td>' + (i.intern || !i.lim ? '<span class="sd-grau">' + sdZ(f.analysen_monat) + ' Prüfungen</span>'
+          : '<div class="sd-mini-meter"><div class="sd-b-bahn sd-meter"><i style="width:' + Math.min(100, Math.max(q ? 2 : 0, q)) + '%;background:' + farbe + '"></i></div><span><b>' + q + ' %</b> ' + sdZ(f.analysen_monat) + '/' + sdZ(i.lim) + '</span></div>') + '</td>'
+      + '<td class="r">' + sdZ(f.analysen_gesamt) + '</td>'
+      + '<td class="' + (i.tageRuhig !== null && i.tageRuhig >= 14 && !i.intern ? 'sd-warn-t' : 'sd-grau') + '">' + sdVor(f.letzte_analyse) + '</td>'
+      + '</tr>';
+  }).join('');
+}
+
+// ---------- Kunden-Detail (Seitenleiste) ----------
+async function sdFirmaOeffnen(id, still) {
+  const f = (SD.firmen || []).find(function(x){ return x.firma_id === id; });
+  const dr = document.getElementById('sdDrawer'), hg = document.getElementById('sdDrawerHg');
+  if (!f || !dr) return;
+  SD.drawer = id;
+  const i = sdFirmaInfo(f);
+  const kopf = '<div class="sd-dr-kopf"><div><div class="sd-k-u">' + sdStatusPill(i.status) + '</div><h2>' + escapeHtml(f.name || '') + '</h2>'
+    + '<div class="sd-k-u">Code <b class="sd-mono">' + escapeHtml(f.code || '–') + '</b> · ' + (f.typ === 'einzel' ? 'Einzelperson' : 'Unternehmen') + '</div></div>'
+    + '<button type="button" class="sd-btn sd-ico-btn" onclick="sdDrawerZu()" aria-label="Schließen">' + sdIco('<path d="M18 6 6 18M6 6l12 12"/>', 16) + '</button></div>';
+  const zahlen = '<div class="sd-dr-zahlen">'
+    + '<div><span>Diesen Monat</span><b>' + sdZ(f.analysen_monat) + '</b><small>' + (i.intern || !i.lim ? 'unbegrenzt' : i.quote + ' % von ' + sdZ(i.lim)) + '</small></div>'
+    + '<div><span>Gesamt</span><b>' + sdZ(f.analysen_gesamt) + '</b><small>Prüfungen</small></div>'
+    + '<div><span>Nutzer</span><b>' + sdZ(f.mitglieder) + '</b><small>im Team</small></div>'
+    + '<div><span>Umsatz</span><b>' + (i.umsatz ? sdEuro(i.umsatz) : '–') + '</b><small>' + escapeHtml(i.paket) + '</small></div>'
+    + '</div>'
+    + '<div class="sd-k-u sd-dr-zuletzt">Zuletzt aktiv: <b>' + (f.letzte_analyse ? new Date(f.letzte_analyse).toLocaleString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) + ' Uhr' : 'nie') + '</b></div>';
+  const form = '<section class="sd-dr-block"><h3>Einstellungen</h3><div class="sd-form">'
+    + '<label>Name<input id="supFName" value="' + escapeHtml(f.name || '') + '" /></label>'
+    + '<label>Typ<select id="supFTyp"><option value="firma"' + (f.typ === 'firma' ? ' selected' : '') + '>Unternehmen</option><option value="einzel"' + (f.typ === 'einzel' ? ' selected' : '') + '>Einzelperson</option></select></label>'
+    + '<label>Prüfungen / Monat<input id="supFLimit" type="number" min="0" value="' + (Number(f.monatslimit) || 0) + '" /><small>Bronze 100 · Silber 300 · Gold 600 · Platinum 1000 · intern 999999</small></label>'
+    + '<div class="sd-form-chk"><label><input type="checkbox" id="supFTrial"' + (f.trial ? ' checked' : '') + ' /> Testphase</label><label><input type="checkbox" id="supFAktiv"' + (f.aktiv ? ' checked' : '') + ' /> Aktiv</label></div>'
+    + '</div><div class="sd-dr-aktionen"><button type="button" class="sd-btn prim" onclick="sdFirmaSpeichern(\'' + id + '\', this)">Speichern</button>'
+    + '<button type="button" class="sd-btn" onclick="supBeitreten(\'' + id + '\')">Als Support beitreten</button></div>'
+    + '<div id="supFMsg" class="sd-meldung" style="display:none"></div></section>';
+  dr.innerHTML = kopf + '<div class="sd-dr-inhalt">' + zahlen + form + '<section class="sd-dr-block"><h3>Nutzer</h3><div id="sdDrM"><div class="sd-leer"><span class="neu-spin"></span> Wird geladen …</div></div></section></div>';
+  dr.setAttribute('aria-hidden', 'false');
+  dr.classList.add('an'); if (hg) hg.classList.add('an');
+  if (!still) setTimeout(function(){ const x = dr.querySelector('.sd-ico-btn'); if (x) x.focus(); }, 60);
+  try {
+    const { data, error } = await sb.rpc('sup_mitglieder', { p_firma: id });
+    if (SD.drawer !== id) return;
+    const m = data || [], z = document.getElementById('sdDrM');
+    if (z) z.innerHTML = error ? '<div class="sd-leer">' + escapeHtml(error.message || 'Fehler') + '</div>' : (m.length ? m.map(sdNutzerZeile).join('') : sdLeer('Keine Mitglieder.'));
+  } catch (e) { const z = document.getElementById('sdDrM'); if (z) z.innerHTML = sdLeer(escapeHtml((e && e.message) || 'Fehler')); }
+}
+function sdDrawerZu() {
+  SD.drawer = null;
+  const dr = document.getElementById('sdDrawer'), hg = document.getElementById('sdDrawerHg');
+  if (dr) { dr.classList.remove('an'); dr.setAttribute('aria-hidden', 'true'); }
+  if (hg) hg.classList.remove('an');
+}
+async function sdFirmaSpeichern(id, knopf) {
+  if (knopf) { knopf.disabled = true; knopf.textContent = 'Speichert …'; }
+  await supFirmaSpeichern(id);                         // bestehende Logik (sup_firma_aendern + sup_kontingent)
+  if (knopf) { knopf.disabled = false; knopf.textContent = 'Speichern'; }
+  const msg = document.getElementById('supFMsg');
+  const meldung = msg ? { t: msg.textContent, c: msg.className } : null;
+  await sdLaden(true);
+  if (SD.drawer === id) { await sdFirmaOeffnen(id, true); const m2 = document.getElementById('supFMsg'); if (m2 && meldung) { m2.textContent = meldung.t; m2.className = meldung.c + ' sd-meldung'; m2.style.display = ''; } }
+}
+function sdNutzerZeile(u) {
+  const name = ((u.vorname || '') + ' ' + (u.nachname || '')).trim();
+  const mail = u.email || '';
+  const rang = u.rang || '';
+  const info = rang ? (RANG_INFO[rang] || RANG_INFO.member) : null;
+  const login = u.letzter_login !== undefined ? u.letzter_login : null;
+  return '<div class="sd-nutzer">'
+    + '<div class="sd-avatar" aria-hidden="true">' + escapeHtml((name || mail || '?').charAt(0).toUpperCase()) + '</div>'
+    + '<div class="sd-n-haupt"><div class="sd-n-name">' + escapeHtml(name || mail) + (u.bestaetigt === false ? ' <span class="sd-tag sd-tag-warn">unbestätigt</span>' : '') + '</div>'
+    + '<div class="sd-n-meta">' + (name ? escapeHtml(mail) + ' · ' : '') + escapeHtml(u.firma_name || u.firma || '') + ((u.firma_name || u.firma) ? ' · ' : '')
+    + (u.erstellt ? 'registriert ' + sdVor(u.erstellt) + ' · ' : '') + 'Login ' + sdVor(login) + '</div></div>'
+    + (info ? '<span class="sd-rang">' + escapeHtml(info.name) + '</span>' : '')
+    + '<div class="sd-n-btns">'
+    + (rang && rang !== 'support' ? '<select class="sd-select" aria-label="Rang ändern" onchange="supRang(\'' + u.user_id + '\', this.value)"><option value="">Rang …</option><option value="president">President</option><option value="vice">Vice</option><option value="senior">Senior</option><option value="member">Member</option></select>' : '')
+    + (mail ? '<button type="button" class="sd-btn sd-klein" onclick="supPasswort(\'' + u.user_id + '\', this)" data-mail="' + escapeHtml(mail) + '">Passwort</button>' : '')
+    + (u.bestaetigt === false ? '<button type="button" class="sd-btn sd-klein prim" onclick="supBestaetigen(\'' + u.user_id + '\')">Bestätigen</button>' : '')
+    + '</div></div>';
+}
+
+// ---------- Bereich: Nutzer ----------
+function sdNutzerTab(b) {
+  const n = (SD.d && SD.d.nutzer) || null;
+  b.innerHTML = (n ? '<div class="sd-kpis sd-kpis-4">'
+      + sdKpi({ label: 'Nutzer gesamt', wert: sdZ(n.gesamt), unter: sdZ(n.neu_zeitraum) + ' neu in ' + SD.tage + ' Tagen', delta: sdDelta(n.neu_zeitraum, n.neu_vorher, true) })
+      + sdKpi({ label: 'Aktiv · 7 Tage', wert: sdZ(n.aktiv_7), unter: n.gesamt ? Math.round(n.aktiv_7 / n.gesamt * 100) + ' % aller Nutzer' : '' })
+      + sdKpi({ label: 'Aktiv · 30 Tage', wert: sdZ(n.aktiv_30), unter: n.gesamt ? Math.round(n.aktiv_30 / n.gesamt * 100) + ' % aller Nutzer' : '' })
+      + sdKpi({ label: 'Unbestätigt', wert: sdZ(n.unbestaetigt), unter: n.unbestaetigt ? 'E-Mail nicht bestätigt' : 'alle bestätigt' })
+      + '</div>' : '')
+    + '<div class="sd-grid">'
+    + sdKarte('Nutzer suchen', 'E-Mail, Name oder Firma – ändert Rang, Passwort, Freischaltung', '<div class="sd-suchfeld sd-suchfeld-gross">' + sdIco('<circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/>', 16)
+        + '<input id="supSuche" type="search" placeholder="Mindestens 2 Zeichen …" oninput="supSucheLauf()" autocomplete="off" /></div><div id="supSucheErg"></div>', 'sd-s12')
+    + (n ? sdKarte('Unbestätigt', 'Neueste zuerst', (n.unbestaetigt_liste || []).length ? n.unbestaetigt_liste.map(function(u){ return sdNutzerZeile({ user_id: u.user_id, email: u.email, firma: u.firma, erstellt: u.erstellt, bestaetigt: false, letzter_login: null }); }).join('') : sdLeer('Keine unbestätigten Nutzer.'), 'sd-s6')
+      + sdKarte('Neueste Registrierungen', 'Alle Kunden', (n.neueste || []).length ? n.neueste.map(function(u){ return sdNutzerZeile({ user_id: u.user_id, email: u.email, firma: u.firma, erstellt: u.erstellt, bestaetigt: u.bestaetigt, letzter_login: u.letzter_login }); }).join('') : sdLeer('Keine Daten.'), 'sd-s6') : '')
+    + '</div>';
+  setTimeout(function(){ const s = document.getElementById('supSuche'); if (s) s.focus(); }, 80);
+}
+let _supSucheTimer = null;
+function supSucheLauf() {
+  clearTimeout(_supSucheTimer);
+  _supSucheTimer = setTimeout(async function(){
+    const q = ((document.getElementById('supSuche') || {}).value || '').trim();
+    const erg = document.getElementById('supSucheErg');
+    if (!erg) return;
+    if (q.length < 2) { erg.innerHTML = ''; return; }
+    erg.innerHTML = '<div class="sd-leer"><span class="neu-spin"></span> Sucht …</div>';
+    const { data, error } = await sb.rpc('sup_nutzer_suchen', { p_suche: q });
+    if (((document.getElementById('supSuche') || {}).value || '').trim() !== q) return;
+    const l = data || [];
+    erg.innerHTML = error ? sdLeer(escapeHtml(error.message || 'Fehler')) : l.length ? l.map(sdNutzerZeile).join('') : sdLeer('Nichts gefunden.');
+  }, 250);
+}
+
+// ---------- Bereich: Aktivitaet ----------
+function sdAktTab(b) {
+  const q = SD.aktSuche.toLowerCase();
+  const l = (SD.akt || []).filter(function(a){ return !q || [a.firma, a.akteur, a.ziel].join(' ').toLowerCase().indexOf(q) >= 0; });
+  const gruppen = [];
+  l.forEach(function(a){ const tag = new Date(a.zeit).toLocaleDateString('de-DE', { weekday: 'long', day: '2-digit', month: 'long' });
+    const g = gruppen[gruppen.length - 1]; if (!g || g.tag !== tag) gruppen.push({ tag: tag, l: [a] }); else g.l.push(a); });
+  b.innerHTML = '<section class="sd-karte sd-s12"><div class="sd-werkzeug"><div class="sd-k-u">Die letzten ' + (SD.akt || []).length + ' Prüfungen über alle Kunden</div>'
+    + '<div class="sd-suchfeld">' + sdIco('<circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/>', 15) + '<input id="sdASuche" type="search" placeholder="Kunde, Person oder Firma filtern …" value="' + escapeHtml(SD.aktSuche) + '" oninput="SD.aktSuche=this.value;sdAktNeu()" autocomplete="off" /></div></div>'
+    + (gruppen.length ? gruppen.map(function(g){ return '<h3 class="sd-tag-kopf">' + escapeHtml(g.tag) + '</h3>' + sdFeedHTML(g.l); }).join('') : sdLeer('Keine Einträge.'))
+    + '</section>';
+  // Im Verlauf die Uhrzeit statt "vor x" zeigen
+  b.querySelectorAll('.sd-feed li').forEach(function(li, i){ const a = l[i]; const z = li.querySelector('.sd-feed-z'); if (a && z) z.textContent = new Date(a.zeit).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }); });
+}
+function sdAktNeu() { const i0 = document.getElementById('sdASuche'), pos = i0 ? i0.selectionStart : 0; sdRender(); const i = document.getElementById('sdASuche'); if (i) { i.focus(); try { i.setSelectionRange(pos, pos); } catch (e) {} } }
+
+// ---------- Bereich: REST-API ----------
+function sdApiTab(b) {
+  const api = SD.d && SD.d.api;
+  if (!api) { b.innerHTML = sdKarte('REST-API', '', sdLeer(SD.d === false ? 'Datenbank-Funktion für das Dashboard fehlt.' : 'Keine API-Daten gefunden (API-Tabellen fehlen oder noch nicht genutzt).'), 'sd-s12'); return; }
+  const p = api.pruefungen || {};
+  const fq = api.aufrufe_zeitraum ? Math.round((api.fehler_zeitraum || 0) / api.aufrufe_zeitraum * 1000) / 10 : 0;
+  b.innerHTML = '<div class="sd-kpis sd-kpis-4">'
+    + sdKpi({ label: 'Aufrufe · ' + SD.tage + ' Tage', wert: sdZ(api.aufrufe_zeitraum), unter: sdZ(api.schluessel_aktiv) + ' aktive Schlüssel', spark: 'sdSpA' })
+    + sdKpi({ label: 'Fehlerquote', wert: fq.toLocaleString('de-DE'), einheit: ' %', unter: sdZ(api.fehler_zeitraum) + ' Aufrufe mit Status ≥ 400' })
+    + sdKpi({ label: 'Prüfungen fertig', wert: sdZ(p.done), unter: sdZ(p.running) + ' laufen gerade' })
+    + sdKpi({ label: 'Mehrdeutig / Fehler', wert: sdZ((p.ambiguous || 0) + (p.error || 0)), unter: sdZ(p.ambiguous) + ' × 409 · ' + sdZ(p.error) + ' × abgebrochen' })
+    + '</div><div class="sd-grid">'
+    + sdKarte('API-Aufrufe pro Tag', 'nach Ergebnis', '<div class="sd-legende"><span><i class="sd-leg-sw" style="background:' + SD_ST.gut + '"></i>Erfolgreich</span><span><i class="sd-leg-sw" style="background:' + SD_ST.warn + '"></i>Fehler des Aufrufers (4xx)</span><span><i class="sd-leg-sw" style="background:' + SD_ST.krit + '"></i>Serverfehler (5xx)</span></div><div class="sd-chart" id="sdCA"></div>', 'sd-s12')
+    + sdKarte('Letzte Fehler', 'Status ≥ 400, neueste zuerst', (api.letzte_fehler || []).length
+        ? '<div class="sd-tab-scroll"><table class="sd-tab"><thead><tr><th>Zeit</th><th>Status</th><th>Endpunkt</th><th>Schlüssel</th><th>Kunde</th><th>Prüf-ID</th></tr></thead><tbody>'
+          + api.letzte_fehler.map(function(e){ const s = Number(e.status) || 0;
+              return '<tr><td class="sd-grau">' + new Date(e.zeit).toLocaleString('de-DE', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) + '</td><td><span class="sd-code sd-code-' + (s >= 500 ? 'krit' : 'warn') + '">' + s + '</span></td><td class="sd-mono">' + escapeHtml(e.endpunkt || '') + '</td><td>' + escapeHtml(e.schluessel || '–') + '</td><td>' + escapeHtml(e.firma || '–') + '</td><td class="sd-mono sd-grau">' + escapeHtml(e.pruef_id || '–') + '</td></tr>'; }).join('')
+          + '</tbody></table></div>' : sdLeer('Keine Fehler – sehr gut.'), 'sd-s12')
+    + '</div>';
+  SD.zeichner.push(function(){ sdSpark(document.getElementById('sdSpA'), (api.tage || []).map(function(t){ return (t.ok || 0) + (t.client || 0) + (t.server || 0); })); });
+  SD.zeichner.push(function(){ sdSaeulen(document.getElementById('sdCA'), { rows: api.tage || [], serien: [{ k: 'ok', n: 'Erfolgreich', f: SD_ST.gut }, { k: 'client', n: '4xx', f: SD_ST.warn }, { k: 'server', n: '5xx', f: SD_ST.krit }], hoehe: 220, titel: 'API-Aufrufe pro Tag' }); });
+}
+
+// ---------- Bereich: System ----------
+function sdSystemTab(b) {
+  const s = SD.status || {}, d = SD.d || {};
+  const sank = (s.sanktionen || [])[0] || {};
+  const alt = sank.stand ? Math.floor((Date.now() - new Date(sank.stand).getTime()) / 86400000) : null;
+  const sankSt = sank.meldung || alt === null ? 'krit' : alt > 8 ? 'krit' : alt > 2 ? 'warn' : 'gut';
+  const zeile = function(l, w, st){ return '<div class="sd-sys-z"><span>' + l + '</span><b>' + (st ? '<i class="sd-punkt" style="background:' + SD_ST[st] + '"></i>' : '') + w + '</b></div>'; };
+  const fehler = Array.isArray(d.fehler) ? d.fehler : [];
+  b.innerHTML = '<div class="sd-grid">'
+    + sdKarte('EU-Sanktionsliste', 'Grundlage jedes Abgleichs', zeile('Status', sankSt === 'gut' ? 'Aktuell' : sankSt === 'warn' ? 'Etwas veraltet' : 'Prüfen', sankSt)
+        + zeile('Einträge', sdZ(sank.eintraege)) + zeile('Stand', sank.stand ? new Date(sank.stand).toLocaleString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) + ' Uhr' : '–')
+        + zeile('Alter', alt === null ? '–' : alt + ' Tag' + (alt === 1 ? '' : 'e')) + (sank.meldung ? '<div class="sd-banner sd-banner-krit">' + escapeHtml(sank.meldung) + '</div>' : ''), 'sd-s6')
+    + sdKarte('Laufende Überwachung', 'Automatische Nachprüfung alle 3 Monate', zeile('Überwachte Firmen', sdZ(s.favoriten)) + zeile('Fällig', sdZ(s.faellige_favoriten), Number(s.faellige_favoriten) > 0 ? 'warn' : 'gut'), 'sd-s6')
+    + sdKarte('Datenbestand', 'Alle Kunden', zeile('Prüfungen gesamt', sdZ(s.analysen_gesamt)) + zeile('Prüfungen diesen Monat', sdZ(s.analysen_monat)) + zeile('Dokumente abgelegt', sdZ(s.kyc_dokumente)) + zeile('Offene Team-Einladungen', sdZ(s.offene_einladungen)), 'sd-s6')
+    + sdKarte('Dashboard', 'Technik', zeile('App-Version', escapeHtml(typeof APP_VERSION !== 'undefined' ? APP_VERSION : '–'))
+        + zeile('Datenbank-Funktion sup_dashboard', SD.d === false ? 'fehlt' : 'aktiv', SD.d === false ? 'krit' : 'gut')
+        + zeile('Interne Konten', (d.intern_firmen != null ? sdZ(d.intern_firmen) : '–') + (SD.ohneIntern ? ' (ausgeblendet)' : ' (eingerechnet)'))
+        + zeile('Daten erzeugt', d.erzeugt_am ? new Date(d.erzeugt_am).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + ' Uhr' : '–')
+        + (fehler.length ? '<div class="sd-banner">Teilbereiche ohne Daten: ' + fehler.map(function(x){ return escapeHtml(String(x)); }).join(' · ') + '</div>' : ''), 'sd-s6')
+    + '</div>';
+}
+
+function sdScoreVerteilung(v) {
+  if (!Array.isArray(v) || v.length !== 4) return '';
+  const summe = v.reduce(function(a, x){ return a + (Number(x) || 0); }, 0);
+  if (!summe) return '';
+  const stufen = [['75–100', v[3]], ['50–74', v[2]], ['25–49', v[1]], ['0–24', v[0]]];
+  return '<div class="sd-unterteil"><div class="sd-unter-t">Score-Verteilung</div>' + sdBalkenHTML(stufen.map(function(x){ return { l: 'Score ' + x[0], w: x[1] }; }), SD_SERIE.tool) + '</div>';
+}
+function sdHeatKennzahlen(zellen) {
+  let summe = 0, kern = 0, wochenende = 0, spitze = null;
+  (zellen || []).forEach(function(z){
+    const n = Number(z.n) || 0; summe += n;
+    if (z.w <= 5 && z.h >= 8 && z.h < 18) kern += n;
+    if (z.w >= 6) wochenende += n;
+    if (!spitze || n > spitze.n) spitze = { w: z.w, h: z.h, n: n };
+  });
+  if (!summe || !spitze) return '';
+  const tg = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag'][spitze.w - 1];
+  return '<div class="sd-mini-zahlen">'
+    + '<div><span>Spitzenzeit</span><b>' + tg + ', ' + spitze.h + '–' + (spitze.h + 1) + ' Uhr</b></div>'
+    + '<div><span>Werktags 8–18 Uhr</span><b>' + Math.round(kern / summe * 100) + ' %</b></div>'
+    + '<div><span>Wochenende</span><b>' + Math.round(wochenende / summe * 100) + ' %</b></div>'
+    + '</div>';
+}
+
+// ============================================================
+// Diagramme (SVG) + Tooltip
+// ============================================================
+function sdTipZeigen(x, y, titel, zeilen) {
+  const t = document.getElementById('sdTip');
+  if (!t) return;
+  t.textContent = '';
+  const k = document.createElement('div'); k.className = 'sd-tip-t'; k.textContent = titel; t.appendChild(k);
+  zeilen.forEach(function(z){
+    const r = document.createElement('div'); r.className = 'sd-tip-z' + (z.summe ? ' sd-tip-summe' : '');
+    if (z.f) { const s = document.createElement('i'); s.className = 'sd-tip-key'; s.style.background = z.f; r.appendChild(s); }
+    const w = document.createElement('b'); w.textContent = z.w; r.appendChild(w);
+    const n = document.createElement('span'); n.textContent = z.n; r.appendChild(n);
+    t.appendChild(r);
+  });
+  t.classList.add('an');
+  const bw = t.offsetWidth, bh = t.offsetHeight, vw = window.innerWidth, vh = window.innerHeight;
+  let lx = x + 14, ly = y - bh - 12;
+  if (lx + bw > vw - 8) lx = x - bw - 14;
+  if (ly < 8) ly = y + 16;
+  if (ly + bh > vh - 8) ly = vh - bh - 8;
+  t.style.left = Math.max(8, lx) + 'px'; t.style.top = Math.max(8, ly) + 'px';
+}
+function sdTipWeg() { const t = document.getElementById('sdTip'); if (t) t.classList.remove('an'); }
+function sdRundOben(x, y, w, h, r) {
+  if (h <= 0 || w <= 0) return '';
+  r = Math.max(0, Math.min(r, w / 2, h));
+  return 'M' + x + ',' + (y + h) + 'V' + (y + r) + 'Q' + x + ',' + y + ' ' + (x + r) + ',' + y + 'H' + (x + w - r) + 'Q' + (x + w) + ',' + y + ' ' + (x + w) + ',' + (y + r) + 'V' + (y + h) + 'Z';
+}
+// Gestapelte Saeulen: eine Basislinie, 2px Abstand zwischen Segmenten, 4px gerundetes Ende oben
+function sdSaeulen(el, o) {
+  if (!el) return;
+  const rows = o.rows || [], n = rows.length;
+  const W = Math.max(260, Math.floor(el.clientWidth || 600)), H = o.hoehe || 220;
+  const m = { l: 36, r: 6, t: 10, b: 24 }, pw = W - m.l - m.r, ph = H - m.t - m.b;
+  const summen = rows.map(function(r){ return o.serien.reduce(function(s, se){ return s + (Number(r[se.k]) || 0); }, 0); });
+  const ticks = sdTicks(Math.max(1, Math.max.apply(null, summen.concat([1]))), 4), oben = ticks[ticks.length - 1];
+  const slot = pw / Math.max(1, n), bw = Math.max(2, Math.min(24, slot * 0.66));
+  const yv = function(v){ return m.t + ph - v / oben * ph; };
+  let s = '';
+  ticks.forEach(function(t){ const y = Math.round(yv(t)) + 0.5;
+    s += '<line class="sd-gl" x1="' + m.l + '" x2="' + (W - m.r) + '" y1="' + y + '" y2="' + y + '"/><text class="sd-ax" x="' + (m.l - 7) + '" y="' + (y + 3.5) + '" text-anchor="end">' + sdKurz(t) + '</text>'; });
+  rows.forEach(function(r, i){
+    const x = m.l + i * slot + (slot - bw) / 2;
+    s += '<rect class="sd-band" data-i="' + i + '" x="' + (m.l + i * slot) + '" y="' + m.t + '" width="' + slot + '" height="' + ph + '"/>';
+    let basis = m.t + ph;
+    const segs = o.serien.map(function(se){ return { se: se, v: Number(r[se.k]) || 0 }; }).filter(function(z){ return z.v > 0; });
+    segs.forEach(function(z, j){
+      const h = z.v / oben * ph, y = basis - h, hoch = h - (j > 0 ? 2 : 0);
+      if (hoch > 0.4) s += j === segs.length - 1
+        ? '<path fill="' + z.se.f + '" d="' + sdRundOben(x, y, bw, hoch, 4) + '"/>'
+        : '<rect fill="' + z.se.f + '" x="' + x + '" y="' + y + '" width="' + bw + '" height="' + hoch + '"/>';
+      basis = y;
+    });
+  });
+  s += '<line class="sd-basis" x1="' + m.l + '" x2="' + (W - m.r) + '" y1="' + (m.t + ph + 0.5) + '" y2="' + (m.t + ph + 0.5) + '"/>';
+  const jede = Math.max(1, Math.ceil(n / Math.max(2, Math.floor(pw / 64))));
+  rows.forEach(function(r, i){ if (i % jede === 0 || i === n - 1) {
+    if (i === n - 1 && i % jede !== 0 && (n - 1) % jede < jede * 0.6) return;
+    s += '<text class="sd-ax" x="' + (m.l + i * slot + slot / 2) + '" y="' + (H - 6) + '" text-anchor="middle">' + sdTag(r.d) + '</text>'; } });
+  rows.forEach(function(r, i){ s += '<rect class="sd-hit" tabindex="0" data-i="' + i + '" x="' + (m.l + i * slot) + '" y="' + m.t + '" width="' + slot + '" height="' + ph + '" aria-label="' + sdTag(r.d, true) + ': ' + summen[i] + '"/>'; });
+  el.innerHTML = '<svg viewBox="0 0 ' + W + ' ' + H + '" width="100%" height="' + H + '" role="img" aria-label="' + escapeHtml(o.titel || 'Diagramm') + '">' + s + '</svg>';
+  const zeigen = function(ev, i){
+    el.querySelectorAll('.sd-band').forEach(function(bd){ bd.classList.toggle('an', bd.getAttribute('data-i') === String(i)); });
+    const r = rows[i], box = ev.target.getBoundingClientRect();
+    const px = ev.clientX || (box.left + box.width / 2), py = ev.clientY || box.top + 30;
+    const z = o.serien.slice().reverse().map(function(se){ return { f: se.f, w: sdZ(r[se.k]), n: se.n }; });
+    if (o.serien.length > 1) z.push({ w: sdZ(summen[i]), n: 'Summe', summe: true });
+    sdTipZeigen(px, py, sdTag(r.d, true), z);
+  };
+  el.querySelectorAll('.sd-hit').forEach(function(h){
+    const i = Number(h.getAttribute('data-i'));
+    h.addEventListener('pointermove', function(ev){ zeigen(ev, i); });
+    h.addEventListener('focus', function(ev){ zeigen(ev, i); });
+    const weg = function(){ el.querySelectorAll('.sd-band').forEach(function(bd){ bd.classList.remove('an'); }); sdTipWeg(); };
+    h.addEventListener('pointerleave', weg); h.addEventListener('blur', weg);
+  });
+}
+// Sparkline: Verlauf in zurueckhaltendem Grau, aktueller Wert als Akzent-Punkt
+function sdSpark(el, werte) {
+  if (!el || !werte || werte.length < 2) return;
+  const W = Math.max(80, Math.floor(el.clientWidth || 160)), H = 30, max = Math.max(1, Math.max.apply(null, werte));
+  const pkt = werte.map(function(v, i){ return [2 + i / (werte.length - 1) * (W - 6), 3 + (1 - (Number(v) || 0) / max) * (H - 7)]; });
+  const d = pkt.map(function(p, i){ return (i ? 'L' : 'M') + p[0].toFixed(1) + ',' + p[1].toFixed(1); }).join('');
+  const l = pkt[pkt.length - 1];
+  el.innerHTML = '<svg viewBox="0 0 ' + W + ' ' + H + '" width="100%" height="' + H + '" aria-hidden="true"><path d="' + d + 'L' + l[0] + ',' + (H - 1) + 'L' + pkt[0][0] + ',' + (H - 1) + 'Z" fill="rgba(57,135,229,.10)"/>'
+    + '<path d="' + d + '" fill="none" stroke="#5b6672" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/>'
+    + '<circle cx="' + l[0] + '" cy="' + l[1] + '" r="3.5" fill="#3987e5" stroke="#14171c" stroke-width="2"/></svg>';
+}
+// Heatmap Wochentag x Stunde, einfarbig (dunkel = wenig, hell = viel)
+function sdHeatmap(el, zellen) {
+  if (!el) return;
+  const W = Math.max(300, Math.floor(el.clientWidth || 600));
+  const m = { l: 26, t: 4, b: 20 }, gap = 2, cw = (W - m.l) / 24, ch = Math.max(14, Math.min(24, cw * 0.9)), H = m.t + 7 * ch + m.b;
+  const wert = {}; let max = 0;
+  zellen.forEach(function(z){ wert[z.w + '_' + z.h] = Number(z.n) || 0; max = Math.max(max, Number(z.n) || 0); });
+  const tage = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
+  let s = '';
+  for (let w = 1; w <= 7; w++) {
+    s += '<text class="sd-ax" x="' + (m.l - 6) + '" y="' + (m.t + (w - 1) * ch + ch / 2 + 3.5) + '" text-anchor="end">' + tage[w - 1] + '</text>';
+    for (let h = 0; h < 24; h++) {
+      const v = wert[w + '_' + h] || 0, stufe = v ? Math.min(SD_SEQ.length - 1, Math.floor(Math.sqrt(v / max) * (SD_SEQ.length - 1))) : -1;
+      s += '<rect class="sd-zelle" data-w="' + w + '" data-h="' + h + '" data-n="' + v + '" x="' + (m.l + h * cw + gap / 2) + '" y="' + (m.t + (w - 1) * ch + gap / 2) + '" width="' + Math.max(1, cw - gap) + '" height="' + (ch - gap) + '" rx="2.5" fill="' + (stufe < 0 ? '#1d2127' : SD_SEQ[stufe]) + '"/>';
+    }
+  }
+  [0, 6, 12, 18, 23].forEach(function(h){ s += '<text class="sd-ax" x="' + (m.l + h * cw + cw / 2) + '" y="' + (H - 5) + '" text-anchor="middle">' + h + ' Uhr</text>'; });
+  el.innerHTML = '<svg viewBox="0 0 ' + W + ' ' + H + '" width="100%" height="' + H + '" role="img" aria-label="Prüfungen nach Wochentag und Uhrzeit">' + s + '</svg>'
+    + '<div class="sd-skala"><span>weniger</span>' + ['#1d2127'].concat(SD_SEQ.filter(function(x, i){ return i % 2 === 1; })).map(function(f){ return '<i style="background:' + f + '"></i>'; }).join('') + '<span>mehr</span></div>';
+  el.querySelectorAll('.sd-zelle').forEach(function(c){
+    c.addEventListener('pointermove', function(ev){
+      const w = Number(c.getAttribute('data-w')), h = Number(c.getAttribute('data-h')), v = Number(c.getAttribute('data-n'));
+      sdTipZeigen(ev.clientX, ev.clientY, ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag'][w - 1] + ' · ' + h + '–' + (h + 1) + ' Uhr', [{ w: sdZ(v), n: v === 1 ? 'Prüfung' : 'Prüfungen', f: '#3987e5' }]);
+    });
+    c.addEventListener('pointerleave', sdTipWeg);
+  });
+}
+
+// Fruehere Listenzeile (helles Design) - bleibt fuer Kompatibilitaet erhalten
 function supNutzerZeile(u) {
   const name = ((u.vorname || '') + ' ' + (u.nachname || '')).trim();
   const info = RANG_INFO[u.rang] || RANG_INFO.member;
@@ -9507,35 +10536,6 @@ function supNutzerZeile(u) {
     + '<button class="kyc-btn" onclick="supPasswort(\'' + u.user_id + '\', this)" data-mail="' + escapeHtml(mail) + '">Passwort</button>'
     + (u.bestaetigt === false ? '<button class="kyc-btn" onclick="supBestaetigen(\'' + u.user_id + '\')">Best\u00e4tigen</button>' : '')
     + '</div></div>';
-}
-
-function supNutzer(b) {
-  b.innerHTML = '<div class="sup-suche"><input class="om-name-input" id="supSuche" placeholder="E-Mail, Name oder Firma suchen\u2026" oninput="supSucheLauf()" autocomplete="off" /></div><div id="supSucheErg"><div class="sup-lade">Tippe, um zu suchen.</div></div>';
-  setTimeout(function(){ const s = document.getElementById('supSuche'); if (s) s.focus(); }, 80);
-}
-let _supSucheTimer = null;
-function supSucheLauf() {
-  clearTimeout(_supSucheTimer);
-  _supSucheTimer = setTimeout(async function(){
-    const q = ((document.getElementById('supSuche') || {}).value || '').trim();
-    const erg = document.getElementById('supSucheErg');
-    if (!erg) return;
-    if (q.length < 2) { erg.innerHTML = '<div class="sup-lade">Mindestens 2 Zeichen.</div>'; return; }
-    const { data } = await sb.rpc('sup_nutzer_suchen', { p_suche: q });
-    const l = data || [];
-    erg.innerHTML = l.length ? l.map(function(u){ return supNutzerZeile(u); }).join('') : '<div class="sup-lade">Nichts gefunden.</div>';
-    sichtbarSicherstellen(erg);
-  }, 250);
-}
-
-async function supAktivitaet(b) {
-  const { data } = await sb.rpc('sup_aktivitaet', { p_max: 60 });
-  const l = data || [];
-  b.innerHTML = l.length ? '<div class="sup-liste">' + l.map(function(a, i){
-    const sc = (typeof a.score === 'number') ? '<span class="audit-score audit-s-' + (a.score >= 70 ? 'gruen' : a.score >= 45 ? 'gelb' : 'rot') + '">' + a.score + '</span>' : '';
-    return '<div class="sup-akt" style="--sd:' + (i * 0.02) + 's"><div class="sup-akt-z">' + new Date(a.zeit).toLocaleString('de-DE', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' }) + '</div>'
-      + '<div class="sup-akt-t"><b>' + escapeHtml(a.firma || '?') + '</b> \u00b7 ' + escapeHtml(a.akteur || '') + ' hat gepr\u00fcft: ' + escapeHtml(a.ziel || '') + ' ' + sc + '</div></div>';
-  }).join('') + '</div>' : '<div class="sup-lade">Noch keine Aktivit\u00e4t.</div>';
 }
 
 function supMsg(text, art) {
@@ -14258,7 +15258,7 @@ setTimeout(function(){ try { akteVorschauZeichnen(); } catch(e) {} }, 0);
 // Kleine Korrekturen ohne neue Funktionen: NEU_VERSION unveraendert lassen.
 // ============================================================
 const NEU_VERSION = 'v12.15';           // Stand der Neuigkeiten - nur erhoehen, wenn es wirklich Neues gibt
-const APP_VERSION = 'v12.37';           // aktuelle Version (Anzeige im Bericht und oben im Kopf)
+const APP_VERSION = 'v12.38';           // aktuelle Version (Anzeige im Bericht und oben im Kopf)
 const UPDATE_KURZ = 'Abgeschlossene Akten sind jetzt schreibgesch\u00fctzt \u2013 zum \u00c4ndern werden sie wieder ge\u00f6ffnet.';
 const NEUIGKEITEN = [
   { farbe: '#475569', v: 'v12.36', ico: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="m9 15 2 2 4-4"/>',
