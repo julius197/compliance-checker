@@ -6992,7 +6992,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span class="app-version" onclick="neuigkeitenZeigen()" title="Was ist neu?" style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v12.40</span>
+      <span class="app-version" onclick="neuigkeitenZeigen()" title="Was ist neu?" style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v12.41</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -13714,9 +13714,20 @@ function setStep(txt) { document.getElementById('loadingStep').textContent = txt
 let _fortTimer = null, _fortStart = 0, _fortWert = 0;
 const FORT_DAUER = 150000;   // 2,5 Minuten als Erwartungswert
 
+// v12.41: Dauert eine Pruefung laenger als 4 Minuten, sagt die Anzeige ehrlich, dass sie noch laeuft
+let _fortLang = false;
+function _fortLangHinweis(an) {
+  if (_fortLang === an) return;                        // nur bei Wechsel schreiben (sonst Uebersetzung bei jedem Takt)
+  _fortLang = an;
+  const h = document.querySelector('#loading .load-hinweis');
+  if (h) h.textContent = an
+    ? 'Diese Pr\u00fcfung braucht l\u00e4nger als \u00fcblich (z.\u2009B. bei Firmen im Ausland) \u2013 das kann bis zu 10 Minuten dauern. Bitte diese Seite ge\u00f6ffnet lassen.'
+    : 'Bitte diese Seite ge\u00f6ffnet lassen und den Bildschirm nicht sperren, bis die Pr\u00fcfung fertig ist.';
+}
 function fortschrittStart() {
   fortschrittStop();
   _fortStart = Date.now(); _fortWert = 0;
+  _fortLangHinweis(false);
   fortschrittSetzen(0, 'Dauert meist 2\u20133 Minuten');
   _fortTimer = setInterval(function(){
     const t = Date.now() - _fortStart;
@@ -13726,7 +13737,8 @@ function fortschrittStart() {
     _fortWert = p;
     const restMs = Math.max(0, FORT_DAUER - t);
     let rest;
-    if (p >= 94) rest = 'Gleich fertig\u2026';
+    if (t > 240000) { rest = 'Gr\u00fcndliche Recherche l\u00e4uft\u2026'; _fortLangHinweis(true); }
+    else if (p >= 94) rest = 'Gleich fertig\u2026';
     else if (restMs > 75000) rest = 'Noch etwa 2 Minuten';
     else if (restMs > 45000) rest = 'Noch etwa 1 Minute';
     else if (restMs > 15000) rest = 'Noch weniger als 1 Minute';
@@ -13773,7 +13785,10 @@ function zumTool() {
 // WLAN -> Mobilfunk). Frueher galt die Zeitgrenze nur bis zu den ersten Bytes -
 // danach wartete die App bei einer toten Verbindung ewig ("laedt seit 10 Minuten").
 let WORKER_STILL_MS = 45000;
-let WORKER_LIMIT_ANALYSE = 420000;
+// v12.41: 15 statt 7 Minuten. Der Worker sendet alle 10 s ein Lebenszeichen, tote Verbindungen faengt der
+// Stillstands-Waechter nach 45 s ab. Die Gesamtgrenze traf deshalb nur Pruefungen, die noch LIEFEN
+// (gruendliche Recherche, z. B. Firmen im Ausland) - und warf dann die fast fertige Pruefung weg.
+let WORKER_LIMIT_ANALYSE = 900000;
 let WORKER_LIMIT = 90000;
 async function workerCall(action, payload, versuch) {
   const v = versuch || 0;
@@ -13783,7 +13798,8 @@ async function workerCall(action, payload, versuch) {
   const ctrl = (typeof AbortController !== 'undefined') ? new AbortController() : null;
   // Lange KI-Aktionen (Web-Suche, Dokumente) brauchen mehr Zeit. Tote Verbindungen faengt der
   // Stillstands-Waechter nach 45 s ab - die Gesamtgrenze ist nur das letzte Sicherheitsnetz.
-  const LANG = { pruefen: WORKER_LIMIT_ANALYSE, neu_bewerten: 360000, firmen_vorsuche: 180000, bilder_nachladen: 300000, sanktionen_laden: 300000 };
+  // v12.41: neu_bewerten 6 -> 15 Min., repair_json 90 s -> 5 Min. (sendet jetzt ebenfalls Lebenszeichen)
+  const LANG = { pruefen: WORKER_LIMIT_ANALYSE, neu_bewerten: 900000, repair_json: 300000, firmen_vorsuche: 180000, bilder_nachladen: 300000, sanktionen_laden: 300000 };
   const limit = LANG[action] || WORKER_LIMIT;
   let grund = '';                                     // 'gesamt' = Zeitgrenze, 'still' = keine Lebenszeichen
   const timer = ctrl ? setTimeout(function(){ grund = 'gesamt'; ctrl.abort(); }, limit) : null;
@@ -15361,7 +15377,7 @@ setTimeout(function(){ try { akteVorschauZeichnen(); } catch(e) {} }, 0);
 // Kleine Korrekturen ohne neue Funktionen: NEU_VERSION unveraendert lassen.
 // ============================================================
 const NEU_VERSION = 'v12.15';           // Stand der Neuigkeiten - nur erhoehen, wenn es wirklich Neues gibt
-const APP_VERSION = 'v12.40';           // aktuelle Version (Anzeige im Bericht und oben im Kopf)
+const APP_VERSION = 'v12.41';           // aktuelle Version (Anzeige im Bericht und oben im Kopf)
 const UPDATE_KURZ = 'Abgeschlossene Akten sind jetzt schreibgesch\u00fctzt \u2013 zum \u00c4ndern werden sie wieder ge\u00f6ffnet.';
 const NEUIGKEITEN = [
   { farbe: '#475569', v: 'v12.36', ico: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="m9 15 2 2 4-4"/>',
