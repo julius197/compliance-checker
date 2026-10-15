@@ -6992,7 +6992,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span class="app-version" onclick="neuigkeitenZeigen()" title="Was ist neu?" style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v12.41</span>
+      <span class="app-version" onclick="neuigkeitenZeigen()" title="Was ist neu?" style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v12.42</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -13877,6 +13877,8 @@ function friendlyError(msg) {
   if (!m) return 'Die Analyse konnte nicht abgeschlossen werden. Bitte versuche es erneut.';
   if (m.includes('auslastung') || m.includes('rate_limit') || m.includes('overloaded') || m.includes('529'))
     return 'Der Analyse-Dienst ist gerade stark ausgelastet. Bitte in ein bis zwei Minuten erneut versuchen \u2013 deine Analysen bleiben erhalten.';
+  if (m.includes('zeit:'))                                   // v12.42: Worker hat die Recherche nach 12 Min. sauber beendet
+    return 'Die Recherche zu dieser Firma hat ungew\u00f6hnlich lange gedauert und wurde abgebrochen. Bitte erneut versuchen \u2013 mit Sitz (Ort) oder USt-ID geht es meist schneller.';
   if (m.includes('zugang:') || m.includes('unauthorized'))
     return 'Der Zugang zum Analyse-Dienst wurde abgelehnt. Bitte wende dich an den Support.';
   if (m.includes('dienst:'))
@@ -15377,7 +15379,7 @@ setTimeout(function(){ try { akteVorschauZeichnen(); } catch(e) {} }, 0);
 // Kleine Korrekturen ohne neue Funktionen: NEU_VERSION unveraendert lassen.
 // ============================================================
 const NEU_VERSION = 'v12.15';           // Stand der Neuigkeiten - nur erhoehen, wenn es wirklich Neues gibt
-const APP_VERSION = 'v12.41';           // aktuelle Version (Anzeige im Bericht und oben im Kopf)
+const APP_VERSION = 'v12.42';           // aktuelle Version (Anzeige im Bericht und oben im Kopf)
 const UPDATE_KURZ = 'Abgeschlossene Akten sind jetzt schreibgesch\u00fctzt \u2013 zum \u00c4ndern werden sie wieder ge\u00f6ffnet.';
 const NEUIGKEITEN = [
   { farbe: '#475569', v: 'v12.36', ico: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="m9 15 2 2 4-4"/>',
