@@ -6835,6 +6835,49 @@
       #supDash .sd-ico-btn.dreht svg { animation-duration:2s; }
     }
     @media print { #supDash { display:none !important; } }
+
+    /* ============================================================
+       v12.43: EIN Hover fuer alle Bereiche in der Akte - exakt wie die Bewertungs-Karten
+       (Grunddaten, Personen, ...): hebt sich 3 px an, weicher Schatten, gleiche Kurve.
+       Bisher setzte ".akte-panel .reveal" bei den meisten Karten Bewegung und Uebergang zurueck -
+       dort sprang nur der Schatten an. Die Sanktions-Karte hielt die Bewegung ueber ihre
+       Einblend-Animation fest.
+       ============================================================ */
+    #report .akte-panel > .akte-score,
+    #report .akte-panel > .sec-card,
+    #report .akte-panel > .grid4 > .sec-card,
+    #report .akte-panel > .score-card,
+    #report .akte-panel > .contact-card,
+    #report .akte-panel > .flags-card,
+    #report .akte-panel > .rec-card,
+    #report .akte-panel > .evidence-card,
+    #report .akte-panel > .dok-info,
+    #report .akte-panel > #kycMount > .kyc-card,
+    #report .akte-panel > #monBereich > .mon-karte.an,
+    #report .akte-panel > #bearbLeiste > .bearb-karte.an,
+    #report .akte-panel > #sankBereich > .sank-karte {
+      transition: transform .2s cubic-bezier(.16,1,.3,1), box-shadow .2s ease, border-color .2s ease, background-color .3s ease, opacity .45s ease;
+    }
+    #report .akte-panel > #sankBereich > .sank-karte { animation-fill-mode: backwards; }   /* Endzustand = Normalzustand, Hover frei */
+    @media (hover: hover) and (pointer: fine) {
+      #report .akte-panel > .akte-score:hover,
+      #report .akte-panel > .sec-card:hover,
+      #report .akte-panel > .grid4 > .sec-card:hover,
+      #report .akte-panel > .score-card:hover,
+      #report .akte-panel > .contact-card:hover,
+      #report .akte-panel > .flags-card:hover,
+      #report .akte-panel > .rec-card:hover,
+      #report .akte-panel > .evidence-card:hover,
+      #report .akte-panel > .dok-info:hover,
+      #report .akte-panel > #kycMount > .kyc-card:hover,
+      #report .akte-panel > #monBereich > .mon-karte.an:hover,
+      #report .akte-panel > #bearbLeiste > .bearb-karte.an:hover,
+      #report .akte-panel > #sankBereich > .sank-karte:hover {
+        transform: translateY(-3px); box-shadow: 0 12px 32px -12px rgba(16,24,40,.2);
+      }
+    }
+    /* v12.43: KYC-Ablage hatte keinen Abstand zur Karte "Nachweise" - jetzt 14 px wie zwischen allen Bereichen */
+    #report .akte-panel > #kycMount > .kyc-card { margin: 0 0 14px; }
 </style>
 <div id="legalGate" class="legal-gate" style="display:none;">
   <div class="legal-box">
@@ -6992,7 +7035,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span class="app-version" onclick="neuigkeitenZeigen()" title="Was ist neu?" style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v12.42</span>
+      <span class="app-version" onclick="neuigkeitenZeigen()" title="Was ist neu?" style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v12.43</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -15379,7 +15422,7 @@ setTimeout(function(){ try { akteVorschauZeichnen(); } catch(e) {} }, 0);
 // Kleine Korrekturen ohne neue Funktionen: NEU_VERSION unveraendert lassen.
 // ============================================================
 const NEU_VERSION = 'v12.15';           // Stand der Neuigkeiten - nur erhoehen, wenn es wirklich Neues gibt
-const APP_VERSION = 'v12.42';           // aktuelle Version (Anzeige im Bericht und oben im Kopf)
+const APP_VERSION = 'v12.43';           // aktuelle Version (Anzeige im Bericht und oben im Kopf)
 const UPDATE_KURZ = 'Abgeschlossene Akten sind jetzt schreibgesch\u00fctzt \u2013 zum \u00c4ndern werden sie wieder ge\u00f6ffnet.';
 const NEUIGKEITEN = [
   { farbe: '#475569', v: 'v12.36', ico: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="m9 15 2 2 4-4"/>',
@@ -17556,6 +17599,16 @@ function kycRender() {
         + ' onchange="kycDateienWaehlen(\'' + typ + '\', this.files)" />'
         + '</div>';
     }
+    // v12.43: leere Box - fehlte, deshalb stand in der Akte "undefinedundefined" statt der Upload-Felder
+    return '<div class="kyc-box kyc-leer" onclick="kycBoxWahl(\'' + typ + '\', event)"'
+      + ' ondragover="event.preventDefault(); this.classList.add(\'drag\');" ondragleave="this.classList.remove(\'drag\');"'
+      + ' ondrop="kycDrop(event, \'' + typ + '\')">'
+      + '<div class="kyc-plus">+</div>'
+      + '<div class="kyc-box-t">' + titel + '</div>'
+      + '<div class="kyc-box-file" style="white-space:normal;">' + hinweis + '</div>'
+      + '<input type="file" id="kycFile_' + typ + '" accept="image/*,application/pdf" multiple style="display:none"'
+      + ' onchange="kycDateienWaehlen(\'' + typ + '\', this.files); this.value = \'\';" />'
+      + '</div>';
   }
   mount.innerHTML = '<div class="kyc-card">'
     + '<div class="kyc-head"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/></svg> KYC-Ablage \u00b7 Dokumente zur Akte'
@@ -17863,6 +17916,8 @@ function toastZielOeffnen(ziel) {
 
 let KYC_ZIEL_NACH_LADEN = null;
 
+// v12.43: Klick auf die leere Box (der Klick des versteckten Datei-Felds selbst wird ignoriert)
+function kycBoxWahl(typ, ev) { if (ev && ev.target && ev.target.tagName === 'INPUT') return; kycPick(typ); }
 function kycPick(typ) { if (gesperrtMelden()) return; const i = document.getElementById('kycFile_' + typ); if (i) i.click(); }
 function kycGewaehlt(typ, input) { if (input.files && input.files[0]) kycUpload(typ, input.files[0]); }
 function kycDrop(ev, typ) {
