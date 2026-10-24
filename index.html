@@ -8607,10 +8607,10 @@ let NEUER_ORDNER_SICHT = 'privat';
 let SELECTED_ORDNER_ID = null;   // beim Analysieren gewählter Ordner
 let HISTORY_FILTER = 'alle';
 let HISTORY_PRUEFER = '';
-function setPruefer(v) { HISTORY_PRUEFER = v || ''; renderHistoryList(); }
+async function setPruefer(v) { HISTORY_PRUEFER = v || ''; renderHistoryList(); if (v) { await historieFilterVorbereiten(); renderHistoryList(); } }
 let HISTORY_STANDORT = '';
 let HU_GEZEIGT = false;   // Kennzahlen nur beim ersten Oeffnen von "Akten & Ordner" einblenden
-function setStandortFilter(v) { HISTORY_STANDORT = v || ''; renderHistoryList(); }
+async function setStandortFilter(v) { HISTORY_STANDORT = v || ''; renderHistoryList(); if (v) { await historieFilterVorbereiten(); renderHistoryList(); } }
 let HISTORY_SORT = 'neu';
 let FAVORITEN = [];              // Liste der ueberwachten Firmen
 let FAV_KERNE = {};              // normalisierter Name -> Favoriten-Datensatz
@@ -9073,7 +9073,7 @@ async function neuBewertenKern() {
         // Oeffnen die neue Fassung zeigt - auch bevor die Liste neu laedt
         try {
           const row = HISTORY_ROWS.find(function(x){ return x.id === analyseId || x.pruef_id === neu.pruefId; });
-          if (row) { row.report_json = neu; row.score = neu.gesamtScore; }
+          if (row) { row.report_json = neu; row._slim = false; row.score = neu.gesamtScore; }
         } catch(e) {}
       }
     }
@@ -14344,7 +14344,7 @@ async function kontoBeitreten() {
   }
 
   // Vor dem Wechsel warnen - die eigenen Analysen bleiben im alten Konto
-  const anzahl = (HISTORY_ROWS && HISTORY_ROWS.length) || 0;
+  const anzahl = Math.max((HISTORY_ROWS && HISTORY_ROWS.length) || 0, HISTORY_TOTAL || 0);
   const ja = await beitrittFrage(anzahl);
   if (!ja) return;
 
@@ -14853,10 +14853,13 @@ function scoreBerechnen(d) {
   if (d.insolvenz && d.insolvenz.verdacht === true) d.gesamtScore = Math.min(d.gesamtScore || 25, 25);
   // SANKTIONS-/PEP-DECKELUNG: Sanktions-Treffer = K.O. (max 30), PEP allein = weicher Deckel (max 60, nie grün)
   const sank = d.sanktion || {};
-  const sanktionTreffer = sank.treffer === true && (sank.art === 'sanktion' || sank.art === 'beides');
+  const kiSanktion = sank.treffer === true && (sank.art === 'sanktion' || sank.art === 'beides');
+  // v12.46 (Befund 9): Treffer der amtlichen EU-Sanktionsliste (d._sanktionen.treffer) deckeln genauso wie ein KI-Treffer
+  const euSanktion = !!(d._sanktionen && Array.isArray(d._sanktionen.treffer) && d._sanktionen.treffer.length > 0);
+  const sanktionTreffer = kiSanktion || euSanktion;
   const pepTreffer = sank.treffer === true && sank.art === 'pep';
   if (sanktionTreffer) {
-    const sScore = typeof sank.score === 'number' ? sank.score : 25;
+    const sScore = (kiSanktion && typeof sank.score === 'number') ? sank.score : 25;
     const deckelS = Math.min(30, sScore);
     d.gesamtScore = Math.min(d.gesamtScore != null ? d.gesamtScore : deckelS, deckelS);
   } else if (pepTreffer) {
@@ -15508,15 +15511,64 @@ function karteFehler(box, f) {
 setTimeout(function(){ try { akteVorschauZeichnen(); } catch(e) {} }, 0);
 
 // ============================================================
+// v12.46 (Befund 23): GLOBALE FEHLERFANGER
+// Unbehandelte Fehler/Promise-Abbrueche zeigen einen dezenten Hinweis (hoechstens alle 30 s) und bleiben in der Konsole.
+// ============================================================
+let _FEHLER_TOAST_LETZTER = 0;
+function unerwarteterFehlerHinweis() {
+  try {
+    const jetzt = Date.now();
+    if (jetzt - _FEHLER_TOAST_LETZTER < 30000) return;       // max. 1 Hinweis pro 30 Sekunden
+    _FEHLER_TOAST_LETZTER = jetzt;
+    const t = document.createElement('div');
+    t.className = 'tr-toast';
+    t.setAttribute('role', 'status');
+    t.innerHTML = '<button class="tr-toast-x" title="Schlie\u00dfen">\u2715</button>'
+      + '<div class="tr-toast-t">\u26A0\uFE0F Unerwarteter Fehler</div>'
+      + '<div class="tr-toast-d">Unerwarteter Fehler \u2013 bitte Seite neu laden oder Support kontaktieren</div>';
+    function weg() {
+      if (t.dataset.weg) return;
+      t.dataset.weg = '1'; t.classList.remove('an'); t.classList.add('weg');
+      setTimeout(function(){ if (t.parentNode) t.remove(); }, 340);
+    }
+    const x = t.querySelector('.tr-toast-x');
+    if (x) x.onclick = function(ev){ ev.stopPropagation(); weg(); };
+    t.onclick = weg;
+    let stapel = document.getElementById('toastStapel');
+    if (!stapel) { stapel = document.createElement('div'); stapel.id = 'toastStapel'; document.body.appendChild(stapel); }
+    stapel.appendChild(t);
+    if (typeof einblenden === 'function') einblenden(t); else t.classList.add('an');
+    setTimeout(weg, 10000);
+  } catch (e) { /* der Fehlerfaenger darf selbst nie Fehler werfen */ }
+}
+window.addEventListener('unhandledrejection', function(ev) {
+  try { console.error('Unbehandelter Promise-Fehler:', ev && ev.reason); } catch (e) {}
+  unerwarteterFehlerHinweis();
+});
+window.addEventListener('error', function(ev) {
+  // Ladefehler einzelner Ressourcen (Bilder/Skripte) sind kein Programmfehler -> kein Hinweis
+  try {
+    if (ev && ev.target && ev.target !== window && ev.target.tagName) return;
+    console.error('Unbehandelter Fehler:', (ev && (ev.error || ev.message)) || ev);
+    if (ev && !ev.error && /ResizeObserver loop|^Script error\.?$/i.test(String(ev.message || ''))) return;   // harmlos / fremder Code
+  } catch (e) {}
+  unerwarteterFehlerHinweis();
+});
+
+// ============================================================
 // NEUIGKEITEN
 // Erscheint einmal, wenn jemand eine neue Version oeffnet.
 // Bei kuenftigen Updates: NEU_VERSION hochzaehlen und NEUIGKEITEN ersetzen.
 // Kleine Korrekturen ohne neue Funktionen: NEU_VERSION unveraendert lassen.
 // ============================================================
-const NEU_VERSION = 'v12.45';           // Stand der Neuigkeiten - nur erhoehen, wenn es wirklich Neues gibt
-const APP_VERSION = 'v12.45';           // aktuelle Version (Anzeige im Bericht und oben im Kopf)
-const UPDATE_KURZ = 'Neu: Firmennamen in lateinischer Schrift mit Originalname, Suche in beiden Schreibweisen und automatische L\u00e4nderordner.';
+const NEU_VERSION = 'v12.46';           // Stand der Neuigkeiten - nur erhoehen, wenn es wirklich Neues gibt
+const APP_VERSION = 'v12.46';           // aktuelle Version (Anzeige im Bericht und oben im Kopf)
+const UPDATE_KURZ = 'Neu: Die Akten-Historie l\u00e4dt schneller, die API meldet St\u00f6rungen sauber und Fehler werden stabiler abgefangen.';
 const NEUIGKEITEN = [
+  { farbe: '#2E8749', v: 'v12.46', ico: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/>',
+    t: 'Stabiler & sicherer',
+    kurz: 'Die Akten-Historie l\u00e4dt schneller, die API meldet St\u00f6rungen sauber und Fehler werden stabiler abgefangen.',
+    d: 'Die Historie l\u00e4dt auch bei sehr vielen Akten z\u00fcgig \u2013 sie erscheint seitenweise, weitere Akten holst du mit \u201eMehr laden\u201c, und die Suche findet weiterhin alle. Die API meldet kurze St\u00f6rungen jetzt sauber (mit Hinweis, es sp\u00e4ter erneut zu versuchen), statt f\u00e4lschlich einen Zugriffsfehler zu zeigen. Treffer der EU-Sanktionsliste dr\u00fccken die Bewertung jetzt konsequent. Unerwartete Fehler werden stabiler abgefangen.' },
   { farbe: '#0C86A3', v: 'v12.45', ico: '<circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20 15 15 0 0 1 0-20z"/>',
     t: 'Firmennamen lesbar & L\u00e4nderordner',
     kurz: 'Ausl\u00e4ndische Firmennamen stehen in lateinischer Schrift, die Suche findet beide Schreibweisen, und neue Akten landen automatisch im L\u00e4nderordner.',
@@ -18694,7 +18746,16 @@ async function laenderOrdnerSichern(land) {
       farbe: '#22C55E',
       sichtbarkeit: einzel ? 'privat' : 'oeffentlich'
     }).select('id');
-    if (error) throw error;
+    if (error) {
+      // v12.46 (Befund 21): gleichzeitig hat jemand denselben Laenderordner angelegt (Unique-Index) -> Ordner neu laden
+      // und den vorhandenen nehmen, statt die Akte ohne Ordner zu speichern
+      if (error.code === '23505' || /duplicate key|unique/i.test(error.message || '')) {
+        await ladeOrdner();
+        x = laenderOrdnerFinden(land);
+        if (x) return x.id;
+      }
+      throw error;
+    }
     const neuId = data && data[0] && data[0].id;
     await ladeOrdner();
     x = laenderOrdnerFinden(land);
@@ -18851,16 +18912,49 @@ async function _openHistory() {
 
 // Laedt die Akten des Unternehmens in HISTORY_ROWS (ohne Anzeige).
 // Fehlt eine neue Spalte noch (SQL nicht eingespielt), wird auf die Grundspalten zurueckgegriffen.
-const HISTORIE_GRUNDSPALTEN = ['id', 'pruef_id', 'firmenname', 'land', 'ust_id', 'score', 'verdict', 'verdict_text', 'created_at', 'report_json', 'ordner_id'];
+// v12.46 (Befund 13): Liste seitenweise (200 pro Seite) und nur mit schlanken Spalten - OHNE report_json.
+// Aus dem Bericht kommen nur die paar Felder, die die Liste braucht (Name, Originalname, Pruefer, API-Marke);
+// der volle Bericht wird erst beim Oeffnen einer Akte nachgeladen (ensureVolleAkte).
+const HISTORIE_GRUNDSPALTEN = ['id', 'pruef_id', 'firmenname', 'land', 'ust_id', 'score', 'verdict', 'verdict_text', 'created_at', 'ordner_id'];
 const HISTORIE_ZUSATZSPALTEN = ['standort', 'schritte', 'abgeschlossen_am', 'abgeschlossen_von', 'abgeschlossen_von_name',
   'sitz_eingegeben', 'sitz_quelle', 'sitz_abweichung', 'google_place_id'];
 const HISTORIE_FEHLEND = {};
-async function ladeHistorie() {
-  if (!sb) return [];
+const HIST_SEITE = 200;                 // Akten pro Seite
+const HIST_SLIM_SPALTEN = ['rj_firmenname:report_json->>firmenname', 'rj_orig:report_json->firmennameOriginal',
+  'rj_name:report_json->>_name', 'rj_email:report_json->>_email', 'rj_api:report_json->_api'];
+let HIST_SLIM = true;                   // false = Notfall-Rueckfall auf den vollen Bericht (altes Verhalten)
+let HISTORY_TOTAL = null;               // Gesamtzahl der Akten (aus dem ersten Seitenabruf)
+let HISTORY_VOLL = true;                // true = alle Akten sind geladen
+let HIST_OFFSET = 0;                    // so viele Akten wurden bisher seitenweise geladen
+let HIST_ZAEHLER = null;                // genaue Zaehler je Ordner, solange nicht alles geladen ist
+let HIST_SUCHE_TIMER = null;
+
+// Schlanke Zeile -> Zeile mit kleinem report_json-Stub (_slim = Bericht noch nicht vollstaendig geladen)
+function historieZeileSlim(r) {
+  if (!r || !('rj_firmenname' in r || 'rj_name' in r || 'rj_orig' in r)) return r;
+  const rj = {};
+  if (r.rj_firmenname != null) rj.firmenname = r.rj_firmenname;
+  if (r.rj_orig != null) rj.firmennameOriginal = r.rj_orig;
+  if (r.rj_name != null) rj._name = r.rj_name;
+  if (r.rj_email != null) rj._email = r.rj_email;
+  if (r.rj_api) rj._api = r.rj_api;
+  delete r.rj_firmenname; delete r.rj_orig; delete r.rj_name; delete r.rj_email; delete r.rj_api;
+  r.report_json = rj;
+  r._slim = true;
+  return r;
+}
+
+// Eine Seite Akten holen. filterFn (optional) setzt zusaetzliche Filter, z. B. die Suche.
+async function historieSeite(von, mitZaehler, filterFn) {
+  if (!sb) return { rows: [], count: null };
   for (let versuch = 0; versuch < 12; versuch++) {
-    const spalten = HISTORIE_GRUNDSPALTEN.concat(HISTORIE_ZUSATZSPALTEN.filter(function(x){ return !HISTORIE_FEHLEND[x]; }));
-    const r = await sb.from('analysen').select(spalten.join(', ')).order('created_at', { ascending: false });
-    if (!r.error) { HISTORY_ROWS = r.data || []; return HISTORY_ROWS; }
+    const basis = HIST_SLIM ? HISTORIE_GRUNDSPALTEN.concat(HIST_SLIM_SPALTEN) : HISTORIE_GRUNDSPALTEN.concat(['report_json']);
+    const spalten = basis.concat(HISTORIE_ZUSATZSPALTEN.filter(function(x){ return !HISTORIE_FEHLEND[x]; }));
+    let q = sb.from('analysen').select(spalten.join(', '), mitZaehler ? { count: 'exact' } : {});
+    if (filterFn) q = filterFn(q);
+    q = q.order('created_at', { ascending: false }).order('id', { ascending: false }).range(von, von + HIST_SEITE - 1);
+    const r = await q;
+    if (!r.error) return { rows: (r.data || []).map(historieZeileSlim), count: (typeof r.count === 'number') ? r.count : null };
     const fehlt = fehlendeSpalte(r.error);
     if (fehlt && HISTORIE_ZUSATZSPALTEN.indexOf(fehlt) >= 0 && !HISTORIE_FEHLEND[fehlt]) {
       console.warn('Historie: Spalte "' + fehlt + '" fehlt noch (SQL einspielen) - wird ausgelassen.');
@@ -18873,9 +18967,125 @@ async function ladeHistorie() {
       HISTORIE_ZUSATZSPALTEN.forEach(function(x){ HISTORIE_FEHLEND[x] = true; });
       continue;
     }
+    if (HIST_SLIM) {
+      // Die schlanke Abfrage selbst wurde abgelehnt: einmalig auf das alte Verhalten (voller Bericht) zurueckfallen
+      console.warn('Historie: schlanke Abfrage nicht moeglich - lade vollstaendig.', r.error && r.error.message);
+      HIST_SLIM = false;
+      continue;
+    }
     throw r.error;
   }
   throw new Error('Akten konnten nicht geladen werden.');
+}
+
+// Neue Zeilen einsortieren (ohne Doppelte), neueste zuerst
+function historieZeilenMischen(neue) {
+  const vorhanden = {};
+  HISTORY_ROWS.forEach(function(r){ if (r.id) vorhanden[r.id] = true; });
+  let dazu = 0;
+  (neue || []).forEach(function(r){ if (r && r.id && !vorhanden[r.id]) { HISTORY_ROWS.push(r); vorhanden[r.id] = true; dazu++; } });
+  if (dazu) {
+    HISTORY_ROWS.sort(function(a, b){
+      const x = String(b.created_at || ''), y = String(a.created_at || '');
+      return x < y ? -1 : (x > y ? 1 : 0);
+    });
+  }
+  return dazu;
+}
+
+// Laedt (neu) die erste Seite - bei einer Aktualisierung mindestens so viele Akten, wie schon geladen waren
+async function ladeHistorie() {
+  if (!sb) return [];
+  const ziel = Math.max(HIST_SEITE, HIST_OFFSET);
+  let alle = [], total = null, letzte = 0;
+  for (let von = 0; von < ziel; von += HIST_SEITE) {
+    const s = await historieSeite(von, von === 0);
+    if (von === 0) total = s.count;
+    alle = alle.concat(s.rows);
+    letzte = s.rows.length;
+    if (s.rows.length < HIST_SEITE) break;
+  }
+  HISTORY_ROWS = alle;
+  HIST_OFFSET = alle.length;
+  HISTORY_TOTAL = total;
+  HISTORY_VOLL = (letzte < HIST_SEITE) || (total !== null && alle.length >= total);
+  HIST_ZAEHLER = null;
+  if (!HISTORY_VOLL) historieZaehlerLaden();      // genaue Ordner-Zaehler im Hintergrund
+  return HISTORY_ROWS;
+}
+
+// "Mehr laden": naechste Seite anhaengen
+async function historieMehrLaden() {
+  if (HISTORY_VOLL) return 0;
+  const s = await historieSeite(HIST_OFFSET, false);
+  const dazu = historieZeilenMischen(s.rows);
+  HIST_OFFSET += s.rows.length;
+  if (s.rows.length < HIST_SEITE || (HISTORY_TOTAL !== null && HIST_OFFSET >= HISTORY_TOTAL)) HISTORY_VOLL = true;
+  return dazu;
+}
+
+// Alles laden (fuer Ordner-/Pruefer-/Standort-Ansichten und den Ordner-Export, damit nichts fehlt)
+async function historieAlleLaden() {
+  let schutz = 0;
+  while (!HISTORY_VOLL && schutz++ < 500) await historieMehrLaden();
+}
+
+// Genaue Zaehler je Ordner (nur Zaehlen, keine Daten), solange nicht alle Akten geladen sind
+async function historieZaehlerLaden() {
+  try {
+    if (!sb) return;
+    const z = { __ohne: 0 };
+    const jobs = (ORDNER_LIST || []).map(function(o){
+      return sb.from('analysen').select('id', { count: 'exact', head: true }).eq('ordner_id', o.id)
+        .then(function(r){ if (!r.error && typeof r.count === 'number') z[o.id] = r.count; else throw new Error('zaehler'); });
+    });
+    jobs.push(sb.from('analysen').select('id', { count: 'exact', head: true }).is('ordner_id', null)
+      .then(function(r){ if (!r.error && typeof r.count === 'number') z.__ohne = r.count; else throw new Error('zaehler'); }));
+    await Promise.all(jobs);
+    HIST_ZAEHLER = z;
+    if (document.getElementById('histBody')) renderHistoryList();
+  } catch (e) { HIST_ZAEHLER = null; }          // dann zeigen die Zaehler "n+" (mindestens)
+}
+
+// Suche: zusaetzlich zur lokalen Suche serverseitig (ilike auf Firmenname + Originalname), damit auch noch
+// nicht geladene Akten gefunden werden
+function historieServerSuche() {
+  clearTimeout(HIST_SUCHE_TIMER);
+  if (HISTORY_VOLL) return;
+  const eingabe = document.getElementById('histSearch');
+  const roh = ((eingabe && eingabe.value) || '').trim();
+  if (roh.length < 2) return;
+  HIST_SUCHE_TIMER = setTimeout(async function(){
+    try {
+      const begriffe = [];
+      [roh, translitLatein(roh.toLowerCase())].forEach(function(t){
+        const sauber = String(t || '').replace(/[,()*%"\\]/g, ' ').trim();
+        if (sauber.length >= 2 && begriffe.indexOf(sauber) < 0) begriffe.push(sauber);
+      });
+      if (!begriffe.length) return;
+      const teile = [];
+      begriffe.forEach(function(t){
+        teile.push('firmenname.ilike.*' + t + '*');
+        teile.push('report_json->>firmenname.ilike.*' + t + '*');
+        teile.push('report_json->>firmennameOriginal.ilike.*' + t + '*');
+      });
+      const s = await historieSeite(0, false, function(q){ return q.or(teile.join(',')); });
+      if (historieZeilenMischen(s.rows) && document.getElementById('histBody')) renderHistoryList();
+    } catch (e) { console.warn('Serversuche:', e && e.message); }       // lokale Suche funktioniert trotzdem
+  }, 350);
+}
+
+// Voller Bericht einer Akte (erst beim Oeffnen noetig)
+async function ensureVolleAkte(r) {
+  if (!r || !r._slim) return r;
+  if (!sb || !r.id) throw new Error('Bericht konnte nicht geladen werden.');
+  const q = await sb.from('analysen').select('report_json').eq('id', r.id).limit(1);
+  if (q.error) throw q.error;
+  const rj = q.data && q.data[0] && q.data[0].report_json;
+  if (!rj) throw new Error('Bericht nicht gefunden.');
+  r.report_json = rj;
+  r._slim = false;
+  return r;
 }
 
 function renderHistoryError(msg) {
@@ -18892,12 +19102,25 @@ function renderHistoryError(msg) {
 function histVerdictClass(v) { return v === 'ok' ? 'ok' : v === 'bad' ? 'bad' : 'warn'; }
 function histVerdictIcon(v) { return v === 'ok' ? '\u2713' : v === 'bad' ? '\u2715' : '\u26A0'; }
 
-function setHistoryFilter(val) {
+// v12.46: Ansichten mit Filter brauchen alle Akten - fehlende Seiten vorher nachladen
+async function historieFilterVorbereiten() {
+  if (HISTORY_VOLL) return;
+  try { await historieAlleLaden(); }
+  catch (e) { console.warn('Historie nachladen:', e && e.message); try { zeigeToast('Nicht alle Akten geladen', 'Bitte \u201eMehr laden\u201c nutzen oder erneut versuchen.'); } catch (e2) {} }
+}
+async function setHistoryFilter(val) {
   HISTORY_FILTER = val;
+  if (val !== 'alle' && !HISTORY_VOLL) { renderHistoryList(); await historieFilterVorbereiten(); }
   renderHistoryList();
 }
 
-function histSuche() { renderHistoryList(); }
+function histSuche() { renderHistoryList(); historieServerSuche(); }
+async function historieMehrKlick(btn) {
+  if (btn) { btn.disabled = true; btn.textContent = 'Lade \u2026'; }
+  try { await historieMehrLaden(); }
+  catch (e) { try { zeigeToast('Laden fehlgeschlagen', 'Bitte erneut versuchen.'); } catch (e2) {} }
+  renderHistoryList();
+}
 
 // Stellt sicher, dass animierte Elemente auch dann sichtbar werden,
 // wenn der Browser Animationen unterdrueckt (z.B. "Bewegung reduzieren").
@@ -18934,6 +19157,8 @@ function renderHistoryList() {
   const einzel = !!(CURRENT_FIRMA && CURRENT_FIRMA.typ === 'einzel');
 
   // ---------- Überblick: Kennzahlen ----------
+  const teilweise = !HISTORY_VOLL;
+  const total = teilweise ? Math.max(HISTORY_TOTAL || 0, HISTORY_ROWS.length) : HISTORY_ROWS.length;
   const jetzt = new Date();
   const monatStart = new Date(jetzt.getFullYear(), jetzt.getMonth(), 1).getTime();
   const scores = HISTORY_ROWS.map(function(r){ return (r.score != null ? r.score : null); }).filter(function(s){ return s !== null; });
@@ -18947,7 +19172,7 @@ function renderHistoryList() {
   const schnittFarbe = schnitt === null ? 'grau' : (schnitt >= 70 ? 'gruen' : (schnitt >= 45 ? 'gelb' : 'rot'));
 
   const uebersicht = '<div class="hu-leiste' + (HU_GEZEIGT ? ' ruhig' : '') + '">'
-    + '<div class="hu-karte"><div class="hu-wert">' + HISTORY_ROWS.length + '</div><div class="hu-label">Akten gesamt</div></div>'
+    + '<div class="hu-karte"><div class="hu-wert">' + total + '</div><div class="hu-label">Akten gesamt</div></div>'
     + '<div class="hu-karte"><div class="hu-wert">' + nMonat + '</div><div class="hu-label">Diesen Monat</div></div>'
     + '<div class="hu-karte"><div class="hu-wert hu-' + schnittFarbe + '">' + (schnitt === null ? '\u2013' : schnitt) + '</div><div class="hu-label">\u00d8 Vertrauens-Score</div></div>'
     + '<div class="hu-karte hu-weit">'
@@ -18965,28 +19190,33 @@ function renderHistoryList() {
     + '</div></div></div>';
 
   // Zähler pro Ordner / gesamt / ohne
-  const total = HISTORY_ROWS.length;
-  const ohneCount = HISTORY_ROWS.filter(function(r){ return !r.ordner_id; }).length;
+  // v12.46: Sind noch nicht alle Akten geladen, kommen die Zaehler aus der Datenbank (sonst "n+" = mindestens)
+  let ohneCount = HISTORY_ROWS.filter(function(r){ return !r.ordner_id; }).length;
   const cByFolder = {};
   HISTORY_ROWS.forEach(function(r){ if (r.ordner_id) cByFolder[r.ordner_id] = (cByFolder[r.ordner_id]||0)+1; });
+  if (teilweise && HIST_ZAEHLER) {
+    ohneCount = HIST_ZAEHLER.__ohne;
+    Object.keys(HIST_ZAEHLER).forEach(function(k){ if (k !== '__ohne') cByFolder[k] = HIST_ZAEHLER[k]; });
+  }
+  const plus = (teilweise && !HIST_ZAEHLER) ? '+' : '';
 
   // Filter-Chips mit Zählern
   let chips = '<button class="hist-chip ' + (HISTORY_FILTER === 'alle' ? 'active' : '') + '" onclick="setHistoryFilter(\'alle\')">Alle (' + total + ')</button>';
-  chips += '<button class="hist-chip ' + (HISTORY_FILTER === 'ohne' ? 'active' : '') + '" onclick="setHistoryFilter(\'ohne\')">Ohne Ordner (' + ohneCount + ')</button>';
+  chips += '<button class="hist-chip ' + (HISTORY_FILTER === 'ohne' ? 'active' : '') + '" onclick="setHistoryFilter(\'ohne\')">Ohne Ordner (' + ohneCount + plus + ')</button>';
   if (!(CURRENT_FIRMA && CURRENT_FIRMA.typ === 'einzel')) {
     const geteilteIds = ORDNER_LIST.filter(function(o){ return o.sichtbarkeit === 'oeffentlich'; }).map(function(o){ return o.id; });
     const privateIds  = ORDNER_LIST.filter(function(o){ return o.sichtbarkeit !== 'oeffentlich'; }).map(function(o){ return o.id; });
-    const cGeteilt = HISTORY_ROWS.filter(function(r){ return r.ordner_id && geteilteIds.indexOf(r.ordner_id) >= 0; }).length;
-    const cPrivat  = HISTORY_ROWS.filter(function(r){ return r.ordner_id && privateIds.indexOf(r.ordner_id) >= 0; }).length;
+    const cGeteilt = geteilteIds.reduce(function(a, id){ return a + (cByFolder[id] || 0); }, 0);
+    const cPrivat  = privateIds.reduce(function(a, id){ return a + (cByFolder[id] || 0); }, 0);
     chips += '<button class="hist-chip chip-geteilt ' + (HISTORY_FILTER === '__geteilt' ? 'active' : '') + '" onclick="setHistoryFilter(\'__geteilt\')">'
       + '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>'
-      + ' Geteilte Ordner (' + cGeteilt + ')</button>';
+      + ' Geteilte Ordner (' + cGeteilt + plus + ')</button>';
     chips += '<button class="hist-chip chip-fav ' + (HISTORY_FILTER === '__fav' ? 'active' : '') + '" onclick="setHistoryFilter(\'__fav\')">'
       + '<svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.6l2.9 5.9 6.5.95-4.7 4.6 1.1 6.5L12 17.5 6.2 20.5l1.1-6.5-4.7-4.6 6.5-.95z"/></svg>'
       + ' \u00dcberwachung (' + FAVORITEN.length + ')</button>';
     chips += '<button class="hist-chip chip-privat ' + (HISTORY_FILTER === '__privat' ? 'active' : '') + '" onclick="setHistoryFilter(\'__privat\')">'
       + '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>'
-      + ' Private Ordner (' + cPrivat + ')</button>';
+      + ' Private Ordner (' + cPrivat + plus + ')</button>';
   }
   // Die einzelnen Ordner stehen jetzt im Ordnerregal (ordnerRegalHTML) statt als Chips
   // Wer hat gepr\u00fcft? Auswahl aufbauen (nur bei mehreren Personen sinnvoll)
@@ -19137,7 +19367,7 @@ function renderHistoryList() {
   let exportBar = '';
   if (HISTORY_FILTER !== 'alle' && HISTORY_FILTER !== 'ohne') {
     const f = ORDNER_LIST.find(function(o){ return o.id === HISTORY_FILTER; });
-    const cnt = HISTORY_ROWS.filter(function(r){ return r.ordner_id === HISTORY_FILTER; }).length;
+    const cnt = HISTORY_ROWS.filter(function(r){ return r.ordner_id === HISTORY_FILTER; }).length;   // Ordneransicht laedt vorher alles
     if (f && cnt > 0) {
       exportBar = '<div class="akte-export-bar"><button class="btn-action primary" onclick="akteDrucken(\'' + HISTORY_FILTER + '\')">'
         + '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 15h6M9 11h6"/></svg>'
@@ -19158,7 +19388,10 @@ function renderHistoryList() {
 
   const favPanel = (HISTORY_FILTER === '__fav') ? favUebersichtHtml() : '';
 
-  view.insertAdjacentHTML('beforeend', '<div id="histBody">' + uebersicht + ordnerRegalHTML(cByFolder) + filterBar + sternHinweis + favPanel + sortLeiste + exportBar + listHtml + '</div>');
+  // v12.46: seitenweises Laden
+  const mehrBox = HISTORY_VOLL ? '' : '<div class="hist-mehr" style="text-align:center;margin:16px 0 4px;">'
+    + '<button class="btn-action" onclick="historieMehrKlick(this)">Mehr laden (' + HISTORY_ROWS.length + ' von ' + (HISTORY_TOTAL || '?') + ' geladen)</button></div>';
+  view.insertAdjacentHTML('beforeend', '<div id="histBody">' + uebersicht + ordnerRegalHTML(cByFolder) + filterBar + sternHinweis + favPanel + sortLeiste + exportBar + listHtml + mehrBox + '</div>');
   HU_GEZEIGT = true;
   try { ordnerNavNachZeichnen(); } catch (e) {}
   sichtbarSicherstellen(view);
@@ -19328,6 +19561,7 @@ function renderOrdnerManage() {
   const einzel = !!(CURRENT_FIRMA && CURRENT_FIRMA.typ === 'einzel');
   const counts = {};
   HISTORY_ROWS.forEach(function(r){ if (r.ordner_id) counts[r.ordner_id] = (counts[r.ordner_id]||0)+1; });
+  if (!HISTORY_VOLL && HIST_ZAEHLER) Object.keys(HIST_ZAEHLER).forEach(function(k){ if (k !== '__ohne') counts[k] = HIST_ZAEHLER[k]; });
 
   const geteilte = ORDNER_LIST.filter(function(o){ return o.sichtbarkeit === 'oeffentlich'; });
   const private_ = ORDNER_LIST.filter(function(o){ return o.sichtbarkeit !== 'oeffentlich'; });
@@ -19975,9 +20209,18 @@ async function moveAnalyse(pruefId, val) {
 let AUS_HISTORIE = false;
 let CURRENT_REPORT = null;
 function openFromHistory(i) { AUS_HISTORIE = true; mitAusBlende(function () { _openFromHistory(i); }); }
-function _openFromHistory(i) {
+async function _openFromHistory(i) {
   const r = HISTORY_ROWS[i];
   if (!r || !r.report_json) return;
+  // v12.46: Liste ist schlank geladen - den vollen Bericht erst jetzt holen
+  if (r._slim) {
+    try { await ensureVolleAkte(r); }
+    catch (e) {
+      console.error('Akte laden:', e);
+      try { zeigeToast('Akte konnte nicht geladen werden', 'Bitte erneut versuchen.'); } catch (e2) {}
+      return;
+    }
+  }
   const d = r.report_json;
   // Ursprüngliche Prüf-ID / Datum / Datensatz-ID sichern
   if (!d.pruefId && r.pruef_id) d.pruefId = r.pruef_id;
@@ -20132,6 +20375,18 @@ async function sanktionenAbgleichen(d) {
 }
 
 function sanktionenAnzeigen(erg, anzahlNamen) {
+  // v12.46 (Befund 9): Frisches EU-Listen-Ergebnis mit Treffern -> Score/Stufe sofort deckeln und Bericht neu zeichnen
+  try {
+    if (erg && Array.isArray(erg.treffer) && erg.treffer.length && CURRENT_REPORT && CURRENT_REPORT._sanktionen === erg) {
+      const alt = CURRENT_REPORT.gesamtScore;
+      scoreBerechnen(CURRENT_REPORT);
+      if (CURRENT_REPORT.gesamtScore !== alt) {
+        const dd = CURRENT_REPORT;
+        setTimeout(function(){ try { if (CURRENT_REPORT === dd) showReport(dd, dd.firmenname, AUS_HISTORIE, true); } catch(e) { console.error(e); } }, 0);
+        return;     // der neue Bericht zeichnet die Sanktionskarte selbst
+      }
+    }
+  } catch (e) { console.error('Score-Deckel:', e); }
   const ziel = document.getElementById('sankBereich');
   if (!ziel) return;
   AKTE.sankFertig = !!(erg && erg.stand && erg.stand.eintraege);
@@ -20419,6 +20674,7 @@ function ordnerDruckStatus(gesamt) {
 async function _akteDrucken(folderId) {
   const folder = ORDNER_LIST.find(function(o){ return o.id === folderId; });
   if (!folder) { alert('Ordner nicht gefunden.'); return; }
+  try { await historieAlleLaden(); } catch (e) { alert('Akten konnten nicht vollst\u00e4ndig geladen werden. Bitte erneut versuchen.'); return; }   // v12.46: Ordner komplett
   const rows = HISTORY_ROWS.filter(function(r){ return r.ordner_id === folderId && r.report_json; });
   if (!rows.length) { alert('Dieser Ordner enth\u00e4lt keine Pr\u00fcfungen zum Exportieren.'); return; }
   const av = document.getElementById('akteView');
@@ -20432,7 +20688,7 @@ async function _akteDrucken(folderId) {
     const r = rows[i];
     status.setze(i, rows.length, (r.report_json && r.report_json.firmenname) || r.firmenname || '');
     try {
-      _openFromHistory(HISTORY_ROWS.indexOf(r));       // genau wie ein Klick in der Aktenliste
+      await _openFromHistory(HISTORY_ROWS.indexOf(r));       // genau wie ein Klick in der Aktenliste
       const fertig = await akteDruckBereit(r.id, 30000);
       if (ORDNER_DRUCK_ABBRUCH) break;
       abschnitte.push(ordnerAkteAbschnitt(r, fertig));
