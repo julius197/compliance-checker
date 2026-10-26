@@ -5607,6 +5607,7 @@
     .sank-k-gruen { background:var(--ok-bg,#ECFDF3); border-color:rgba(22,163,74,.3); }
     .sank-k-rot { background:var(--bad-bg,#FEF1F1); border-color:rgba(220,38,38,.35); }
     .sank-k-grau { background:var(--neutral,#F6F8F9); border-color:var(--border,#E2E6E9); }
+    .sank-k-gelb { background:var(--warn-bg,#FFF8EB); border-color:rgba(234,154,11,.4); }
     .sank-k-kopf { display:flex; align-items:center; gap:10px; margin-bottom:8px; }
     .sank-k-ico { width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center;
       font-size:14px; font-weight:800; flex-shrink:0;
@@ -5615,6 +5616,7 @@
     .sank-k-gruen .sank-k-ico { background:var(--ok-text,#15803D); color:#fff; }
     .sank-k-rot .sank-k-ico { background:var(--bad-text,#B42318); color:#fff; }
     .sank-k-grau .sank-k-ico { background:var(--gray-l,#8A949D); color:#fff; }
+    .sank-k-gelb .sank-k-ico { background:var(--warn-text,#A16207); color:#fff; }
     .sank-k-t { font-size:14.5px; font-weight:800; color:var(--ink,#111827); }
     .sank-k-d { font-size:12.5px; line-height:1.7; color:var(--gray,#5A6670); }
 
@@ -7048,7 +7050,7 @@
     <div class="header-right">
       <div class="version-pill"><span class="version-dot"></span>Compliance-Checker</div>
       <div class="header-badge" id="userEmail">§§ 10–17 GwG</div>
-      <span class="app-version" onclick="neuigkeitenZeigen()" title="Was ist neu?" style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v12.47</span>
+      <span class="app-version" onclick="neuigkeitenZeigen()" title="Was ist neu?" style="font-size:9px; color:var(--gray); opacity:0.55; font-weight:600; letter-spacing:0.05em; margin-left:2px;">v12.51</span>
       <div class="kontingent-pill" id="kontingentPill" style="display:none;" title="Verbrauchte Analysen diesen Monat">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
         <span id="kontingentText">–/–</span>
@@ -8505,7 +8507,8 @@ async function doAuth() {
       if (error) throw error;
       // Fuer den Fall, dass die Bestaetigung erst spaeter erfolgt
       try { if (vn || nn) localStorage.setItem('cc_name', JSON.stringify({ v: vn, n: nn })); } catch(e) {}
-      showAuthMsg('Fast geschafft! Bitte bestätige deine E-Mail über den Link den wir dir geschickt haben, dann kannst du dich anmelden.', 'success');
+      // v12.49 (Fix B, N15): neutraler Zusatz (keine Auswertung, ob die Adresse schon existiert)
+      showAuthMsg('Fast geschafft! Bitte bestätige deine E-Mail über den Link, den wir dir geschickt haben. Kommt keine Mail, ist die Adresse vielleicht schon registriert – dann melde dich an oder setze dein Passwort zurück.', 'success');
       btn.disabled = false;
     } else {
       const { data, error } = await sb.auth.signInWithPassword({ email, password });
@@ -8646,7 +8649,7 @@ function favUebersichtHtml() {
                 : (v === 'verbessert') ? '<span class="fav-marke fav-m-gruen">Verbessert</span>'
                 : (f.letzte_pruefung ? '<span class="fav-marke fav-m-grau">Unver\u00e4ndert</span>' : '<span class="fav-marke fav-m-grau">Erstpr\u00fcfung ausstehend</span>');
     const sc = (f.letzter_score != null) ? f.letzter_score : null;
-    const scFarbe = sc === null ? 'grau' : (sc >= 70 ? 'gruen' : (sc >= 45 ? 'gelb' : 'rot'));
+    const scFarbe = sc === null ? 'grau' : (sc >= 75 ? 'gruen' : (sc >= 50 ? 'gelb' : 'rot'));   // v12.50 (N1): Stufen 75/50
     return '<div class="fav-zeile" style="--fd:' + (0.05 + i * 0.07) + 's">'
       + '<div class="fav-haupt">'
       + '<div class="fav-name">' + escapeHtml(f.firmenname) + (parseInt(f.offene_meldungen,10) ? '<span class="fav-neu">neu</span>' : '') + '</div>'
@@ -9102,7 +9105,7 @@ async function neuBewertenKern() {
       if (gespeichert) {
         zeigeToast('Neu bewertet', 'Score: ' + alt + ' \u2192 ' + neu.gesamtScore + (diff ? ' (' + (diff > 0 ? '+' : '') + diff + ')' : '') + '. Fassung ' + neu._fassung + ' gespeichert.');
         neubewertungHinweise(r);
-        try { ladeHistorie(); } catch(e) {}
+        try { Promise.resolve(ladeHistorie()).catch(function(e){ console.warn('Historie neu laden:', e && e.message); }); } catch(e) {}   // v12.49 (Fix B, N10): .catch statt wirkungslosem try/catch
       } else {
         // Ehrlich bleiben: Bericht ist zu sehen, aber NICHT gesichert
         NEU_FEHLER = ('Der Bericht wurde neu bewertet und wird angezeigt \u2013 konnte aber NICHT gespeichert werden:\n\n'
@@ -9685,7 +9688,7 @@ function renderAudit() {
       return '<div class="audit-row" style="animation-delay:' + Math.min(idx * 40, 500) + 'ms">'
         + '<span class="audit-ic ' + cls + '"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">' + (icSvg[cls]||'') + '</svg></span>'
         + '<div class="audit-txt"><b>' + escapeHtml(a.akteur_email||'(unbekannt)') + '</b> hat ' + v + (a.ziel_text ? ': <b>' + escapeHtml(a.ziel_text) + '</b>' : '')
-          + (a._score != null ? ' <span class="audit-score audit-s-' + (a._score >= 70 ? 'gruen' : (a._score >= 45 ? 'gelb' : 'rot')) + '">Score ' + a._score + '</span>' : '')
+          + (a._score != null ? ' <span class="audit-score audit-s-' + (a._score >= 75 ? 'gruen' : (a._score >= 50 ? 'gelb' : 'rot')) + '">Score ' + a._score + '</span>' : '')   // v12.50 (N1): Stufen 75/50
           + (a.detail ? '<div class="audit-detail">' + escapeHtml(a.detail) + '</div>' : '') + '</div>'
         + '<span class="audit-time">' + when + '</span>'
         + '</div>';
@@ -12590,7 +12593,8 @@ const PLAENE = [
     features_en:['<b>1,000 analyses</b> per month','Full range of functions','All features included','Shared team quota','Email support'] }
   ];
 
-// Stripe-Zahlungslinks (TEST-Modus).
+// Stripe-Zahlungslinks (Live-Modus).
+// v12.49 (Fix B, N18): Kommentar korrigiert - die Links sind Live-Links, die Links selbst sind unveraendert.
 // >>> HIER DIE 4 NEUEN STRIPE-LINKS EINTRAGEN (Bronze / Silber / Gold / Platinum) <<<
 const STRIPE_LINKS = {
   bronze:   'https://buy.stripe.com/3cI00iaDDez95Hu6RN2sM01',
@@ -13228,7 +13232,7 @@ function firmenKern(n) {
 
 async function findeFruehereAnalyse(name) {
   if (!sb || !CURRENT_FIRMA) return null;
-  const kern = firmenKern(name);
+  const kern = firmenKern(translitLatein(name));   // v12.49 (Fix B, N16): auch kyrillische/griechische Namen
   if (kern.length < 3) return null;
   try {
     const { data } = await sb.from('analysen')
@@ -13237,7 +13241,11 @@ async function findeFruehereAnalyse(name) {
       .order('created_at', { ascending: false })
       .limit(60);
     if (!data || !data.length) return null;
-    const treffer = data.find(function(r){ return firmenKern(r.firmenname) === kern; });
+    // v12.49 (Fix B, N16): auch gegen den Originalnamen vergleichen (beide Seiten gleich transliteriert)
+    const treffer = data.find(function(r){
+      const orig = r.report_json && r.report_json.firmennameOriginal;
+      return firmenKern(translitLatein(r.firmenname)) === kern || (!!orig && firmenKern(translitLatein(String(orig))) === kern);
+    });
     return treffer || null;
   } catch (e) { return null; }
 }
@@ -13247,7 +13255,8 @@ function zeigeDuplikatHinweis(alt) {
   const datum = d.toLocaleDateString('de-DE', { day:'2-digit', month:'long', year:'numeric' });
   const tage = Math.max(0, Math.round((Date.now() - d.getTime()) / 86400000));
   const wieLange = tage === 0 ? 'heute' : (tage === 1 ? 'gestern' : 'vor ' + tage + ' Tagen');
-  const farbe = (alt.score >= 70) ? 'gruen' : (alt.score >= 45 ? 'gelb' : 'rot');
+  anzeigeDeckel(alt);   // v12.50 (N1): gedeckelter Score/Einstufung nur fuer die Anzeige (alt hat das volle report_json)
+  const farbe = (alt.score >= 75) ? 'gruen' : (alt.score >= 50 ? 'gelb' : 'rot');
   const box = document.createElement('div');
   box.id = 'dupGate';
   box.className = 'up-warn-back dup-back';
@@ -14858,15 +14867,16 @@ function scoreBerechnen(d) {
   if (phantomVerdacht) {
     const phantomScore = typeof d.phantom.score === 'number' ? d.phantom.score : 25;
     const deckel = Math.min(30, phantomScore);
-    d.gesamtScore = Math.min(d.gesamtScore || deckel, deckel);
+    d.gesamtScore = Math.min(d.gesamtScore != null ? d.gesamtScore : deckel, deckel);   // v12.49 (Fix B, N14): Score 0 ist ein Wert, kein leerer Zustand
   }
   // INSOLVENZ-DECKELUNG: Insolvenz ist ein K.O.-Kriterium (wie Phantom)
-  if (d.insolvenz && d.insolvenz.verdacht === true) d.gesamtScore = Math.min(d.gesamtScore || 25, 25);
+  if (d.insolvenz && d.insolvenz.verdacht === true) d.gesamtScore = Math.min(d.gesamtScore != null ? d.gesamtScore : 25, 25);   // v12.49 (Fix B, N14)
   // SANKTIONS-/PEP-DECKELUNG: Sanktions-Treffer = K.O. (max 30), PEP allein = weicher Deckel (max 60, nie grün)
   const sank = d.sanktion || {};
   const kiSanktion = sank.treffer === true && (sank.art === 'sanktion' || sank.art === 'beides');
   // v12.46 (Befund 9): Treffer der amtlichen EU-Sanktionsliste (d._sanktionen.treffer) deckeln genauso wie ein KI-Treffer
-  const euSanktion = !!(d._sanktionen && Array.isArray(d._sanktionen.treffer) && d._sanktionen.treffer.length > 0);
+  // v12.51 (N8): nur HARTE Treffer (Aehnlichkeit >= SANK_SCHWELLE_HART) deckeln den Score
+  const euSanktion = sankDeckelTreffer(d._sanktionen && d._sanktionen.treffer).length > 0;
   const sanktionTreffer = kiSanktion || euSanktion;
   const pepTreffer = sank.treffer === true && sank.art === 'pep';
   if (sanktionTreffer) {
@@ -14974,6 +14984,11 @@ async function startSearch(ignoriereDuplikat) {
   try {
     const nameEingabe = document.getElementById('nameInput').value.trim();
     if (!nameEingabe) { pflichtHinweis('nameInput', LANG === 'en' ? 'Please enter the company name.' : 'Bitte den Namen des Unternehmens eingeben.'); return; }
+    // v12.49 (Fix B, N16): Name 2-120 Zeichen (wie die API), sonst keine Pruefung
+    if (nameEingabe.length < 2 || nameEingabe.length > 120) {
+      pflichtHinweis('nameInput', LANG === 'en' ? 'The company name must be between 2 and 120 characters.' : 'Der Firmenname muss zwischen 2 und 120 Zeichen lang sein.');
+      return;
+    }
     const land = document.getElementById('landInput').value;
     if (!land) { pflichtHinweis('landInput', LANG === 'en' ? 'Please select the country.' : 'Bitte das Land ausw\u00e4hlen.'); return; }
     if (!kontingentVerfuegbar()) return;   // Monatslimit voll / Konto inaktiv -> Sperre + Upgrade-Hinweis
@@ -15026,7 +15041,8 @@ async function runAnalysis(name, ust, land, sitz, auswahl) {
     let searchName = name;
 
     // 1. Wenn USt-ID vorhanden: VIES-Prüfung für exakten Firmennamen
-    if (ust && ust.trim()) {
+    // v12.49 (Fix B, N16): VIES nur bei echter USt-ID - eine Steuernummer ("StNr: ...") geht nicht an VIES
+    if (ust && ust.trim() && !/^StNr:/i.test(ust.trim())) {
       setStep('USt-ID wird offiziell geprüft (VIES)…');
       try {
         const viesRes = await workerCall('vies', { vatId: ust.trim() });
@@ -15554,6 +15570,15 @@ function unerwarteterFehlerHinweis() {
 }
 window.addEventListener('unhandledrejection', function(ev) {
   try { console.error('Unbehandelter Promise-Fehler:', ev && ev.reason); } catch (e) {}
+  // v12.49 (Fix B, N10): kein Hinweis bei AbortError, normalen Netzfehlern und Supabase-Auth-Sperrfehlern (console.error bleibt)
+  try {
+    const grund = ev && ev.reason;
+    const nm = String((grund && grund.name) || '');
+    const tx = String((grund && grund.message) || (typeof grund === 'string' ? grund : '') || '');
+    if (nm === 'AbortError' || /AbortError/.test(tx)) return;
+    if (/NavigatorLock|LockManager|\block\b/i.test(nm + ' ' + tx)) return;
+    if (nm === 'TypeError' && /Failed to fetch|NetworkError|Load failed|network/i.test(tx)) return;
+  } catch (e) {}
   unerwarteterFehlerHinweis();
 });
 window.addEventListener('error', function(ev) {
@@ -15572,10 +15597,27 @@ window.addEventListener('error', function(ev) {
 // Bei kuenftigen Updates: NEU_VERSION hochzaehlen und NEUIGKEITEN ersetzen.
 // Kleine Korrekturen ohne neue Funktionen: NEU_VERSION unveraendert lassen.
 // ============================================================
-const NEU_VERSION = 'v12.47';           // Stand der Neuigkeiten - nur erhoehen, wenn es wirklich Neues gibt
-const APP_VERSION = 'v12.47';           // aktuelle Version (Anzeige im Bericht und oben im Kopf)
+const NEU_VERSION = 'v12.51';           // Stand der Neuigkeiten - nur erhoehen, wenn es wirklich Neues gibt
+const APP_VERSION = 'v12.51';           // aktuelle Version (Anzeige im Bericht und oben im Kopf)
+// v12.49 (Fix B, N18): Versionsanzeige im Kopf aus APP_VERSION fuellen (der Kopf steht vor diesem Skript im Dokument)
+try { document.querySelectorAll('.app-version').forEach(function(el){ el.textContent = APP_VERSION; }); } catch (e) {}
 const UPDATE_KURZ = 'Neu: Die Akten-Historie l\u00e4dt schneller, die API meldet St\u00f6rungen sauber und Fehler werden stabiler abgefangen.';
 const NEUIGKEITEN = [
+  // v12.51 (N8) – v12.51 (N8b): v, farbe, ico ergaenzt (Format wie N1)
+  { farbe: '#2E8749', v: 'v12.51', ico: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/>',
+    t: 'Sanktionsabgleich genauer',
+    kurz: 'Schwache Namensähnlichkeiten mit der EU-Sanktionsliste erscheinen jetzt gelb zur manuellen Prüfung statt rot.',
+    d: 'Nur eindeutige Treffer auf der EU-Sanktionsliste deckeln weiterhin den Score und erscheinen rot. Schwache Ähnlichkeiten – etwa bei sehr häufigen Namen – werden gelb mit „Manuell prüfen“ angezeigt, ohne Abzug im Score. Geprüft wird wie bisher gegen die vollständige Liste.' },
+  // v12.50 (N1): neuer Eintrag
+  { farbe: '#2E8749', v: 'v12.50', ico: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/>',
+    t: 'Score in der Akten-Übersicht',
+    kurz: 'Akten mit Treffer auf der EU-Sanktionsliste zeigen jetzt auch in Liste und Kennzahlen den gedeckelten Score.',
+    d: 'Auch ältere Akten mit Treffer auf der EU-Sanktionsliste erscheinen in „Akten & Ordner“, in den Kennzahlen und im Ordner-PDF mit dem gedeckelten Score und der Einstufung „Verstärkte Sorgfaltspflicht“ – genauso wie im Bericht. Die Farben der Kennzahlen, der Überwachung und der Aktivitäten folgen jetzt denselben Stufen wie der Bericht: grün ab 75, gelb ab 50. Gespeicherte Akten werden dabei nicht verändert.' },
+  // v12.49 (Fix B, N18): neuer Eintrag
+  { farbe: '#2E8749', v: 'v12.49', ico: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/>',
+    t: 'Ordner & Historie verbessert',
+    kurz: 'Doppelte Ordnernamen werden klar gemeldet, Links zu älteren Akten öffnen zuverlässig und neue Prüfungen zeigen bei EU-Sanktionstreffern auch in der Historie den gedeckelten Score.',
+    d: 'Legst du einen Ordner mit einem schon vergebenen Namen an, bekommst du eine verständliche Meldung. Links zu Akten, die weiter hinten in der Historie liegen, öffnen jetzt die richtige Akte. Bei neuen Prüfungen mit Treffer auf der EU-Sanktionsliste stehen Score und Einstufung in „Akten & Ordner“ genauso wie im Bericht. Die Historie bleibt bei kurzen Verbindungsproblemen schnell, und die Kennzahlen zeigen, über wie viele Akten sie gerechnet sind.' },
   { farbe: '#389650', v: 'v12.47', ico: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/>',
     t: 'Neues Logo',
     kurz: 'Der Compliance Checker hat ein eigenes Logo – im Tool, auf der Startseite, beim Login und als App-Symbol.',
@@ -18157,6 +18199,8 @@ function toastZielOeffnen(ziel) {
     if (ziel.analyse_id) {
       const idx = HISTORY_ROWS.findIndex(function(r){ return r.id === ziel.analyse_id; });
       if (idx >= 0) { openFromHistory(idx); return; }
+      // v12.49 (Fix B, N5): Historie ist schon (teilweise) geladen, die Akte liegt aber auf einer nicht geladenen Seite -> per id nachladen
+      if (HISTORY_ROWS.length) { akteNachladenUndOeffnen(ziel.analyse_id); return; }
       // Historie noch nicht geladen -> laden, dann oeffnen
       KYC_ZIEL_NACH_LADEN = ziel.analyse_id;
       openHistory();
@@ -18723,7 +18767,12 @@ function showReport(d, rawName, fromHistory, nichtSpeichern) {
   // ueber fassung_speichern gesichert - ein zweites Insert wuerde wegen der
   // gleichen Pruef-ID abgelehnt, eine NEUE Pruef-ID erzeugen und ein Duplikat
   // anlegen, das zusaetzlich das Kontingent belastet.
-  if (!fromHistory && !nichtSpeichern) saveAnalysisToHistory(d, rawName);
+  if (!fromHistory && !nichtSpeichern) {
+    // v12.49 (Fix B, N1): Promise der Speicherung in einer WeakMap merken (NICHT an d haengen - d wird als report_json gespeichert),
+    // damit der Sanktionsabgleich nach dem INSERT die Spalten score/verdict/verdict_text nachziehen kann
+    const speicherLauf = saveAnalysisToHistory(d, rawName);
+    try { SPEICHERN_LAEUFT.set(d, speicherLauf); } catch (e) {}
+  }
 }
 
 // ===== HISTORIE =====
@@ -18740,7 +18789,16 @@ let ORDNER_AUTO = true;                 // beim Start gewaehlt: "Automatisch (La
 const _LAENDER_ORDNER_LAEUFT = {};
 function laenderOrdnerFinden(land) {
   const l = String(land || '').trim().toLowerCase();
-  return (ORDNER_LIST || []).find(function(o){ return String(o.name || '').trim().toLowerCase() === l; }) || null;
+  const liste = ORDNER_LIST || [];
+  const gleich = function(o, n){ return String(o.name || '').trim().toLowerCase() === n; };
+  const direkt = liste.find(function(o){ return gleich(o, l); });
+  if (direkt) return direkt;
+  // v12.49 (Fix B, N3): ist "<Land>" fuer uns unsichtbar belegt (privater Ordner eines Kollegen), gibt es Ausweichnamen "<Land> (2)" .. "(5)"
+  for (let n = 2; n <= 5; n++) {
+    const alt = liste.find(function(o){ return gleich(o, l + ' (' + n + ')'); });
+    if (alt) return alt;
+  }
+  return null;
 }
 async function laenderOrdnerSichern(land) {
   land = String(land || '').trim();
@@ -18768,6 +18826,25 @@ async function laenderOrdnerSichern(land) {
         await ladeOrdner();
         x = laenderOrdnerFinden(land);
         if (x) return x.id;
+        // v12.49 (Fix B, N3): Name ist belegt, der Ordner aber fuer uns nicht sichtbar (privater Ordner eines Kollegen)
+        // -> "<Land> (2)" .. "(5)" versuchen. Der Fehlertext wird nie angezeigt, es wird kein fremder Ordnername verraten.
+        for (let n = 2; n <= 5; n++) {
+          const alt = await sb.from('ordner').insert({
+            firma_id: CURRENT_FIRMA.firma_id,
+            ersteller_id: CURRENT_USER_ID,
+            name: land + ' (' + n + ')',
+            farbe: '#22C55E',
+            sichtbarkeit: einzel ? 'privat' : 'oeffentlich'
+          }).select('id');
+          if (!alt.error) {
+            await ladeOrdner();
+            const y = laenderOrdnerFinden(land);
+            const id2 = (y && y.id) || (alt.data && alt.data[0] && alt.data[0].id) || null;
+            if (id2) return id2;
+            break;
+          }
+          if (!(alt.error.code === '23505' || /duplicate key|unique/i.test(alt.error.message || ''))) break;
+        }
       }
       throw error;
     }
@@ -18919,6 +18996,7 @@ async function _openHistory() {
       const ziel = KYC_ZIEL_NACH_LADEN; KYC_ZIEL_NACH_LADEN = null;
       const idx = HISTORY_ROWS.findIndex(function(r){ return r.id === ziel; });
       if (idx >= 0) setTimeout(function(){ openFromHistory(idx); }, 260);
+      else akteNachladenUndOeffnen(ziel);   // v12.49 (Fix B, N5): liegt ausserhalb der geladenen Seiten -> per id nachladen
     }
   } catch (e) {
     renderHistoryError((e && e.message) || 'Historie konnte nicht geladen werden.');
@@ -18936,13 +19014,79 @@ const HISTORIE_ZUSATZSPALTEN = ['standort', 'schritte', 'abgeschlossen_am', 'abg
 const HISTORIE_FEHLEND = {};
 const HIST_SEITE = 200;                 // Akten pro Seite
 const HIST_SLIM_SPALTEN = ['rj_firmenname:report_json->>firmenname', 'rj_orig:report_json->firmennameOriginal',
-  'rj_name:report_json->>_name', 'rj_email:report_json->>_email', 'rj_api:report_json->_api'];
+  'rj_name:report_json->>_name', 'rj_email:report_json->>_email', 'rj_api:report_json->_api',
+  // v12.50 (N1): Felder fuer den Anzeige-Deckel (EU-Treffer und KI-Sanktionstreffer); nur lesen, nie zurueckschreiben
+  'rj_sank:report_json->_sanktionen->treffer', 'rj_ki_treffer:report_json->sanktion->treffer',
+  'rj_ki_art:report_json->sanktion->>art', 'rj_ki_score:report_json->sanktion->score'];
 let HIST_SLIM = true;                   // false = Notfall-Rueckfall auf den vollen Bericht (altes Verhalten)
 let HISTORY_TOTAL = null;               // Gesamtzahl der Akten (aus dem ersten Seitenabruf)
 let HISTORY_VOLL = true;                // true = alle Akten sind geladen
 let HIST_OFFSET = 0;                    // so viele Akten wurden bisher seitenweise geladen
 let HIST_ZAEHLER = null;                // genaue Zaehler je Ordner, solange nicht alles geladen ist
 let HIST_SUCHE_TIMER = null;
+
+// v12.51 (N8): Schalter fuer die Einstufung der EU-Listen-Treffer (26.10.2026, Begruendung und Testmatrix: report_n8.md).
+// Aehnlichkeit (pg_trgm, 0-1) >= SANK_SCHWELLE_HART = HART: rot, Score-Deckel, API sanctions_review false.
+// Darunter bis zur Suchschwelle der RPC (p_schwelle 0.62, unveraendert) = SCHWACH: gelb "Manuell pruefen", kein Score-Deckel.
+// Aenderung nur hier: App (index.html) und Worker (worker.js) muessen WORTGLEICH denselben Wert tragen.
+// Treffer ohne lesbare Aehnlichkeit zaehlen als HART (sichere Seite).
+const SANK_SCHWELLE_HART = 0.70;
+function sankAehnlichkeit(x) {
+  if (!x || typeof x !== 'object') return null;
+  const e = (x.eintrag && typeof x.eintrag === 'object') ? x.eintrag : x;     // App: {gesucht, rolle, eintrag:{...}}, API: flach
+  const a = (e.aehnlichkeit !== undefined && e.aehnlichkeit !== null) ? e.aehnlichkeit : x.aehnlichkeit;
+  const n = (typeof a === 'number') ? a : ((typeof a === 'string' && a.trim() !== '') ? Number(a) : NaN);
+  return isFinite(n) ? n : null;
+}
+// v12.50 (N1): Helfer fuer Historie, Kennzahlen, Duplikat-Hinweis und Ordner-PDF; seit v12.51 (N8) liefert er nur noch HARTE Treffer.
+function sankDeckelTreffer(liste) {
+  return Array.isArray(liste) ? liste.filter(function(x){
+    if (!x) return false;
+    const a = sankAehnlichkeit(x);
+    return a === null || a >= SANK_SCHWELLE_HART;
+  }) : [];
+}
+
+// v12.50 (N1): Anzeige-Deckel. Regel wie scoreBerechnen (Sanktionsdeckel): EU-Treffer ODER KI-Sanktionstreffer (art sanktion/beides)
+// -> Deckel = min(30, KI-score) bei KI-Treffer mit Zahl, sonst 25. Reiner Rechner: keine Seiteneffekte, keine DB-Zugriffe.
+// slim (optional) = { sank, kiTreffer, kiArt, kiScore } aus der schlanken Abfrage; ohne slim wird report_json (rj) gelesen.
+function anzeigeDeckelWert(score, rj, slim) {
+  if (typeof score !== 'number' || isNaN(score)) return score;
+  rj = rj || {};
+  const euListe = slim ? slim.sank : (rj._sanktionen && rj._sanktionen.treffer);
+  const eu = sankDeckelTreffer(euListe).length > 0;
+  let kiTreffer, kiArt, kiScore;
+  if (slim) {
+    kiTreffer = slim.kiTreffer; kiArt = slim.kiArt; kiScore = slim.kiScore;
+  } else {
+    const s = rj.sanktion || {};
+    kiTreffer = s.treffer; kiArt = s.art; kiScore = s.score;
+  }
+  const ki = kiTreffer === true && (kiArt === 'sanktion' || kiArt === 'beides');
+  if (!eu && !ki) return score;
+  const sScore = (ki && typeof kiScore === 'number') ? kiScore : 25;
+  return Math.min(score, Math.min(30, sScore));
+}
+
+// v12.50 (N1): Zeile aus analysen -> gedeckelte Anzeige NUR im Speicher (score/verdict/verdict_text).
+// Die Originalwerte bleiben in _dbScore/_dbVerdict/_dbVerdictText; report_json und die Datenbank werden nicht veraendert.
+// Die schlanken Hilfsfelder rj_sank/rj_ki_* werden immer entfernt.
+function anzeigeDeckel(r) {
+  if (!r) return r;
+  let slim = null;
+  if ('rj_sank' in r || 'rj_ki_treffer' in r || 'rj_ki_art' in r || 'rj_ki_score' in r) {
+    slim = { sank: r.rj_sank, kiTreffer: r.rj_ki_treffer, kiArt: r.rj_ki_art, kiScore: r.rj_ki_score };
+  }
+  delete r.rj_sank; delete r.rj_ki_treffer; delete r.rj_ki_art; delete r.rj_ki_score;
+  const neuerScore = anzeigeDeckelWert(r.score, r.report_json, slim);
+  if (typeof neuerScore === 'number' && typeof r.score === 'number' && neuerScore < r.score) {
+    r._dbScore = r.score; r._dbVerdict = r.verdict; r._dbVerdictText = r.verdict_text;
+    r.score = neuerScore;
+    r.verdict = 'bad';                                        // Deckel ist immer <= 30 -> Stufe "bad"
+    r.verdict_text = t('v_bad', 'Verstärkte Sorgfaltspflicht');
+  }
+  return r;
+}
 
 // Schlanke Zeile -> Zeile mit kleinem report_json-Stub (_slim = Bericht noch nicht vollstaendig geladen)
 function historieZeileSlim(r) {
@@ -18969,7 +19113,7 @@ async function historieSeite(von, mitZaehler, filterFn) {
     if (filterFn) q = filterFn(q);
     q = q.order('created_at', { ascending: false }).order('id', { ascending: false }).range(von, von + HIST_SEITE - 1);
     const r = await q;
-    if (!r.error) return { rows: (r.data || []).map(historieZeileSlim), count: (typeof r.count === 'number') ? r.count : null };
+    if (!r.error) return { rows: (r.data || []).map(function(z){ return anzeigeDeckel(historieZeileSlim(z)); }), count: (typeof r.count === 'number') ? r.count : null };   // v12.50 (N1): gedeckelte Anzeige nur im Speicher
     const fehlt = fehlendeSpalte(r.error);
     if (fehlt && HISTORIE_ZUSATZSPALTEN.indexOf(fehlt) >= 0 && !HISTORIE_FEHLEND[fehlt]) {
       console.warn('Historie: Spalte "' + fehlt + '" fehlt noch (SQL einspielen) - wird ausgelassen.');
@@ -18982,7 +19126,10 @@ async function historieSeite(von, mitZaehler, filterFn) {
       HISTORIE_ZUSATZSPALTEN.forEach(function(x){ HISTORIE_FEHLEND[x] = true; });
       continue;
     }
-    if (HIST_SLIM) {
+    // v12.49 (Fix B, N4): Rueckfall auf den vollen Bericht NUR, wenn die schlanke Abfrage selbst abgelehnt wurde
+    // (Spalten-/JSON-Pfad-Fehler) und kein zusaetzlicher Filter (Suche, Einzelakte) aktiv ist.
+    // Netz-, Auth-, Timeout- und Filterfehler werden weitergereicht; HIST_SLIM bleibt true.
+    if (HIST_SLIM && !filterFn && historieSlimAbgelehnt(r.error)) {
       // Die schlanke Abfrage selbst wurde abgelehnt: einmalig auf das alte Verhalten (voller Bericht) zurueckfallen
       console.warn('Historie: schlanke Abfrage nicht moeglich - lade vollstaendig.', r.error && r.error.message);
       HIST_SLIM = false;
@@ -19049,14 +19196,31 @@ async function historieAlleLaden() {
 async function historieZaehlerLaden() {
   try {
     if (!sb) return;
-    const z = { __ohne: 0 };
-    const jobs = (ORDNER_LIST || []).map(function(o){
-      return sb.from('analysen').select('id', { count: 'exact', head: true }).eq('ordner_id', o.id)
-        .then(function(r){ if (!r.error && typeof r.count === 'number') z[o.id] = r.count; else throw new Error('zaehler'); });
-    });
-    jobs.push(sb.from('analysen').select('id', { count: 'exact', head: true }).is('ordner_id', null)
-      .then(function(r){ if (!r.error && typeof r.count === 'number') z.__ohne = r.count; else throw new Error('zaehler'); }));
-    await Promise.all(jobs);
+    // v12.49 (Fix B, N12): erst die RPC analysen_ordner_zaehler (eine Abfrage statt einer je Ordner); fehlt sie oder
+    // schlaegt sie fehl, gilt der bisherige Weg
+    let z = null;
+    try {
+      const rz = await sb.rpc('analysen_ordner_zaehler');
+      if (!rz.error && Array.isArray(rz.data)) {
+        z = { __ohne: 0 };
+        rz.data.forEach(function(x){
+          const n = Number(x && x.anzahl);
+          if (isNaN(n)) throw new Error('zaehler');
+          if (x.ordner_id) z[x.ordner_id] = n; else z.__ohne = n;
+        });
+        (ORDNER_LIST || []).forEach(function(o){ if (typeof z[o.id] !== 'number') z[o.id] = 0; });   // Ordner ohne Akten fehlen in der Antwort
+      }
+    } catch (e) { z = null; }
+    if (!z) {
+      z = { __ohne: 0 };
+      const jobs = (ORDNER_LIST || []).map(function(o){
+        return sb.from('analysen').select('id', { count: 'exact', head: true }).eq('ordner_id', o.id)
+          .then(function(r){ if (!r.error && typeof r.count === 'number') z[o.id] = r.count; else throw new Error('zaehler'); });
+      });
+      jobs.push(sb.from('analysen').select('id', { count: 'exact', head: true }).is('ordner_id', null)
+        .then(function(r){ if (!r.error && typeof r.count === 'number') z.__ohne = r.count; else throw new Error('zaehler'); }));
+      await Promise.all(jobs);
+    }
     HIST_ZAEHLER = z;
     if (document.getElementById('histBody')) renderHistoryList();
   } catch (e) { HIST_ZAEHLER = null; }          // dann zeigen die Zaehler "n+" (mindestens)
@@ -19080,13 +19244,23 @@ function historieServerSuche() {
       if (!begriffe.length) return;
       const teile = [];
       begriffe.forEach(function(t){
+        // v12.49 (Fix B, N13): report_json->>firmenname entfernt - die Spalte firmenname deckt ihn ab (und ist deutlich schneller)
         teile.push('firmenname.ilike.*' + t + '*');
-        teile.push('report_json->>firmenname.ilike.*' + t + '*');
         teile.push('report_json->>firmennameOriginal.ilike.*' + t + '*');
       });
       const s = await historieSeite(0, false, function(q){ return q.or(teile.join(',')); });
       if (historieZeilenMischen(s.rows) && document.getElementById('histBody')) renderHistoryList();
-    } catch (e) { console.warn('Serversuche:', e && e.message); }       // lokale Suche funktioniert trotzdem
+    } catch (e) {
+      console.warn('Serversuche:', e && e.message);       // lokale Suche funktioniert trotzdem
+      // v12.49 (Fix B, N13): einmal sichtbar machen, dass nur die geladenen Akten durchsucht wurden
+      try {
+        if (!HIST_SUCHE_HINWEIS) {
+          HIST_SUCHE_HINWEIS = true;
+          zeigeToast(LANG === 'en' ? 'Search limited' : 'Suche eingeschränkt',
+            LANG === 'en' ? 'Searching the loaded records only – please use “Load more”.' : 'Suche nur in den geladenen Akten – bitte „Mehr laden“ nutzen.');
+        }
+      } catch (e2) {}
+    }
   }, 350);
 }
 
@@ -19178,20 +19352,24 @@ function renderHistoryList() {
   const monatStart = new Date(jetzt.getFullYear(), jetzt.getMonth(), 1).getTime();
   const scores = HISTORY_ROWS.map(function(r){ return (r.score != null ? r.score : null); }).filter(function(s){ return s !== null; });
   const schnitt = scores.length ? Math.round(scores.reduce(function(a,b){ return a+b; }, 0) / scores.length) : null;
-  const nGruen = HISTORY_ROWS.filter(function(r){ return r.score >= 70; }).length;
-  const nGelb  = HISTORY_ROWS.filter(function(r){ return r.score >= 45 && r.score < 70; }).length;
-  const nRot   = HISTORY_ROWS.filter(function(r){ return r.score != null && r.score < 45; }).length;
+  // v12.50 (N1): Stufen wie Bericht und Listenzeile: gruen ab 75, gelb ab 50
+  const nGruen = HISTORY_ROWS.filter(function(r){ return r.score >= 75; }).length;
+  const nGelb  = HISTORY_ROWS.filter(function(r){ return r.score >= 50 && r.score < 75; }).length;
+  const nRot   = HISTORY_ROWS.filter(function(r){ return r.score != null && r.score < 50; }).length;
   const nMonat = HISTORY_ROWS.filter(function(r){ return new Date(r.created_at).getTime() >= monatStart; }).length;
   const gesamtBewertet = nGruen + nGelb + nRot;
   function anteil(n) { return gesamtBewertet ? Math.round(n / gesamtBewertet * 100) : 0; }
-  const schnittFarbe = schnitt === null ? 'grau' : (schnitt >= 70 ? 'gruen' : (schnitt >= 45 ? 'gelb' : 'rot'));
+  const schnittFarbe = schnitt === null ? 'grau' : (schnitt >= 75 ? 'gruen' : (schnitt >= 50 ? 'gelb' : 'rot'));
 
   const uebersicht = '<div class="hu-leiste' + (HU_GEZEIGT ? ' ruhig' : '') + '">'
     + '<div class="hu-karte"><div class="hu-wert">' + total + '</div><div class="hu-label">Akten gesamt</div></div>'
     + '<div class="hu-karte"><div class="hu-wert">' + nMonat + '</div><div class="hu-label">Diesen Monat</div></div>'
     + '<div class="hu-karte"><div class="hu-wert hu-' + schnittFarbe + '">' + (schnitt === null ? '\u2013' : schnitt) + '</div><div class="hu-label">\u00d8 Vertrauens-Score</div></div>'
     + '<div class="hu-karte hu-weit">'
-    + '<div class="hu-label" style="margin-bottom:8px;">Verteilung der Einstufungen</div>'
+    + '<div class="hu-label" style="margin-bottom:8px;">Verteilung der Einstufungen'
+    + (teilweise ? '<span style="display:block;font-weight:400;text-transform:none;letter-spacing:0;opacity:0.75;margin-top:2px;">'   // v12.49 (Fix B, N12)
+        + (LANG === 'en' ? 'based on the ' + HISTORY_ROWS.length + ' of ' + total + ' loaded records' : 'über die geladenen ' + HISTORY_ROWS.length + ' von ' + total + ' Akten') + '</span>' : '')
+    + '</div>'
     + '<div class="hu-balken">'
     + (nGruen ? '<span class="hu-teil hu-b-gruen" style="width:' + anteil(nGruen) + '%" title="Geringe Auff\u00e4lligkeiten: ' + nGruen + '"></span>' : '')
     + (nGelb  ? '<span class="hu-teil hu-b-gelb"  style="width:' + anteil(nGelb)  + '%" title="Erh\u00f6hte Sorgfaltspflicht: ' + nGelb + '"></span>' : '')
@@ -20113,6 +20291,45 @@ function neuGruppeUmschalten(id) {
 }
 function zugriffNeuZeichnen() { const z = document.getElementById('omZugriff'); if (z) z.innerHTML = zugriffWahlHTML(); }
 
+// v12.49 (Fix B, N1): merkt je FRISCH erstellter Akte das Speicher-Promise (Schluessel = Berichtsobjekt d).
+// Bewusst eine WeakMap: eine Eigenschaft an d wuerde mit report_json in die Datenbank geschrieben.
+const SPEICHERN_LAEUFT = new WeakMap();
+
+// v12.49 (Fix B, N2): verstaendliche Meldung, wenn der Ordnername schon vergeben ist (Unique-Index, Fix A); andere Fehler wie bisher
+function ordnerFehlerText(e) {
+  const m = (e && e.message) || '';
+  if (e && (e.code === '23505' || /duplicate key|unique/i.test(m))) {
+    return LANG === 'en' ? 'A folder with this name already exists.' : 'Ein Ordner mit diesem Namen existiert schon.';
+  }
+  return m;
+}
+
+// v12.49 (Fix B, N4): wurde die schlanke Historien-Abfrage selbst abgelehnt (Spalten-/JSON-Pfad-Fehler)? Netz-, Auth- und Timeout-Fehler: nein.
+function historieSlimAbgelehnt(err) {
+  const code = String((err && err.code) || '');
+  const msg = String((err && err.message) || '');
+  if (/^(42703|42883|PGRST100|PGRST200)$/.test(code)) return true;
+  return /column|json|operator|schema cache|does not exist/i.test(msg);
+}
+
+// v12.49 (Fix B, N5): Akte, die nicht in HISTORY_ROWS steht (ausserhalb der geladenen Seiten), per id nachladen und oeffnen
+async function akteNachladenUndOeffnen(analyseId) {
+  try {
+    let idx = HISTORY_ROWS.findIndex(function(r){ return r.id === analyseId; });
+    if (idx < 0) {
+      const s = await historieSeite(0, false, function(q){ return q.eq('id', analyseId); });
+      if (historieZeilenMischen(s.rows) && document.getElementById('histBody')) { try { renderHistoryList(); } catch (e) {} }
+      idx = HISTORY_ROWS.findIndex(function(r){ return r.id === analyseId; });
+    }
+    if (idx >= 0) { openFromHistory(idx); return true; }
+  } catch (e) { console.warn('Akte nachladen:', e && e.message); }
+  try { zeigeToast('Akte nicht gefunden', 'Die Akte ist nicht (mehr) verfügbar.'); } catch (e2) {}
+  return false;
+}
+
+// v12.49 (Fix B, N13): der Hinweis "Suche nur in den geladenen Akten" erscheint hoechstens einmal je Sitzung
+let HIST_SUCHE_HINWEIS = false;
+
 async function ordnerAnlegenVerwaltung() {
   const inp = document.getElementById('omNeuName');
   const name = (inp && inp.value || '').trim();
@@ -20152,10 +20369,11 @@ async function ordnerAnlegenVerwaltung() {
     try { await ladeFreigaben(); } catch (e) {}
     renderOrdnerManage();
     try { renderHistoryList(); } catch (e) {}
+    if (!HISTORY_VOLL) { try { historieZaehlerLaden(); } catch (e) {} }   // v12.49 (Fix B, N12): Ordner-Zaehler neu laden
     zeigeToast('Ordner angelegt', '\u201e' + name + '\u201c \u2013 ' + hinweis);
   } catch (e) {
     console.warn('Ordner anlegen (Verwaltung):', e && e.message);
-    zeigeToast('Ordner nicht angelegt', (e && e.message) || 'Bitte erneut versuchen.');
+    zeigeToast('Ordner nicht angelegt', ordnerFehlerText(e) || 'Bitte erneut versuchen.');   // v12.49 (Fix B, N2)
   } finally { if (btn) btn.disabled = false; }
 }
 
@@ -20170,7 +20388,7 @@ async function ordnerUmbenennen(id, name) {
     if (o) o.name = name;
     fuelleOrdnerSelect(); renderHistoryList(); renderOrdnerManage();
   } catch (e) {
-    alert('Umbenennen fehlgeschlagen: ' + ((e && e.message) || 'Fehler'));
+    alert('Umbenennen fehlgeschlagen: ' + (ordnerFehlerText(e) || 'Fehler'));   // v12.49 (Fix B, N2)
     renderOrdnerManage();
   }
 }
@@ -20198,6 +20416,7 @@ async function ordnerLoeschen(id) {
     if (HISTORY_FILTER === id) HISTORY_FILTER = 'alle';
     await ladeOrdner();
     renderHistoryList(); renderOrdnerManage();
+    if (!HISTORY_VOLL) { try { historieZaehlerLaden(); } catch (e) {} }   // v12.49 (Fix B, N12): Ordner-Zaehler neu laden
   } catch (e) {
     alert('Löschen fehlgeschlagen: ' + ((e && e.message) || 'Fehler'));
   }
@@ -20213,6 +20432,7 @@ async function moveAnalyse(pruefId, val) {
     const r = HISTORY_ROWS.find(function(x){ return x.pruef_id === pruefId; });
     if (r) r.ordner_id = ordnerId;
     renderHistoryList();
+    if (!HISTORY_VOLL) { try { historieZaehlerLaden(); } catch (e) {} }   // v12.49 (Fix B, N12): Ordner-Zaehler neu laden
     if (document.getElementById('ordnerManage') && document.getElementById('ordnerManage').style.display !== 'none') renderOrdnerManage();
   } catch (e) {
     alert('Verschieben fehlgeschlagen: ' + ((e && e.message) || 'Fehler'));
@@ -20383,8 +20603,29 @@ async function sanktionenAbgleichen(d) {
   // Befund dauerhaft im Bericht sichern
   try {
     if (d.pruef_id || d.pruefId) {
-      await sb.from('analysen').update({ report_json: d })
-        .eq('pruef_id', d.pruefId || d.pruef_id);
+      const speicherLauf = SPEICHERN_LAEUFT.get(d);
+      if (speicherLauf) {
+        // v12.49 (Fix B, N1): FRISCHE Akte dieser Sitzung - erst warten, bis der INSERT durch ist (sonst Nulltreffer),
+        // dann Deckel anwenden (auch wenn der Bericht inzwischen verlassen wurde) und Spalten + report_json EINMAL schreiben
+        try { await speicherLauf; } catch (e) {}
+        if (treffer.length) scoreBerechnen(d);
+        const werte = {
+          report_json: d,
+          score: (typeof d.gesamtScore === 'number' && !isNaN(d.gesamtScore)) ? Math.round(d.gesamtScore) : null,
+          verdict: d.verdict || null,
+          verdict_text: d.verdictText || null
+        };
+        let upd = sb.from('analysen').update(werte);
+        // Die Pruef-ID kann sich bei 23505 geaendert haben -> bevorzugt ueber die Datensatz-ID
+        upd = d._analyseId ? upd.eq('id', d._analyseId) : upd.eq('pruef_id', d.pruefId || d.pruef_id);
+        const res = await upd.select('id');
+        if (res && res.error) console.warn('Sanktionsabgleich: Akte nicht aktualisiert (' + (res.error.code || 'Fehler') + ').');
+        else if (!res || !res.data || !res.data.length) console.warn('Sanktionsabgleich: keine Akte aktualisiert (0 Treffer).');
+      } else {
+        // alte Akte (aus der Historie geoeffnet): wie bisher NUR report_json, keine Spalten
+        await sb.from('analysen').update({ report_json: d })
+          .eq('pruef_id', d.pruefId || d.pruef_id);
+      }
     }
   } catch (e) {}
 }
@@ -20420,7 +20661,14 @@ function sanktionenAnzeigen(erg, anzahlNamen) {
     return;
   }
 
-  const t = erg.treffer || [];
+  // v12.51 (N8): harte Treffer (rot, Score-Deckel) und schwache Treffer (gelb, manuell pruefen) trennen
+  const alleTreffer = erg.treffer || [];
+  const t = sankDeckelTreffer(alleTreffer);
+  const tSchwach = alleTreffer.filter(function(x){ return x && t.indexOf(x) < 0; });
+  if (tSchwach.length && !t.length) {
+    ziel.innerHTML = sankGelbKarte(erg, anzahlNamen, standTxt, tSchwach, false);
+    return;
+  }
   const geprueftListe = Array.isArray(erg.namen) && erg.namen.length
     ? '<div class="sank-namen"><span class="sank-namen-t">Gepr\u00fcft:</span> ' + erg.namen.map(function(n){
         return '<span class="sank-name">' + escapeHtml(n.name) + ' <em>(' + escapeHtml(n.rolle) + ')</em></span>'; }).join('') + '</div>'
@@ -20467,6 +20715,7 @@ function sanktionenAnzeigen(erg, anzahlNamen) {
     + 'Listenstand ' + (standTxt || 'unbekannt') + '.</div>'
     + geprueftListe + nachHinweis
     + '<div class="sank-treffer-liste">' + zeilen + '</div>'
+    + sankSchwachAbschnitt(tSchwach)
     + sankRechtstexte()
     + '</div>';
 }
@@ -20477,7 +20726,11 @@ function sanktionenAkteHtml(d) {
   const s = d && d._sanktionen;
   if (!s || !s.stand || !s.stand.eintraege) return '';
   const standTxt = s.stand.stand ? new Date(s.stand.stand).toLocaleDateString('de-DE') : 'unbekannt';
-  const t = s.treffer || [];
+  // v12.51 (N8): wie sanktionenAnzeigen - harte und schwache Treffer trennen
+  const alleTreffer = s.treffer || [];
+  const t = sankDeckelTreffer(alleTreffer);
+  const tSchwach = alleTreffer.filter(function(x){ return x && t.indexOf(x) < 0; });
+  if (tSchwach.length && !t.length) return '<div class="sank-bereich">' + sankGelbKarte(s, s.geprueft || 0, standTxt, tSchwach, true) + '</div>';
 
   if (!t.length) {
     return '<div class="sank-bereich"><div class="sank-karte sank-k-gruen">'
@@ -20508,7 +20761,61 @@ function sanktionenAkteHtml(d) {
     + '<span class="sank-k-t">' + t.length + ' m\u00f6gliche Treffer in der EU-Sanktionsliste</span></div>'
     + '<div class="sank-k-d">Listenstand ' + standTxt + '.</div>'
     + '<div class="sank-treffer-liste">' + zeilen + '</div>'
+    + sankSchwachAbschnitt(tSchwach)
     + sankRechtstexte() + '</div></div>';
+}
+
+// v12.51 (N8): Bausteine fuer SCHWACHE EU-Listen-Treffer (gelb, "Manuell prüfen", kein Score-Abzug).
+// Abgrenzung: Die graue Karte "Sanktionslisten-Abgleich nicht verfügbar" (Fehlerfall, Nr. 5) bleibt eine eigene Karte.
+function sankTrefferZeileEinfach(x) {
+  const e = (x && x.eintrag && typeof x.eintrag === 'object') ? x.eintrag : (x || {});
+  const a = sankAehnlichkeit(x);
+  const teile = [];
+  if (e.typ) teile.push(e.typ === 'person' ? 'Person' : 'Organisation');
+  if (e.staat) teile.push(escapeHtml(e.staat));
+  if (e.geburtsdatum) teile.push('geb. ' + escapeHtml(e.geburtsdatum));
+  if (e.programm) teile.push(escapeHtml(e.programm));
+  return '<div class="sank-treffer" style="border-color:rgba(234,154,11,.4)">'
+    + '<div class="sank-tr-kopf"><span class="sank-tr-name">' + escapeHtml(e.name || e.listen_name || '') + '</span>'
+    + '<span class="sank-tr-quote">' + (a === null ? 'Ähnlichkeit unbekannt' : Math.round(a * 100) + '% Ähnlichkeit') + '</span></div>'
+    + '<div class="sank-tr-meta">' + teile.join(' · ') + '</div>'
+    + '<div class="sank-tr-gesucht">Gesucht wurde: <b>' + escapeHtml((x && x.gesucht) || '') + '</b> (' + escapeHtml((x && x.rolle) || '') + ')</div>'
+    + '</div>';
+}
+function sankSchwachTitel(n) {
+  return 'Manuell prüfen – ' + n + (n === 1 ? ' schwache Ähnlichkeit' : ' schwache Ähnlichkeiten') + ' in der EU-Sanktionsliste';
+}
+function sankSchwachText() {
+  return 'Diese Namen ähneln einem Listeneintrag nur schwach (unter ' + Math.round(SANK_SCHWELLE_HART * 100) + ' % Ähnlichkeit). Kein Score-Abzug. Bitte prüfen Sie manuell, ob es sich um dieselbe Person bzw. Organisation handelt.';
+}
+// gelber Abschnitt innerhalb der roten Karte (harte UND schwache Treffer)
+function sankSchwachAbschnitt(liste) {
+  if (!Array.isArray(liste) || !liste.length) return '';
+  return '<div class="sank-karte sank-k-gelb" style="margin-top:14px">'
+    + '<div class="sank-k-kopf"><span class="sank-k-ico">!</span><span class="sank-k-t">' + sankSchwachTitel(liste.length) + '</span></div>'
+    + '<div class="sank-k-d">' + sankSchwachText() + '</div>'
+    + '<div class="sank-treffer-liste">' + liste.map(function(x){ return sankTrefferZeileEinfach(x); }).join('') + '</div>'
+    + '</div>';
+}
+// gelbe Karte, wenn es NUR schwache Treffer gibt (Bildschirm: pdf=false, Akte/PDF: pdf=true); Rechtstexte wie bei Rot/Gruen
+function sankGelbKarte(erg, anzahlNamen, standTxt, liste, pdf) {
+  const n = Array.isArray(liste) ? liste.length : 0;
+  let namenListe = '', nachHinweis = '';
+  if (!pdf && erg) {
+    if (Array.isArray(erg.namen) && erg.namen.length) {
+      namenListe = '<div class="sank-namen"><span class="sank-namen-t">Geprüft:</span> ' + erg.namen.map(function(nm){
+        return '<span class="sank-name">' + escapeHtml(nm.name) + ' <em>(' + escapeHtml(nm.rolle) + ')</em></span>'; }).join('') + '</div>';
+    }
+    if (erg.nichtGespeichert) nachHinweis = '<div class="sank-nach">Nachprüfung beim Öffnen am ' + new Date(erg.am).toLocaleDateString('de-DE') + ' – nicht Teil des Abschlussstands dieser Akte.</div>';
+    else if (erg.nachpruefung) nachHinweis = '<div class="sank-nach">Personen nachträglich abgeglichen am ' + new Date(erg.am).toLocaleDateString('de-DE') + '.</div>';
+  }
+  return '<div class="sank-karte sank-k-gelb">'
+    + '<div class="sank-k-kopf"><span class="sank-k-ico">!</span><span class="sank-k-t">' + sankSchwachTitel(n) + '</span></div>'
+    + '<div class="sank-k-d">' + (anzahlNamen ? 'Beim Abgleich von ' + anzahlNamen + ' Namen wurden nur schwache Namensähnlichkeiten festgestellt. ' : '')
+    + sankSchwachText() + ' Listenstand ' + (standTxt || 'unbekannt') + '.</div>'
+    + namenListe + nachHinweis
+    + '<div class="sank-treffer-liste">' + (liste || []).map(function(x){ return sankTrefferZeileEinfach(x); }).join('') + '</div>'
+    + sankRechtstexte() + '</div>';
 }
 
 function sankRechtstexte() {
@@ -20720,7 +21027,8 @@ async function _akteDrucken(folderId) {
   const firma = (CURRENT_FIRMA && CURRENT_FIRMA.firma_name) ? CURRENT_FIRMA.firma_name : '';
   const toc = rows.map(function(r, i){
     const d = r.report_json || {};
-    const sc = (typeof d.gesamtScore === 'number') ? d.gesamtScore : (typeof r.score === 'number' ? r.score : null);
+    const sc0 = (typeof d.gesamtScore === 'number') ? d.gesamtScore : (typeof r.score === 'number' ? r.score : null);
+    const sc = anzeigeDeckelWert(sc0, d, null);   // v12.50 (N1): gedeckelter Wert im Inhaltsverzeichnis
     return '<div class="akte-toc-row"><span>' + (i+1) + '. ' + escapeHtml(nameAnzeige(d.firmenname || r.firmenname, d.firmennameOriginal).haupt || '\u2014')
       + ' <em class="akte-toc-st ' + (r.abgeschlossen_am ? 'zu' : 'offen') + '">' + (r.abgeschlossen_am ? 'abgeschlossen' : 'offen') + '</em></span>'
       + '<span class="akte-toc-id">' + escapeHtml(d.pruefId || r.pruef_id || '') + '</span>'
