@@ -8140,19 +8140,12 @@ async function chatSenden() {
   };
   const chatGesamt = chatCtrl ? setTimeout(function(){ chatCtrl.abort(); }, 120000) : null;
   try {
-    const res = await fetch(WORKER, {
-      method: 'POST',
-      signal: chatCtrl ? chatCtrl.signal : undefined,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        action: 'support_chat',
-        payload: {
-          // Nur Rolle und Text weitergeben - sonst nichts
-          verlauf: CHAT_VERLAUF.slice(-10).map(function(m){ return { role: m.role, content: m.content }; }),
-          sprache: (typeof LANG !== 'undefined' ? LANG : 'de')
-        }
-      })
-    });
+    // S2 (26.10.2026, Befund 2): ueber workerFetch (mit Anmelde-Nachweis, falls angemeldet)
+    const res = await workerFetch('support_chat', {
+      // Nur Rolle und Text weitergeben - sonst nichts
+      verlauf: CHAT_VERLAUF.slice(-10).map(function(m){ return { role: m.role, content: m.content }; }),
+      sprache: (typeof LANG !== 'undefined' ? LANG : 'de')
+    }, { signal: chatCtrl ? chatCtrl.signal : undefined });
 
     const art = res.headers.get('content-type') || '';
     if (!res.ok || art.indexOf('application/json') >= 0 || !res.body) {
@@ -13943,6 +13936,28 @@ let WORKER_STILL_MS = 45000;
 // (gruendliche Recherche, z. B. Firmen im Ausland) - und warf dann die fast fertige Pruefung weg.
 let WORKER_LIMIT_ANALYSE = 900000;
 let WORKER_LIMIT = 90000;
+// S2 (26.10.2026, Befund 2): EINE zentrale Stelle fuer alle Aufrufe an den Worker. Sie schickt IMMER den Anmelde-Nachweis
+// (Authorization: Bearer <access_token>), sobald eine Sitzung besteht, und auf der API-PDF-Seite zusaetzlich das Render-Token
+// (render_token). Ohne Sitzung (sb kann null sein) oder bei einem Fehler wird still ohne Anmelde-Nachweis gesendet.
+// Gibt die rohe Response zurueck; opt.signal wird durchgereicht.
+async function workerFetch(action, payload, opt) {
+  const kopf = { 'Content-Type': 'application/json' };
+  try {
+    if (typeof sb !== 'undefined' && sb && sb.auth) {
+      const sess = (await sb.auth.getSession()).data.session;
+      if (sess && sess.access_token) kopf['Authorization'] = 'Bearer ' + sess.access_token;
+    }
+  } catch (e) {}
+  const koerper = { action: action, payload: payload };
+  try { if (typeof API_PDF_TOKEN !== 'undefined' && API_PDF_TOKEN) koerper.render_token = API_PDF_TOKEN; } catch (e) {}
+  return fetch(WORKER, {
+    method: 'POST',
+    headers: kopf,
+    body: JSON.stringify(koerper),
+    signal: (opt && opt.signal) ? opt.signal : undefined
+  });
+}
+
 async function workerCall(action, payload, versuch) {
   const v = versuch || 0;
   // Teure, lange Aktionen hoechstens EINMAL wiederholen (jede Wiederholung = komplett neue Pruefung)
@@ -13964,23 +13979,8 @@ async function workerCall(action, payload, versuch) {
   };
   const aufraeumen = function(){ if (timer) clearTimeout(timer); if (still) clearTimeout(still); };
   try {
-    const kopf = { 'Content-Type': 'application/json' };
-    // Anmelde-Nachweis NUR bei internen Aktionen mitschicken.
-    // Ein zusaetzlicher Header loest eine Vorab-Anfrage aus - waere er
-    // serverseitig nicht erlaubt, wuerden sonst ALLE Aufrufe scheitern.
-    if (action === 'sanktionen_laden' || action === 'monitoring_lauf' || action === 'support_aktion'
-        || action === 'bilder_nachladen' || action === 'google_diagnose') {
-      try {
-        const sess = (await sb.auth.getSession()).data.session;
-        if (sess && sess.access_token) kopf['Authorization'] = 'Bearer ' + sess.access_token;
-      } catch (e) {}
-    }
-    const res = await fetch(WORKER, {
-      method: 'POST',
-      headers: kopf,
-      body: JSON.stringify({ action, payload }),
-      signal: ctrl ? ctrl.signal : undefined
-    });
+    // S2 (26.10.2026, Befund 2): Anmelde-Nachweis (und auf der API-PDF-Seite das Render-Token) schickt jetzt workerFetch fuer ALLE Aktionen
+    const res = await workerFetch(action, payload, { signal: ctrl ? ctrl.signal : undefined });
 
     // Server voruebergehend nicht bereit -> erneut versuchen
     if (!res.ok && (res.status === 429 || res.status >= 500) && v < MAX) {
@@ -15499,8 +15499,8 @@ async function karteLaden(ev) {
   const payload = mitKoord ? { lat: Number(ev.lat), lng: Number(ev.lng) } : { adresse: ev.address || '' };
   let fehler = null;
   try {
-    const res = await fetch(WORKER, { method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'karte', payload: payload }) });
+    // S2 (26.10.2026, Befund 2): ueber workerFetch (mit Anmelde-Nachweis, falls angemeldet)
+    const res = await workerFetch('karte', payload);
     const typ = (res.headers && res.headers.get('content-type')) || '';
     if (res.ok && typ.indexOf('image') === 0) {
       const url = URL.createObjectURL(await res.blob());
@@ -17331,10 +17331,8 @@ function bildGrundText(f) {
 async function fotoLaden(foto) {
   if (BILD_CACHE[foto.name]) return { url: BILD_CACHE[foto.name] };
   try {
-    const res = await fetch(WORKER, {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'place_photo', payload: { photoName: foto.name, maxWidth: 800 } })
-    });
+    // S2 (26.10.2026, Befund 2): ueber workerFetch (mit Anmelde-Nachweis, falls angemeldet)
+    const res = await workerFetch('place_photo', { photoName: foto.name, maxWidth: 800 });
     const typ = (res.headers && res.headers.get('content-type')) || '';
     if (res.ok && typ.indexOf('image') === 0) {
       const url = URL.createObjectURL(await res.blob());
@@ -17499,10 +17497,8 @@ async function loadEvidenceImage(ev) {
   const gesperrt = !!(stand.fehler && /abrechnung|schluessel|api_aus|zugriff/.test(stand.fehler.grund || ''));
   if (ev.address && !gesperrt) {
     try {
-      const res = await fetch(WORKER, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'street_view', payload: { address: ev.address } })
-      });
+      // S2 (26.10.2026, Befund 2): ueber workerFetch (mit Anmelde-Nachweis, falls angemeldet)
+      const res = await workerFetch('street_view', { address: ev.address });
       const typ = (res.headers && res.headers.get('content-type')) || '';
       if (res.ok && typ.indexOf('image') === 0) {
         const url = URL.createObjectURL(await res.blob());
