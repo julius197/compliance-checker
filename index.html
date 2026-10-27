@@ -11182,9 +11182,9 @@ async function einlWiderrufen(id) {
 async function teamAktion(aktion, userId) {
   if (!sb || !userId) return;
   let rpc, frage;
-  if (aktion === 'befoerdern') { rpc = 'mitglied_befoerdern'; frage = 'Dieses Mitglied wirklich zum Host befördern?'; }
-  else if (aktion === 'degradieren') { rpc = 'mitglied_degradieren'; frage = 'Diesen Host wirklich zum normalen Mitarbeiter zurückstufen?'; }
-  else if (aktion === 'entfernen') { rpc = 'mitglied_entfernen'; frage = 'Dieses Mitglied wirklich aus der Firma entfernen?\n\nSeine bisherigen Prüfungen bleiben erhalten.'; }
+  // v12.52 (K27-05) Zweige Befördern/Degradieren entfernt: die zugehörigen Datenbank-Funktionen sind seit S6 nur noch für service_role aufrufbar
+  // (Rang ändern läuft über rangAendern)
+  /* v12.52 (K27-05) */ if (aktion === 'entfernen') { rpc = 'mitglied_entfernen'; frage = 'Dieses Mitglied wirklich aus der Firma entfernen?\n\nSeine bisherigen Prüfungen bleiben erhalten.'; }
   else return;
   if (frage && !(await frageDialog({ titel: frage.split('\n')[0], text: frage.split('\n').slice(1).join('\n').trim(), ok: aktion === 'entfernen' ? 'Entfernen' : (aktion === 'befoerdern' ? 'Bef\u00f6rdern' : 'Zur\u00fcckstufen'), gefahr: aktion === 'entfernen' }))) return;
   try {
@@ -14028,6 +14028,8 @@ async function workerCall(action, payload, versuch) {
 function friendlyError(msg) {
   const m = ((msg || '') + '').toLowerCase();
   if (!m) return 'Die Analyse konnte nicht abgeschlossen werden. Bitte versuche es erneut.';
+  if (m.includes('abo_aktiv')) return 'Dein Abo ist noch aktiv. Bitte kündige es zuerst oder kontaktiere den Support, dann kannst du dein Konto löschen.';   // v12.52 (K27-01)
+  if (m.includes('abo_pruefung_nicht_moeglich')) return 'Dein Abo-Status konnte gerade nicht geprüft werden. Dein Konto wurde nicht gelöscht. Bitte versuche es später erneut.';   // v12.52 (K27-01)
   if (m.includes('auslastung') || m.includes('rate_limit') || m.includes('overloaded') || m.includes('529'))
     return 'Der Analyse-Dienst ist gerade stark ausgelastet. Bitte in ein bis zwei Minuten erneut versuchen \u2013 deine Analysen bleiben erhalten.';
   if (m.includes('zeit:'))                                   // v12.42: Worker hat die Recherche nach 12 Min. sauber beendet
@@ -14042,6 +14044,7 @@ function friendlyError(msg) {
     return 'Die Anfrage hat zu lange gedauert. Bitte versuche es erneut.';
   if (m.includes('overloaded') || m.includes('rate') || m.includes('429') || m.includes('ausgelastet') || m.includes('529'))
     return 'Der Analyse-Dienst ist gerade stark ausgelastet. Bitte versuche es in einem Moment erneut.';
+  if (m.includes('konto nicht aktiv') || m.includes('konto_inaktiv')) return 'Dein Konto ist noch nicht aktiviert. Bitte Zugangscode einlösen oder Paket wählen.';   // v12.52 (K27-04)
   if (m.includes('quota') || m.includes('kontingent') || (m.includes('limit') && !m.includes('rate')))
     return 'Dein Analyse-Kontingent ist aufgebraucht. Bitte wähle ein größeres Paket.';
   if (m.includes('500') || m.includes('502') || m.includes('503') || m.includes('server'))
@@ -14597,7 +14600,8 @@ async function kontoLoeschenFinal() {
     await sb.auth.signOut();
     setTimeout(function () { showAuthMsg('Dein Konto wurde gelöscht. Du kannst dich jederzeit neu registrieren.', 'ok'); }, 250);
   } catch (e) {
-    kontoMsgShow('Löschen fehlgeschlagen: ' + (e && e.message ? e.message : e), 'error');
+    if (e && /abo_aktiv|abo_pruefung_nicht_moeglich/.test(String(e.message || ''))) kontoMsgShow(friendlyError(e.message), 'error');   // v12.52 (K27-01)
+    else kontoMsgShow('Löschen fehlgeschlagen: ' + (e && e.message ? e.message : e), 'error');
     if (btn) { btn.disabled = false; btn.textContent = 'Ja, endgültig löschen'; }
   }
 }
@@ -15598,7 +15602,7 @@ window.addEventListener('error', function(ev) {
 // Kleine Korrekturen ohne neue Funktionen: NEU_VERSION unveraendert lassen.
 // ============================================================
 const NEU_VERSION = 'v12.51';           // Stand der Neuigkeiten - nur erhoehen, wenn es wirklich Neues gibt
-const APP_VERSION = 'v12.51';           // aktuelle Version (Anzeige im Bericht und oben im Kopf)
+const APP_VERSION = 'v12.52'; /* v12.52 (K26/K27) */           // aktuelle Version (Anzeige im Bericht und oben im Kopf)
 // v12.49 (Fix B, N18): Versionsanzeige im Kopf aus APP_VERSION fuellen (der Kopf steht vor diesem Skript im Dokument)
 try { document.querySelectorAll('.app-version').forEach(function(el){ el.textContent = APP_VERSION; }); } catch (e) {}
 const UPDATE_KURZ = 'Neu: Die Akten-Historie l\u00e4dt schneller, die API meldet St\u00f6rungen sauber und Fehler werden stabiler abgefangen.';
@@ -20512,7 +20516,7 @@ function sankNameTeile(text) {
     .split(/[,;\n\/]|\s+und\s+|\s+and\s+/)
     .map(function(t){
       return t.replace(/^\s*[A-Za-z\u00c4\u00d6\u00dc\u00e4\u00f6\u00fc\u00df ]{2,30}:\s*/, '')          // "Geschaeftsfuehrer: ..."
-        .replace(/\b(Herr|Frau|Dr\.|Prof\.|Dipl\.-\w+|Mr\.?|Mrs\.?|Ms\.?)\s*/gi, '')
+        .replace(/\b(?:Dipl\.-\w+\.?|(?:Herr|Frau|Mrs|Mr|Ms|Dr|Prof)\b\.?)\s+/gi, '')   // v12.52 (K26-01)
         .replace(/\s+/g, ' ').trim();
     })
     .filter(function(n){
