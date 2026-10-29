@@ -9675,7 +9675,7 @@ function renderAudit() {
   } else {
     listHtml = '<div class="audit-list">' + alleAktivitaeten.map(function(a, idx){
       const cls = icCls[a.aktion] || 'down';
-      const v = verb[a.aktion] || a.aktion;
+      const v = escapeHtml(verb[a.aktion] || a.aktion);   // K29-10
       const dt = a.created_at ? new Date(a.created_at) : null;
       const when = dt ? (dt.toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric'}) + ' · ' + dt.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'})) : '';
       return '<div class="audit-row" style="animation-delay:' + Math.min(idx * 40, 500) + 'ms">'
@@ -14044,6 +14044,7 @@ function friendlyError(msg) {
     return 'Die Anfrage hat zu lange gedauert. Bitte versuche es erneut.';
   if (m.includes('overloaded') || m.includes('rate') || m.includes('429') || m.includes('ausgelastet') || m.includes('529'))
     return 'Der Analyse-Dienst ist gerade stark ausgelastet. Bitte versuche es in einem Moment erneut.';
+  if (m.includes('eingabe:')) return 'Die Eingabe ist ung\u00fcltig oder zu lang. Bitte k\u00fcrzen oder korrigieren und erneut versuchen.';   // K29-09
   if (m.includes('konto nicht aktiv') || m.includes('konto_inaktiv')) return 'Dein Konto ist noch nicht aktiviert. Bitte Zugangscode einlösen oder Paket wählen.';   // v12.52 (K27-04)
   if (m.includes('quota') || m.includes('kontingent') || (m.includes('limit') && !m.includes('rate')))
     return 'Dein Analyse-Kontingent ist aufgebraucht. Bitte wähle ein größeres Paket.';
@@ -15602,7 +15603,7 @@ window.addEventListener('error', function(ev) {
 // Kleine Korrekturen ohne neue Funktionen: NEU_VERSION unveraendert lassen.
 // ============================================================
 const NEU_VERSION = 'v12.51';           // Stand der Neuigkeiten - nur erhoehen, wenn es wirklich Neues gibt
-const APP_VERSION = 'v12.52'; /* v12.52 (K26/K27) */           // aktuelle Version (Anzeige im Bericht und oben im Kopf)
+const APP_VERSION = 'v12.55'; /* v12.55 (K29) */           // aktuelle Version (Anzeige im Bericht und oben im Kopf)
 // v12.49 (Fix B, N18): Versionsanzeige im Kopf aus APP_VERSION fuellen (der Kopf steht vor diesem Skript im Dokument)
 try { document.querySelectorAll('.app-version').forEach(function(el){ el.textContent = APP_VERSION; }); } catch (e) {}
 const UPDATE_KURZ = 'Neu: Die Akten-Historie l\u00e4dt schneller, die API meldet St\u00f6rungen sauber und Fehler werden stabiler abgefangen.';
@@ -20516,7 +20517,7 @@ function sankNameTeile(text) {
     .split(/[,;\n\/]|\s+und\s+|\s+and\s+/)
     .map(function(t){
       return t.replace(/^\s*[A-Za-z\u00c4\u00d6\u00dc\u00e4\u00f6\u00fc\u00df ]{2,30}:\s*/, '')          // "Geschaeftsfuehrer: ..."
-        .replace(/\b(?:Dipl\.-\w+\.?|(?:Herr|Frau|Mrs|Mr|Ms|Dr|Prof)\b\.?)\s+/gi, '')   // v12.52 (K26-01)
+        .replace(/\b(?:Dipl\.-\w+\.?|Dr\.?\s*-\s*Ing\.?|Dr\.?\s*h\.\s?c\.?(?:\s*mult\.?)?|Dr\.?\s*med\.?|(?:Herrn|Herr|Frau|Hr|Fr|Mrs|Mr|Ms|Dr|Prof)\b\.?)\s+/gi, '')   // K29-14
         .replace(/\s+/g, ' ').trim();
     })
     .filter(function(n){
