@@ -14517,27 +14517,61 @@ async function exportiereDaten() {
   const btn = document.getElementById('exportBtn');
   if (btn) { btn.disabled = true; btn.textContent = 'Wird vorbereitet…'; }
   try {
-    let analysen = [];
-    if (sb) {
-      const { data, error } = await sb.from('analysen')
-        .select('pruef_id,firmenname,land,ust_id,score,verdict,verdict_text,created_at,report_json')
-        .order('created_at', { ascending: false });
-      if (!error && data) analysen = data;
+    // v12.57 (K30-14) START
+    // Ursache (v12.56): "if (!error && data) analysen = data" verwarf bei einem Fehler still ALLE Pruefungen (Export "erstellt" ohne Akten), PostgREST
+    // liefert ohne range hoechstens 1000 Zeilen, und die Folgeabfragen hatten leere catch-Bloecke - Fehler/Kuerzungen blieben unsichtbar.
+    // Jetzt: analysen seitenweise (500er-Seiten, max. 200 Seiten), jede Teilabfrage meldet Fehler in hinweise_unvollstaendig.
+    // Abfrage-Filter und RLS unveraendert.
+    const hinweiseUnvollstaendig = [];
+    const teilFehler = function(teil, grund){ hinweiseUnvollstaendig.push({ teil: teil, grund: grund || 'Abfrage fehlgeschlagen' }); };
+    const teilLaden = async function(teil, abfrage){
+      try {
+        const r = await abfrage();
+        if (!r || r.error) { teilFehler(teil); return null; }
+        return r;
+      } catch (e) { teilFehler(teil); return null; }
+    };
+    const SEITE = 500, MAX_SEITEN = 200;
+    let analysen = [], limitErreicht = false;
+    if (!sb) {
+      teilFehler('analysen', 'Keine Verbindung');
+    } else {
+      for (let seite = 0; seite < MAX_SEITEN; seite++) {
+        const von = seite * SEITE;
+        let r = null;
+        try {
+          r = await sb.from('analysen')
+            .select('pruef_id,firmenname,land,ust_id,score,verdict,verdict_text,created_at,report_json')
+            .order('created_at', { ascending: false })
+            .order('pruef_id', { ascending: false })
+            .range(von, von + SEITE - 1);
+        } catch (e) { r = null; }
+        if (!r || r.error || !Array.isArray(r.data)) { teilFehler('analysen', seite ? 'Abfrage fehlgeschlagen (nur teilweise geladen)' : 'Abfrage fehlgeschlagen'); break; }
+        for (let i = 0; i < r.data.length; i++) analysen.push(r.data[i]);
+        if (r.data.length < SEITE) break;
+        if (seite === MAX_SEITEN - 1) { limitErreicht = true; teilFehler('analysen', 'Obergrenze erreicht (nur ' + analysen.length + ' Pr\u00fcfungen geladen)'); }
+      }
     }
     // Alles, was zu dieser Person gespeichert ist (Art. 15 DSGVO)
     let profil = {}, favoriten = [], ordner = [], dokumente = [], freigaben = [];
-    try { const r = await sb.rpc('mein_name'); profil = (r.data && r.data[0]) || {}; } catch(e) {}
-    try { const r = await sb.rpc('meine_favoriten'); favoriten = r.data || []; } catch(e) {}
-    try { const r = await sb.from('ordner').select('id,name,farbe,sichtbarkeit,created_at'); ordner = r.data || []; } catch(e) {}
-    try {
-      const r = await sb.from('kyc_dokumente').select('analyse_id,typ,datei_name,mime_type,position,bezeichnung,created_at,einwilligung_am,einwilligung_version');
-      dokumente = r.data || [];
-    } catch(e) {}
-    try { const r = await sb.from('ordner_freigaben').select('ordner_id,user_id,created_at'); freigaben = r.data || []; } catch(e) {}
+    const rName = await teilLaden('mein_name', function(){ return sb.rpc('mein_name'); });
+    if (rName) profil = (rName.data && rName.data[0]) || {};
+    const rFav = await teilLaden('meine_favoriten', function(){ return sb.rpc('meine_favoriten'); });
+    if (rFav) favoriten = rFav.data || [];
+    const rOrdner = await teilLaden('ordner', function(){ return sb.from('ordner').select('id,name,farbe,sichtbarkeit,created_at'); });
+    if (rOrdner) ordner = rOrdner.data || [];
+    const rDok = await teilLaden('kyc_dokumente', function(){ return sb.from('kyc_dokumente').select('analyse_id,typ,datei_name,mime_type,position,bezeichnung,created_at,einwilligung_am,einwilligung_version'); });
+    if (rDok) dokumente = rDok.data || [];
+    const rFrei = await teilLaden('ordner_freigaben', function(){ return sb.from('ordner_freigaben').select('ordner_id,user_id,created_at'); });
+    if (rFrei) freigaben = rFrei.data || [];
+    const rSchl = await teilLaden('api_schluessel', function(){ return sb.rpc('api_schluessel_liste'); });
+    const rApi = await teilLaden('api_pruefungen', function(){ return sb.from('api_pruefungen').select('pruef_id,ref,status,eingabe,analyse_id,created_at,pdf_ablauf'); });
+    // v12.57 (K30-14) ENDE
 
     const exp = {
       hinweis: 'Datenauskunft gem\u00e4\u00df Art. 15 DSGVO \u2013 Automati Labs GmbH, Compliance-Checker',
       export_datum: new Date().toISOString(),
+      hinweise_unvollstaendig: hinweiseUnvollstaendig,   // v12.57 (K30-14): leer = alle Teilabfragen erfolgreich
       konto: {
         email: CURRENT_USER_EMAIL || '',
         user_id: CURRENT_USER_ID || '',
@@ -14549,14 +14583,8 @@ async function exportiereDaten() {
         name: CURRENT_FIRMA.firma_name, typ: CURRENT_FIRMA.typ,
         paket_limit: CURRENT_FIRMA.monatslimit, testphase: !!CURRENT_FIRMA.trial
       } : null,
-      pruefungen: { anzahl: analysen.length, eintraege: analysen },
-      api_zugang: await (async function(){   // v12.33: Schluessel (ohne Hash) und API-Pruefungen
-        try {
-          const a = await sb.rpc('api_schluessel_liste');
-          const b = await sb.from('api_pruefungen').select('pruef_id,ref,status,eingabe,analyse_id,created_at,pdf_ablauf');
-          return { schluessel: (a && a.data) || [], pruefungen: (b && b.data) || [] };
-        } catch (e) { return { schluessel: [], pruefungen: [] }; }
-      })(),
+      pruefungen: Object.assign({ anzahl: analysen.length, eintraege: analysen }, limitErreicht ? { limit_erreicht: true } : {}),   // v12.57 (K30-14)
+      api_zugang: { schluessel: (rSchl && rSchl.data) || [], pruefungen: (rApi && rApi.data) || [] },   // v12.33: Schluessel (ohne Hash) und API-Pruefungen; v12.57 (K30-14): Abfragen oben mit Fehlererfassung
       ueberwachung: { anzahl: favoriten.length, eintraege: favoriten },
       ordner: { anzahl: ordner.length, eintraege: ordner },
       ordner_freigaben: { anzahl: freigaben.length, eintraege: freigaben },
@@ -14573,6 +14601,12 @@ async function exportiereDaten() {
     a.download = 'compliance-checker-daten-' + new Date().toISOString().slice(0, 10) + '.json';
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
     setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+    // v12.57 (K30-14) START
+    if (hinweiseUnvollstaendig.length) {
+      const teileTxt = hinweiseUnvollstaendig.map(function(h){ return h.teil; }).filter(function(t, i, a){ return a.indexOf(t) === i; }).join(', ');
+      kontoMsgShow('Export unvollst\u00e4ndig: ' + teileTxt + ' \u2013 bitte sp\u00e4ter erneut versuchen oder Support kontaktieren. Die Datei enth\u00e4lt den Vermerk \u201ehinweise_unvollstaendig\u201c.', 'error');
+    } else
+    // v12.57 (K30-14) ENDE
     kontoMsgShow('Export erstellt – die JSON-Datei wurde heruntergeladen.', 'ok');
   } catch (e) {
     kontoMsgShow('Export fehlgeschlagen: ' + (e && e.message ? e.message : e), 'error');
@@ -20551,6 +20585,14 @@ function sanktionenNamen(d) {
 }
 
 async function sanktionenAbgleichen(d) {
+  // v12.57 (K30-05) START
+  // Server-Akte (API/Monitoring) mit ausgefallenem Abgleich (_sanktionen.fehler): ohne Sitzung (z. B. serverseitiges API-PDF) bleibt sonst
+  // "Sanktionslisten werden abgeglichen" stehen. Hier ehrlich anzeigen: nicht geprueft - nie "kein Treffer".
+  if (!sb && d && d._sanktionen && d._sanktionen.fehler === true) {
+    setTimeout(function(){ if (CURRENT_REPORT === d) sanktionenAnzeigen(d._sanktionen, 0); }, 0);
+    return;
+  }
+  // v12.57 (K30-05) ENDE
   if (!sb) return;
   // Schon geprueft (z.B. beim Oeffnen aus "Akten & Ordner"): gespeichertes Ergebnis zeigen.
   // Der Aufruf kommt vor dem Aufbau des Berichts - deshalb erst im naechsten Takt anzeigen.
@@ -20654,9 +20696,12 @@ function sanktionenAnzeigen(erg, anzahlNamen) {
     ? new Date(erg.stand.stand).toLocaleDateString('de-DE') : null;
 
   if (!erg || !erg.stand || !erg.stand.eintraege) {
+    // v12.57 (K30-05) START
+    const nichtGeprueft = !!(erg && erg.fehler === true);   // Server-Abgleich ausgefallen
+    // v12.57 (K30-05) ENDE
     ziel.innerHTML = '<div class="sank-karte sank-k-grau">'
       + '<div class="sank-k-kopf"><span class="sank-k-ico">\u26A0</span>'
-      + '<span class="sank-k-t">Sanktionslisten-Abgleich nicht verf\u00fcgbar</span></div>'
+      + '<span class="sank-k-t">' + (nichtGeprueft ? 'EU-Sanktionsabgleich nicht m\u00f6glich \u2013 nicht gepr\u00fcft' : 'Sanktionslisten-Abgleich nicht verf\u00fcgbar') + '</span></div>'   // v12.57 (K30-05)
       + '<div class="sank-k-d">Die Sanktionsliste konnte nicht herangezogen werden. Bitte pr\u00fcfen Sie erg\u00e4nzend manuell.</div>'
       + '</div>';
     return;
@@ -20725,6 +20770,11 @@ function sanktionenAnzeigen(erg, anzahlNamen) {
 // Fuer den Akten-Export: gespeicherten Befund als festes HTML
 function sanktionenAkteHtml(d) {
   const s = d && d._sanktionen;
+  // v12.57 (K30-05) START
+  if (s && s.fehler === true && !(s.stand && s.stand.eintraege)) return '<div class="sank-bereich"><div class="sank-karte sank-k-grau">'
+    + '<div class="sank-k-kopf"><span class="sank-k-ico">\u26A0</span><span class="sank-k-t">EU-Sanktionsabgleich nicht m\u00f6glich \u2013 nicht gepr\u00fcft</span></div>'
+    + '<div class="sank-k-d">Die Sanktionsliste konnte nicht herangezogen werden. Bitte pr\u00fcfen Sie erg\u00e4nzend manuell.</div></div></div>';
+  // v12.57 (K30-05) ENDE
   if (!s || !s.stand || !s.stand.eintraege) return '';
   const standTxt = s.stand.stand ? new Date(s.stand.stand).toLocaleDateString('de-DE') : 'unbekannt';
   // v12.51 (N8): wie sanktionenAnzeigen - harte und schwache Treffer trennen
