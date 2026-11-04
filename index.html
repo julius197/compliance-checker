@@ -3466,6 +3466,11 @@
     .fw-sitz { font-size:12.5px; color:var(--ink); margin-top:3px; }
     .fw-sitz b { font-weight:700; color:var(--gray,#5A6670); }
     .fw-kopf-hinweis { margin:12px 0 2px; padding:10px 12px; border-radius:10px; background:#FFF7ED; border:1px solid #FED7AA; color:#9A3412; font-size:12.5px; line-height:1.45; }
+    /* v12.63 (HR-Zeile) START */
+    .hr-block { background:var(--warn-bg,#FFF7E6); border:1.5px solid rgba(217,119,6,.45); border-radius:16px; padding:14px 18px; margin-bottom:14px; break-inside:avoid; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+    .hr-kopf { font-size:12px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:#92400E; margin-bottom:4px; }
+    .hr-zeile { font-size:14px; font-weight:600; color:var(--text,#1F2933); }
+    /* v12.63 (HR-Zeile) ENDE */
     .sitz-karte { background:var(--bad-bg,#FEF1F1); border:1.5px solid rgba(220,38,38,.35); border-radius:16px; padding:16px 18px; margin-bottom:14px; }
     .sitz-k-kopf { display:flex; align-items:center; gap:10px; }
     .sitz-k-ico { width:24px; height:24px; flex:0 0 24px; border-radius:50%; background:#DC2626; color:#fff; display:grid; place-items:center; font-weight:800; font-size:14px; }
@@ -7790,6 +7795,7 @@ function applyLang(ohneBlende) {
   }
   const lb = document.getElementById('langBtn');
   if (lb) lb.textContent = LANG === 'de' ? '🌐 EN' : '🌐 DE';
+  hrSpracheAnwenden(document);   // v12.63 (HR-Zeile)
   if (LANG === 'en') {
     _trOverlay(true);
     uebersetzeBaum(document.body)
@@ -13544,6 +13550,7 @@ function druckFehlendeTexte(wurzeln, ziel) {
 function druckSpracheSetzen(wurzeln, sprache) {
   const ziel = sprache === 'en' ? 'en' : 'de', cache = _trCache(ziel);
   wurzeln.forEach(function(r){
+    hrSpracheAnwenden(r, ziel);   // v12.63 (HR-Zeile): feste Zeile in der PDF-Sprache (DE/EN aus dem Bericht)
     _trKnoten(r).forEach(function(n){
       const orig = _LANG_DE.get(n);
       if (orig === undefined) return;
@@ -13557,6 +13564,7 @@ function druckSpracheSetzen(wurzeln, sprache) {
 // Zurueck zur Sprache der Oberflaeche - immer aus dem Original
 function druckSpracheZurueck(wurzeln) {
   wurzeln.forEach(function(r){
+    hrSpracheAnwenden(r, LANG);   // v12.63 (HR-Zeile)
     _trKnoten(r).forEach(function(n){
       const orig = _LANG_DE.get(n);
       if (orig === undefined) return;
@@ -15009,6 +15017,29 @@ function sitzHinweise(d) {
   return [{ typ: 'bad', kategorie: 'Sitz', text: 'Eingetragener Sitz laut ' + (z.quelleName || 'Quelle') + ' (\u201e' + z.quelle
     + '\u201c) weicht vom angegebenen Ort (\u201e' + z.eingegeben + '\u201c) ab. M\u00f6glicherweise wurde eine gleichnamige Firma gefunden oder der Sitz wurde verlegt \u2013 Identit\u00e4t bitte pr\u00fcfen. Score \u2212' + (z.abzug || SITZ_ABZUG) + ' Punkte.' }];
 }
+// v12.63 (HR-Zeile) START
+// Feste Hochrisiko-Zeile (aus report._hochrisiko, vom Worker gesetzt). Altberichte ohne Feld: keine Zeile (keine Laenderliste im Frontend).
+// Text DE/EN kommt fertig aus dem Worker; data-tr="aus" schliesst den Block von der KI-Seitenuebersetzung aus, hrSpracheAnwenden() setzt die Sprache.
+function hochrisikoBlockHTML(d) {
+  const h = d && d._hochrisiko;
+  if (!h || typeof h !== 'object' || typeof h.zeile !== 'string' || !h.zeile) return '';
+  const de = h.zeile, en = (typeof h.zeile_en === 'string' && h.zeile_en) ? h.zeile_en : h.zeile;
+  const en_ = LANG === 'en';
+  return '<div class="hr-block" data-tr="aus">'
+    + '<div class="hr-kopf" data-hr="1" data-de="' + escapeHtml('Hochrisiko-Drittstaat (feste Pr\u00fcfung)') + '" data-en="' + escapeHtml('High-risk third country (fixed check)') + '">' + escapeHtml(en_ ? 'High-risk third country (fixed check)' : 'Hochrisiko-Drittstaat (feste Pr\u00fcfung)') + '</div>'
+    + '<div class="hr-zeile" data-hr="1" data-de="' + escapeHtml(de) + '" data-en="' + escapeHtml(en) + '">' + escapeHtml(en_ ? en : de) + '</div>'
+    + '</div>';
+}
+function hrSpracheAnwenden(root, sprache) {   // sprache: 'de'/'en' (PDF-Sprache), sonst Oberflaechensprache
+  try {
+    const en = (sprache || LANG) === 'en';
+    (root || document).querySelectorAll('[data-hr="1"]').forEach(function(el){
+      const t = el.getAttribute(en ? 'data-en' : 'data-de');
+      if (t !== null && el.textContent !== t) el.textContent = t;
+    });
+  } catch (e) {}
+}
+// v12.63 (HR-Zeile) ENDE
 // Deutlicher Hinweis oben in der Analyse (und im Sammel-PDF)
 function sitzKarteHTML(d) {
   const z = d && d._sitz;
@@ -15201,6 +15232,11 @@ async function runAnalysis(name, ust, land, sitz, auswahl) {
     report._dataSource = (viesOk ? 'vies' : '') + (googleData ? 'google' : (viesOk ? '' : 'ki'));
     if (viesData && viesData.status === 'unavailable') report._viesUnavailable = true;
     if (land && land !== 'Andere') report._land = land;
+    // v12.63 (HR-Zeile) START
+    // Feste Hochrisiko-Quellenzeile kommt vom Worker (Feld der pruefen-Antwort), nie aus dem KI-Text: KI-Wert wird immer verworfen/ueberschrieben.
+    delete report._hochrisiko;
+    if (claudeRes && claudeRes._hochrisiko && typeof claudeRes._hochrisiko === 'object' && typeof claudeRes._hochrisiko.zeile === 'string') report._hochrisiko = claudeRes._hochrisiko;
+    // v12.63 (HR-Zeile) ENDE
 
     // Standort-Beweismittel: ALLE Google-Fotos (falls vorhanden) + Adresse für Street View
     // Bilder nur verwenden, wenn die Analyse den Google-Treffer ZWEIFELSFREI als die gesuchte Firma bestätigt hat.
@@ -15676,7 +15712,7 @@ window.addEventListener('error', function(ev) {
 // Kleine Korrekturen ohne neue Funktionen: NEU_VERSION unveraendert lassen.
 // ============================================================
 const NEU_VERSION = 'v12.51';           // Stand der Neuigkeiten - nur erhoehen, wenn es wirklich Neues gibt
-const APP_VERSION = 'v12.55'; /* v12.55 (K29) */           // aktuelle Version (Anzeige im Bericht und oben im Kopf)
+const APP_VERSION = 'v12.63'; /* v12.63 (K03-01) */           // aktuelle Version (Anzeige im Bericht und oben im Kopf)
 // v12.49 (Fix B, N18): Versionsanzeige im Kopf aus APP_VERSION fuellen (der Kopf steht vor diesem Skript im Dokument)
 try { document.querySelectorAll('.app-version').forEach(function(el){ el.textContent = APP_VERSION; }); } catch (e) {}
 const UPDATE_KURZ = 'Neu: Die Akten-Historie l\u00e4dt schneller, die API meldet St\u00f6rungen sauber und Fehler werden stabiler abgefangen.';
@@ -18726,6 +18762,7 @@ function showReport(d, rawName, fromHistory, nichtSpeichern) {
     <div class="akte-panel" data-panel="analyse" id="panelAnalyse">
     <div class="akte-lock"></div>
     <div id="dokHinweis" class="dok-hinweis"></div>
+    ${hochrisikoBlockHTML(d)}
     ${sitzKarteHTML(d)}
     <div class="score-card reveal">
       <div class="gauge-wrap">${gauge(d.gesamtScore)}<div class="gauge-num"><span class="gauge-num-val" style="color:${d.gesamtScore?scC(d.gesamtScore):'var(--gray-l)'}">${d.gesamtScore||'N/A'}</span><span class="gauge-num-label">${d.gesamtScore?'/ 100':''}</span></div></div>
@@ -20967,6 +21004,7 @@ function buildAkteAnalyse(d) {
     + '<div class="akte-score-box"><div class="gauge-wrap">' + gauge(score) + '<div class="gauge-num"><span class="gauge-num-val" style="color:' + (score ? scC(score) : 'var(--gray-l)') + '">' + (score == null ? 'N/A' : score) + '</span><span class="gauge-num-label">' + (score != null ? '/ 100' : '') + '</span></div></div>'
     + '<span class="verdict ' + (d.verdict || 'warn') + '">' + vIcon + ' ' + escapeHtml(d.verdictText || '') + '</span></div>'
     + '</div>'
+    + hochrisikoBlockHTML(d)
     + sitzKarteHTML(d)
     + '<div class="grid4">'
     + secCard('Grunddaten', d.grunddaten || { felder: [] }, '30%')
