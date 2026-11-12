@@ -15712,11 +15712,17 @@ window.addEventListener('error', function(ev) {
 // Kleine Korrekturen ohne neue Funktionen: NEU_VERSION unveraendert lassen.
 // ============================================================
 const NEU_VERSION = 'v12.51';           // Stand der Neuigkeiten - nur erhoehen, wenn es wirklich Neues gibt
-const APP_VERSION = 'v12.65'; /* v12.65 (K06-01) */           // aktuelle Version (Anzeige im Bericht und oben im Kopf)
+const APP_VERSION = 'v12.67'; /* v12.67 (K06-03/K06-04) */         // aktuelle Version (Anzeige im Bericht und oben im Kopf)
 // v12.49 (Fix B, N18): Versionsanzeige im Kopf aus APP_VERSION fuellen (der Kopf steht vor diesem Skript im Dokument)
 try { document.querySelectorAll('.app-version').forEach(function(el){ el.textContent = APP_VERSION; }); } catch (e) {}
 const UPDATE_KURZ = 'Neu: Die Akten-Historie l\u00e4dt schneller, die API meldet St\u00f6rungen sauber und Fehler werden stabiler abgefangen.';
 const NEUIGKEITEN = [
+  // v12.67 (K06-03/K06-04) START  (ersetzt den Eintrag v12.66 - v12.66 war nie live)
+  { farbe: '#2E8749', v: 'v12.67', ico: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/>',
+    t: 'Sanktionsabgleich: keine Entwarnung ohne Aussage',
+    kurz: 'Sanktionsabgleich: alte Listen und fehlende Namen geben keine Entwarnung mehr',
+    d: 'Sanktionsabgleich: alte Listen und fehlende Namen geben keine Entwarnung mehr.' },
+  // v12.67 (K06-03/K06-04) ENDE
   // v12.65 (K06-01) START
   { farbe: '#2E8749', v: 'v12.65', ico: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/>',
     t: 'Sanktionsabgleich: klare Anzeige',
@@ -16138,6 +16144,11 @@ function akteStatus(key) {
       // v12.65 (K06-01) START
       if (d._sanktionen && d._sanktionen.fehler === true) return 'teil';   // veraltete Liste / Abgleich fehlgeschlagen: nie 'ok'
       // v12.65 (K06-01) ENDE
+      // v12.66 (K06-03) START
+      if (d._sanktionen && sankGrauTexte(d._sanktionen, d)) return 'teil';   // gespeichert, Liste zum Pruefzeitpunkt veraltet / 0 Namen
+      // v12.66 (K06-03) ENDE
+      // v12.67 (K06-03): gilt jetzt auch fuer gespeicherte Treffer auf veralteter Liste (sankGrauTexte) -> 'teil'
+      // v12.67 (K06-04): ebenso gespeicherte Abgleiche, deren einziger Name der Platzhalter war -> 'teil'
       if (AKTE.sankFertig || (d._sanktionen && d._sanktionen.stand)) return 'ok';
       return AKTE.sankFehler ? 'teil' : 'laeuft';
     case 'endverbleib': {
@@ -18679,12 +18690,16 @@ function showReport(d, rawName, fromHistory, nichtSpeichern) {
   CURRENT_REPORT = d;
   AKTE.sankFertig = false; AKTE.sankFehler = false;   // Stand gilt je Bericht
   AKTE.evSprache = null;                              // Sprache der Endverbleibserklaerung je Akte
+  // v12.66 (K06-04) START
+  // Fallback-Name VOR dem Abgleich setzen (vorher erst danach: KI-Antwort ohne firmenname -> 0 Namen abgeglichen, trotzdem gruen)
+  // v12.67 (K06-04): der Platzhalter 'Unbekanntes Unternehmen' bleibt Anzeige-Name, wird aber nicht abgeglichen (sanktionenNamen)
+  d.firmenname = d.firmenname || rawName || 'Unbekanntes Unternehmen';
+  // v12.66 (K06-04) ENDE
   // Sanktionslisten-Abgleich anstossen (laeuft im Hintergrund weiter)
   try { sanktionenAbgleichen(d); } catch(e) {}
   // Ueberwachungs-Kasten im Bericht
   try { setTimeout(function(){ monBereichZeichnen(d); }, 120); } catch(e) {}
   try { setTimeout(function(){ bearbLeisteZeichnen(); }, 140); } catch(e) {}
-  d.firmenname = d.firmenname || rawName || 'Unbekanntes Unternehmen';
   if (!fromHistory && !nichtSpeichern) { try { firmennameAbsichern(d, rawName); } catch (e) {} }   // v12.45: lateinischer Name
   DRUCK_NAME = d.firmenname;                       // fuer den Dateinamen beim PDF-Export
   DRUCK_ID = d.pruefId || '';
@@ -20662,6 +20677,9 @@ function sanktionenNamen(d) {
   });
   const gesehen = {};
   return namen.filter(function(n){
+    // v12.67 (K06-04) START
+    if (!sankNamePruefbar(n.name)) return false;   // leer / nur Leerzeichen / Platzhalter "Unbekanntes Unternehmen": kein pruefbarer Name
+    // v12.67 (K06-04) ENDE
     const k = n.name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
     if (gesehen[k]) return false;
     gesehen[k] = true;
@@ -20680,18 +20698,81 @@ function sankListeVeraltet(stand) {
   return false;
 }
 // Texte der grauen Karte (nur veraltet / fehlgeschlagen); sonst null
-function sankGrauTexte(erg) {
-  const veraltet = !!(erg && erg.veraltet === true);
+// v12.66 (K06-03/K06-04): zusaetzlich "keine Namen" und - nur Anzeige - gespeicherte Abgleiche ohne Aussage (zweiter Parameter = Akte)
+function sankGrauTexte(erg, akte) {
+  let veraltet = !!(erg && erg.veraltet === true);
   const fehlgeschlagen = !!(erg && erg.fehlgeschlagen === true);
-  if (!veraltet && !fehlgeschlagen) return null;
+  // v12.66 (K06-04) START
+  let keineNamen = !!(erg && erg.keineNamen === true);
+  // v12.66 (K06-04) ENDE
+  // v12.66 (K06-03) START
+  // Gespeicherter Abgleich OHNE fehler, ohne Treffer, der sonst gruen waere: Listenalter zum Pruefzeitpunkt (nicht heute) messen.
+  // Alt-Akten mit 0 abgeglichenen Namen (bis v12.65, K06-04) ebenfalls ohne Aussage. Treffer (rot/gelb) bleiben unveraendert.
+  // v12.67 (K06-03): jetzt AUCH mit gespeicherten Treffern (rot/gelb) - Treffer auf einer damals veralteten Liste sind keine Aussage;
+  // die gefundenen Namen werden in der grauen Karte genannt (Feld "gefunden"). Score/Deckel und Datensatz bleiben unveraendert.
+  let gespTreffer = [];   // v12.67 (K06-03)
+  if (!veraltet && !fehlgeschlagen && !keineNamen && erg && erg.fehler !== true && erg.stand && erg.stand.eintraege) {
+    const hatTreffer = Array.isArray(erg.treffer) && erg.treffer.length > 0;
+    // v12.67 (K06-04) START
+    // Alt-Datensatz, dessen abgeglichene Namen alle kein pruefbarer Name waren (Platzhalter/leer): keine Aussage
+    const nurPlatzhalter = Array.isArray(erg.namen) && erg.namen.length > 0
+      && erg.namen.every(function(n){ return !sankNamePruefbar(n && n.name); });
+    // v12.67 (K06-04) ENDE
+    if (!hatTreffer && (erg.geprueft === 0 || nurPlatzhalter)) keineNamen = true;   // v12.66 / v12.67 (K06-04)
+    else {
+      // Bezugszeit: am (Zeitpunkt des Abgleichs) -> _abgeschlossen_am -> _createdAt (Erstelldatum der Akte) -> jetzt
+      let bezug = NaN;
+      [erg.am, akte && akte._abgeschlossen_am, akte && akte._createdAt].forEach(function(x){
+        if (!isFinite(bezug) && x) bezug = Date.parse(String(x));
+      });
+      if (!isFinite(bezug)) bezug = Date.now();
+      if (sankListeVeraltetAm(erg.stand, bezug)) { veraltet = true; if (hatTreffer) gespTreffer = erg.treffer; }   // v12.67 (K06-03)
+    }
+  }
+  // v12.66 (K06-03) ENDE
+  if (!veraltet && !fehlgeschlagen && !keineNamen) return null;
   const sd = Date.parse(String((erg.stand && (erg.stand.stand || erg.stand.datum)) || ''));
   const standTxt = isFinite(sd) ? new Date(sd).toLocaleDateString('de-DE') : null;
+  // v12.67 (K06-03) START
+  // Namen der gespeicherten Treffer (escaped, je Name einmal): "Auf der veralteten Liste gefunden: ..."
+  const gefNamen = [], gefGesehen = {};
+  gespTreffer.forEach(function(x){
+    const e = (x && x.eintrag && typeof x.eintrag === 'object') ? x.eintrag : (x || {});
+    const nm = String(e.name || '').trim();
+    if (!nm) return;
+    const ges = String((x && x.gesucht) || '').trim();
+    const txt = escapeHtml(nm) + (ges && ges.toLowerCase() !== nm.toLowerCase() ? ' (gesucht: ' + escapeHtml(ges) + ')' : '');
+    if (gefGesehen[txt]) return;
+    gefGesehen[txt] = true; gefNamen.push(txt);
+  });
+  // v12.67 (K06-03) ENDE
   return {
-    t: veraltet ? 'Liste veraltet, keine Aussage' : 'Pr\u00fcfung fehlgeschlagen, keine Aussage',
-    d: (standTxt ? 'Listenstand ' + standTxt + '. ' : '') + 'Bitte pr\u00fcfen Sie erg\u00e4nzend manuell.'
+    t: veraltet ? 'Liste veraltet, keine Aussage' : (keineNamen ? 'Kein Name abgeglichen, keine Aussage' : 'Pr\u00fcfung fehlgeschlagen, keine Aussage'),   // v12.66 (K06-04)
+    d: (standTxt ? 'Listenstand ' + standTxt + '. ' : '') + 'Bitte pr\u00fcfen Sie erg\u00e4nzend manuell.',
+    gefunden: gefNamen.length ? 'Auf der veralteten Liste gefunden: ' + gefNamen.join(', ') : ''   // v12.67 (K06-03), bereits escaped
   };
-}
+}   // v12.66 (K06-03): sankListeVeraltetAm steht direkt darunter und gehoert zu diesem Block (Funktions-Auszuege der Tests enden erst an der naechsten "}"-Zeile)
 // v12.65 (K06-01) ENDE
+// v12.66 (K06-03) START
+// Gleiche Regel wie sankListeVeraltet (0 Eintraege oder Stand aelter als 14 Tage, fehlender Stand = veraltet), gemessen gegen "bezug" statt jetzt.
+function sankListeVeraltetAm(stand, bezug) {
+  if (!stand || typeof stand !== 'object') return true;
+  const anz = stand.eintraege;
+  if (anz !== undefined && anz !== null && anz !== '' && Number(anz) <= 0) return true;
+  const sd = Date.parse(String(stand.stand || stand.datum || ''));
+  const b = Number(bezug);
+  if (isFinite(sd) && (isFinite(b) ? b : Date.now()) - sd > 14 * 86400000) return true;
+  return false;
+}   // v12.67 (K06-04): sankNamePruefbar steht direkt darunter und gehoert zu diesem Block (wird mit sankGrauTexte geladen)
+// v12.66 (K06-03) ENDE
+// v12.67 (K06-04) START
+// Pruefbarer Name fuer den Sanktionsabgleich: nicht leer / nicht nur Leerzeichen und nicht der Anzeige-Platzhalter
+// "Unbekanntes Unternehmen" (Gross/Klein und Leerzeichen egal).
+function sankNamePruefbar(name) {
+  const s = String(name === undefined || name === null ? '' : name).replace(/\s+/g, '').toLowerCase();
+  return s.length > 0 && s !== 'unbekanntesunternehmen';
+}
+// v12.67 (K06-04) ENDE
 
 async function sanktionenAbgleichen(d) {
   // v12.57 (K30-05) START
@@ -20711,6 +20792,8 @@ async function sanktionenAbgleichen(d) {
   const vollstaendig = d._sankGeprueft && d._sanktionen && d._sanktionen.stand
     && Array.isArray(d._sanktionen.namen) && (d._sanktionen.geprueft || 0) >= namen.length;
   if (vollstaendig) {
+    // v12.66 (K06-03): kein neuer Abgleich, Datensatz bleibt unveraendert; war die Liste schon zum Pruefzeitpunkt veraltet,
+    // zeigt sanktionenAnzeigen (CURRENT_REPORT === d) die graue Karte "Liste veraltet, keine Aussage" statt gruen.
     setTimeout(function(){ if (CURRENT_REPORT === d) sanktionenAnzeigen(d._sanktionen, d._sanktionen.geprueft || 0); }, 0);
     return;
   }
@@ -20742,9 +20825,12 @@ async function sanktionenAbgleichen(d) {
   // v12.65 (K06-01) ENDE
   if (!namen.length) {
     // Keine Namen ermittelbar - trotzdem sauber abschliessen statt endlos zu laden (frische Liste)
-    d._sankGeprueft = true;   // v12.65 (K06-01)
-    d._sanktionen = { treffer: [], geprueft: 0, stand: SANK_STAND };
-    if (CURRENT_REPORT === d) sanktionenAnzeigen(SANK_STAND.eintraege ? d._sanktionen : null, 0);
+    // v12.66 (K06-04) START
+    // Es wurde nichts abgeglichen: keine Entwarnung, nicht "geprueft", kein DB-Write (graue Karte "Kein Name abgeglichen, keine Aussage")
+    d._sankGeprueft = false;
+    d._sanktionen = { fehler: true, keineNamen: true, treffer: [], geprueft: 0, stand: SANK_STAND };
+    if (CURRENT_REPORT === d) sanktionenAnzeigen(d._sanktionen, 0);
+    // v12.66 (K06-04) ENDE
     return;
   }
 
@@ -20823,22 +20909,27 @@ function sanktionenAnzeigen(erg, anzahlNamen) {
   } catch (e) { console.error('Score-Deckel:', e); }
   const ziel = document.getElementById('sankBereich');
   if (!ziel) return;
-  AKTE.sankFertig = !!(erg && erg.stand && erg.stand.eintraege && erg.fehler !== true);   // v12.65 (K06-01)
+  // v12.66 (K06-03) START
+  // Gespeicherter Abgleich ohne fehler: Listenalter zum Pruefzeitpunkt (bzw. 0 Namen) -> graue Karte, nur Anzeige
+  const grauGesp = (erg && erg.fehler !== true) ? sankGrauTexte(erg, (CURRENT_REPORT && CURRENT_REPORT._sanktionen === erg) ? CURRENT_REPORT : null) : null;
+  // v12.66 (K06-03) ENDE
+  AKTE.sankFertig = !!(erg && erg.stand && erg.stand.eintraege && erg.fehler !== true) && !grauGesp;   // v12.65 (K06-01) / v12.66 (K06-03)
   AKTE.sankFehler = !AKTE.sankFertig;                  // Abgleich lief, Liste war nicht verfuegbar
   setTimeout(function(){ try { akteZeichnen(); } catch(e) {} }, 0);
 
   const standTxt = (erg && erg.stand && erg.stand.stand)
     ? new Date(erg.stand.stand).toLocaleDateString('de-DE') : null;
 
-  if (!erg || !erg.stand || !erg.stand.eintraege || erg.fehler === true) {   // v12.65 (K06-01): fehler === true nie gruen
+  if (!erg || !erg.stand || !erg.stand.eintraege || erg.fehler === true || grauGesp) {   // v12.65 (K06-01): fehler === true nie gruen / v12.66 (K06-03)
     // v12.57 (K30-05) START
     const nichtGeprueft = !!(erg && erg.fehler === true);   // Server-Abgleich ausgefallen
     // v12.57 (K30-05) ENDE
-    const grau = sankGrauTexte(erg);   // v12.65 (K06-01)
+    const grau = grauGesp || sankGrauTexte(erg);   // v12.65 (K06-01) / v12.66 (K06-03)
     ziel.innerHTML = '<div class="sank-karte sank-k-grau">'
       + '<div class="sank-k-kopf"><span class="sank-k-ico">\u26A0</span>'
       + '<span class="sank-k-t">' + (grau ? grau.t : (nichtGeprueft ? 'EU-Sanktionsabgleich nicht m\u00f6glich \u2013 nicht gepr\u00fcft' : 'Sanktionslisten-Abgleich nicht verf\u00fcgbar')) + '</span></div>'   // v12.57 (K30-05) / v12.65 (K06-01)
       + '<div class="sank-k-d">' + (grau ? grau.d : 'Die Sanktionsliste konnte nicht herangezogen werden. Bitte pr\u00fcfen Sie erg\u00e4nzend manuell.') + '</div>'
+      + (grau && grau.gefunden ? '<div class="sank-k-d">' + grau.gefunden + '</div>' : '')   // v12.67 (K06-03): gespeicherte Treffer bleiben sichtbar
       + '</div>';
     return;
   }
@@ -20906,12 +20997,17 @@ function sanktionenAnzeigen(erg, anzahlNamen) {
 // Fuer den Akten-Export: gespeicherten Befund als festes HTML
 function sanktionenAkteHtml(d) {
   const s = d && d._sanktionen;
+  // v12.66 (K06-03) START
+  const grauGesp = (s && s.fehler !== true) ? sankGrauTexte(s, d) : null;   // zum Pruefzeitpunkt veraltet / 0 Namen: nie gruen (nur Ausgabe)
+  // v12.66 (K06-03) ENDE
   // v12.57 (K30-05) START
-  if (s && s.fehler === true) {   // v12.65 (K06-01): auch mit Eintraegen/alter Liste nie gruen
-    const grau = sankGrauTexte(s);
+  if (s && (s.fehler === true || grauGesp)) {   // v12.65 (K06-01): auch mit Eintraegen/alter Liste nie gruen / v12.66 (K06-03)
+    const grau = grauGesp || sankGrauTexte(s);
     return '<div class="sank-bereich"><div class="sank-karte sank-k-grau">'
     + '<div class="sank-k-kopf"><span class="sank-k-ico">\u26A0</span><span class="sank-k-t">' + (grau ? grau.t : 'EU-Sanktionsabgleich nicht m\u00f6glich \u2013 nicht gepr\u00fcft') + '</span></div>'
-    + '<div class="sank-k-d">' + (grau ? grau.d : 'Die Sanktionsliste konnte nicht herangezogen werden. Bitte pr\u00fcfen Sie erg\u00e4nzend manuell.') + '</div></div></div>';
+    + '<div class="sank-k-d">' + (grau ? grau.d : 'Die Sanktionsliste konnte nicht herangezogen werden. Bitte pr\u00fcfen Sie erg\u00e4nzend manuell.') + '</div>'
+    + (grau && grau.gefunden ? '<div class="sank-k-d">' + grau.gefunden + '</div>' : '')   // v12.67 (K06-03): gespeicherte Treffer bleiben sichtbar
+    + '</div></div>';
   }
   // v12.57 (K30-05) ENDE
   if (!s || !s.stand || !s.stand.eintraege) return '';
