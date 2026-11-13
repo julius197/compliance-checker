@@ -3311,6 +3311,28 @@
     .report.akte-zu #kycMount [onclick*="kycLinkNeu"], .report.akte-zu #kycMount label[for^="kycFile"],
     .report.akte-zu .kv-stift, .report.akte-zu .cc-stift { display:none !important; }
     .report.akte-zu #kycMount [ondrop] { pointer-events:auto; }
+    /* // v12.70 (F2) START */
+    .sd-wrap { margin:0 0 18px; border:1.5px solid var(--border,#DCE5E0); border-radius:14px; background:#fff; }
+    .sd-kopf { list-style:none; cursor:pointer; padding:12px 14px; font-size:12px; font-weight:600; color:var(--ink2,#2A3B33); display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+    .sd-kopf::-webkit-details-marker { display:none; }
+    .sd-kopf .opt { color:var(--gray-l); font-weight:400; }
+    .sd-pfeil { width:7px; height:7px; border-right:2px solid currentColor; border-bottom:2px solid currentColor; transform:rotate(-45deg); transition:transform .18s; margin-right:4px; }
+    .sd-wrap[open] .sd-pfeil { transform:rotate(45deg); }
+    .sd-zahl { color:var(--green-d,#16A34A); font-weight:700; }
+    .sd-hinweis { padding:0 14px 10px; font-size:12px; color:var(--gray,#5B6E64); }
+    .sd-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; padding:0 14px 12px; }
+    .sd-grid > .kyc-box { min-width:0; }
+    .sd-status { padding:0 14px 12px; font-size:12px; color:var(--gray,#5B6E64); }
+    .sd-status[data-fehler] { color:var(--bad-text,#B91C1C); }
+    .sd-status:empty { display:none; }
+    @media (max-width:640px) { .sd-grid { grid-template-columns:1fr; } }
+    /* // v12.70 (F2) ENDE */
+    /* // v12.70 (F3) START */
+    .ev-ablage { flex-basis:100%; border:1.5px dashed #C9D6CF; border-radius:12px; padding:14px; font-size:12.5px; font-weight:600; color:var(--gray,#5B6E64); cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; text-align:center; transition:all .18s; }
+    .ev-ablage:hover, .ev-ablage.drag { border-color:var(--green,#22C55E); background:var(--green-pale,#EAF9F0); color:var(--ink,#10231A); }
+    .report.akte-zu .ev-ablage, .ordner-akte .ev-ablage { display:none !important; }
+    @media print { .ev-ablage { display:none !important; } }
+    /* // v12.70 (F3) ENDE */
     @media (max-width:640px) { .akte-lock-in { flex-direction:column; align-items:stretch; } .akte-lock-btn { justify-content:center; } }
 
     /* ============================================================
@@ -7145,6 +7167,14 @@
         <select id="ordnerSelect" style="display:none;"><option value="auto" selected>Automatisch (Länderordner)</option><option value="">Kein Ordner</option></select>
       </div>
     </div>
+    <!-- // v12.70 (F2) START -->
+    <details class="sd-wrap" id="startDoks">
+      <summary class="sd-kopf"><span class="sd-pfeil" aria-hidden="true"></span>Dokumente gleich mitgeben <span class="opt">(optional)</span><span class="sd-zahl" id="startDoksZahl"></span></summary>
+      <div class="sd-hinweis">Belege werden direkt bei der ersten Bewertung ausgelesen (höchstens 3 je Durchgang).</div>
+      <div class="sd-grid" id="startDoksGrid"></div>
+      <div class="sd-status" id="startDoksStatus" role="status" aria-live="polite"></div>
+    </details>
+    <!-- // v12.70 (F2) ENDE -->
     <button class="btn-search" id="searchBtn" onclick="startSearch()">
       <span class="bs-links">
         <span class="bs-haupt">Neue Akte erstellen</span>
@@ -9032,6 +9062,7 @@ async function neuBewertenKern() {
   const belegeRoh = ((typeof KYC !== 'undefined' && KYC.doks && KYC.doks.beleg) ? KYC.doks.beleg : [])
     .filter(function(x){ return !unlesbarVorher[x.storage_path]; });
   if ((!n && !belegeRoh.length) || !CURRENT_REPORT) return false;
+  const basisBericht = CURRENT_REPORT;   // v12.70 (F2): Akte, fuer die bewertet wird
   const btn = document.getElementById('neuBewertenBtn');
   if (btn) { btn.disabled = true; btn.classList.add('laedt'); btn.innerHTML = '<span class="bearb-spin"></span><span class="bearb-label">Wird neu bewertet\u2026</span>'; }
 
@@ -9053,6 +9084,10 @@ async function neuBewertenKern() {
     Object.keys(ERG_QUELLEN).forEach(function(k){ if (ERGAENZUNGEN[k] !== undefined) quellen[k.replace('|', ' > ')] = ERG_QUELLEN[k]; });
     const r = await workerCall('neu_bewerten', { bericht: CURRENT_REPORT, ergaenzungen: erg, quellen: quellen, belege: belege });
     if (!r || !r.ok || !r.bericht) throw new Error((r && r.error) || 'Neubewertung fehlgeschlagen');
+    // v12.70 (F2) START
+    // Waehrend der Bewertung (1-3 Min.) eine andere Akte geoeffnet? Dann nichts speichern - sonst landet die Fassung in der falschen Akte.
+    if (CURRENT_REPORT !== basisBericht) throw new Error('Die Akte wurde w\u00e4hrend der Bewertung gewechselt \u2013 nichts gespeichert');
+    // v12.70 (F2) ENDE
     const neu = r.bericht;
     // Kennzeichen uebernehmen
     neu._fassung = (CURRENT_REPORT._fassung || 1) + 1;
@@ -9066,6 +9101,12 @@ async function neuBewertenKern() {
     // wird das Ergebnis hier ausdruecklich geprueft. Ohne Speicherung wuerde
     // beim naechsten Oeffnen aus der Historie die alte Fassung erscheinen.
     belegStatusUebernehmen(neu, r, belege);
+    // v12.70 (B1) START
+    // Eine Quelle fuer den Score: die App-Regeln (scoreBerechnen: Deckel, Sitz-Abzug, Stufe) VOR dem Speichern anwenden.
+    // Vorher wurde der Worker-Wert gespeichert (p_score/report_json) und erst showReport rechnete neu -> DB und Anzeige wichen ab.
+    scoreBerechnen(neu);
+    const altBericht = CURRENT_REPORT;
+    // v12.70 (B1) ENDE
     const analyseId = await analyseIdErmitteln(neu);
     let gespeichert = false;
     let speicherFehler = '';
@@ -9074,14 +9115,22 @@ async function neuBewertenKern() {
     } else if (!sb) {
       speicherFehler = 'Keine Verbindung zur Datenbank.';
     } else {
+      // v12.70 (B1) START
+      // Ab jetzt ist der alte Bericht nicht mehr die aktuelle Fassung: sein noch laufender Sanktionsabgleich schreibt nicht mehr.
+      // Ein bereits abgeschickter Write des alten Berichts wird abgewartet, damit er nicht NACH der neuen Fassung ankommt.
+      BERICHT_ERSETZT.add(altBericht);
+      try { const laeuft = BERICHT_SCHREIBT.get(altBericht); if (laeuft) await laeuft; } catch (e) {}
+      // v12.70 (B1) ENDE
       const r2 = await sb.rpc('fassung_speichern', {
         p_analyse: analyseId, p_report: neu, p_score: neu.gesamtScore,
         p_grund: 'neubewertung', p_ergaenzungen: erg
       });
       if (r2 && r2.error) {
         speicherFehler = r2.error.message || 'Unbekannter Datenbankfehler';
+        BERICHT_ERSETZT.delete(altBericht);   // v12.70 (B1): nicht gespeichert -> alter Bericht bleibt die gueltige Fassung
       } else if (r2 && r2.data && r2.data.ok === false) {
         speicherFehler = r2.data.grund || 'Speichern abgelehnt';
+        BERICHT_ERSETZT.delete(altBericht);   // v12.70 (B1)
       } else {
         gespeichert = true;
         if (r2 && r2.data && r2.data.fassung) neu._fassung = r2.data.fassung;
@@ -15140,6 +15189,11 @@ async function startSearch(ignoriereDuplikat) {
 
 async function runAnalysis(name, ust, land, sitz, auswahl) {
   AUS_HISTORIE = false;
+  // v12.70 (F2) START
+  // Mitgegebene Dokumente gelten fuer genau diese Pruefung: Auswahl uebernehmen und in der Startmaske leeren
+  const startDoks = { beleg: START_DOKS.beleg.slice(), ausweis: START_DOKS.ausweis.slice() };
+  if (startDoks.beleg.length || startDoks.ausweis.length) { START_DOKS = { beleg: [], ausweis: [] }; try { startDoksRender(); } catch (e) {} }
+  // v12.70 (F2) ENDE
   sitz = sitz || { ort: '', plz: '' };
   // Gewuenschter Sitz: Eingabe des Nutzers, sonst Sitz der ausgewaehlten Firma
   const sollSitz = { ort: sitz.ort || (auswahl && auswahl.ort) || '', plz: sitz.plz || (auswahl && auswahl.plz) || '' };
@@ -15274,7 +15328,15 @@ async function runAnalysis(name, ust, land, sitz, auswahl) {
     if (googleFehlerAnalyse) report._googleFehler = { status: googleFehlerAnalyse.status || 0, grund: googleFehlerAnalyse.grund || 'unbekannt' };
 
     showReport(report, name);
+    // v12.70 (F2) START
+    // Dokumente aus der Startmaske: erst nach dem Insert (analyseId) in GENAU diese Akte laden, bei Belegen danach eine Neubewertung
+    if (startDoks.beleg.length || startDoks.ausweis.length) { try { startDoksNachStart(report, startDoks); } catch (e) {} }
+    // v12.70 (F2) ENDE
   } catch(err) {
+    // v12.70 (F2) START
+    // Pruefung fehlgeschlagen: die Auswahl bleibt fuer den naechsten Versuch erhalten (nur wenn inzwischen nichts Neues gewaehlt wurde)
+    if ((startDoks.beleg.length || startDoks.ausweis.length) && !START_DOKS.beleg.length && !START_DOKS.ausweis.length) { START_DOKS = startDoks; try { startDoksRender(); } catch (e) {} }
+    // v12.70 (F2) ENDE
     clearInterval(stepTimer);
     fortschrittStop();
     document.getElementById('loading').classList.remove('active');
@@ -15287,6 +15349,138 @@ async function runAnalysis(name, ust, land, sitz, auswahl) {
       + ((err && err.message) ? `<p class="err-detail">Technisches Detail: ${escapeHtml(err.message)}</p>` : '');
   }
 }
+
+// v12.70 (F2) START
+// ============================================================
+// DOKUMENTE SCHON IN DER STARTMASKE (Kundenauftrag REMAX)
+// Auswahl, Vorschau, Entfernen und Drag & Drop wie auf der Upload-Seite (uploadRender/uploadDrop/uploadWaehlen); Pruefungen wie kycUpload.
+// Nach dem Start: Insert abwarten (analyseId), Dateien ueber kycUpload in GENAU diese Akte laden, bei Belegen EINE Neubewertung
+// ueber neuBewerten/neuBewertenKern. Kein zweiter pruefen-Aufruf, kein zweiter Insert, keine zweite verbrauchte Pruefung.
+// ============================================================
+let START_DOKS = { beleg: [], ausweis: [] };
+const START_DOKS_TYPEN = [
+  { typ: 'beleg', titel: 'Handelsregisterauszug / Nachweise', info: 'Hierher ziehen oder ausw\u00e4hlen \u00b7 mehrere Dateien m\u00f6glich' },
+  { typ: 'ausweis', titel: 'Ausweis', info: 'Vorder- und R\u00fcckseite \u00b7 hierher ziehen oder ausw\u00e4hlen' }
+];
+function startDoksRender() {
+  const g = document.getElementById('startDoksGrid');
+  if (!g) return;
+  g.innerHTML = START_DOKS_TYPEN.map(function(k){
+    const liste = START_DOKS[k.typ] || [];
+    const dateien = liste.map(function(x, n){
+      const bez = (k.typ === 'ausweis') ? (n === 0 ? 'Vorderseite' : (n === 1 ? 'R\u00fcckseite' : 'Seite ' + (n + 1))) : '';
+      return '<div class="up-datei">'
+        + (x.vorschau ? '<img class="up-mini" src="' + x.vorschau + '" alt="" />' : '<div class="up-mini up-mini-pdf">PDF</div>')
+        + '<div class="up-datei-info">' + (bez ? '<div class="up-datei-b">' + bez + '</div>' : '') + '<div class="up-datei-n">' + escapeHtml(x.file.name) + '</div></div>'
+        + '<button type="button" class="up-datei-x" onclick="startDoksEntfernen(\'' + k.typ + '\',' + n + ')" title="Entfernen" aria-label="Entfernen">'
+        + '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>';
+    }).join('');
+    return '<div class="kyc-box sd-box ' + (liste.length ? 'kyc-voll' : 'kyc-leer') + '" data-typ="' + k.typ + '" '
+      + 'ondragover="event.preventDefault(); this.classList.add(\'drag\');" ondragleave="this.classList.remove(\'drag\');" ondrop="startDoksDrop(event, \'' + k.typ + '\')">'
+      + '<div class="kyc-box-t">' + k.titel + (liste.length ? '<span class="kyc-anzahl">' + liste.length + (liste.length === 1 ? ' Datei' : ' Dateien') + '</span>' : '') + '</div>'
+      + (liste.length ? '<div class="up-dateien">' + dateien + '</div>' : '<div class="kyc-box-file" style="white-space:normal;">' + k.info + '</div>')
+      + '<div class="up-btns"><button type="button" class="kyc-btn" onclick="startDoksPick(\'' + k.typ + '\')">' + (liste.length ? '+ Weitere Datei' : 'Datei ausw\u00e4hlen') + '</button></div>'
+      + '<input type="file" id="sdFile_' + k.typ + '" accept="image/jpeg,image/png,image/webp,application/pdf" multiple style="display:none" onchange="startDoksDateien(\'' + k.typ + '\', this.files); this.value = \'\';" />'
+      + '</div>';
+  }).join('');
+  const n = START_DOKS.beleg.length + START_DOKS.ausweis.length;
+  const z = document.getElementById('startDoksZahl');
+  if (z) z.textContent = n ? ' \u00b7 ' + n + (n === 1 ? ' Datei' : ' Dateien') + ' ausgew\u00e4hlt' : '';
+  const st = document.getElementById('startDoksStatus');
+  if (st && START_DOKS.beleg.length > 3 && !st.getAttribute('data-fehler')) st.textContent = START_DOKS.beleg.length + ' Belege gew\u00e4hlt: bei der ersten Bewertung werden 3 gelesen, die \u00fcbrigen bei der n\u00e4chsten Neubewertung.';
+  else if (st && !st.getAttribute('data-fehler')) st.textContent = '';
+}
+function startDoksPick(typ) { const i = document.getElementById('sdFile_' + typ); if (i) i.click(); }
+async function startDoksDateien(typ, files) {
+  if (!files || !files.length) return;
+  const st = document.getElementById('startDoksStatus');
+  if (st) { st.removeAttribute('data-fehler'); st.textContent = ''; }
+  const fehler = [];
+  const liste = Array.prototype.slice.call(files);
+  for (let i = 0; i < liste.length; i++) {
+    let file = liste[i];
+    try { file = await dateiVorbereiten(file); } catch (e) {}
+    // dieselben Pruefungen wie kycUpload (Typ JPG/PNG/WebP/PDF, max. 10 MB, HEIC-Hinweis)
+    const erlaubt = ['image/jpeg','image/png','image/webp','application/pdf'];
+    if (!file || erlaubt.indexOf(file.type) < 0) { fehler.push(heicHinweis(file || {}) || (((file && file.name) || 'Datei') + ': bitte ein Bild (JPG/PNG/WebP) oder PDF.')); continue; }
+    if (file.size > 10 * 1024 * 1024) { fehler.push((file.name || 'Datei') + ': zu gro\u00df (max. 10 MB).'); continue; }
+    let vorschau = null;
+    if (file.type.indexOf('image/') === 0) { try { vorschau = 'data:' + file.type + ';base64,' + (await dateiAlsB64(file)); } catch (e) {} }
+    START_DOKS[typ].push({ file: file, vorschau: vorschau });
+  }
+  startDoksRender();
+  if (fehler.length && st) { st.setAttribute('data-fehler', '1'); st.textContent = 'Nicht \u00fcbernommen: ' + fehler.join(' '); }
+}
+function startDoksDrop(ev, typ) {
+  ev.preventDefault();
+  try { ev.currentTarget.classList.remove('drag'); } catch (e) {}
+  const fs = ev.dataTransfer && ev.dataTransfer.files;
+  if (fs && fs.length) startDoksDateien(typ, fs);
+}
+function startDoksEntfernen(typ, n) {
+  if (!Array.isArray(START_DOKS[typ])) return;
+  START_DOKS[typ].splice(n, 1);
+  const st = document.getElementById('startDoksStatus');
+  if (st) { st.removeAttribute('data-fehler'); st.textContent = ''; }
+  startDoksRender();
+}
+async function startDoksNachStart(d, doks) {
+  const belege = (doks && doks.beleg) || [], ausweise = (doks && doks.ausweis) || [];
+  if (!belege.length && !ausweise.length) return;                      // ohne Dokumente: Ablauf wie bisher
+  const pid = d && d.pruefId;
+  const weg = function(){ return CURRENT_REPORT !== d; };              // Akte gewechselt / verlassen?
+  const ende = function(titel, text){ try { neuStatus(null); } catch (e) {} try { zeigeToast(titel, text); } catch (e) {} };
+  const OHNE = 'Die Akte bleibt mit dem Score ohne Dokumente.';
+  try { neuStatus('laeuft', 'Dokumente werden hochgeladen \u2026'); } catch (e) {}
+  // 1) Insert der frischen Akte abwarten - erst dann ist die Datensatz-ID (analyseId) bekannt
+  try { const lauf = SPEICHERN_LAEUFT.get(d); if (lauf) await lauf; } catch (e) {}
+  const id = (d && d._analyseId) || null;
+  if (!id) { ende('Dokumente nicht hochgeladen', 'Die Akte konnte nicht gespeichert werden \u2013 bitte die Dokumente in der Akte hochladen.'); return; }
+  // 2) Ablage GENAU dieser Akte (initKyc sucht die frische Akte bis zu 3x im Abstand von 1,5 s; Waechter wie kycLaden)
+  for (let i = 0; i < 40 && !weg() && KYC.pruefId === pid && KYC.analyseId !== id; i++) await new Promise(function(r){ setTimeout(r, 250); });
+  if (!weg() && KYC.pruefId === pid && !KYC.analyseId) { KYC.analyseId = id; try { await kycLaden(); } catch (e) {} }
+  if (weg() || KYC.pruefId !== pid || KYC.analyseId !== id) {
+    ende('Dokumente nicht hochgeladen', 'Die Akte wurde vorher gewechselt \u2013 es wurde nichts in eine andere Akte geladen. Bitte die Dokumente in der Akte hochladen.');
+    return;
+  }
+  // 3) Hochladen ueber den bestehenden kycUpload-Weg (Pfad firma/analyse/typ..., Tabelle kyc_dokumente), mit festem Ziel
+  let belegOk = 0, fehlgeschlagen = 0, abgebrochen = false;
+  const auftrag = belege.map(function(x){ return ['beleg', x.file]; }).concat(ausweise.map(function(x){ return ['ausweis', x.file]; }));
+  for (const [typ, file] of auftrag) {
+    if (weg() || KYC.analyseId !== id) { abgebrochen = true; break; }
+    let ok = false;
+    try { ok = (await kycUpload(typ, file, id)) === true; } catch (e) { ok = false; }
+    if (ok) { if (typ === 'beleg') belegOk++; } else fehlgeschlagen++;
+  }
+  if (abgebrochen) { ende('Dokumente nicht vollst\u00e4ndig hochgeladen', 'Die Akte wurde gewechselt \u2013 die restlichen Dokumente wurden nicht hochgeladen.'); return; }
+  // 4) Waren Belege dabei: genau EINE Neubewertung ueber den bestehenden Weg (kostet keine Pruefung)
+  if (!belegOk) {
+    if (fehlgeschlagen) ende('Dokumente nicht vollst\u00e4ndig hochgeladen', OHNE + ' Bitte die fehlenden Dokumente im Bereich \u201eDokumente\u201c hochladen.');
+    else ende('Dokumente in der Akte', ausweise.length === 1 ? 'Der Ausweis liegt in der Akte.' : 'Die Dokumente liegen in der Akte.');
+    return;
+  }
+  if (weg()) { ende('Dokumente in der Akte', 'Die Akte wurde gewechselt \u2013 keine Neubewertung gestartet. \u201eNeu bewerten\u201c ist in der Akte jederzeit m\u00f6glich.'); return; }
+  const vorher = CURRENT_REPORT;
+  await neuBewerten('Dokumente werden ausgewertet \u2026');
+  const erfolg = !NEU_FEHLER && CURRENT_REPORT !== vorher;
+  if (!erfolg) {
+    try { zeigeToast('Dokumente nicht ausgewertet', OHNE + ' Die Dokumente liegen in der Akte \u2013 \u201eNeu bewerten\u201c ist jederzeit manuell m\u00f6glich.'); } catch (e) {}
+    if (!NEU_FEHLER) { try { neuStatus('fehler', OHNE + ' Die Dokumente liegen in der Akte \u2013 bitte \u201eNeu bewerten\u201c manuell starten.'); } catch (e) {} }
+    return;
+  }
+  const offen = Math.max(0, belegOk - ((CURRENT_REPORT && CURRENT_REPORT._belegeAusgewertet) || []).length);   // frische Akte: nur diese Belege
+  if (belegOk > 3 || fehlgeschlagen || offen > 0) {
+    setTimeout(function(){
+      try {
+        zeigeToast(fehlgeschlagen ? 'Nicht alle Dokumente hochgeladen' : 'Weitere Belege offen',
+          (fehlgeschlagen ? fehlgeschlagen + ' Datei(en) konnten nicht hochgeladen werden. ' : '')
+          + (offen > 0 ? 'Je Durchgang werden h\u00f6chstens 3 Belege gelesen \u2013 die \u00fcbrigen ' + offen + ' werden bei der n\u00e4chsten Neubewertung ausgewertet.' : ''));
+      } catch (e) {}
+    }, 2400);
+  }
+}
+try { startDoksRender(); } catch (e) {}
+// v12.70 (F2) ENDE
 
 // Der grosse Pruef-Prompt + die Methodik liegen jetzt SICHER im Worker-Backend
 // (Action "pruefen"). Im Frontend ist nichts davon mehr sichtbar -> IP geschuetzt.
@@ -15712,11 +15906,17 @@ window.addEventListener('error', function(ev) {
 // Kleine Korrekturen ohne neue Funktionen: NEU_VERSION unveraendert lassen.
 // ============================================================
 const NEU_VERSION = 'v12.51';           // Stand der Neuigkeiten - nur erhoehen, wenn es wirklich Neues gibt
-const APP_VERSION = 'v12.69'; /* v12.69 (K06-07/K06-08) */         // aktuelle Version (Anzeige im Bericht und oben im Kopf)
+const APP_VERSION = 'v12.70'; /* v12.70 (B1/F2/F3) */         // aktuelle Version (Anzeige im Bericht und oben im Kopf)
 // v12.49 (Fix B, N18): Versionsanzeige im Kopf aus APP_VERSION fuellen (der Kopf steht vor diesem Skript im Dokument)
 try { document.querySelectorAll('.app-version').forEach(function(el){ el.textContent = APP_VERSION; }); } catch (e) {}
 const UPDATE_KURZ = 'Neu: Die Akten-Historie l\u00e4dt schneller, die API meldet St\u00f6rungen sauber und Fehler werden stabiler abgefangen.';
 const NEUIGKEITEN = [
+  // v12.70 (B1/F2/F3) START
+  { farbe: '#2E8749', v: 'v12.70', ico: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="m9 15 2 2 4-4"/>',
+    t: 'Aktueller Score im Ausdruck, Dokumente beim Anlegen',
+    kurz: 'Ausdruck zeigt immer den aktuellen Score; Dokumente schon beim Anlegen der Akte; Endverbleibserkl\u00e4rung per Drag & Drop',
+    d: 'Ausdruck zeigt immer den aktuellen Score; Dokumente schon beim Anlegen der Akte; Endverbleibserkl\u00e4rung per Drag & Drop.' },
+  // v12.70 (B1/F2/F3) ENDE
   // v12.69 (K06-07/K06-08) START
   { farbe: '#2E8749', v: 'v12.69', ico: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/>',
     t: 'Sanktionsabgleich: Originalschrift und fertiger Abgleich',
@@ -16607,6 +16807,12 @@ function endverbleibZeichnen() {
           + '<label class="nw-btn ev-hoch-aus" id="evUploadKnopf" for="evUpload" onclick="return evUploadErlaubt(event)"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5M12 3v12"/></svg>Unterschriebene Fassung hochladen</label>'
           + '<input type="file" id="evUpload" accept="application/pdf,image/jpeg,image/png,image/webp" style="display:none" onchange="if (evUploadErlaubt()) endverbleibHochladen(this.files); this.value = \'\';" />'
           + (st !== 'ok' ? '<button class="ev-link" onclick="endverbleibNichtErforderlich()">Nicht erforderlich</button>' : '')
+          // v12.70 (F3) START
+          // Ablageflaeche wie die KYC-Boxen (dragover/dragleave/drop, Klasse drag); abgeschlossen: keine Flaeche
+          + (!akteGesperrt() ? '<div class="ev-ablage" id="evAblage" role="button" tabindex="0" ondragover="evAblageDragOver(event)" ondragleave="this.classList.remove(\'drag\')" ondrop="evAblageDrop(event)" onclick="evAblageKlick(event)" onkeydown="if (event.key === \'Enter\' || event.key === \' \') { event.preventDefault(); evAblageKlick(event); }">'
+            + '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5M12 3v12"/></svg>'
+            + '<span>Unterschriebene Fassung hierher ziehen oder ausw\u00e4hlen</span></div>' : '')
+          // v12.70 (F3) ENDE
           + '</div>')
     + (doks.length ? '<div class="ev-doks">' + doks.map(function(x, n){
         const url = urls[n];
@@ -16619,6 +16825,11 @@ function endverbleibZeichnen() {
           + '</div>';
       }).join('') + '</div>' : '')
     + '<div class="ev-fuss">Vorlage wie vom Nutzer bereitgestellt \u2013 das Tool f\u00fcllt nur Namen, Ort und Datum ein und pr\u00fcft den Inhalt nicht. Verbindlich ist allein die unterschriebene Fassung.</div>';
+  // v12.70 (F3) START
+  // Drop neben die Ablageflaeche (oder bei abgeschlossener / nicht erforderlicher Erklaerung): Datei NICHT im Browser-Tab oeffnen, kein Upload
+  box.ondragover = function(e){ if (e && e.preventDefault) e.preventDefault(); };
+  box.ondrop = function(e){ if (e && e.preventDefault) e.preventDefault(); };
+  // v12.70 (F3) ENDE
 }
 
 function endverbleibWerte() {
@@ -16673,6 +16884,36 @@ function evUploadErlaubt(ev) {
   if (box) { box.closest('.ev-best').classList.remove('wackeln'); void box.offsetWidth; box.closest('.ev-best').classList.add('wackeln'); }
   return false;
 }
+
+// v12.70 (F3) START
+// Drag & Drop fuer die unterschriebene Endverbleibserklaerung: DIESELBEN Regeln wie der Knopf
+// (evUploadErlaubt -> gesperrtMelden -> endverbleibHochladen; nur die erste Datei; Typ/Groesse in kycUpload)
+function evAblageDragOver(ev) {
+  if (!ev) return;
+  ev.preventDefault();
+  if (akteGesperrt()) return;
+  try { if (ev.dataTransfer) ev.dataTransfer.dropEffect = 'copy'; } catch (e) {}
+  try { ev.currentTarget.classList.add('drag'); } catch (e) {}
+}
+function evAblageDrop(ev) {
+  if (!ev) return;
+  ev.preventDefault();
+  if (ev.stopPropagation) ev.stopPropagation();
+  try { ev.currentTarget.classList.remove('drag'); } catch (e) {}
+  if (akteGesperrt() || akteStatus('endverbleib') === 'uebersprungen') return;   // abgeschlossen / nicht erforderlich: ohne Wirkung
+  const fs = ev.dataTransfer && ev.dataTransfer.files;
+  if (!fs || !fs.length) return;
+  if (!evUploadErlaubt(ev)) return;                                              // Haekchen Ort/Datum/Unterschrift fehlt: Hinweis + Wackeln
+  if (gesperrtMelden()) return;
+  endverbleibHochladen(fs);                                                     // nimmt wie beim Knopf nur die erste Datei
+}
+function evAblageKlick(ev) {
+  if (akteGesperrt() || akteStatus('endverbleib') === 'uebersprungen') return;
+  if (!evUploadErlaubt(ev)) return;
+  const i = document.getElementById('evUpload');
+  if (i) i.click();                                                             // derselbe Datei-Dialog wie der Knopf (onchange unveraendert)
+}
+// v12.70 (F3) ENDE
 
 function endverbleibImRahmenDrucken(html, titel) {
   const alt = document.getElementById('evDruckRahmen');
@@ -18371,10 +18612,17 @@ function kycDrop(ev, typ) {
   if (f) kycUpload(typ, f);
 }
 
-async function kycUpload(typ, file) {
+async function kycUpload(typ, file, zielId) {   // v12.70 (F2): zielId optional - Upload nur in genau diese Akte
   if (gesperrtMelden()) return false;
   if (!KYC.analyseId || !CURRENT_FIRMA) return;
+  // v12.70 (F2) START
+  // Mit festem Ziel (Startmaske): nur solange die Ablage dieser Akte offen ist (Waechter wie kycLaden), sonst nichts hochladen
+  const zielKyc = KYC;
+  const zielOk = function(){ return !zielId || (KYC === zielKyc && KYC.analyseId === zielId); };
+  if (!zielOk()) return false;
+  // v12.70 (F2) ENDE
   file = await dateiVorbereiten(file);
+  if (!zielOk()) return false;   // v12.70 (F2): waehrend der Vorbereitung Akte gewechselt
   const erlaubt = ['image/jpeg','image/png','image/webp','application/pdf'];
   if (erlaubt.indexOf(file.type) < 0) { alert(heicHinweis(file) || 'Bitte ein Bild (JPG/PNG/WebP) oder PDF hochladen.'); return; }
   if (file.size > 10 * 1024 * 1024) { alert('Datei zu gro\u00df (max. 10 MB).'); return; }
@@ -18384,6 +18632,9 @@ async function kycUpload(typ, file) {
     const pfad = CURRENT_FIRMA.firma_id + '/' + KYC.analyseId + '/' + typ + '_' + Date.now() + '_' + (bisher + 1) + '.' + ext;
     const up = await sb.storage.from('kyc').upload(pfad, file, { contentType: file.type });
     if (up && up.error) throw up.error;
+    // v12.70 (F2) START
+    if (!zielOk()) { try { await sb.storage.from('kyc').remove([pfad]); } catch (e) {} return false; }   // kein Eintrag in einer anderen Akte
+    // v12.70 (F2) ENDE
     const db = await sb.from('kyc_dokumente').insert({
       analyse_id: KYC.analyseId, firma_id: CURRENT_FIRMA.firma_id, typ: typ,
       storage_path: pfad, datei_name: file.name, mime_type: file.type,
@@ -18563,7 +18814,7 @@ function neuStatus(art, text) {
     const start = Date.now();
     const zeichne = function(){
       const sek = Math.round((Date.now() - start) / 1000);
-      el.innerHTML = '<span class="neu-spin"></span><div class="neu-txt"><b>Neue Bewertung l\u00e4uft \u2026</b>'
+      el.innerHTML = '<span class="neu-spin"></span><div class="neu-txt"><b>' + (text ? escapeHtml(text) : 'Neue Bewertung l\u00e4uft \u2026') + '</b>'   // v12.70 (F2): Titel optional
         + '<small>Dokumente und Erg\u00e4nzungen werden gegen unabh\u00e4ngige Quellen gepr\u00fcft \u00b7 meist 1\u20133 Minuten \u00b7 '
         + Math.floor(sek / 60) + ':' + String(sek % 60).padStart(2, '0') + '</small></div>';
     };
@@ -18575,12 +18826,12 @@ function neuStatus(art, text) {
     if (art === 'fertig') setTimeout(function(){ const x = document.getElementById('neuStatus'); if (x && x.classList.contains('fertig')) neuStatus(null); }, 6000);
   }
 }
-async function neuBewerten() {
+async function neuBewerten(titel) {   // v12.70 (F2): titel optional (Statusanzeige)
   if (NEU_LAEUFT) { try { zeigeToast('Neubewertung l\u00e4uft bereits', 'Bitte warten, bis die laufende Bewertung fertig ist.'); } catch (e) {} return; }
   if (gesperrtMelden()) return;
   const vorher = CURRENT_REPORT && typeof CURRENT_REPORT.gesamtScore === 'number' ? CURRENT_REPORT.gesamtScore : null;
   NEU_LAEUFT = true; NEU_FEHLER = '';
-  neuStatus('laeuft');
+  neuStatus('laeuft', titel);   // v12.70 (F2)
   try { nwZeichnen(); } catch (e) {}
   let gestartet = true;
   try { gestartet = (await neuBewertenKern()) !== false; }
@@ -20451,6 +20702,13 @@ function zugriffNeuZeichnen() { const z = document.getElementById('omZugriff'); 
 // v12.49 (Fix B, N1): merkt je FRISCH erstellter Akte das Speicher-Promise (Schluessel = Berichtsobjekt d).
 // Bewusst eine WeakMap: eine Eigenschaft an d wuerde mit report_json in die Datenbank geschrieben.
 const SPEICHERN_LAEUFT = new WeakMap();
+// v12.70 (B1) START
+// Berichtsobjekte, die durch eine gespeicherte neuere Fassung ersetzt sind (neuBewertenKern). Ihr spaeter fertig werdender
+// Sanktionsabgleich darf die Akte NICHT mehr schreiben - sonst ueberschreibt der alte Bericht (alter Score) die neue Fassung.
+// Bewusst WeakSet/WeakMap: keine Eigenschaft an d (d wird als report_json gespeichert).
+const BERICHT_ERSETZT = new WeakSet();
+const BERICHT_SCHREIBT = new WeakMap();   // laufender report_json-Write je Berichtsobjekt (neuBewertenKern wartet ihn vor fassung_speichern ab)
+// v12.70 (B1) ENDE
 
 // v12.49 (Fix B, N2): verstaendliche Meldung, wenn der Ordnername schon vergeben ist (Unique-Index, Fix A); andere Fehler wie bisher
 function ordnerFehlerText(e) {
@@ -20946,6 +21204,10 @@ async function sanktionenAbgleichen(d) {
         // v12.49 (Fix B, N1): FRISCHE Akte dieser Sitzung - erst warten, bis der INSERT durch ist (sonst Nulltreffer),
         // dann Deckel anwenden (auch wenn der Bericht inzwischen verlassen wurde) und Spalten + report_json EINMAL schreiben
         try { await speicherLauf; } catch (e) {}
+        // v12.70 (B1) START
+        // Inzwischen neu bewertet und als neue Fassung gespeichert? Dann diesen (alten) Bericht nicht mehr schreiben.
+        if (typeof BERICHT_ERSETZT !== 'undefined' && BERICHT_ERSETZT.has(d)) return;
+        // v12.70 (B1) ENDE
         if (treffer.length) scoreBerechnen(d);
         const werte = {
           report_json: d,
@@ -20956,13 +21218,23 @@ async function sanktionenAbgleichen(d) {
         let upd = sb.from('analysen').update(werte);
         // Die Pruef-ID kann sich bei 23505 geaendert haben -> bevorzugt ueber die Datensatz-ID
         upd = d._analyseId ? upd.eq('id', d._analyseId) : upd.eq('pruef_id', d.pruefId || d.pruef_id);
-        const res = await upd.select('id');
+        // v12.70 (B1) START
+        const schreibLauf = Promise.resolve(upd.select('id'));   // genau ein Request; neuBewertenKern wartet ihn vor fassung_speichern ab
+        try { if (typeof BERICHT_SCHREIBT !== 'undefined') BERICHT_SCHREIBT.set(d, schreibLauf); } catch (e) {}
+        const res = await schreibLauf;
+        // v12.70 (B1) ENDE
         if (res && res.error) console.warn('Sanktionsabgleich: Akte nicht aktualisiert (' + (res.error.code || 'Fehler') + ').');
         else if (!res || !res.data || !res.data.length) console.warn('Sanktionsabgleich: keine Akte aktualisiert (0 Treffer).');
       } else {
         // alte Akte (aus der Historie geoeffnet): wie bisher NUR report_json, keine Spalten
-        await sb.from('analysen').update({ report_json: d })
-          .eq('pruef_id', d.pruefId || d.pruef_id);
+        // v12.70 (B1) START
+        // Gleiches Muster: ist dieser Bericht inzwischen durch eine neue Fassung ersetzt, nicht mehr schreiben
+        if (typeof BERICHT_ERSETZT !== 'undefined' && BERICHT_ERSETZT.has(d)) return;
+        const altLauf = Promise.resolve(sb.from('analysen').update({ report_json: d })
+          .eq('pruef_id', d.pruefId || d.pruef_id));
+        try { if (typeof BERICHT_SCHREIBT !== 'undefined') BERICHT_SCHREIBT.set(d, altLauf); } catch (e) {}
+        await altLauf;
+        // v12.70 (B1) ENDE
       }
     }
   } catch (e) {}
