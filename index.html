@@ -9135,6 +9135,9 @@ async function neuBewertenKern() {
         gespeichert = true;
         if (r2 && r2.data && r2.data.fassung) neu._fassung = r2.data.fassung;
         neu._analyseId = analyseId;
+        // v12.71 (K14-01) START
+        try { FASSUNG_GESPEICHERT.set(neu, analyseId); } catch (e) {}   // nur diese gespeicherte Fassung darf beim Nachabgleich auch die Spalten schreiben
+        // v12.71 (K14-01) ENDE
         // Historie im Speicher sofort aktualisieren, damit ein erneutes
         // Oeffnen die neue Fassung zeigt - auch bevor die Liste neu laedt
         try {
@@ -9143,6 +9146,11 @@ async function neuBewertenKern() {
         } catch(e) {}
       }
     }
+    // v12.71 (K14-02) START
+    // Nicht gespeichert (fassung_speichern error / ok:false, ohne Datensatz-ID oder ohne DB): die nur angezeigte Fassung wird fuer Writes gesperrt -
+    // ihr Nachabgleich schreibt sie sonst ueber den Altakten-Weg als report_json in die Akte. Anzeige und Meldung bleiben; der alte Bericht schreibt weiter.
+    if (!gespeichert) { try { BERICHT_ERSETZT.add(neu); } catch (e) {} }
+    // v12.71 (K14-02) ENDE
 
     BEARBEITEN_AN = false;
     ERGAENZUNGEN = {}; ERG_QUELLEN = {};
@@ -15906,7 +15914,7 @@ window.addEventListener('error', function(ev) {
 // Kleine Korrekturen ohne neue Funktionen: NEU_VERSION unveraendert lassen.
 // ============================================================
 const NEU_VERSION = 'v12.51';           // Stand der Neuigkeiten - nur erhoehen, wenn es wirklich Neues gibt
-const APP_VERSION = 'v12.70'; /* v12.70 (B1/F2/F3) */         // aktuelle Version (Anzeige im Bericht und oben im Kopf)
+const APP_VERSION = 'v12.71'; /* v12.71 (K14-01/K14-02) */        // aktuelle Version (Anzeige im Bericht und oben im Kopf)
 // v12.49 (Fix B, N18): Versionsanzeige im Kopf aus APP_VERSION fuellen (der Kopf steht vor diesem Skript im Dokument)
 try { document.querySelectorAll('.app-version').forEach(function(el){ el.textContent = APP_VERSION; }); } catch (e) {}
 const UPDATE_KURZ = 'Neu: Die Akten-Historie l\u00e4dt schneller, die API meldet St\u00f6rungen sauber und Fehler werden stabiler abgefangen.';
@@ -20709,6 +20717,12 @@ const SPEICHERN_LAEUFT = new WeakMap();
 const BERICHT_ERSETZT = new WeakSet();
 const BERICHT_SCHREIBT = new WeakMap();   // laufender report_json-Write je Berichtsobjekt (neuBewertenKern wartet ihn vor fassung_speichern ab)
 // v12.70 (B1) ENDE
+// v12.71 (K14-01) START
+// Genau die Berichtsobjekte, die in DIESER Sitzung per fassung_speichern erfolgreich gespeichert wurden (neuBewertenKern) -> gespeicherte analyseId.
+// Nur fuer sie schreibt der Nachabgleich zusaetzlich score/verdict/verdict_text (sonst bleibt die Spalte nach einem harten Treffer ungedeckelt).
+// Bewusst WeakMap: keine Eigenschaft an d (d wird als report_json gespeichert); ein nach Neuladen geoeffnetes Objekt ist nie enthalten.
+const FASSUNG_GESPEICHERT = new WeakMap();
+// v12.71 (K14-01) ENDE
 
 // v12.49 (Fix B, N2): verstaendliche Meldung, wenn der Ordnername schon vergeben ist (Unique-Index, Fix A); andere Fehler wie bisher
 function ordnerFehlerText(e) {
@@ -21230,6 +21244,24 @@ async function sanktionenAbgleichen(d) {
         // v12.70 (B1) START
         // Gleiches Muster: ist dieser Bericht inzwischen durch eine neue Fassung ersetzt, nicht mehr schreiben
         if (typeof BERICHT_ERSETZT !== 'undefined' && BERICHT_ERSETZT.has(d)) return;
+        // v12.71 (K14-01) START
+        // In DIESER Sitzung per fassung_speichern gespeicherte Fassung: Spalten wie im Frisch-Zweig mitschreiben (eine Quelle: score = report_json.gesamtScore),
+        // genau ein Request, gefiltert ueber genau die gespeicherte Datensatz-ID. Alle anderen Akten (Historie, Neuladen, Monitoring/API) unten wie bisher NUR report_json.
+        const gespeichertId = (typeof FASSUNG_GESPEICHERT !== 'undefined') ? FASSUNG_GESPEICHERT.get(d) : undefined;
+        if (gespeichertId) {
+          if (treffer.length) scoreBerechnen(d);
+          const fassungWerte = {
+            report_json: d,
+            score: (typeof d.gesamtScore === 'number' && !isNaN(d.gesamtScore)) ? Math.round(d.gesamtScore) : null,
+            verdict: d.verdict || null,
+            verdict_text: d.verdictText || null
+          };
+          const fassungLauf = Promise.resolve(sb.from('analysen').update(fassungWerte).eq('id', gespeichertId));
+          try { if (typeof BERICHT_SCHREIBT !== 'undefined') BERICHT_SCHREIBT.set(d, fassungLauf); } catch (e) {}
+          await fassungLauf;
+          return;
+        }
+        // v12.71 (K14-01) ENDE
         const altLauf = Promise.resolve(sb.from('analysen').update({ report_json: d })
           .eq('pruef_id', d.pruefId || d.pruef_id));
         try { if (typeof BERICHT_SCHREIBT !== 'undefined') BERICHT_SCHREIBT.set(d, altLauf); } catch (e) {}
