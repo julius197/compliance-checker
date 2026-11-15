@@ -15914,7 +15914,7 @@ window.addEventListener('error', function(ev) {
 // Kleine Korrekturen ohne neue Funktionen: NEU_VERSION unveraendert lassen.
 // ============================================================
 const NEU_VERSION = 'v12.51';           // Stand der Neuigkeiten - nur erhoehen, wenn es wirklich Neues gibt
-const APP_VERSION = 'v12.71'; /* v12.71 (K14-01/K14-02) */        // aktuelle Version (Anzeige im Bericht und oben im Kopf)
+const APP_VERSION = 'v12.72'; /* v12.72 (K15-01) */        // aktuelle Version (Anzeige im Bericht und oben im Kopf)
 // v12.49 (Fix B, N18): Versionsanzeige im Kopf aus APP_VERSION fuellen (der Kopf steht vor diesem Skript im Dokument)
 try { document.querySelectorAll('.app-version').forEach(function(el){ el.textContent = APP_VERSION; }); } catch (e) {}
 const UPDATE_KURZ = 'Neu: Die Akten-Historie l\u00e4dt schneller, die API meldet St\u00f6rungen sauber und Fehler werden stabiler abgefangen.';
@@ -19954,19 +19954,19 @@ function renderHistoryList() {
         + nameOriginalHTML(nameAnzeige(r.firmenname, r.report_json && r.report_json.firmennameOriginal), 'hr-orig')   // v12.45
         + '<div class="hr-meta">' + datum + (uhr ? ' · ' + uhr : '') + land + '</div>'
         + autorZeile
-        + '<div class="hr-id">' + (r.pruef_id || '') + '</div>'
+        + '<div class="hr-id">' + escapeHtml(r.pruef_id || '') + '</div>'   // v12.72 (K15-01)
         + folderTag
         + '</div>'
         + '<div class="hr-right">'
-        + (einzelPruef ? '' : '<button class="fav-stern' + (istFavorit(r.firmenname) ? ' ist-fav' : '') + '" onclick="favToggle(event, \'' + (r.pruef_id || '') + '\')" title="' + (istFavorit(r.firmenname) ? 'Wird alle 3 Monate automatisch gepr\u00fcft \u2013 klicken zum Entfernen' : 'Zur laufenden \u00dcberwachung hinzuf\u00fcgen') + '">'
+        + (einzelPruef ? '' : '<button class="fav-stern' + (istFavorit(r.firmenname) ? ' ist-fav' : '') + '" data-pid="' + escapeHtml(r.pruef_id || '') + '" onclick="favToggle(event, this.dataset.pid)" title="' + (istFavorit(r.firmenname) ? 'Wird alle 3 Monate automatisch gepr\u00fcft \u2013 klicken zum Entfernen' : 'Zur laufenden \u00dcberwachung hinzuf\u00fcgen') + '">'   // v12.72 (K15-01)
             + '<svg viewBox="0 0 24 24" width="17" height="17"><path d="M12 2.6l2.9 5.9 6.5.95-4.7 4.6 1.1 6.5L12 17.5 6.2 20.5l1.1-6.5-4.7-4.6 6.5-.95z"/></svg></button>')
         + '<span class="hr-score" style="color:' + scoreCol + '">' + (score === null ? 'N/A' : score) + '</span>'
-        + '<span class="verdict ' + histVerdictClass(r.verdict) + '">' + histVerdictIcon(r.verdict) + ' ' + vt + '</span>'
+        + '<span class="verdict ' + histVerdictClass(r.verdict) + '">' + histVerdictIcon(r.verdict) + ' ' + escapeHtml(vt) + '</span>'   // v12.72 (K15-01)
         + '<svg class="hr-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>'
         + '</div>'
         + '</div>'
         + '<div class="hr-tools">'
-        + '<select class="hr-move" onchange="moveAnalyse(\'' + (r.pruef_id||'') + '\', this.value); this.value=\'\';">' + moveOpts + '</select>'
+        + '<select class="hr-move" data-pid="' + escapeHtml(r.pruef_id || '') + '" onchange="moveAnalyse(this.dataset.pid, this.value); this.value=\'\';">' + moveOpts + '</select>'   // v12.72 (K15-01)
         + '</div>'
         + '</div>';
     }).join('') + '</div>';
