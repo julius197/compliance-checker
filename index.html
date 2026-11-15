@@ -9237,14 +9237,14 @@ function monBereichZeichnen(d) {
       + '<div class="mon-ico"><svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M12 2.6l2.9 5.9 6.5.95-4.7 4.6 1.1 6.5L12 17.5 6.2 20.5l1.1-6.5-4.7-4.6 6.5-.95z"/></svg></div>'
       + '<div class="mon-text"><div class="mon-t">Wird laufend \u00fcberwacht</div>'
       + '<div class="mon-d">N\u00e4chste automatische Pr\u00fcfung am <b>' + naechste + '</b>. Bei \u00c4nderungen \u2013 neuer Sanktionstreffer, Insolvenz, Wechsel in der Gesch\u00e4ftsf\u00fchrung \u2013 erf\u00e4hrst du es sofort.</div></div>'
-      + '<button class="mon-btn mon-btn-aus" onclick="monAusBericht(\'' + escapeHtml(pruefId) + '\', this)">Beenden</button>'
+      + '<button class="mon-btn mon-btn-aus" data-pid="' + escapeHtml(pruefId) + '" onclick="monAusBericht(this.dataset.pid, this)">Beenden</button>'   // v12.74 (K15-02)
       + '</div>';
   } else {
     box.innerHTML = '<div class="mon-karte">'
       + '<div class="mon-ico mon-ico-leer"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 2.6l2.9 5.9 6.5.95-4.7 4.6 1.1 6.5L12 17.5 6.2 20.5l1.1-6.5-4.7-4.6 6.5-.95z"/></svg></div>'
       + '<div class="mon-text"><div class="mon-t">Dieses Unternehmen dauerhaft im Blick behalten?</div>'
       + '<div class="mon-d">Eine Pr\u00fcfung ist eine Momentaufnahme. Mit der \u00dcberwachung pr\u00fcft der Compliance-Checker <b>alle drei Monate automatisch</b> neu und meldet dir jede Ver\u00e4nderung. Kostet je Pr\u00fcfung eine Analyse aus deinem Kontingent.</div></div>'
-      + '<button class="mon-btn" onclick="monAusBericht(\'' + escapeHtml(pruefId) + '\', this)">'
+      + '<button class="mon-btn" data-pid="' + escapeHtml(pruefId) + '" onclick="monAusBericht(this.dataset.pid, this)">'   // v12.74 (K15-02)
       + '<svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><path d="M12 2.6l2.9 5.9 6.5.95-4.7 4.6 1.1 6.5L12 17.5 6.2 20.5l1.1-6.5-4.7-4.6 6.5-.95z"/></svg>'
       + ' \u00dcberwachung starten</button>'
       + '</div>';
@@ -15914,7 +15914,7 @@ window.addEventListener('error', function(ev) {
 // Kleine Korrekturen ohne neue Funktionen: NEU_VERSION unveraendert lassen.
 // ============================================================
 const NEU_VERSION = 'v12.51';           // Stand der Neuigkeiten - nur erhoehen, wenn es wirklich Neues gibt
-const APP_VERSION = 'v12.72'; /* v12.72 (K15-01) */        // aktuelle Version (Anzeige im Bericht und oben im Kopf)
+const APP_VERSION = 'v12.74'; /* v12.74 (K15-02) */        // aktuelle Version (Anzeige im Bericht und oben im Kopf)
 // v12.49 (Fix B, N18): Versionsanzeige im Kopf aus APP_VERSION fuellen (der Kopf steht vor diesem Skript im Dokument)
 try { document.querySelectorAll('.app-version').forEach(function(el){ el.textContent = APP_VERSION; }); } catch (e) {}
 const UPDATE_KURZ = 'Neu: Die Akten-Historie l\u00e4dt schneller, die API meldet St\u00f6rungen sauber und Fehler werden stabiler abgefangen.';
