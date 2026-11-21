@@ -11220,7 +11220,7 @@ async function ladeEinladungen() {
         + '<span class="einl-rest">noch ' + rest + ' Tag' + (rest === 1 ? '' : 'e') + '</span>'
         + '</div>'
         + '<div class="einl-link-row">'
-        + '<input class="kyc-link-input" readonly value="' + url + '" onclick="this.select()" />'
+        + '<input class="kyc-link-input" readonly value="' + escapeHtml(url) + '" onclick="this.select()" />'   // v12.75 (K21-02)
         + '<button class="kyc-btn" onclick="einlKopieren(this)">Kopieren</button>'
         + '<button class="kyc-btn kyc-btn-mail" onclick="mailEinladung(\'' + e.id + '\')">' + mailIconSvg() + 'Nachricht senden</button>'
         + '<button class="kyc-btn kyc-btn-del" onclick="einlWiderrufen(\'' + e.id + '\')">Widerrufen</button>'
@@ -15914,7 +15914,7 @@ window.addEventListener('error', function(ev) {
 // Kleine Korrekturen ohne neue Funktionen: NEU_VERSION unveraendert lassen.
 // ============================================================
 const NEU_VERSION = 'v12.51';           // Stand der Neuigkeiten - nur erhoehen, wenn es wirklich Neues gibt
-const APP_VERSION = 'v12.74'; /* v12.74 (K15-02) */        // aktuelle Version (Anzeige im Bericht und oben im Kopf)
+const APP_VERSION = 'v12.75'; /* v12.75 (K21-01/K21-02) */        // aktuelle Version (Anzeige im Bericht und oben im Kopf)
 // v12.49 (Fix B, N18): Versionsanzeige im Kopf aus APP_VERSION fuellen (der Kopf steht vor diesem Skript im Dokument)
 try { document.querySelectorAll('.app-version').forEach(function(el){ el.textContent = APP_VERSION; }); } catch (e) {}
 const UPDATE_KURZ = 'Neu: Die Akten-Historie l\u00e4dt schneller, die API meldet St\u00f6rungen sauber und Fehler werden stabiler abgefangen.';
@@ -17775,7 +17775,7 @@ function urheberHTML(bilder, quelle) {
       teile.push(u ? '<a href="' + u + '" target="_blank" rel="noopener">' + escapeHtml(a.name) + '</a>' : escapeHtml(a.name));
     });
   });
-  return 'Bildquelle: ' + (quelle || 'Google Maps') + (teile.length ? ' \u00b7 Fotos: ' + teile.join(', ') : '');
+  return 'Bildquelle: ' + escapeHtml(quelle || 'Google Maps') + (teile.length ? ' \u00b7 Fotos: ' + teile.join(', ') : '');   // v12.75 (K21-01)
 }
 
 function galerieZeichnen(stand) {
@@ -18401,7 +18401,7 @@ function kycLinkHtml() {
             + '<div class="ref-hint">Nenne der Person diesen Code am Telefon. Sie sieht ihn auf der Upload-Seite \u2013 so wei\u00df sie sicher, dass der Link wirklich von dir stammt.</div></div>'
           : '')
       + '<div class="kyc-link-row">'
-      + '<input class="kyc-link-input" id="kycLinkInput" readonly value="' + url + '" onclick="this.select()" />'
+      + '<input class="kyc-link-input" id="kycLinkInput" readonly value="' + escapeHtml(url) + '" onclick="this.select()" />'   // v12.75 (K21-02)
       + '<button class="kyc-btn" onclick="kycLinkKopieren()">Kopieren</button>'
       + '<button class="kyc-btn kyc-btn-mail" onclick="mailUploadLink()">' + mailIconSvg() + 'Nachricht senden</button>'
       + '<button class="kyc-btn kyc-btn-del" onclick="kycLinkNeu()">Neu</button>'
