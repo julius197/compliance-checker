@@ -8817,7 +8817,7 @@ function bearbLeisteZeichnen() {
   const n = Object.keys(ERGAENZUNGEN).length;
   const bereit = (n > 0 || belegAnz > 0);
   const d = CURRENT_REPORT;
-  const fassung = d._fassung || 1;
+  const fassung = (isFinite(d._fassung) && Number(d._fassung)) || 1;   // v12.76 (K22-03): Fassungsnummer nur als Zahl
   const hinweisAlt = d._fassung_hinweis ? '<div class="bearb-fassung">Fassung ' + fassung + ' \u00b7 ' + escapeHtml(d._fassung_hinweis) + '</div>' : '';
 
   if (!BEARBEITEN_AN) {
@@ -9349,6 +9349,22 @@ function sichereUrl(u) {
 function sichereFarbe(f, standard) {
   return /^#[0-9a-f]{3}([0-9a-f]{3})?([0-9a-f]{2})?$/i.test(String(f || '').trim()) ? String(f).trim() : (standard || '#22C55E');
 }
+// v12.76 (K22-02) START
+// Status, Schweregrad und Scores aus dem Bericht (KI-Antwort oder gespeichertes report_json) werden beim Zeichnen geprueft statt vertraut.
+// sichereZahl: liefert nur eine endliche Zahl. Eine reine Ziffernfolge von 0 bis 100 (z. B. der Score "77" als Text aus einer KI-Antwort) wird
+// zur Zahl - es koennen nur Ziffern herauskommen; Zahl und Balken erscheinen wie bisher. Alles andere (Text, Liste, Objekt, true/false, NaN,
+// Infinity, leer) = null: die Aufrufer zeigen dann N/A. Benutzt in miniScore und showReport.
+function sichereZahl(v) {
+  if (typeof v === 'number') return Number.isFinite(v) ? v : null;
+  if (typeof v === 'string' && /^(?:\d{1,2}|100)$/.test(v)) return Number(v);
+  return null;
+}
+// sichereAuswahl: Wert nur aus einer festen Liste (Status in secCard, Schweregrad in phantomHTML), sonst der Ersatzwert.
+// Fuer ein class-Attribut reicht Maskieren nicht.
+function sichereAuswahl(v, erlaubt, ersatz) {
+  return (typeof v === 'string' && erlaubt.indexOf(v) >= 0) ? v : ersatz;
+}
+// v12.76 (K22-02) ENDE
 function hexToRgba(hex, a){ hex=(hex||'#22C55E').replace('#',''); if(hex.length===3) hex=hex.split('').map(function(c){return c+c;}).join(''); var n=parseInt(hex,16); return 'rgba('+((n>>16)&255)+','+((n>>8)&255)+','+(n&255)+','+a+')'; }
 
 function showBoot() { appAus(); const b = document.getElementById('bootGate'); if (b) b.classList.remove('hidden'); }
@@ -15103,7 +15119,7 @@ function sitzKarteHTML(d) {
   if (!z || !z.abweichung) return '';
   return '<div class="sitz-karte">'
     + '<div class="sitz-k-kopf"><span class="sitz-k-ico">!</span><span class="sitz-k-t">Sitz weicht ab</span>'
-    + '<span class="sitz-k-abzug">\u2212' + (z.abzug || SITZ_ABZUG) + ' Punkte</span></div>'
+    + '<span class="sitz-k-abzug">\u2212' + ((isFinite(z.abzug) && Number(z.abzug)) || SITZ_ABZUG) + ' Punkte</span></div>'   // v12.76 (K22-03): Abzug nur als Zahl
     + '<div class="sitz-k-grid">'
     + '<div><span class="sitz-k-l">Sitz (eingegeben)</span><b>' + escapeHtml(z.eingegeben) + '</b></div>'
     + '<div><span class="sitz-k-l">Sitz (laut ' + escapeHtml(z.quelleName || 'Quelle') + ')</span><b>' + escapeHtml(z.quelle) + '</b></div>'
@@ -15288,6 +15304,14 @@ async function runAnalysis(name, ust, land, sitz, auswahl) {
         report = JSON.parse(retryText); // wenn das auch fehlschlägt → catch unten
       }
     }
+    // v12.76 (K22-01) START
+    // Interne Felder kommen nur von der App: aus der KI-Antwort (alle drei Parse-Wege oben - direkt, lokal repariert, repair_json) werden ALLE
+    // eigenen Schluessel mit Praefix "_" sowie pruefId und pruef_id verworfen, bevor die App unten ihre eigenen Felder setzt. Sonst galten z. B.
+    // _sankGeprueft/_sanktionen aus der KI-Antwort wie ein eigener Sanktionsabgleich (kein RPC, gruene Karte "Kein Treffer").
+    // Kein einfaches Objekt (null, Liste, Text, Zahl): Fehlerweg wie bei nicht lesbarem JSON (catch unten).
+    if (!report || typeof report !== 'object' || Array.isArray(report)) throw new Error('KI-Antwort ist kein JSON-Objekt');
+    Object.keys(report).forEach(function(k){ if (k.charAt(0) === '_' || k === 'pruefId' || k === 'pruef_id') delete report[k]; });
+    // v12.76 (K22-01) ENDE
     report._standort = standortWert();
     report._sprache = (LANG === 'en') ? 'en' : 'de';      // v12.34: Sprache der KI-Texte (fuer PDFs in der anderen Sprache)
     const viesOk = !!(viesData && viesData.valid);
@@ -15497,6 +15521,7 @@ function scC(n) { if(!n) return 'var(--gray-l)'; return n>=75?'var(--ok-text)':n
 function barC(n){ if(!n) return 'bar-amber'; return n>=75?'bar-green':n>=50?'bar-amber':'bar-red'; }
 
 function miniScore(n) {
+  n = sichereZahl(n);   // v12.76 (K22-02): nur gepruefte Zahl, sonst wie null (N/A)
   if (n === null || n === undefined) {
     return `<div class="mini-score"><span class="mini-num na" style="color:var(--gray-l);font-size:12px;font-style:italic">N/A</span></div>`;
   }
@@ -15533,7 +15558,7 @@ function secCard(title, data, weight) {
   const rows = data.felder.map(f => {
     const na = isNA(f.value);
     // Status bestimmen: ok=grün, warn=orange, bad=rot, neutral/sonst=grau-grün
-    let status = na ? 'na' : (f.status || 'neutral');
+    let status = na ? 'na' : sichereAuswahl(f.status, ['ok', 'warn', 'bad', 'neutral', 'na'], 'neutral');   // v12.76 (K22-02)
     const cls = na ? 'na' : (status==='neutral' ? 'neutral' : status);
     const val = na ? 'N/A' : escapeHtml(f.value);
     // Farbiger Status-Punkt links für sofortige visuelle Erkennung
@@ -15592,7 +15617,7 @@ function phantomHTML(d) {
   if (!d.phantom || d.phantom.verdacht !== true) return '';
   if (registerFairnessAktiv(d) && phantomNurRegister(d)) return '';   // v12.35: nur Register fehlt, Identitaet ueber USt-ID belegt
   const indizien = (d.phantom.indizien || []).map(ind => {
-    const sw = ind.schwere || 'mittel';
+    const sw = sichereAuswahl(ind.schwere, ['hoch', 'mittel', 'niedrig'], 'mittel');   // v12.76 (K22-02)
     const swCls = sw==='hoch'?'schwere-hoch':sw==='niedrig'?'schwere-niedrig':'schwere-mittel';
     const src = (ind.source && !isNA(ind.source)) ? `<span class="phantom-indiz-src">${escapeHtml(ind.source)}</span>` : '';
     return `<div class="phantom-indiz">
@@ -15914,7 +15939,7 @@ window.addEventListener('error', function(ev) {
 // Kleine Korrekturen ohne neue Funktionen: NEU_VERSION unveraendert lassen.
 // ============================================================
 const NEU_VERSION = 'v12.51';           // Stand der Neuigkeiten - nur erhoehen, wenn es wirklich Neues gibt
-const APP_VERSION = 'v12.75'; /* v12.75 (K21-01/K21-02) */        // aktuelle Version (Anzeige im Bericht und oben im Kopf)
+const APP_VERSION = 'v12.76'; /* v12.76 (K22-01/K22-02/K22-03) */        // aktuelle Version (Anzeige im Bericht und oben im Kopf)
 // v12.49 (Fix B, N18): Versionsanzeige im Kopf aus APP_VERSION fuellen (der Kopf steht vor diesem Skript im Dokument)
 try { document.querySelectorAll('.app-version').forEach(function(el){ el.textContent = APP_VERSION; }); } catch (e) {}
 const UPDATE_KURZ = 'Neu: Die Akten-Historie l\u00e4dt schneller, die API meldet St\u00f6rungen sauber und Fehler werden stabiler abgefangen.';
@@ -16425,7 +16450,7 @@ function akteStammHTML(d) {
     + z('Pr\u00fcf-ID', escapeHtml(d.pruefId || ''))
     + z('Angelegt am', datum)
     + z('Angelegt von', d._api ? '<span class="api-badge">API</span> ' + escapeHtml('\u00fcber API \u00b7 ' + (d._api.schluessel || '') + (d._api.ref ? ' \u00b7 Ref. ' + d._api.ref : '')) : escapeHtml(d._name || d._email || ''))
-    + z('Fassung', d._fassung ? String(d._fassung) : '')
+    + z('Fassung', d._fassung ? escapeHtml(String(d._fassung)) : '')   // v12.76 (K22-03)
     + '</div>'
     + '<div class="st-fuss">Die Akte ist angelegt und in der \u00dcbersicht \u201eAkten &amp; Ordner\u201c abgelegt. Ordner-Zuordnung und \u00dcberwachung verwaltest du dort bzw. oben in der \u00dcbersicht.</div>'
     + '</div>';
@@ -18978,7 +19003,7 @@ function showReport(d, rawName, fromHistory, nichtSpeichern) {
   if (!fromHistory && !nichtSpeichern) { try { firmennameAbsichern(d, rawName); } catch (e) {} }   // v12.45: lateinischer Name
   // v12.68 (K06-06) ENDE
   // Sanktionslisten-Abgleich anstossen (laeuft im Hintergrund weiter)
-  try { sanktionenAbgleichen(d); } catch(e) {}
+  try { sanktionenAbgleichen(d, !fromHistory && !nichtSpeichern); } catch(e) {}   // v12.76 (K22-01): true nur bei einer frischen Pruefung
   // Ueberwachungs-Kasten im Bericht
   try { setTimeout(function(){ monBereichZeichnen(d); }, 120); } catch(e) {}
   try { setTimeout(function(){ bearbLeisteZeichnen(); }, 140); } catch(e) {}
@@ -19013,7 +19038,7 @@ function showReport(d, rawName, fromHistory, nichtSpeichern) {
   }
   d.datum = d.datum || new Date().toLocaleDateString('de-DE');
 
-  const metaParts = [d.datum];
+  const metaParts = [escapeHtml(d.datum)];   // v12.76 (K22-03)
   if (d._land) metaParts.push('Land: '+escapeHtml(d._land));
   if (sitzMeta(d)) metaParts.push(sitzMeta(d));
   if (d.ustId && d.ustId!=='null') metaParts.push('USt-ID: '+escapeHtml(d.ustId));
@@ -19051,6 +19076,12 @@ function showReport(d, rawName, fromHistory, nichtSpeichern) {
   scoreBerechnen(d);
   const sank = d.sanktion || {};
   const vIcon2 = d.verdict==='ok'?'✓':d.verdict==='bad'?'✕':'⚠';
+  // v12.76 (K22-02) START
+  // gesamtScore nur als gepruefte Zahl in Gauge, Zahl und Balken (sonst wie null: N/A, Breite 0); die Balkenbreite ist auf 0-100 begrenzt.
+  // d.gesamtScore selbst und die Regeln in scoreBerechnen bleiben unveraendert - geprueft wird nur beim Zeichnen (2 Zeilen im Template unten, Kreis-Ziel).
+  const gsZahl = sichereZahl(d.gesamtScore);
+  const gsBreite = Math.max(0, Math.min(100, gsZahl || 0));
+  // v12.76 (K22-02) ENDE
 
   document.getElementById('report').innerHTML = `
     ${banner}
@@ -19070,10 +19101,10 @@ function showReport(d, rawName, fromHistory, nichtSpeichern) {
     ${hochrisikoBlockHTML(d)}
     ${sitzKarteHTML(d)}
     <div class="score-card reveal">
-      <div class="gauge-wrap">${gauge(d.gesamtScore)}<div class="gauge-num"><span class="gauge-num-val" style="color:${d.gesamtScore?scC(d.gesamtScore):'var(--gray-l)'}">${d.gesamtScore||'N/A'}</span><span class="gauge-num-label">${d.gesamtScore?'/ 100':''}</span></div></div>
+      <div class="gauge-wrap">${gauge(gsZahl /* v12.76 (K22-02) */)}<div class="gauge-num"><span class="gauge-num-val" style="color:${gsZahl?scC(gsZahl):'var(--gray-l)'}">${gsZahl||'N/A'}</span><span class="gauge-num-label">${gsZahl?'/ 100':''}</span></div></div>
       <div class="score-right">
         <div class="score-title">Gesamt-Vertrauens-Score</div>
-        <div class="bar-track"><div class="bar-fill ${barC(d.gesamtScore)}" style="width:${d.gesamtScore||0}%"></div></div>
+        <div class="bar-track"><div class="bar-fill ${barC(gsZahl /* v12.76 (K22-02) */)}" style="width:${gsBreite}%"></div></div>
         <div class="score-desc">${escapeHtml((d.empfehlung && d.empfehlung.length > 20) ? d.empfehlung.split('.')[0] + '.' : (d.verdictText || 'Prüfung abgeschlossen') + '.')}</div>
         ${d._score_begruendung ? `<div class="score-rechnung" title="So setzt sich der Wert zusammen"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h3"/></svg>${escapeHtml(d._score_begruendung)}</div>` : ''}
       </div>
@@ -19175,7 +19206,7 @@ function showReport(d, rawName, fromHistory, nichtSpeichern) {
   // Score-Kreis: sofort im Endzustand (richtig fuer Druck und fuer den verdeckten Bereich).
   // Die Zaehl-Animation laeuft einmal, wenn die Analyse zum ersten Mal geoeffnet wird.
   AKTE.gaugeLief = false;
-  AKTE.gaugeZiel = (d.gesamtScore !== null && d.gesamtScore !== undefined && !isNaN(d.gesamtScore)) ? parseInt(d.gesamtScore) : null;
+  AKTE.gaugeZiel = (gsZahl !== null) ? parseInt(gsZahl) : null;   // v12.76 (K22-02) Nachbar Score-Kreis (DOM): Ziel nur aus der geprueften Zahl, sonst bleibt N/A stehen
   gaugeSetzen(AKTE.gaugeZiel);
 
   // Frisch erstellte Analyse in der Historie speichern (nicht beim erneuten Öffnen aus der Historie)
@@ -21095,7 +21126,16 @@ function sankNamePruefbar(name) {
 }
 // v12.67 (K06-04) ENDE
 
-async function sanktionenAbgleichen(d) {
+async function sanktionenAbgleichen(d, frisch) {   // v12.76 (K22-01)
+  // v12.76 (K22-01) START
+  // Fail-closed: Bei einer FRISCHEN Pruefung gibt es noch keinen eigenen Abgleich. Ein mitgebrachter Stand (_sankGeprueft/_sanktionen) stammt dann
+  // nicht von der App (z. B. aus der KI-Antwort) und gilt nie - er wird verworfen, bevor er gelesen, angezeigt oder mit der Akte gespeichert wird.
+  // Danach laeuft unten immer der echte Abgleich gegen die Liste. Gelingt er nicht vollstaendig (keine Verbindung, RPC-Fehler, Liste veraltet oder
+  // ohne Eintraege, kein Name), bleibt es beim bestehenden grauen Zustand bzw. der Ladeanzeige - nie "Kein Treffer".
+  // Einem gespeicherten Abgleich wird nur vertraut, wenn der Bericht aus der Historie kommt oder in dieser Sitzung bereits von der App
+  // abgeglichen wurde (frisch !== true: Oeffnen aus der Historie, Neubewertung, Neu-Zeichnen nach dem Score-Deckel) - dort Verhalten wie bisher.
+  if (frisch === true && d) { delete d._sankGeprueft; delete d._sanktionen; }
+  // v12.76 (K22-01) ENDE
   // v12.57 (K30-05) START
   // Server-Akte (API/Monitoring) mit ausgefallenem Abgleich (_sanktionen.fehler): ohne Sitzung (z. B. serverseitiges API-PDF) bleibt sonst
   // "Sanktionslisten werden abgeglichen" stehen. Hier ehrlich anzeigen: nicht geprueft - nie "kein Treffer".
@@ -21351,7 +21391,7 @@ function sanktionenAnzeigen(erg, anzahlNamen) {
       + '<span class="sank-k-t">Kein Treffer in der EU-Sanktionsliste</span></div>'
       + '<div class="sank-k-d">' + anzahlNamen + ' Name' + (anzahlNamen === 1 ? '' : 'n') + ' abgeglichen \u2013 das Unternehmen sowie alle im Bericht genannten Gesch\u00e4ftsf\u00fchrer, wirtschaftlich Berechtigten und Gesellschafter. '
       + 'Gepr\u00fcft gegen die konsolidierte Sanktionsliste der Europ\u00e4ischen Union'
-      + (standTxt ? ', Listenstand ' + standTxt : '') + ' (' + (erg.stand.eintraege || 0).toLocaleString('de-DE') + ' Eintr\u00e4ge).</div>'
+      + (standTxt ? ', Listenstand ' + standTxt : '') + ' (' + ((isFinite(erg.stand.eintraege) && Number(erg.stand.eintraege)) || 0).toLocaleString('de-DE') + ' Eintr\u00e4ge).</div>'   // v12.76 (K22-03): Eintraege nur als Zahl
       + geprueftListe + nachHinweis
       + sankRechtstexte()
       + '</div>';
@@ -21437,14 +21477,14 @@ function sanktionenAkteHtml(d) {
   const alleTreffer = s.treffer || [];
   const t = sankDeckelTreffer(alleTreffer);
   const tSchwach = alleTreffer.filter(function(x){ return x && t.indexOf(x) < 0; });
-  if (tSchwach.length && !t.length) return '<div class="sank-bereich">' + sankGelbKarte(s, s.geprueft || 0, standTxt, tSchwach, true) + '</div>';
+  if (tSchwach.length && !t.length) return '<div class="sank-bereich">' + sankGelbKarte(s, (isFinite(s.geprueft) && Number(s.geprueft)) || 0, standTxt, tSchwach, true) + '</div>';   // v12.76 (K22-03) Nachbar s.geprueft: nur als Zahl
 
   if (!t.length) {
     return '<div class="sank-bereich"><div class="sank-karte sank-k-gruen">'
       + '<div class="sank-k-kopf"><span class="sank-k-ico">\u2713</span>'
       + '<span class="sank-k-t">Kein Treffer in der EU-Sanktionsliste</span></div>'
-      + '<div class="sank-k-d">' + (s.geprueft || 0) + ' Name' + ((s.geprueft === 1) ? '' : 'n')
-      + ' abgeglichen. Listenstand ' + standTxt + ' (' + (s.stand.eintraege || 0).toLocaleString('de-DE') + ' Eintr\u00e4ge).</div>'
+      + '<div class="sank-k-d">' + ((isFinite(s.geprueft) && Number(s.geprueft)) || 0) + ' Name' + ((s.geprueft === 1) ? '' : 'n')   // v12.76 (K22-03) Nachbar s.geprueft: nur als Zahl
+      + ' abgeglichen. Listenstand ' + standTxt + ' (' + ((isFinite(s.stand.eintraege) && Number(s.stand.eintraege)) || 0).toLocaleString('de-DE') + ' Eintr\u00e4ge).</div>'   // v12.76 (K22-03): Eintraege nur als Zahl
       + sankRechtstexte() + '</div></div>';
   }
 
