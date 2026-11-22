@@ -15310,7 +15310,7 @@ async function runAnalysis(name, ust, land, sitz, auswahl) {
     // _sankGeprueft/_sanktionen aus der KI-Antwort wie ein eigener Sanktionsabgleich (kein RPC, gruene Karte "Kein Treffer").
     // Kein einfaches Objekt (null, Liste, Text, Zahl): Fehlerweg wie bei nicht lesbarem JSON (catch unten).
     if (!report || typeof report !== 'object' || Array.isArray(report)) throw new Error('KI-Antwort ist kein JSON-Objekt');
-    Object.keys(report).forEach(function(k){ if (k.charAt(0) === '_' || k === 'pruefId' || k === 'pruef_id') delete report[k]; });
+    Object.keys(report).forEach(function(k){ if (k === '_score_begruendung' && typeof report[k] === 'string') { report[k] = report[k].trim().slice(0, 220).replace(/[\uD800-\uDBFF]$/, ''); return; } if (k.charAt(0) === '_' || k === 'pruefId' || k === 'pruef_id') delete report[k]; });   /* Ausnahme: _score_begruendung fordert der Worker-Prompt an (QUELLEN_REGELWERK); bleibt nur als Text, ohne Rand-Leerzeichen, hoechstens 220 Zeichen (kein halbes Zeichenpaar am Schnitt); jeder andere Typ wird wie alle uebrigen _-Felder verworfen. Die Anzeige maskiert mit escapeHtml. */   // v12.76b (K22b-01)
     // v12.76 (K22-01) ENDE
     report._standort = standortWert();
     report._sprache = (LANG === 'en') ? 'en' : 'de';      // v12.34: Sprache der KI-Texte (fuer PDFs in der anderen Sprache)
@@ -15939,7 +15939,7 @@ window.addEventListener('error', function(ev) {
 // Kleine Korrekturen ohne neue Funktionen: NEU_VERSION unveraendert lassen.
 // ============================================================
 const NEU_VERSION = 'v12.51';           // Stand der Neuigkeiten - nur erhoehen, wenn es wirklich Neues gibt
-const APP_VERSION = 'v12.76'; /* v12.76 (K22-01/K22-02/K22-03) */        // aktuelle Version (Anzeige im Bericht und oben im Kopf)
+const APP_VERSION = 'v12.76b'; /* v12.76b (K22b-01..04) */        // aktuelle Version (Anzeige im Bericht und oben im Kopf)
 // v12.49 (Fix B, N18): Versionsanzeige im Kopf aus APP_VERSION fuellen (der Kopf steht vor diesem Skript im Dokument)
 try { document.querySelectorAll('.app-version').forEach(function(el){ el.textContent = APP_VERSION; }); } catch (e) {}
 const UPDATE_KURZ = 'Neu: Die Akten-Historie l\u00e4dt schneller, die API meldet St\u00f6rungen sauber und Fehler werden stabiler abgefangen.';
@@ -16467,9 +16467,9 @@ function gaugeSetzen(wert) {
   if (t.fill) {
     const r = parseFloat(t.fill.getAttribute('r')) || 44, circ = 2 * Math.PI * r;
     t.fill.style.transition = 'none';
-    t.fill.setAttribute('stroke-dasharray', (circ * wert / 100) + ' ' + circ);
+    t.fill.setAttribute('stroke-dasharray', (circ * Math.max(0, Math.min(100, wert)) / 100) + ' ' + circ);   // v12.76b (K22b-03)
   }
-  if (t.bar) { t.bar.style.transition = 'none'; t.bar.style.width = wert + '%'; }
+  if (t.bar) { t.bar.style.transition = 'none'; t.bar.style.width = Math.max(0, Math.min(100, wert)) + '%'; }   // v12.76b (K22b-03)
   if (t.num) t.num.textContent = wert;
 }
 // Einmal je Akte, beim ersten Oeffnen der Analyse
@@ -16486,8 +16486,8 @@ function gaugeAnimieren() {
   if (t.bar) { t.bar.style.transition = 'none'; t.bar.style.width = '0%'; }
   if (t.num) t.num.textContent = '0';
   setTimeout(function(){
-    if (t.fill) { t.fill.style.transition = 'stroke-dasharray 1.3s cubic-bezier(.16,1,.3,1)'; t.fill.setAttribute('stroke-dasharray', (circ * ziel / 100) + ' ' + circ); }
-    if (t.bar) { t.bar.style.transition = 'width 1.3s cubic-bezier(.16,1,.3,1)'; t.bar.style.width = ziel + '%'; }
+    if (t.fill) { t.fill.style.transition = 'stroke-dasharray 1.3s cubic-bezier(.16,1,.3,1)'; t.fill.setAttribute('stroke-dasharray', (circ * Math.max(0, Math.min(100, ziel)) / 100) + ' ' + circ); }   // v12.76b (K22b-03)
+    if (t.bar) { t.bar.style.transition = 'width 1.3s cubic-bezier(.16,1,.3,1)'; t.bar.style.width = Math.max(0, Math.min(100, ziel)) + '%'; }   // v12.76b (K22b-03)
     if (t.num) {
       const start = performance.now(), dauer = 1300;
       (function tick(now){
@@ -16505,7 +16505,7 @@ function akteAnsicht(key, ohneScroll) {
   const vorher = AKTE.ansicht;
   AKTE.ansicht = key;
   // Score-Kreis zuruecksetzen, BEVOR die Analyse sichtbar wird - sonst springt er
-  if (key === 'analyse' && !AKTE.gaugeLief) {
+  if (key === 'analyse' && !AKTE.gaugeLief && AKTE.gaugeZiel !== null) {   // v12.76b (K22b-04)
     const t = gaugeTeile();
     if (t.fill) { const r = parseFloat(t.fill.getAttribute('r')) || 44; t.fill.style.transition = 'none'; t.fill.setAttribute('stroke-dasharray', '0 ' + (2 * Math.PI * r)); }
     if (t.bar) { t.bar.style.transition = 'none'; t.bar.style.width = '0%'; }
@@ -16747,7 +16747,7 @@ function aktionenZeichnen() {
 function akteBereichText(key, st) {
   const d = CURRENT_REPORT || {};
   if (key === 'akte') return d._standort ? escapeHtml(d._standort) : 'Unternehmen & Pr\u00fcf-ID';
-  if (key === 'analyse') return (typeof d.gesamtScore === 'number') ? 'Score ' + d.gesamtScore : 'Bericht';
+  if (key === 'analyse') return Number.isFinite(d.gesamtScore) ? 'Score ' + d.gesamtScore : 'Bericht';   /* Nachbar: NaN ist vom Typ number - nie "Score NaN" */   // v12.76b (K22b-02)
   if (key === 'dokumente') { const doks = KYC.doks || {}; const n = ['ausweis','selfie','standort','beleg'].reduce(function(a,t){ return a + ((doks[t]||[]).length); }, 0); return n ? n + ' Datei' + (n === 1 ? '' : 'en') : 'keine Dateien'; }
   if (key === 'sanktion') return st === 'ok' ? 'abgeglichen' : 'nicht verf\u00fcgbar';
   if (key === 'endverbleib') return st === 'ok' ? 'unterschrieben' : 'nicht erforderlich';
@@ -18862,7 +18862,7 @@ function neuStatus(art, text) {
 async function neuBewerten(titel) {   // v12.70 (F2): titel optional (Statusanzeige)
   if (NEU_LAEUFT) { try { zeigeToast('Neubewertung l\u00e4uft bereits', 'Bitte warten, bis die laufende Bewertung fertig ist.'); } catch (e) {} return; }
   if (gesperrtMelden()) return;
-  const vorher = CURRENT_REPORT && typeof CURRENT_REPORT.gesamtScore === 'number' ? CURRENT_REPORT.gesamtScore : null;
+  const vorher = CURRENT_REPORT && Number.isFinite(CURRENT_REPORT.gesamtScore) ? CURRENT_REPORT.gesamtScore : null;   /* Nachbar: nie "Score NaN" in der Statusmeldung */   // v12.76b (K22b-02)
   NEU_LAEUFT = true; NEU_FEHLER = '';
   neuStatus('laeuft', titel);   // v12.70 (F2)
   try { nwZeichnen(); } catch (e) {}
@@ -18873,7 +18873,7 @@ async function neuBewerten(titel) {   // v12.70 (F2): titel optional (Statusanze
   try { nwZeichnen(); } catch (e) {}
   if (NEU_FEHLER) neuStatus('fehler', NEU_FEHLER);
   else if (!gestartet) neuStatus(null);
-  else neuStatus('fertig', 'Score ' + (vorher != null ? vorher + ' \u2192 ' : '') + (CURRENT_REPORT && CURRENT_REPORT.gesamtScore != null ? CURRENT_REPORT.gesamtScore : '\u2013') + ' \u00b7 Das Ergebnis wird angezeigt.');
+  else neuStatus('fertig', 'Score ' + (vorher != null ? vorher + ' \u2192 ' : '') + (CURRENT_REPORT && Number.isFinite(CURRENT_REPORT.gesamtScore) ? CURRENT_REPORT.gesamtScore : '\u2013') + ' \u00b7 Das Ergebnis wird angezeigt.');   /* Nachbar: nur eine endliche Zahl, sonst Strich */   // v12.76b (K22b-02)
 }
 
 // ============================================================
@@ -18881,7 +18881,7 @@ async function neuBewerten(titel) {   // v12.70 (F2): titel optional (Statusanze
 // Gleiche Werte und Farben wie in der Analyse: gesamtScore, gauge(), scC(), verdict - keine zweite Berechnung.
 // ============================================================
 function akteScoreHTML(d) {
-  const sc = (typeof d.gesamtScore === 'number') ? d.gesamtScore : null;
+  const sc = Number.isFinite(d.gesamtScore) ? d.gesamtScore : null;   // v12.76b (K22b-02)
   const v = /^(ok|warn|bad)$/.test(d.verdict) ? d.verdict : 'warn';
   const ico = v === 'ok' ? '\u2713' : v === 'bad' ? '\u2715' : '\u26A0';
   const roh = d._bewertetAm || d._createdAt || null;
@@ -21613,7 +21613,7 @@ function buildAkteAnalyse(d) {
   if (d._standort) meta.push('Eigener Standort: ' + escapeHtml(d._standort));
   if (d.pruefId) meta.push('Prüf-ID: ' + escapeHtml(d.pruefId));
   if (d._email) meta.push('Geprüft von ' + escapeHtml(d._email));
-  const score = (typeof d.gesamtScore === 'number') ? d.gesamtScore : null;
+  const score = Number.isFinite(d.gesamtScore) ? d.gesamtScore : null;   // v12.76b (K22b-02)
   const vIcon = d.verdict === 'ok' ? '✓' : d.verdict === 'bad' ? '✕' : '⚠';
   return '<div class="akte-analyse">'
     + '<div class="akte-firm-head">'
@@ -21775,7 +21775,7 @@ async function _akteDrucken(folderId) {
   const firma = (CURRENT_FIRMA && CURRENT_FIRMA.firma_name) ? CURRENT_FIRMA.firma_name : '';
   const toc = rows.map(function(r, i){
     const d = r.report_json || {};
-    const sc0 = (typeof d.gesamtScore === 'number') ? d.gesamtScore : (typeof r.score === 'number' ? r.score : null);
+    const sc0 = Number.isFinite(d.gesamtScore) ? d.gesamtScore : (Number.isFinite(r.score) ? r.score : null);   /* Nachbar: nie "NaN" im Inhaltsverzeichnis */   // v12.76b (K22b-02)
     const sc = anzeigeDeckelWert(sc0, d, null);   // v12.50 (N1): gedeckelter Wert im Inhaltsverzeichnis
     return '<div class="akte-toc-row"><span>' + (i+1) + '. ' + escapeHtml(nameAnzeige(d.firmenname || r.firmenname, d.firmennameOriginal).haupt || '\u2014')
       + ' <em class="akte-toc-st ' + (r.abgeschlossen_am ? 'zu' : 'offen') + '">' + (r.abgeschlossen_am ? 'abgeschlossen' : 'offen') + '</em></span>'
