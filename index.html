@@ -15014,7 +15014,7 @@ function scoreBerechnen(d) {
     const weightedSum = valid.reduce(function(a, w){ return a + w.score * w.weight; }, 0);
     computedScore = Math.round(weightedSum / totalWeight);
   }
-  d.gesamtScore = computedScore !== null ? computedScore : d.gesamtScore;
+  const sitzMarke = (computedScore === null && d._scoreSitz && typeof d._scoreSitz === 'object' && (d.gesamtScore === d._scoreSitz.ergebnis || Object.is(d.gesamtScore, d._scoreSitz.ergebnis))) ? d._scoreSitz : null; d.gesamtScore = computedScore !== null ? computedScore : (sitzMarke ? sitzMarke.basis : d.gesamtScore); const sitzBasis = d.gesamtScore;   /* ohne Kategorie-Zahl: steht in gesamtScore noch das EIGENE Ergebnis des letzten Aufrufs (Marke _scoreSitz.ergebnis, nach allen Deckeln), wird mit dem gemerkten Rohwert (basis, vor dem Sitz-Abzug) gerechnet statt erneut abzuziehen; jeder andere Wert gilt als neuer Rohwert. Mit Kategorie-Zahl wie bisher (Marke ohne Wirkung) */   // v12.76d (K22d-01)
   // SITZ-ABWEICHUNG (v12.2): Sitz laut Quelle passt nicht zum eingegebenen Ort -> Abzug (SITZ_ABZUG)
   if (d._sitz && d._sitz.abweichung && typeof d.gesamtScore === 'number') {
     d.gesamtScore = Math.max(0, d.gesamtScore - (d._sitz.abzug || SITZ_ABZUG));
@@ -15052,7 +15052,7 @@ function scoreBerechnen(d) {
     else if (d.gesamtScore >= 50) { d.verdict = 'warn'; d.verdictText = t('v_warn', 'Erhöhte Sorgfaltspflicht'); }
     else { d.verdict = 'bad'; d.verdictText = t('v_bad', 'Verstärkte Sorgfaltspflicht'); }
   }
-  return d;
+  if (computedScore === null && d._sitz && d._sitz.abweichung) d._scoreSitz = { basis: sitzBasis, ergebnis: d.gesamtScore }; return d;   /* Marke erst hier, NACH allen Deckeln (Phantom, Insolvenz, Sanktion/PEP): ergebnis = finaler gesamtScore, basis = Rohwert vor dem Sitz-Abzug; auch wenn der Abzug nicht greifen konnte (Rohwert null/Text, Deckel macht daraus eine Zahl). Bleibt in report_json (gespeichert, wieder geoeffnet; Neubewertung: der Worker kopiert den Bericht samt Marke) */   // v12.76d (K22d-01)
 }
 // ============ ENDE GEMEINSAME FUNKTIONEN ============
 
@@ -15939,7 +15939,7 @@ window.addEventListener('error', function(ev) {
 // Kleine Korrekturen ohne neue Funktionen: NEU_VERSION unveraendert lassen.
 // ============================================================
 const NEU_VERSION = 'v12.51';           // Stand der Neuigkeiten - nur erhoehen, wenn es wirklich Neues gibt
-const APP_VERSION = 'v12.76c'; /* v12.76c (K22c-01..02) */        // aktuelle Version (Anzeige im Bericht und oben im Kopf)
+const APP_VERSION = 'v12.76d'; /* v12.76d (K22d-01) */        // aktuelle Version (Anzeige im Bericht und oben im Kopf)
 // v12.49 (Fix B, N18): Versionsanzeige im Kopf aus APP_VERSION fuellen (der Kopf steht vor diesem Skript im Dokument)
 try { document.querySelectorAll('.app-version').forEach(function(el){ el.textContent = APP_VERSION; }); } catch (e) {}
 const UPDATE_KURZ = 'Neu: Die Akten-Historie l\u00e4dt schneller, die API meldet St\u00f6rungen sauber und Fehler werden stabiler abgefangen.';
