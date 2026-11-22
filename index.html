@@ -15939,7 +15939,7 @@ window.addEventListener('error', function(ev) {
 // Kleine Korrekturen ohne neue Funktionen: NEU_VERSION unveraendert lassen.
 // ============================================================
 const NEU_VERSION = 'v12.51';           // Stand der Neuigkeiten - nur erhoehen, wenn es wirklich Neues gibt
-const APP_VERSION = 'v12.76b'; /* v12.76b (K22b-01..04) */        // aktuelle Version (Anzeige im Bericht und oben im Kopf)
+const APP_VERSION = 'v12.76c'; /* v12.76c (K22c-01..02) */        // aktuelle Version (Anzeige im Bericht und oben im Kopf)
 // v12.49 (Fix B, N18): Versionsanzeige im Kopf aus APP_VERSION fuellen (der Kopf steht vor diesem Skript im Dokument)
 try { document.querySelectorAll('.app-version').forEach(function(el){ el.textContent = APP_VERSION; }); } catch (e) {}
 const UPDATE_KURZ = 'Neu: Die Akten-Historie l\u00e4dt schneller, die API meldet St\u00f6rungen sauber und Fehler werden stabiler abgefangen.';
@@ -16362,7 +16362,7 @@ function brancheKontoZeichnen() {
 // zu seinem Abschnitt. Sind alle Schritte erledigt, gilt die Akte
 // als vollstaendig abgesichert.
 // ============================================================
-let AKTE = { sankFertig: false, sankFehler: false, ansicht: 'akte', ansichtStart: null, gaugeZiel: null, gaugeLief: false };
+let AKTE = { sankFertig: false, sankFehler: false, ansicht: 'akte', ansichtStart: null, gaugeZiel: null, gaugeLief: false, gaugeLauf: 0 };   /* gaugeLauf: Laufnummer des Score-Kreises - jeder neue Bericht und jeder gaugeSetzen-/gaugeAnimieren-Lauf zaehlt hoch; ein aelterer Timer/rAF schreibt danach nicht mehr */   // v12.76c (K22c-02)
 
 const AKTE_SCHRITTE = [
   { n: 1, key: 'akte',     titel: 'Akte angelegt',          ziel: '.report-top' },
@@ -16462,7 +16462,7 @@ function gaugeTeile() {
   return { num: p.querySelector('.gauge-num-val'), fill: p.querySelector('.gauge-fill'), bar: p.querySelector('.bar-fill') };
 }
 function gaugeSetzen(wert) {
-  if (wert === null || wert === undefined) return;
+  AKTE.gaugeLauf++; if (wert === null || wert === undefined) return;   /* neuer Lauf (auch ohne Zahl): ein aelterer Animations-Timer/rAF schreibt danach nicht mehr */   // v12.76c (K22c-02)
   const t = gaugeTeile();
   if (t.fill) {
     const r = parseFloat(t.fill.getAttribute('r')) || 44, circ = 2 * Math.PI * r;
@@ -16475,7 +16475,7 @@ function gaugeSetzen(wert) {
 // Einmal je Akte, beim ersten Oeffnen der Analyse
 function gaugeAnimieren() {
   if (AKTE.gaugeLief || AKTE.gaugeZiel === null) return;
-  AKTE.gaugeLief = true;
+  AKTE.gaugeLief = true; const lauf = ++AKTE.gaugeLauf;   /* Laufnummer dieses Laufs: Timer und tick schreiben nur, solange kein neuer Lauf bzw. Bericht aktiv ist */   // v12.76c (K22c-02)
   const ziel = AKTE.gaugeZiel, t = gaugeTeile();
   if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) { gaugeSetzen(ziel); return; }
   let circ = 0;
@@ -16485,13 +16485,13 @@ function gaugeAnimieren() {
   }
   if (t.bar) { t.bar.style.transition = 'none'; t.bar.style.width = '0%'; }
   if (t.num) t.num.textContent = '0';
-  setTimeout(function(){
+  setTimeout(function(){ if (lauf !== AKTE.gaugeLauf) return;   /* veralteter Timer (inzwischen neuer Bericht bzw. neuer gaugeSetzen-/gaugeAnimieren-Lauf): keine Schreiboperation */   // v12.76c (K22c-02)
     if (t.fill) { t.fill.style.transition = 'stroke-dasharray 1.3s cubic-bezier(.16,1,.3,1)'; t.fill.setAttribute('stroke-dasharray', (circ * Math.max(0, Math.min(100, ziel)) / 100) + ' ' + circ); }   // v12.76b (K22b-03)
     if (t.bar) { t.bar.style.transition = 'width 1.3s cubic-bezier(.16,1,.3,1)'; t.bar.style.width = Math.max(0, Math.min(100, ziel)) + '%'; }   // v12.76b (K22b-03)
     if (t.num) {
       const start = performance.now(), dauer = 1300;
       (function tick(now){
-        const p = Math.min((now - start) / dauer, 1);
+        if (lauf !== AKTE.gaugeLauf) return; const p = Math.min((now - start) / dauer, 1);   /* veralteter rAF-Schritt: nicht schreiben, nicht weiterlaufen */   // v12.76c (K22c-02)
         t.num.textContent = Math.round((1 - Math.pow(1 - p, 3)) * ziel);
         if (p < 1) requestAnimationFrame(tick); else t.num.textContent = ziel;
       })(start);
@@ -19170,7 +19170,7 @@ function showReport(d, rawName, fromHistory, nichtSpeichern) {
   document.getElementById('report').classList.add('active');
   NW.modus = false; NW.gesamt = 0; NW.laeuft = 0;
   try { nwZeichnen(); } catch(e) {}
-  try { akteZeichnen(); akteAnsicht(AKTE.ansichtStart || 'akte', true); AKTE.ansichtStart = null; } catch(e) {}
+  AKTE.gaugeLauf++; AKTE.gaugeLief = false; AKTE.gaugeZiel = (gsZahl !== null) ? parseInt(gsZahl) : null; try { akteZeichnen(); akteAnsicht(AKTE.ansichtStart || 'akte', true); AKTE.ansichtStart = null; } catch(e) {}   /* neuer Bericht = neuer Lauf; Kreis-Ziel der NEUEN Fassung steht, BEVOR akteAnsicht die Analyse oeffnet (Neubewertung: vorher lief die Animation mit dem alten Ziel) */   // v12.76c (K22c-02)
   if (d && d.pruefId) initKyc(d.pruefId);
 
   // WASSERZEICHEN für Ausdrucke aufbauen (E-Mail + Zeitstempel + gespeicherte Prüf-ID)
@@ -21324,7 +21324,7 @@ function sanktionenAnzeigen(erg, anzahlNamen) {
     if (erg && Array.isArray(erg.treffer) && erg.treffer.length && CURRENT_REPORT && CURRENT_REPORT._sanktionen === erg) {
       const alt = CURRENT_REPORT.gesamtScore;
       scoreBerechnen(CURRENT_REPORT);
-      if (CURRENT_REPORT.gesamtScore !== alt) {
+      if ((Number.isFinite(CURRENT_REPORT.gesamtScore) || Number.isFinite(alt)) && CURRENT_REPORT.gesamtScore !== alt) {   /* NaN-/Nicht-Zahl-fest: zwei nicht-endliche Werte bzw. Nicht-Zahlen (NaN, Infinity, Text, null, undefined) = keine Aenderung (NaN !== NaN war immer wahr -> Endlos-Neuzeichnen); endlich <-> nicht-endlich und zwei verschiedene endliche Zahlen bleiben eine Aenderung */   // v12.76c (K22c-01)
         neuZeichnen = CURRENT_REPORT;   // v12.69 (K06-08): Neu-Zeichnen erst nach dem Kartenbau planen (finally unten)
       }
     }
