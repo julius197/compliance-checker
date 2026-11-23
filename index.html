@@ -15939,7 +15939,7 @@ window.addEventListener('error', function(ev) {
 // Kleine Korrekturen ohne neue Funktionen: NEU_VERSION unveraendert lassen.
 // ============================================================
 const NEU_VERSION = 'v12.51';           // Stand der Neuigkeiten - nur erhoehen, wenn es wirklich Neues gibt
-const APP_VERSION = 'v12.76d'; /* v12.76d (K22d-01) */        // aktuelle Version (Anzeige im Bericht und oben im Kopf)
+const APP_VERSION = 'v12.76e'; /* v12.76e (K22e-01) */        // aktuelle Version (Anzeige im Bericht und oben im Kopf)
 // v12.49 (Fix B, N18): Versionsanzeige im Kopf aus APP_VERSION fuellen (der Kopf steht vor diesem Skript im Dokument)
 try { document.querySelectorAll('.app-version').forEach(function(el){ el.textContent = APP_VERSION; }); } catch (e) {}
 const UPDATE_KURZ = 'Neu: Die Akten-Historie l\u00e4dt schneller, die API meldet St\u00f6rungen sauber und Fehler werden stabiler abgefangen.';
@@ -18981,7 +18981,7 @@ function showReport(d, rawName, fromHistory, nichtSpeichern) {
   document.getElementById('searchBtn').disabled = false;
 
   // Absicherung: fehlende Felder auffüllen, damit nie ein Crash entsteht
-  d = d || {};
+  d = d || {}; if (fromHistory === true) { try { const k22eS = d._sitz, k22eG = d.gesamtScore, k22eGd = d.grunddaten && d.grunddaten.score, k22eRa = registerFairnessAktiv(d) ? Math.max(0, Math.min(100, Number(d.grunddaten && d.grunddaten.registerAbzug) || 0)) : 0; if (!(d._scoreSitz && typeof d._scoreSitz === 'object') && k22eS && k22eS.abweichung && Number.isFinite(k22eG) && ![(typeof k22eGd === 'number' && k22eGd > 0 && k22eRa) ? Math.min(100, k22eGd + k22eRa) : k22eGd, d.personen && d.personen.score, d.kontakt && d.kontakt.score, d.reputation && d.reputation.score, d.finanzen && d.finanzen.score].some(function(s){ return typeof s === 'number' && s > 0; })) { const k22eA = k22eS.abzug || SITZ_ABZUG, k22eB = k22eG + Number(k22eA); if (Number.isFinite(k22eB) && Math.max(0, k22eB - k22eA) === k22eG) d._scoreSitz = { basis: k22eB, ergebnis: k22eG }; } } catch (e) {} }   /* Altakte aus der DB (fromHistory === true: _openFromHistory 20936, dupOeffnen 13372, apiPdfRender 11635): Sitz weicht ab, keine Kategorie-Zahl (dieselbe Bedingung wie computedScore === null in scoreBerechnen, inkl. registerAbzug bei grunddaten), gesamtScore endliche Zahl und noch keine Marke -> der gespeicherte gesamtScore ist schon bewertet: Marke _scoreSitz nur im Speicher ergaenzen (basis = gespeichert + Abzug, ergebnis = gespeichert), nur wenn der Sitz-Abzug aus basis genau den gespeicherten Wert ergibt; scoreBerechnen (19076) zieht dann nicht erneut ab, neue Deckel greifen weiter. Kein eigener Schreibzugriff. Frische Pruefung, Akten mit Marke oder mit Kategorie-Zahl wie v12.76d */   // v12.76e (K22e-01)
   // Prüf-ID, Zeitstempel und Ersteller schon BEIM ERSTELLEN festlegen (nicht erst beim Drucken),
   // damit Papier-Ausdruck und Online-Historie DIESELBE ID und dasselbe Datum zeigen.
   if (!d.pruefId) d.pruefId = generatePruefId();
